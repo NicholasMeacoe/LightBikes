@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.swp
+.vscode/
+.kiro/
+coverage/
+.specify/
+.gemini/
+.amazonq/
