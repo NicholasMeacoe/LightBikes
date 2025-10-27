@@ -147,6 +147,124 @@ describe('Game', () => {
         });
     });
 
+    describe('Pause Functionality', () => {
+        it('should initialize with isPaused as false', () => {
+            expect(game.isPaused).toBe(false);
+        });
+
+        it('should include pause state in getGameState', () => {
+            const gameState = game.getGameState();
+            expect(gameState.isPaused).toBe(false);
+            
+            game.pause();
+            const pausedState = game.getGameState();
+            expect(pausedState.isPaused).toBe(true);
+        });
+
+        it('should pause the game', () => {
+            game.pause();
+            expect(game.isPaused).toBe(true);
+        });
+
+        it('should resume the game', () => {
+            game.pause();
+            game.resume();
+            expect(game.isPaused).toBe(false);
+        });
+
+        it('should toggle pause state', () => {
+            expect(game.isPaused).toBe(false);
+            game.togglePause();
+            expect(game.isPaused).toBe(true);
+            game.togglePause();
+            expect(game.isPaused).toBe(false);
+        });
+
+        it('should skip updates when paused', () => {
+            const initialPlayer = { ...game.player };
+            const initialAI = { ...game.ai };
+            const initialFrameCount = game.frameCount;
+            
+            game.pause();
+            game.update();
+            
+            expect(game.player).toEqual(initialPlayer);
+            expect(game.ai).toEqual(initialAI);
+            expect(game.frameCount).toBe(initialFrameCount);
+            expect(game.playerTrail).toHaveLength(0);
+            expect(game.aiTrail).toHaveLength(0);
+        });
+
+        it('should resume updates after unpausing', () => {
+            game.pause();
+            game.update(); // Should not update
+            
+            game.resume();
+            game.update(); // Should update
+            
+            expect(game.player.x).toBeCloseTo(0.1);
+            expect(game.frameCount).toBe(1);
+            expect(game.playerTrail).toHaveLength(1);
+        });
+
+        it('should preserve game state during pause/resume cycles', () => {
+            // Advance game to create some state
+            advanceFrames(5);
+            const stateBeforePause = {
+                player: { ...game.player },
+                ai: { ...game.ai },
+                frameCount: game.frameCount,
+                playerTrailLength: game.playerTrail.length,
+                aiTrailLength: game.aiTrail.length
+            };
+            
+            // Pause and try to update
+            game.pause();
+            game.update();
+            game.update();
+            
+            // State should be preserved
+            expect(game.player).toEqual(stateBeforePause.player);
+            expect(game.ai).toEqual(stateBeforePause.ai);
+            expect(game.frameCount).toBe(stateBeforePause.frameCount);
+            expect(game.playerTrail).toHaveLength(stateBeforePause.playerTrailLength);
+            expect(game.aiTrail).toHaveLength(stateBeforePause.aiTrailLength);
+            
+            // Resume and verify updates continue
+            game.resume();
+            game.update();
+            expect(game.frameCount).toBe(stateBeforePause.frameCount + 1);
+        });
+
+        it('should handle multiple pause/resume cycles', () => {
+            for (let i = 0; i < 3; i++) {
+                game.pause();
+                expect(game.isPaused).toBe(true);
+                game.update(); // Should not update
+                
+                game.resume();
+                expect(game.isPaused).toBe(false);
+                game.update(); // Should update
+                expect(game.frameCount).toBe(i + 1);
+            }
+        });
+
+        it('should maintain pause state after restart', () => {
+            game.pause();
+            game.restart();
+            expect(game.isPaused).toBe(false); // Restart should reset pause state
+        });
+
+        it('should not update when both paused and game over', () => {
+            game.pause();
+            game.gameOver = true;
+            const initialFrameCount = game.frameCount;
+            
+            game.update();
+            expect(game.frameCount).toBe(initialFrameCount);
+        });
+    });
+
     describe('Edge Cases and Error Handling', () => {
         it('should handle very small movements', () => {
             const originalSpeed = 0.1;

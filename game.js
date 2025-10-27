@@ -3,6 +3,7 @@
 class Game {
     constructor() {
         this.bounds = 30;
+        this.isPaused = false;
         this.init();
     }
 
@@ -14,13 +15,15 @@ class Game {
             playerTrail: this.playerTrail,
             ai: this.ai,
             aiDirection: this.aiDirection,
-            aiTrail: this.aiTrail
+            aiTrail: this.aiTrail,
+            isPaused: this.isPaused
         };
     }
 
     init() {
         this.gameOver = false;
         this.frameCount = 0;
+        this.isPaused = false;
 
         this.player = { x: 0, y: 0, z: 0 };
         this.playerDirection = { x: 1, y: 0, z: 0 };
@@ -35,7 +38,7 @@ class Game {
     }
 
     update() {
-        if (this.gameOver) return;
+        if (this.gameOver || this.isPaused) return;
 
 
 
@@ -80,7 +83,17 @@ class Game {
         }
     }
 
+    pause() {
+        this.isPaused = true;
+    }
 
+    resume() {
+        this.isPaused = false;
+    }
+
+    togglePause() {
+        this.isPaused = !this.isPaused;
+    }
 
     restart() {
         this.init();
