@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Difficulty Selector Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .difficulty-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+            min-width: 44px;
+            min-height: 44px;
+        }
+        .difficulty-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .difficulty-btn.active {
+            background-color: rgba(0, 255, 255, 0.3);
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 255, 0, 0.2);
+            border-radius: 4px;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <h1>Difficulty Selector Functionality Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Data Attributes Present</h2>
+        <button class="difficulty-btn" data-level="easy">Easy</button>
+        <button class="difficulty-btn active" data-level="medium">Medium</button>
+        <button class="difficulty-btn" data-level="hard">Hard</button>
+        <div id="test1-status" class="status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Event Listeners</h2>
+        <p>Click buttons to test event handling:</p>
+        <button class="difficulty-btn test2" data-level="easy">Easy</button>
+        <button class="difficulty-btn test2 active" data-level="medium">Medium</button>
+        <button class="difficulty-btn test2" data-level="hard">Hard</button>
+        <div id="test2-status" class="status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Visual Feedback (Active State)</h2>
+        <p>Click buttons - active class should update within 100ms:</p>
+        <button class="difficulty-btn test3" data-level="easy">Easy</button>
+        <button class="difficulty-btn test3 active" data-level="medium">Medium</button>
+        <button class="difficulty-btn test3" data-level="hard">Hard</button>
+        <div id="test3-status" class="status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: LocalStorage Persistence</h2>
+        <p>Selected difficulty should persist in localStorage:</p>
+        <button class="difficulty-btn test4" data-level="easy">Easy</button>
+        <button class="difficulty-btn test4 active" data-level="medium">Medium</button>
+        <button class="difficulty-btn test4" data-level="hard">Hard</button>
+        <div id="test4-status" class="status"></div>
+        <button onclick="checkStorage()" style="margin-top: 10px; padding: 8px 16px;">Check Storage</button>
+    </div>
+
+    <script>
+        // Test 1: Check data attributes
+        function test1() {
+            const buttons = document.querySelectorAll('.test-section:nth-child(2) .difficulty-btn');
+            let allHaveDataLevel = true;
+            const levels = [];
+            
+            buttons.forEach(btn => {
+                const level = btn.getAttribute('data-level');
+                if (!level) {
+                    allHaveDataLevel = false;
+                } else {
+                    levels.push(level);
+                }
+            });
+            
+            const status = document.getElementById('test1-status');
+            if (allHaveDataLevel && levels.includes('easy') && levels.includes('medium') && levels.includes('hard')) {
+                status.textContent = '✓ PASS: All buttons have correct data-level attributes';
+                status.classList.remove('error');
+            } else {
+                status.textContent = '✗ FAIL: Missing or incorrect data-level attributes';
+                status.classList.add('error');
+            }
+        }
+
+        // Test 2: Event listeners
+        function test2() {
+            const buttons = document.querySelectorAll('.test2');
+            let clickCount = 0;
+            
+            buttons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    clickCount++;
+                    const level = e.target.getAttribute('data-level');
+                    const status = document.getElementById('test2-status');
+                    status.textContent = `✓ PASS: Click detected on ${level} button (${clickCount} total clicks)`;
+                    status.classList.remove('error');
+                });
+            });
+            
+            const status = document.getElementById('test2-status');
+            status.textContent = 'Event listeners attached. Click buttons to test.';
+        }
+
+        // Test 3: Visual feedback timing
+        function test3() {
+            const buttons = document.querySelectorAll('.test3');
+            
+            buttons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const startTime = performance.now();
+                    
+                    // Remove active from all
+                    buttons.forEach(b => b.classList.remove('active'));
+                    
+                    // Add active to clicked
+                    e.target.classList.add('active');
+                    
+                    const endTime = performance.now();
+                    const duration = endTime - startTime;
+                    
+                    const status = document.getElementById('test3-status');
+                    if (duration < 100) {
+                        status.textContent = `✓ PASS: Visual feedback applied in ${duration.toFixed(2)}ms (< 100ms requirement)`;
+                        status.classList.remove('error');
+                    } else {
+                        status.textContent = `✗ FAIL: Visual feedback took ${duration.toFixed(2)}ms (> 100ms requirement)`;
+                        status.classList.add('error');
+                    }
+                });
+            });
+        }
+
+        // Test 4: LocalStorage persistence
+        function test4() {
+            const buttons = document.querySelectorAll('.test4');
+            const storageKey = 'lightbikes_difficulty_test';
+            
+            buttons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const level = e.target.getAttribute('data-level');
+                    
+                    // Remove active from all
+                    buttons.forEach(b => b.classList.remove('active'));
+                    
+                    // Add active to clicked
+                    e.target.classList.add('active');
+                    
+                    // Save to localStorage
+                    try {
+                        localStorage.setItem(storageKey, level);
+                        const status = document.getElementById('test4-status');
+                        status.textContent = `✓ Saved "${level}" to localStorage`;
+                        status.classList.remove('error');
+                    } catch (error) {
+                        const status = document.getElementById('test4-status');
+                        status.textContent = `✗ FAIL: Could not save to localStorage: ${error.message}`;
+                        status.classList.add('error');
+                    }
+                });
+            });
+        }
+
+        function checkStorage() {
+            const storageKey = 'lightbikes_difficulty_test';
+            const status = document.getElementById('test4-status');
+            
+            try {
+                const saved = localStorage.getItem(storageKey);
+                if (saved) {
+                    status.textContent = `✓ PASS: Retrieved "${saved}" from localStorage`;
+                    status.classList.remove('error');
+                } else {
+                    status.textContent = 'No difficulty saved yet. Click a button first.';
+                }
+            } catch (error) {
+                status.textContent = `✗ FAIL: Could not read from localStorage: ${error.message}`;
+                status.classList.add('error');
+            }
+        }
+
+        // Run all tests on load
+        window.addEventListener('DOMContentLoaded', () => {
+            test1();
+            test2();
+            test3();
+            test4();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Count Selector Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+        }
+        .ai-count-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        .ai-count-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .ai-count-btn.active {
+            background-color: rgba(0, 255, 0, 0.3);
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 4px;
+        }
+        .success {
+            color: #00ff00;
+        }
+        .error {
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Count Selector Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Button Click Events</h2>
+        <p>Click each button to test event listeners:</p>
+        <button class="ai-count-btn active" data-count="1">1 AI</button>
+        <button class="ai-count-btn" data-count="2">2 AIs</button>
+        <button class="ai-count-btn" data-count="3">3 AIs</button>
+        <button class="ai-count-btn" data-count="4">4 AIs</button>
+        <div class="status" id="clickStatus">Click a button to test...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Visual Feedback (Active Class)</h2>
+        <p>Active button should have green glow:</p>
+        <div class="status" id="visualStatus">Waiting for button click...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: localStorage Persistence</h2>
+        <p>Selected count should persist after page reload:</p>
+        <div class="status" id="storageStatus">
+            <div>Current localStorage value: <span id="currentStorage">Not set</span></div>
+            <button onclick="checkStorage()" style="margin-top: 10px; padding: 8px 16px; cursor: pointer;">Check Storage</button>
+            <button onclick="clearStorage()" style="margin-top: 10px; padding: 8px 16px; cursor: pointer;">Clear Storage</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Data Attribute Extraction</h2>
+        <p>Verify data-count attribute is correctly extracted:</p>
+        <div class="status" id="dataStatus">Click a button to test...</div>
+    </div>
+
+    <script>
+        // Simulate the AI count selector functionality
+        let currentAICount = 1;
+
+        // Load from localStorage on init
+        try {
+            const savedAICount = localStorage.getItem('lightbikes_ai_count');
+            if (savedAICount !== null) {
+                const parsedCount = parseInt(savedAICount);
+                if (!isNaN(parsedCount) && parsedCount >= 1 && parsedCount <= 4) {
+                    currentAICount = parsedCount;
+                    updateAICountUI();
+                }
+            }
+        } catch (error) {
+            console.warn('Failed to load AI count from localStorage:', error);
+        }
+
+        // Add event listeners
+        const aiCountButtons = document.querySelectorAll('.ai-count-btn');
+        aiCountButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const selectedCount = parseInt(button.getAttribute('data-count'));
+                
+                // Test 1: Event listener works
+                document.getElementById('clickStatus').innerHTML = 
+                    `<span class="success">✓ Button clicked! Count: ${selectedCount}</span>`;
+                
+                // Test 4: Data attribute extraction
+                document.getElementById('dataStatus').innerHTML = 
+                    `<span class="success">✓ Data attribute extracted: ${selectedCount}</span>`;
+                
+                // Update AI count
+                setAICount(selectedCount);
+                
+                // Update UI
+                updateAICountUI();
+                
+                // Check storage
+                checkStorage();
+            });
+        });
+
+        function setAICount(count) {
+            const validatedCount = Math.max(1, Math.min(4, Math.floor(count)));
+            
+            if (validatedCount !== currentAICount) {
+                currentAICount = validatedCount;
+                
+                // Persist to localStorage
+                try {
+                    localStorage.setItem('lightbikes_ai_count', currentAICount.toString());
+                } catch (error) {
+                    console.warn('Failed to save AI count to localStorage:', error);
+                }
+            }
+        }
+
+        function updateAICountUI() {
+            const aiCountButtons = document.querySelectorAll('.ai-count-btn');
+            let activeFound = false;
+            
+            aiCountButtons.forEach(button => {
+                const buttonCount = parseInt(button.getAttribute('data-count'));
+                if (buttonCount === currentAICount) {
+                    button.classList.add('active');
+                    activeFound = true;
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+            
+            // Test 2: Visual feedback
+            if (activeFound) {
+                document.getElementById('visualStatus').innerHTML = 
+                    `<span class="success">✓ Active class applied to button ${currentAICount}</span>`;
+            } else {
+                document.getElementById('visualStatus').innerHTML = 
+                    `<span class="error">✗ No active button found</span>`;
+            }
+        }
+
+        function checkStorage() {
+            try {
+                const stored = localStorage.getItem('lightbikes_ai_count');
+                document.getElementById('currentStorage').textContent = stored || 'Not set';
+                
+                if (stored && parseInt(stored) === currentAICount) {
+                    document.getElementById('storageStatus').innerHTML = 
+                        `<div><span class="success">✓ localStorage value: ${stored}</span></div>
+                        <button onclick="checkStorage()" style="margin-top: 10px; padding: 8px 16px; cursor: pointer;">Check Storage</button>
+                        <button onclick="clearStorage()" style="margin-top: 10px; padding: 8px 16px; cursor: pointer;">Clear Storage</button>`;
+                }
+            } catch (error) {
+                document.getElementById('currentStorage').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        function clearStorage() {
+            try {
+                localStorage.removeItem('lightbikes_ai_count');
+                document.getElementById('currentStorage').textContent = 'Cleared';
+                currentAICount = 1;
+                updateAICountUI();
+            } catch (error) {
+                console.error('Failed to clear storage:', error);
+            }
+        }
+
+        // Initial check
+        checkStorage();
+        updateAICountUI();
+    </script>
+</body>
+</html>

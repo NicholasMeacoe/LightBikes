@@ -725,6 +725,12 @@ LightBikes/
 - Incremental trail rendering (only new segments)
 - Recent trail exclusion in AI whisker checks
 - Frame-based updates (no delta-time calculations)
+- **Neon Glow Effects Performance**:
+  - Automatic quality scaling based on frame rate monitoring
+  - Dynamic bloom resolution adjustment (1.0x to 0.25x)
+  - Performance scaler with 30-frame rolling average
+  - Mobile GPU detection with optimized defaults
+  - Memory leak prevention and resource cleanup
 
 ### Future Optimizations
 - Trail segment culling (remove distant segments)
@@ -732,6 +738,11 @@ LightBikes/
 - Spatial partitioning for collision detection
 - Web Worker for AI calculations
 - Instanced rendering for trails
+- **Advanced Glow Optimizations**:
+  - Selective bloom rendering (render layers)
+  - Temporal upsampling for bloom
+  - Adaptive quality based on scene complexity
+  - GPU memory usage monitoring
 
 ---
 
@@ -739,14 +750,273 @@ LightBikes/
 
 ### Current State
 - Client-side only (no server communication)
-- No user data storage
+- User preferences stored in localStorage only
 - No external API calls (except Three.js CDN)
+- **Glow Effects Security**:
+  - Settings validation and sanitization
+  - Safe fallback for corrupted localStorage data
+  - No external shader loading (uses built-in Three.js shaders)
+  - WebGL context isolation and error handling
 
 ### Future Considerations
 - Input validation for multiplayer
 - Anti-cheat for competitive play
 - Rate limiting for network requests
 - Secure WebSocket connections
+- **Advanced Security**:
+  - Shader validation for custom effects
+  - Resource usage limits for user-generated content
+  - Secure settings synchronization across devices
+
+---
+
+## Neon Glow Effects System
+
+### Overview
+
+The neon glow effects system transforms LightBikes into a visually stunning Tron-like experience by implementing a comprehensive post-processing pipeline. This system adds bloom effects, emissive materials, and subtle pulsing animations to create an immersive cyberpunk aesthetic while maintaining the game's 60 FPS performance target.
+
+### Architecture
+
+The glow effects system follows a modular architecture with clear separation of concerns:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  GlowEffectManager                          │
+│                 (Central Coordinator)                       │
+└────────┬────────────────────────────────────────────────────┘
+         │
+         ├──────────────┬──────────────┬──────────────┬────────────────┐
+         │              │              │              │                │
+         ▼              ▼              ▼              ▼                ▼
+┌─────────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│PostProcessing   │ │Emissive     │ │Performance  │ │GlowSettings │ │GlowSettings │
+│Pipeline         │ │Material     │ │Scaler       │ │             │ │UI           │
+│                 │ │System       │ │             │ │             │ │             │
+└─────────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
+```
+
+### Core Components
+
+#### GlowEffectManager
+**Responsibility**: Central coordinator for all glow-related functionality
+
+**Key Features**:
+- Manages initialization and lifecycle of all glow subsystems
+- Provides unified API for creating emissive materials
+- Handles WebGL compatibility checking with graceful fallback
+- Coordinates between post-processing, materials, and performance scaling
+- Implements comprehensive error handling and recovery
+
+**API**:
+```javascript
+class GlowEffectManager {
+    initialize(): boolean
+    update(deltaTime: number, gameState: Object): void
+    render(): void
+    setIntensity(level: string): boolean
+    createBikeMaterial(entityId: string, color: number): THREE.Material
+    createTrailMaterial(entityId: string, color: number): THREE.Material
+    dispose(): void
+}
+```
+
+#### PostProcessingPipeline
+**Responsibility**: Manages Three.js post-processing effects for bloom
+
+**Key Features**:
+- Three.js EffectComposer integration with RenderPass and UnrealBloomPass
+- Configurable bloom parameters (strength, threshold, radius)
+- Dynamic quality scaling for performance optimization
+- Window resize handling with proper buffer management
+
+**Configuration**:
+```javascript
+const bloomConfig = {
+    strength: 1.0,    // Bloom intensity (0-2.0)
+    radius: 0.4,      // Bloom spread (0-1.0)
+    threshold: 0.85   // Brightness threshold (0-1.0)
+};
+```
+
+#### EmissiveMaterialSystem
+**Responsibility**: Creates and manages emissive materials with pulse animations
+
+**Key Features**:
+- Creates emissive materials for bikes (intensity 0.8) and trails (intensity 0.6)
+- Synchronized pulsing animation (2.5 second cycle, 80%-100% intensity)
+- Global intensity multiplier for user preference control
+- Automatic material disposal and memory management
+
+**Material Hierarchy**:
+- **Bikes**: Higher emissive intensity for primary visual focus
+- **Trails**: Lower emissive intensity to maintain visual hierarchy
+
+#### PerformanceScaler
+**Responsibility**: Monitors performance and adjusts quality automatically
+
+**Key Features**:
+- Real-time frame rate monitoring with 30-frame rolling average
+- Automatic quality scaling with hysteresis to prevent oscillation
+- Dynamic adjustment system with performance-based fine-tuning
+- Recovery logic with exponential backoff for failed scaling attempts
+
+**Quality Levels**:
+```javascript
+const qualityLevels = {
+    high: { bloomResolution: 1.0, bloomStrength: 1.5, emissiveIntensity: 0.8 },
+    medium: { bloomResolution: 0.75, bloomStrength: 1.0, emissiveIntensity: 0.6 },
+    low: { bloomResolution: 0.5, bloomStrength: 0.7, emissiveIntensity: 0.4 },
+    minimal: { bloomResolution: 0.25, bloomStrength: 0.3, emissiveIntensity: 0.2 }
+};
+```
+
+### Integration with Existing Systems
+
+#### Renderer Integration
+The glow effects system integrates seamlessly with the existing RenderingEngine:
+
+```javascript
+// In renderer.js
+class RenderingEngine {
+    constructor(bounds) {
+        // ... existing setup
+        this.glowEffectManager = new GlowEffectManager(this.renderer, this.scene, this.camera);
+        this.glowEffectManager.initialize();
+    }
+    
+    draw(gameState) {
+        // Update glow effects
+        this.glowEffectManager.update(deltaTime, gameState);
+        
+        // Use glow materials for entities
+        const bikeMaterial = this.glowEffectManager.createBikeMaterial('player', 0x00ff00);
+        
+        // Render with glow effects
+        this.glowEffectManager.render();
+    }
+}
+```
+
+#### Game State Integration
+The system responds to game state changes:
+
+```javascript
+// Pause/resume handling
+if (gameState.isPaused) {
+    glowEffectManager.pausePulse();
+} else {
+    glowEffectManager.resumePulse();
+}
+
+// Game restart handling
+glowEffectManager.handleGameRestart();
+```
+
+### Performance Considerations
+
+#### Automatic Quality Scaling
+The system monitors frame rate and automatically adjusts quality:
+
+1. **Monitoring**: Tracks FPS over 30-frame window
+2. **Downscaling**: Triggers when FPS < 50 for 2+ seconds
+3. **Upscaling**: Attempts after 5+ seconds of good performance
+4. **Fallback**: Disables effects completely for critical performance
+
+#### Memory Management
+- Automatic material disposal when entities are removed
+- Texture cleanup to prevent memory leaks
+- Post-processing resource management
+- Memory monitoring in development mode
+
+#### Mobile Optimization
+- Mobile GPU detection with optimized settings
+- Reduced quality defaults for mobile devices
+- Aggressive performance scaling on mobile
+
+### Browser Compatibility
+
+#### WebGL Requirements
+- **Minimum**: WebGL 1.0 support
+- **Optimal**: WebGL 2.0 with required extensions
+- **Fallback**: Standard materials with slight emissive boost
+
+#### Compatibility Checking
+```javascript
+// WebGL support detection
+const webglSupported = checkWebGLSupport();
+if (!webglSupported) {
+    // Fall back to standard rendering
+    initializeFallbackRendering();
+}
+```
+
+#### Extension Requirements
+- `OES_texture_float` - For high-quality bloom
+- `OES_texture_half_float` - For performance optimization
+
+### User Configuration
+
+#### Intensity Levels
+Users can choose from four intensity levels:
+
+- **OFF**: Completely disables glow effects
+- **LOW**: Subtle glow for performance-conscious users
+- **MEDIUM**: Balanced glow (default setting)
+- **HIGH**: Maximum visual impact
+
+#### Settings Persistence
+- Settings stored in localStorage with backup system
+- Automatic migration for future updates
+- Graceful handling of corrupted data
+
+### Error Handling and Recovery
+
+#### Rendering Failure Recovery
+1. **Quality Reduction**: Lower bloom resolution/intensity
+2. **Post-processing Disable**: Keep emissive materials only
+3. **Fallback Mode**: Basic materials with slight emissive
+4. **Standard Rendering**: Final fallback to Three.js default
+
+#### Memory Leak Prevention
+- Automatic material disposal
+- Texture cleanup on entity removal
+- Post-processing resource management
+- Memory monitoring and alerts
+
+### Testing Strategy
+
+#### Unit Testing
+- Material creation and management
+- Pulse animation timing and synchronization
+- Performance scaling logic and thresholds
+- Settings persistence and validation
+
+#### Integration Testing
+- Post-processing pipeline integration
+- Game state handling (pause/resume)
+- Performance impact measurement
+- Cross-browser compatibility
+
+#### Performance Testing
+- Frame rate monitoring under various loads
+- Memory usage tracking during extended gameplay
+- Quality scaling effectiveness validation
+- Mobile device performance verification
+
+### Future Enhancements
+
+#### Planned Features
+- Additional bloom effects (lens flare, light streaks)
+- Particle system integration for enhanced visuals
+- Custom shader support for advanced effects
+- VR/AR compatibility for immersive experiences
+
+#### Extension Points
+- Custom material factories for different visual styles
+- Pluggable post-processing effects
+- User-defined intensity curves
+- Theme-based glow configurations
 
 ---
 
@@ -758,5 +1028,6 @@ This modular architecture provides:
 - **Extensibility**: Easy to add features without breaking existing code
 - **Scalability**: Can grow to support multiplayer, power-ups, etc.
 - **Readability**: Well-defined interfaces and data flow
+- **Visual Excellence**: Stunning neon glow effects that enhance the gaming experience
 
-The design follows SOLID principles and provides multiple extension points for future development while maintaining a clean, understandable codebase.
+The design follows SOLID principles and provides multiple extension points for future development while maintaining a clean, understandable codebase. The addition of the neon glow effects system demonstrates how new features can be integrated seamlessly into the existing architecture without disrupting core functionality.

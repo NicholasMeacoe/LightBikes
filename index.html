@@ -1,6 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LightBikes 3D</title>
     <style>
         body { margin: 0; }
@@ -85,15 +88,1250 @@
         #resumeButton:hover {
             background-color: rgba(255, 255, 255, 0.4);
         }
+        #muteButton {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            z-index: 100;
+            min-width: 44px;
+            min-height: 44px;
+        }
+        #muteButton:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        #muteButton.muted {
+            background-color: rgba(255, 0, 0, 0.3);
+            border-color: #ff6666;
+        }
+        #performanceButton {
+            position: absolute;
+            top: 100px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            z-index: 100;
+            min-width: 44px;
+            min-height: 44px;
+        }
+        #performanceButton:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        #performanceButton.active {
+            background-color: rgba(255, 165, 0, 0.3);
+            border-color: #ff8c00;
+        }
+        #difficultySelector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 2px solid white;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-family: Arial, sans-serif;
+            z-index: 100;
+            min-width: 200px;
+        }
+        #aiCountSelector {
+            position: absolute;
+            top: 20px;
+            right: 240px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 2px solid white;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-family: Arial, sans-serif;
+            z-index: 100;
+            min-width: 180px;
+        }
+        #difficultySelector h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+            text-align: center;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .difficulty-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .difficulty-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            text-align: left;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .difficulty-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        .difficulty-btn.active {
+            background-color: rgba(0, 255, 255, 0.3);
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        .level-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .level-desc {
+            font-size: 0.8em;
+            opacity: 0.8;
+            line-height: 1.2;
+        }
+        .ai-count-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .ai-count-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            text-align: left;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .ai-count-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        .ai-count-btn.active {
+            background-color: rgba(0, 255, 0, 0.3);
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+        .count-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .count-desc {
+            font-size: 0.8em;
+            opacity: 0.8;
+            line-height: 1.2;
+        }
+        #particleSettingsButton {
+            position: absolute;
+            top: 180px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            z-index: 100;
+            min-width: 44px;
+            min-height: 44px;
+        }
+        #particleSettingsButton:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        #particleSettingsButton.active {
+            background-color: rgba(255, 215, 0, 0.3);
+            border-color: #ffd700;
+        }
+        #glowSettingsButton {
+            position: absolute;
+            top: 260px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            z-index: 100;
+            min-width: 44px;
+            min-height: 44px;
+        }
+        #glowSettingsButton:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        #glowSettingsButton.active {
+            background-color: rgba(0, 255, 255, 0.3);
+            border-color: #00ffff;
+        }
+        #cameraEffectsButton {
+            position: absolute;
+            top: 340px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            z-index: 100;
+            min-width: 44px;
+            min-height: 44px;
+        }
+        #cameraEffectsButton:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        #cameraEffectsButton.active {
+            background-color: rgba(255, 0, 255, 0.3);
+            border-color: #ff00ff;
+        }
+        #musicSettingsButton {
+            position: absolute;
+            top: 420px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            z-index: 100;
+            min-width: 44px;
+            min-height: 44px;
+        }
+        #musicSettingsButton:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        #musicSettingsButton.active {
+            background-color: rgba(0, 255, 0, 0.3);
+            border-color: #00ff00;
+        }
+        #particleSettingsPanel {
+            position: absolute;
+            top: 20px;
+            left: 100px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 2px solid white;
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            font-family: Arial, sans-serif;
+            z-index: 200;
+            min-width: 300px;
+            max-width: 400px;
+            display: none;
+        }
+        #particleSettingsPanel h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.4em;
+            text-align: center;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .settings-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .settings-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .settings-section h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            color: #00ffff;
+        }
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .setting-label {
+            font-size: 0.9em;
+            flex: 1;
+        }
+        .setting-control {
+            flex: 0 0 auto;
+            margin-left: 15px;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .toggle-switch.active {
+            background-color: rgba(0, 255, 255, 0.6);
+        }
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(26px);
+        }
+        .quality-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .quality-btn {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+            font-size: 0.8em;
+            text-align: center;
+        }
+        .quality-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .quality-btn.active {
+            background-color: rgba(0, 255, 255, 0.4);
+            border-color: #00ffff;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .settings-slider {
+            flex: 1;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+        }
+        .settings-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background-color: #00ffff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .settings-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background-color: #00ffff;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+        }
+        .slider-value {
+            font-size: 0.8em;
+            min-width: 40px;
+            text-align: right;
+            color: #00ffff;
+        }
+        .settings-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .settings-btn {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        .settings-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .settings-btn.primary {
+            background-color: rgba(0, 255, 255, 0.3);
+            border-color: #00ffff;
+        }
+        .settings-btn.primary:hover {
+            background-color: rgba(0, 255, 255, 0.5);
+        }
+        #glowSettingsPanel {
+            position: absolute;
+            top: 20px;
+            left: 100px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 2px solid white;
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            font-family: Arial, sans-serif;
+            z-index: 200;
+            min-width: 300px;
+            max-width: 400px;
+            display: none;
+        }
+        #glowSettingsPanel h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.4em;
+            text-align: center;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .glow-intensity-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .glow-intensity-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 12px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            text-align: left;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .glow-intensity-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        .glow-intensity-btn.active {
+            background-color: rgba(0, 255, 255, 0.3);
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        .glow-intensity-btn.off {
+            background-color: rgba(128, 128, 128, 0.2);
+            border-color: rgba(128, 128, 128, 0.5);
+        }
+        .glow-intensity-btn.off.active {
+            background-color: rgba(128, 128, 128, 0.4);
+            border-color: #888888;
+            box-shadow: 0 0 15px rgba(128, 128, 128, 0.5);
+        }
+        .intensity-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .intensity-desc {
+            font-size: 0.8em;
+            opacity: 0.8;
+            line-height: 1.2;
+        }
+        .glow-preview {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            text-align: center;
+        }
+        .glow-preview-text {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            color: #cccccc;
+        }
+        .glow-preview-indicator {
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(90deg, #000000 0%, #333333 25%, #666666 50%, #999999 75%, #ffffff 100%);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .glow-preview-level {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #ffffff);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        #cameraEffectsPanel {
+            position: absolute;
+            top: 20px;
+            left: 100px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 2px solid white;
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            font-family: Arial, sans-serif;
+            z-index: 200;
+            min-width: 300px;
+            max-width: 400px;
+            display: none;
+        }
+        #cameraEffectsPanel h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.4em;
+            text-align: center;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .shake-intensity-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .shake-intensity-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 12px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            text-align: left;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .shake-intensity-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        .shake-intensity-btn.active {
+            background-color: rgba(255, 0, 255, 0.3);
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        }
+        .shake-intensity-btn.off {
+            background-color: rgba(128, 128, 128, 0.2);
+            border-color: rgba(128, 128, 128, 0.5);
+        }
+        .shake-intensity-btn.off.active {
+            background-color: rgba(128, 128, 128, 0.4);
+            border-color: #888888;
+            box-shadow: 0 0 15px rgba(128, 128, 128, 0.5);
+        }
+        .accessibility-warning {
+            background-color: rgba(255, 165, 0, 0.2);
+            border: 1px solid rgba(255, 165, 0, 0.5);
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.85em;
+            color: #ffcc99;
+            display: none;
+        }
+        .accessibility-warning.show {
+            display: block;
+        }
+        
+        /* Color Picker Styles */
+        .color-picker-container {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .color-picker-container:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .color-picker-title {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            color: #00ffff;
+        }
+        .color-presets {
+            margin-bottom: 15px;
+        }
+        .color-presets-label {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            color: #cccccc;
+        }
+        .color-presets-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        .color-preset-btn {
+            width: 60px;
+            height: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 2px;
+        }
+        .color-preset-btn:hover {
+            border-color: rgba(255, 255, 255, 0.8);
+            transform: scale(1.05);
+        }
+        .color-preset-btn.selected {
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        .color-preset-label {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 0.7em;
+            padding: 1px 3px;
+            border-radius: 2px;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+        }
+        .color-custom {
+            margin-bottom: 15px;
+        }
+        .color-custom-label {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            color: #cccccc;
+        }
+        .color-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .color-hex-input {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+            transition: border-color 0.3s;
+        }
+        .color-hex-input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+        }
+        .color-hex-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .color-preview {
+            width: 40px;
+            height: 32px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+        .color-live-preview {
+            margin-top: 10px;
+        }
+        .color-preview-label {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            color: #cccccc;
+        }
+        .color-preview-display {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            color: #aaaaaa;
+            font-style: italic;
+        }
+        .contrast-warning {
+            background-color: rgba(255, 165, 0, 0.2);
+            border: 1px solid rgba(255, 165, 0, 0.5);
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: #ffcc99;
+            display: none;
+        }
+        .color-picker-container.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        /* Music Settings Panel Styles */
+        #musicSettingsPanel {
+            position: absolute;
+            top: 20px;
+            left: 100px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 2px solid white;
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            font-family: Arial, sans-serif;
+            z-index: 200;
+            min-width: 300px;
+            max-width: 400px;
+            display: none;
+        }
+        #musicSettingsPanel h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.4em;
+            text-align: center;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .track-selection-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .track-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 12px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            text-align: left;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .track-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        .track-btn.active {
+            background-color: rgba(0, 255, 0, 0.3);
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+        .track-btn.none {
+            background-color: rgba(128, 128, 128, 0.2);
+            border-color: rgba(128, 128, 128, 0.5);
+        }
+        .track-btn.none.active {
+            background-color: rgba(128, 128, 128, 0.4);
+            border-color: #888888;
+            box-shadow: 0 0 15px rgba(128, 128, 128, 0.5);
+        }
+        .track-name {
+            font-size: 1.0em;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .track-desc {
+            font-size: 0.8em;
+            opacity: 0.8;
+            line-height: 1.2;
+        }
+        .music-volume-control {
+            margin: 15px 0;
+        }
+        .music-volume-label {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            color: #cccccc;
+        }
+        .music-volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .music-volume-slider {
+            flex: 1;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+        }
+        .music-volume-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background-color: #00ff00;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .music-volume-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background-color: #00ff00;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+        }
+        .music-volume-value {
+            font-size: 0.8em;
+            min-width: 40px;
+            text-align: right;
+            color: #00ff00;
+        }
+        .music-status {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        .music-status-label {
+            color: #cccccc;
+            margin-bottom: 5px;
+        }
+        .music-status-value {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        .music-status-value.stopped {
+            color: #ff6666;
+        }
+        .music-status-value.paused {
+            color: #ffaa00;
+        }
+        
+        /* Trail Style and Theme Button Styles */
+        .trail-style-btn, .theme-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 12px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            text-align: left;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .trail-style-btn:hover, .theme-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        .trail-style-btn.active, .theme-btn.active {
+            background-color: rgba(255, 192, 203, 0.3);
+            border-color: #ffc0cb;
+            box-shadow: 0 0 15px rgba(255, 192, 203, 0.5);
+        }
+        .style-name, .theme-name {
+            font-size: 1.0em;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .style-desc, .theme-desc {
+            font-size: 0.8em;
+            opacity: 0.8;
+            line-height: 1.2;
+        }
+        
+        /* Icon fallback styles */
+        .icon-emoji {
+            display: inline-block;
+        }
+        .icon-fallback {
+            display: none;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .no-emoji-support .icon-emoji {
+            display: none;
+        }
+        .no-emoji-support .icon-fallback {
+            display: inline-block !important;
+        }
     </style>
 </head>
 <body>
     <div id="gameOver">Game Over</div>
     <div id="restart">Restart</div>
+    <div id="muteButton" title="Toggle Audio"><span class="icon-emoji">🔊</span><span class="icon-fallback" style="display:none;">Audio</span></div>
+    <div id="performanceButton" title="Toggle Performance Mode"><span class="icon-emoji">⚡</span><span class="icon-fallback" style="display:none;">Perf</span></div>
+    <div id="particleSettingsButton" title="Particle Settings"><span class="icon-emoji">✨</span><span class="icon-fallback" style="display:none;">FX</span></div>
+    <div id="glowSettingsButton" title="Glow Effects Settings"><span class="icon-emoji">💫</span><span class="icon-fallback" style="display:none;">Glow</span></div>
+    <div id="cameraEffectsButton" title="Camera Effects Settings"><span class="icon-emoji">📹</span><span class="icon-fallback" style="display:none;">Cam</span></div>
+    <div id="musicSettingsButton" title="Music Settings"><span class="icon-emoji">🎵</span><span class="icon-fallback" style="display:none;">Music</span></div>
+    <div id="aiCountSelector">
+        <h3>AI Opponents</h3>
+        <div class="ai-count-options">
+            <button class="ai-count-btn active" data-count="1">
+                <span class="count-name">1 AI</span>
+                <span class="count-desc">Classic single opponent</span>
+            </button>
+            <button class="ai-count-btn" data-count="2">
+                <span class="count-name">2 AIs</span>
+                <span class="count-desc">Moderate challenge</span>
+            </button>
+            <button class="ai-count-btn" data-count="3">
+                <span class="count-name">3 AIs</span>
+                <span class="count-desc">High intensity</span>
+            </button>
+            <button class="ai-count-btn" data-count="4">
+                <span class="count-name">4 AIs</span>
+                <span class="count-desc">Maximum chaos</span>
+            </button>
+        </div>
+    </div>
+    <div id="difficultySelector">
+        <h3>Difficulty Level</h3>
+        <div class="difficulty-options">
+            <button class="difficulty-btn" data-level="easy">
+                <span class="level-name">Easy</span>
+                <span class="level-desc">Slower AI, more predictable behavior</span>
+            </button>
+            <button class="difficulty-btn active" data-level="medium">
+                <span class="level-name">Medium</span>
+                <span class="level-desc">Balanced gameplay experience</span>
+            </button>
+            <button class="difficulty-btn" data-level="hard">
+                <span class="level-name">Hard</span>
+                <span class="level-desc">Faster AI, more challenging gameplay</span>
+            </button>
+        </div>
+    </div>
     <div id="pauseOverlay">
         <div id="pauseText">PAUSED</div>
         <div id="resumeButton">Resume</div>
     </div>
+    <div id="particleSettingsPanel">
+        <h3>Particle Effects Settings</h3>
+        
+        <div class="settings-section">
+            <h4>General</h4>
+            <div class="setting-row">
+                <span class="setting-label">Enable Particle Effects</span>
+                <div class="setting-control">
+                    <div class="toggle-switch active" id="particleEnabledToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Quality Level</span>
+                <div class="setting-control">
+                    <div class="quality-buttons">
+                        <button class="quality-btn" data-quality="low">Low</button>
+                        <button class="quality-btn active" data-quality="medium">Medium</button>
+                        <button class="quality-btn" data-quality="high">High</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h4>Effect Types</h4>
+            <div class="setting-row">
+                <span class="setting-label">Trail Sparks</span>
+                <div class="setting-control">
+                    <div class="toggle-switch active" id="trailSparksToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Explosions</span>
+                <div class="setting-control">
+                    <div class="toggle-switch active" id="explosionsToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Collection Effects</span>
+                <div class="setting-control">
+                    <div class="toggle-switch active" id="collectionsToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h4>Performance</h4>
+            <div class="setting-row">
+                <span class="setting-label">Particle Density</span>
+                <div class="setting-control">
+                    <div class="slider-container">
+                        <input type="range" class="settings-slider" id="particleDensitySlider" 
+                               min="0.1" max="3.0" step="0.1" value="1.0">
+                        <span class="slider-value" id="particleDensityValue">100%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Max Particles</span>
+                <div class="setting-control">
+                    <div class="slider-container">
+                        <input type="range" class="settings-slider" id="maxParticlesSlider" 
+                               min="25" max="500" step="25" value="200">
+                        <span class="slider-value" id="maxParticlesValue">200</span>
+                    </div>
+                </div>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Adaptive Quality</span>
+                <div class="setting-control">
+                    <div class="toggle-switch active" id="adaptiveQualityToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-buttons">
+            <button class="settings-btn" id="resetParticleSettings">Reset</button>
+            <button class="settings-btn primary" id="closeParticleSettings">Close</button>
+        </div>
+    </div>
+
+    <div id="glowSettingsPanel">
+        <h3>Neon Glow Effects</h3>
+        
+        <div class="settings-section">
+            <h4>Intensity Level</h4>
+            <div class="glow-intensity-buttons">
+                <button class="glow-intensity-btn off" data-intensity="OFF">
+                    <span class="intensity-name">Off</span>
+                    <span class="intensity-desc">Disable all glow effects</span>
+                </button>
+                <button class="glow-intensity-btn" data-intensity="LOW">
+                    <span class="intensity-name">Low</span>
+                    <span class="intensity-desc">Subtle glow for better performance</span>
+                </button>
+                <button class="glow-intensity-btn active" data-intensity="MEDIUM">
+                    <span class="intensity-name">Medium</span>
+                    <span class="intensity-desc">Balanced visual quality</span>
+                </button>
+                <button class="glow-intensity-btn" data-intensity="HIGH">
+                    <span class="intensity-name">High</span>
+                    <span class="intensity-desc">Maximum glow intensity</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h4>Preview</h4>
+            <div class="glow-preview">
+                <div class="glow-preview-text">Current Intensity: <span id="currentIntensityLabel">Medium</span></div>
+                <div class="glow-preview-indicator">
+                    <div class="glow-preview-level" id="glowPreviewLevel" style="width: 60%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-buttons">
+            <button class="settings-btn" id="resetGlowSettings">Reset</button>
+            <button class="settings-btn primary" id="closeGlowSettings">Close</button>
+        </div>
+    </div>
+
+    <div id="cameraEffectsPanel">
+        <h3>Camera Effects Settings</h3>
+        
+        <div class="accessibility-warning" id="accessibilityWarning">
+            ⚠️ Camera effects are disabled due to accessibility preferences or reduced motion settings.
+        </div>
+        
+        <div class="settings-section">
+            <h4>Camera Shake</h4>
+            <div class="shake-intensity-buttons">
+                <button class="shake-intensity-btn off" data-intensity="0">
+                    <span class="intensity-name">Off</span>
+                    <span class="intensity-desc">Disable camera shake effects</span>
+                </button>
+                <button class="shake-intensity-btn" data-intensity="0.5">
+                    <span class="intensity-name">Low</span>
+                    <span class="intensity-desc">Subtle shake for collisions</span>
+                </button>
+                <button class="shake-intensity-btn active" data-intensity="1.0">
+                    <span class="intensity-name">Medium</span>
+                    <span class="intensity-desc">Balanced shake intensity</span>
+                </button>
+                <button class="shake-intensity-btn" data-intensity="2.0">
+                    <span class="intensity-name">High</span>
+                    <span class="intensity-desc">Maximum shake intensity</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h4>Motion Blur</h4>
+            <div class="setting-row">
+                <span class="setting-label">Enable Motion Blur</span>
+                <div class="setting-control">
+                    <div class="toggle-switch active" id="motionBlurToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Quality Level</span>
+                <div class="setting-control">
+                    <div class="quality-buttons">
+                        <button class="quality-btn" data-quality="low">Low</button>
+                        <button class="quality-btn active" data-quality="medium">Medium</button>
+                        <button class="quality-btn" data-quality="high">High</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h4>Accessibility</h4>
+            <div class="setting-row">
+                <span class="setting-label">Accessibility Mode</span>
+                <div class="setting-control">
+                    <div class="toggle-switch" id="accessibilityModeToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Respect System Preferences</span>
+                <div class="setting-control">
+                    <div class="toggle-switch active" id="systemPreferencesToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-buttons">
+            <button class="settings-btn" id="resetCameraEffectsSettings">Reset</button>
+            <button class="settings-btn primary" id="closeCameraEffectsSettings">Close</button>
+        </div>
+    </div>
+
+    <div id="musicSettingsPanel">
+        <h3>Background Music Settings</h3>
+        
+        <div class="settings-section">
+            <h4>Track Selection</h4>
+            <div class="track-selection-buttons">
+                <button class="track-btn none active" data-track="none">
+                    <span class="track-name">No Music</span>
+                    <span class="track-desc">Disable background music</span>
+                </button>
+                <button class="track-btn" data-track="ambient-space">
+                    <span class="track-name">Ambient Space</span>
+                    <span class="track-desc">Calm atmospheric soundtrack</span>
+                </button>
+                <button class="track-btn" data-track="cyber-pulse">
+                    <span class="track-name">Cyber Pulse</span>
+                    <span class="track-desc">Upbeat electronic music</span>
+                </button>
+                <button class="track-btn" data-track="neon-rush">
+                    <span class="track-name">Neon Rush</span>
+                    <span class="track-desc">High-energy intense soundtrack</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h4>Volume Control</h4>
+            <div class="music-volume-control">
+                <div class="music-volume-label">Music Volume</div>
+                <div class="music-volume-container">
+                    <input type="range" class="music-volume-slider" id="musicVolumeSlider" 
+                           min="0" max="100" step="1" value="70">
+                    <span class="music-volume-value" id="musicVolumeValue">70%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h4>Status</h4>
+            <div class="music-status">
+                <div class="music-status-label">Current Status:</div>
+                <div class="music-status-value" id="musicStatusValue">Stopped</div>
+            </div>
+            <div class="music-status">
+                <div class="music-status-label">Current Track:</div>
+                <div class="music-status-value" id="currentTrackValue">No Music</div>
+            </div>
+        </div>
+
+        <div class="settings-buttons">
+            <button class="settings-btn" id="resetMusicSettings">Reset</button>
+            <button class="settings-btn primary" id="closeMusicSettings">Close</button>
+        </div>
+    </div>
+
     <div id="controls">
         <div id="up" class="control-btn">↑</div>
         <div id="left" class="control-btn">←</div>
@@ -101,6 +1339,12 @@
         <div id="right" class="control-btn">→</div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
     <script src="bundle.js"></script>
 </body>
 </html>

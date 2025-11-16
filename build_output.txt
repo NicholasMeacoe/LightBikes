@@ -1,0 +1,4 @@
+
+> lightbikes@1.0.0 build
+> browserify script.js -o bundle.js
+

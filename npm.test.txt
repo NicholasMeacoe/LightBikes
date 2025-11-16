@@ -1,0 +1,465 @@
+
+> lightbikes@1.0.0 test
+> jest --coverage
+
+FAIL ./pause-integration.test.js
+  ● Console
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLButtonElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLButtonElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLButtonElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLButtonElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLButtonElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLButtonElement.debug (controls.js:40:33)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+  ● Pause System Integration Tests › AI and Collision System Integration with Pause › should ensure AI decision-making pauses correctly
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not 1
+
+      340 |             // Normal operation - AI should turn away from boundary
+      341 |             const normalDecision = aiController.calculateAIDirection(gameState);
+    > 342 |             expect(normalDecision.newDirection.x).not.toBe(1);
+          |                                                       ^
+      343 |             
+      344 |             // Pause and verify AI maintains current direction
+      345 |             game.pause();
+
+      at Object.toBe (pause-integration.test.js:342:55)
+
+FAIL ./collision.test.js
+  ● CollisionDetectionEngine › Pause State Handling › should maintain collision detection integrity during pause transitions
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      138 |             gameState.isPaused = false;
+      139 |             const normalResult = collisionDetectionEngine.checkCollisions(gameState);
+    > 140 |             expect(normalResult.playerCollided).toBe(true);
+          |                                                 ^
+      141 |             
+      142 |             // Pause - should not detect collision
+      143 |             gameState.isPaused = true;
+
+      at Object.toBe (collision.test.js:140:49)
+
+  ● CollisionDetectionEngine › Pause State Handling › should handle pause state with complex collision scenarios
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      167 |             gameState.isPaused = false;
+      168 |             const resumedResult = collisionDetectionEngine.checkCollisions(gameState);
+    > 169 |             expect(resumedResult.playerCollided).toBe(true); // Should collide with AI trail
+          |                                                  ^
+      170 |             expect(resumedResult.aiCollided).toBe(true); // Should collide with player trail
+      171 |         });
+      172 |
+
+      at Object.toBe (collision.test.js:169:50)
+
+PASS ./controls.test.js
+  ● Console
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+PASS ./scorePersistence.test.js
+  ● Console
+
+    console.error
+      Invalid score value: -1
+
+      19 |
+      20 |         if (!this.isValidScore(score)) {
+    > 21 |             console.error('Invalid score value:', score);
+         |                     ^
+      22 |             return false;
+      23 |         }
+      24 |
+
+      at ScorePersistence.error [as saveHighScore] (scorePersistence.js:21:21)
+      at Object.saveHighScore (scorePersistence.test.js:85:45)
+
+    console.warn
+      localStorage not available, high score will not persist
+
+      14 |     static saveHighScore(score) {
+      15 |         if (!this.isStorageAvailable()) {
+    > 16 |             console.warn('localStorage not available, high score will not persist');
+         |                     ^
+      17 |             return false;
+      18 |         }
+      19 |
+
+      at ScorePersistence.warn [as saveHighScore] (scorePersistence.js:16:21)
+      at Object.saveHighScore (scorePersistence.test.js:95:45)
+
+    console.warn
+      localStorage not available, high score will not persist
+
+      14 |     static saveHighScore(score) {
+      15 |         if (!this.isStorageAvailable()) {
+    > 16 |             console.warn('localStorage not available, high score will not persist');
+         |                     ^
+      17 |             return false;
+      18 |         }
+      19 |
+
+      at ScorePersistence.warn [as saveHighScore] (scorePersistence.js:16:21)
+      at Object.saveHighScore (scorePersistence.test.js:105:45)
+
+    console.warn
+      localStorage not available, using default high score
+
+      38 |     static loadHighScore() {
+      39 |         if (!this.isStorageAvailable()) {
+    > 40 |             console.warn('localStorage not available, using default high score');
+         |                     ^
+      41 |             return 0;
+      42 |         }
+      43 |
+
+      at ScorePersistence.warn [as loadHighScore] (scorePersistence.js:40:21)
+      at Object.loadHighScore (scorePersistence.test.js:130:45)
+
+    console.error
+      Failed to load high score from localStorage: Error: Storage error
+          at Object.<anonymous> (/home/pi/source/LightBikes/scorePersistence.test.js:137:23)
+          at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:397:39
+          at Object.<anonymous> (/home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:404:13)
+          at Object.mockConstructor [as getItem] (/home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:103:19)
+          at ScorePersistence.getItem [as loadHighScore] (/home/pi/source/LightBikes/scorePersistence.js:45:46)
+          at Object.loadHighScore (/home/pi/source/LightBikes/scorePersistence.test.js:140:45)
+          at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+          at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+          at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+          at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+          at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+          at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+          at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+          at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+          at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+          at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+          at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      59 |             return parsedScore;
+      60 |         } catch (error) {
+    > 61 |             console.error('Failed to load high score from localStorage:', error);
+         |                     ^
+      62 |             return 0;
+      63 |         }
+      64 |     }
+
+      at ScorePersistence.error [as loadHighScore] (scorePersistence.js:61:21)
+      at Object.loadHighScore (scorePersistence.test.js:140:45)
+
+    console.warn
+      Invalid high score in storage, resetting to 0
+
+      52 |             
+      53 |             if (!this.isValidScore(parsedScore)) {
+    > 54 |                 console.warn('Invalid high score in storage, resetting to 0');
+         |                         ^
+      55 |                 this.saveHighScore(0); // Clean up invalid data
+      56 |                 return 0;
+      57 |             }
+
+      at ScorePersistence.warn [as loadHighScore] (scorePersistence.js:54:25)
+      at Object.loadHighScore (scorePersistence.test.js:148:45)
+
+    console.warn
+      Invalid high score in storage, resetting to 0
+
+      52 |             
+      53 |             if (!this.isValidScore(parsedScore)) {
+    > 54 |                 console.warn('Invalid high score in storage, resetting to 0');
+         |                         ^
+      55 |                 this.saveHighScore(0); // Clean up invalid data
+      56 |                 return 0;
+      57 |             }
+
+      at ScorePersistence.warn [as loadHighScore] (scorePersistence.js:54:25)
+      at Object.loadHighScore (scorePersistence.test.js:161:45)
+
+    console.warn
+      Invalid high score in storage, resetting to 0
+
+      52 |             
+      53 |             if (!this.isValidScore(parsedScore)) {
+    > 54 |                 console.warn('Invalid high score in storage, resetting to 0');
+         |                         ^
+      55 |                 this.saveHighScore(0); // Clean up invalid data
+      56 |                 return 0;
+      57 |             }
+
+      at ScorePersistence.warn [as loadHighScore] (scorePersistence.js:54:25)
+      at Object.loadHighScore (scorePersistence.test.js:174:45)
+
+PASS ./game.test.js
+PASS ./ai.test.js
+PASS ./scoreManager.test.js
+---------------------|---------|----------|---------|---------|-------------------
+File                 | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+---------------------|---------|----------|---------|---------|-------------------
+All files            |   96.27 |    87.74 |     100 |   96.15 |                   
+ ai.js               |   93.33 |    75.92 |     100 |   93.18 | 28,34,45          
+ collision.js        |     100 |    93.33 |     100 |     100 | 33,42             
+ controls.js         |   96.15 |    83.33 |     100 |   96.15 | 50                
+ game.js             |     100 |    93.93 |     100 |     100 | 72,78             
+ scoreManager.js     |     100 |      100 |     100 |     100 |                   
+ scorePersistence.js |   90.69 |      100 |     100 |   90.69 | 29-30,110-111     
+---------------------|---------|----------|---------|---------|-------------------
+
+Test Suites: 2 failed, 5 passed, 7 total
+Tests:       3 failed, 149 passed, 152 total
+Snapshots:   0 total
+Time:        1.853 s
+Ran all test suites.

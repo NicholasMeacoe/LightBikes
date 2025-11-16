@@ -1,0 +1,585 @@
+
+> lightbikes@1.0.0 test
+> jest --coverage
+
+FAIL ./scorePersistence.test.js
+  ● Console
+
+    console.error
+      Invalid score value: -1
+
+      19 |
+      20 |         if (!this.isValidScore(score)) {
+    > 21 |             console.error('Invalid score value:', score);
+         |                     ^
+      22 |             return false;
+      23 |         }
+      24 |
+
+      at ScorePersistence.error [as saveHighScore] (scorePersistence.js:21:21)
+      at Object.saveHighScore (scorePersistence.test.js:90:45)
+
+  ● ScorePersistence › isStorageAvailable › should return false when localStorage throws on setItem
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      50 |             };
+      51 |
+    > 52 |             expect(ScorePersistence.isStorageAvailable()).toBe(false);
+         |                                                           ^
+      53 |         });
+      54 |
+      55 |         it('should return false when localStorage is undefined', () => {
+
+      at Object.toBe (scorePersistence.test.js:52:59)
+
+  ● ScorePersistence › isStorageAvailable › should return false when localStorage is undefined
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      55 |         it('should return false when localStorage is undefined', () => {
+      56 |             global.localStorage = undefined;
+    > 57 |             expect(ScorePersistence.isStorageAvailable()).toBe(false);
+         |                                                           ^
+      58 |         });
+      59 |     });
+      60 |
+
+      at Object.toBe (scorePersistence.test.js:57:59)
+
+  ● ScorePersistence › saveHighScore › should save valid score to localStorage
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "42"
+    Received: undefined
+
+      84 |
+      85 |             expect(result).toBe(true);
+    > 86 |             expect(mockLocalStorage.store['lightbikes_high_score']).toBe('42');
+         |                                                                     ^
+      87 |         });
+      88 |
+      89 |         it('should return false for invalid scores', () => {
+
+      at Object.toBe (scorePersistence.test.js:86:69)
+
+  ● ScorePersistence › saveHighScore › should return false when localStorage is unavailable
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+       99 |             const result = ScorePersistence.saveHighScore(42);
+      100 |
+    > 101 |             expect(result).toBe(false);
+          |                            ^
+      102 |         });
+      103 |
+      104 |         it('should handle localStorage errors gracefully', () => {
+
+      at Object.toBe (scorePersistence.test.js:101:28)
+
+  ● ScorePersistence › saveHighScore › should handle localStorage errors gracefully
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      113 |             const result = ScorePersistence.saveHighScore(42);
+      114 |
+    > 115 |             expect(result).toBe(false);
+          |                            ^
+      116 |         });
+      117 |     });
+      118 |
+
+      at Object.toBe (scorePersistence.test.js:115:28)
+
+  ● ScorePersistence › loadHighScore › should return 0 when no score is stored
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 42
+
+      129 |             const result = ScorePersistence.loadHighScore();
+      130 |
+    > 131 |             expect(result).toBe(0);
+          |                            ^
+      132 |         });
+      133 |
+      134 |         it('should return 0 when localStorage is unavailable', () => {
+
+      at Object.toBe (scorePersistence.test.js:131:28)
+
+  ● ScorePersistence › loadHighScore › should return 0 when localStorage is unavailable
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 42
+
+      137 |             const result = ScorePersistence.loadHighScore();
+      138 |
+    > 139 |             expect(result).toBe(0);
+          |                            ^
+      140 |         });
+      141 |
+      142 |         it('should handle localStorage errors gracefully', () => {
+
+      at Object.toBe (scorePersistence.test.js:139:28)
+
+  ● ScorePersistence › loadHighScore › should handle localStorage errors gracefully
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 42
+
+      152 |             const result = ScorePersistence.loadHighScore();
+      153 |
+    > 154 |             expect(result).toBe(0);
+          |                            ^
+      155 |         });
+      156 |
+      157 |         it('should handle invalid stored data', () => {
+
+      at Object.toBe (scorePersistence.test.js:154:28)
+
+  ● ScorePersistence › loadHighScore › should handle invalid stored data
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 42
+
+      160 |             const result = ScorePersistence.loadHighScore();
+      161 |
+    > 162 |             expect(result).toBe(0);
+          |                            ^
+      163 |             // Should clean up invalid data
+      164 |             expect(mockLocalStorage.store['lightbikes_high_score']).toBe('0');
+      165 |         });
+
+      at Object.toBe (scorePersistence.test.js:162:28)
+
+  ● ScorePersistence › loadHighScore › should handle negative stored values
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 42
+
+      170 |             const result = ScorePersistence.loadHighScore();
+      171 |
+    > 172 |             expect(result).toBe(0);
+          |                            ^
+      173 |             // Should clean up invalid data
+      174 |             expect(mockLocalStorage.store['lightbikes_high_score']).toBe('0');
+      175 |         });
+
+      at Object.toBe (scorePersistence.test.js:172:28)
+
+  ● ScorePersistence › loadHighScore › should handle values exceeding maximum
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 42
+
+      180 |             const result = ScorePersistence.loadHighScore();
+      181 |
+    > 182 |             expect(result).toBe(0);
+          |                            ^
+      183 |             // Should clean up invalid data
+      184 |             expect(mockLocalStorage.store['lightbikes_high_score']).toBe('0');
+      185 |         });
+
+      at Object.toBe (scorePersistence.test.js:182:28)
+
+  ● ScorePersistence › clearHighScore › should clear high score from localStorage
+
+    expect(received).toBeUndefined()
+
+    Received: "42"
+
+      193 |
+      194 |             expect(result).toBe(true);
+    > 195 |             expect(mockLocalStorage.store['lightbikes_high_score']).toBeUndefined();
+          |                                                                     ^
+      196 |         });
+      197 |
+      198 |         it('should return false when localStorage is unavailable', () => {
+
+      at Object.toBeUndefined (scorePersistence.test.js:195:69)
+
+  ● ScorePersistence › clearHighScore › should return false when localStorage is unavailable
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      201 |             const result = ScorePersistence.clearHighScore();
+      202 |
+    > 203 |             expect(result).toBe(false);
+          |                            ^
+      204 |         });
+      205 |
+      206 |         it('should handle localStorage errors gracefully', () => {
+
+      at Object.toBe (scorePersistence.test.js:203:28)
+
+  ● ScorePersistence › clearHighScore › should handle localStorage errors gracefully
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      216 |             const result = ScorePersistence.clearHighScore();
+      217 |
+    > 218 |             expect(result).toBe(false);
+          |                            ^
+      219 |         });
+      220 |     });
+      221 |
+
+      at Object.toBe (scorePersistence.test.js:218:28)
+
+FAIL ./pause-integration.test.js
+  ● Console
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLButtonElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLButtonElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLButtonElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLButtonElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLButtonElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLButtonElement.debug (controls.js:40:33)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+  ● Pause System Integration Tests › AI and Collision System Integration with Pause › should ensure AI decision-making pauses correctly
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not 1
+
+      340 |             // Normal operation - AI should turn away from boundary
+      341 |             const normalDecision = aiController.calculateAIDirection(gameState);
+    > 342 |             expect(normalDecision.newDirection.x).not.toBe(1);
+          |                                                       ^
+      343 |             
+      344 |             // Pause and verify AI maintains current direction
+      345 |             game.pause();
+
+      at Object.toBe (pause-integration.test.js:342:55)
+
+FAIL ./collision.test.js
+  ● CollisionDetectionEngine › Pause State Handling › should maintain collision detection integrity during pause transitions
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      138 |             gameState.isPaused = false;
+      139 |             const normalResult = collisionDetectionEngine.checkCollisions(gameState);
+    > 140 |             expect(normalResult.playerCollided).toBe(true);
+          |                                                 ^
+      141 |             
+      142 |             // Pause - should not detect collision
+      143 |             gameState.isPaused = true;
+
+      at Object.toBe (collision.test.js:140:49)
+
+  ● CollisionDetectionEngine › Pause State Handling › should handle pause state with complex collision scenarios
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      167 |             gameState.isPaused = false;
+      168 |             const resumedResult = collisionDetectionEngine.checkCollisions(gameState);
+    > 169 |             expect(resumedResult.playerCollided).toBe(true); // Should collide with AI trail
+          |                                                  ^
+      170 |             expect(resumedResult.aiCollided).toBe(true); // Should collide with player trail
+      171 |         });
+      172 |
+
+      at Object.toBe (collision.test.js:169:50)
+
+PASS ./game.test.js
+PASS ./controls.test.js
+  ● Console
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Pause operation not available in current game state
+
+      at Document.debug (controls.js:16:29)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+    console.debug
+      Resume operation not available in current game state
+
+      at HTMLDivElement.debug (controls.js:40:33)
+
+PASS ./scoreManager.test.js
+PASS ./ai.test.js
+---------------------|---------|----------|---------|---------|-------------------------------------------------
+File                 | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                               
+---------------------|---------|----------|---------|---------|-------------------------------------------------
+All files            |   91.18 |    85.79 |     100 |   90.86 |                                                 
+ ai.js               |   93.33 |    75.92 |     100 |   93.18 | 28,34,45                                        
+ collision.js        |     100 |    93.33 |     100 |     100 | 33,42                                           
+ controls.js         |   96.15 |    83.33 |     100 |   96.15 | 50                                              
+ game.js             |     100 |    95.34 |     100 |     100 | 77,83                                           
+ scoreManager.js     |     100 |      100 |     100 |     100 |                                                 
+ scorePersistence.js |   64.44 |    77.27 |     100 |   64.44 | 16-17,29-30,40-41,54-56,61-62,73,80,106,113-114 
+---------------------|---------|----------|---------|---------|-------------------------------------------------
+
+Test Suites: 3 failed, 4 passed, 7 total
+Tests:       17 failed, 146 passed, 163 total
+Snapshots:   0 total
+Time:        1.589 s
+Ran all test suites.

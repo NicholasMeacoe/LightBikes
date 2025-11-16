@@ -1,0 +1,1135 @@
+  console.warn
+    Using fallback for TestComponent
+
+      90 |         // Max retries reached - try fallback
+      91 |         if (strategy.fallback) {
+    > 92 |             console.warn(`Using fallback for ${componentName}`);
+         |                     ^
+      93 |             
+      94 |             try {
+      95 |                 const fallbackComponent = await strategy.fallback();
+
+      at ErrorRecovery.warn [as attemptRecovery] (ErrorRecovery.js:92:21)
+      at Object.attemptRecovery (ErrorRecovery.test.js:105:48)
+
+  console.error
+    [WARNING] Warning: TestComponent is running in simplified mode due to initialization errors.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showWarning] (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as attemptRecovery] (ErrorRecovery.js:98:35)
+      at Object.<anonymous> (ErrorRecovery.test.js:105:28)
+
+  console.warn
+    Using fallback for TestComponent
+
+      90 |         // Max retries reached - try fallback
+      91 |         if (strategy.fallback) {
+    > 92 |             console.warn(`Using fallback for ${componentName}`);
+         |                     ^
+      93 |             
+      94 |             try {
+      95 |                 const fallbackComponent = await strategy.fallback();
+
+      at ErrorRecovery.warn [as attemptRecovery] (ErrorRecovery.js:92:21)
+      at Object.attemptRecovery (ErrorRecovery.test.js:125:48)
+
+  console.error
+    Fallback failed for TestComponent: Error: Fallback failed
+        at Object.<anonymous> (/home/pi/source/LightBikes/ErrorRecovery.test.js:119:55)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      103 |                 return fallbackComponent;
+      104 |             } catch (fallbackError) {
+    > 105 |                 console.error(`Fallback failed for ${componentName}:`, fallbackError);
+          |                         ^
+      106 |             }
+      107 |         }
+      108 |
+
+      at ErrorRecovery.error [as attemptRecovery] (ErrorRecovery.js:105:25)
+      at Object.<anonymous> (ErrorRecovery.test.js:125:28)
+
+  console.error
+    [WARNING] Warning: TestComponent has been disabled due to errors. The game will continue without this feature.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showWarning] (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as disableFeature] (ErrorRecovery.js:166:27)
+      at ErrorRecovery.disableFeature [as attemptRecovery] (ErrorRecovery.js:120:18)
+      at Object.<anonymous> (ErrorRecovery.test.js:125:28)
+
+  console.warn
+    Feature disabled: TestComponent
+
+      169 |         );
+      170 |         
+    > 171 |         console.warn(`Feature disabled: ${featureName}`);
+          |                 ^
+      172 |     }
+      173 |
+      174 |     /**
+
+      at ErrorRecovery.warn [as disableFeature] (ErrorRecovery.js:171:17)
+      at ErrorRecovery.disableFeature [as attemptRecovery] (ErrorRecovery.js:120:18)
+      at Object.<anonymous> (ErrorRecovery.test.js:125:28)
+
+  console.error
+    [ERROR] TestComponent Initialization Failed: Failed to initialize TestComponent: Init failed
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as handleInitializationError] (ErrorHandler.js:364:21)
+      at ErrorRecovery.handleInitializationError [as attemptRecovery] (ErrorRecovery.js:112:31)
+      at Object.attemptRecovery (ErrorRecovery.test.js:145:31)
+
+  console.error
+    [INFO] Information: TestComponent initialized successfully.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showInfo] (ErrorHandler.js:479:21)
+      at ErrorRecovery.showInfo [as retryInitialization] (ErrorRecovery.js:147:31)
+      at Object.<anonymous> (ErrorRecovery.test.js:164:28)
+
+  console.error
+    [INFO] Information: TestComponent initialized successfully.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showInfo] (ErrorHandler.js:479:21)
+      at ErrorRecovery.showInfo [as retryInitialization] (ErrorRecovery.js:147:31)
+      at Object.<anonymous> (ErrorRecovery.test.js:179:13)
+
+  console.error
+    [WARNING] Warning: TestFeature has been disabled due to errors. The game will continue without this feature.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showWarning] (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as disableFeature] (ErrorRecovery.js:166:27)
+      at Object.disableFeature (ErrorRecovery.test.js:188:27)
+
+  console.warn
+    Feature disabled: TestFeature
+
+      169 |         );
+      170 |         
+    > 171 |         console.warn(`Feature disabled: ${featureName}`);
+          |                 ^
+      172 |     }
+      173 |
+      174 |     /**
+
+      at ErrorRecovery.warn [as disableFeature] (ErrorRecovery.js:171:17)
+      at Object.disableFeature (ErrorRecovery.test.js:188:27)
+
+  console.error
+    [WARNING] Warning: TestFeature has been disabled due to errors. The game will continue without this feature.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as disableFeature] (ErrorRecovery.js:166:27)
+      at Object.disableFeature (ErrorRecovery.test.js:194:27)
+
+  console.warn
+    Feature disabled: TestFeature
+
+      169 |         );
+      170 |         
+    > 171 |         console.warn(`Feature disabled: ${featureName}`);
+          |                 ^
+      172 |     }
+      173 |
+      174 |     /**
+
+      at ErrorRecovery.warn [as disableFeature] (ErrorRecovery.js:171:17)
+      at Object.disableFeature (ErrorRecovery.test.js:194:27)
+
+  console.error
+    [WARNING] Warning: TestFeature has been disabled due to errors. The game will continue without this feature.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showWarning] (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as disableFeature] (ErrorRecovery.js:166:27)
+      at Object.disableFeature (ErrorRecovery.test.js:201:27)
+
+  console.warn
+    Feature disabled: TestFeature
+
+      169 |         );
+      170 |         
+    > 171 |         console.warn(`Feature disabled: ${featureName}`);
+          |                 ^
+      172 |     }
+      173 |
+      174 |     /**
+
+      at ErrorRecovery.warn [as disableFeature] (ErrorRecovery.js:171:17)
+      at Object.disableFeature (ErrorRecovery.test.js:201:27)
+
+  console.log
+    Feature enabled: TestFeature
+
+      at ErrorRecovery.log [as enableFeature] (ErrorRecovery.js:189:17)
+
+  console.error
+    [WARNING] Warning: TestFeature has been disabled due to errors. The game will continue without this feature.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showWarning] (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as disableFeature] (ErrorRecovery.js:166:27)
+      at Object.disableFeature (ErrorRecovery.test.js:215:27)
+
+  console.warn
+    Feature disabled: TestFeature
+
+      169 |         );
+      170 |         
+    > 171 |         console.warn(`Feature disabled: ${featureName}`);
+          |                 ^
+      172 |     }
+      173 |
+      174 |     /**
+
+      at ErrorRecovery.warn [as disableFeature] (ErrorRecovery.js:171:17)
+      at Object.disableFeature (ErrorRecovery.test.js:215:27)
+
+  console.error
+    Rendering error: Error: Rendering failed
+        at Object.<anonymous> (/home/pi/source/LightBikes/ErrorRecovery.test.js:223:27)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      230 |      */
+      231 |     handleRenderingError(error, simplifiedRenderer) {
+    > 232 |         console.error('Rendering error:', error);
+          |                 ^
+      233 |         
+      234 |         if (simplifiedRenderer) {
+      235 |             try {
+
+      at ErrorRecovery.error [as handleRenderingError] (ErrorRecovery.js:232:17)
+      at Object.handleRenderingError (ErrorRecovery.test.js:225:42)
+
+  console.error
+    [ERROR] Rendering Error: Rendering error: Rendering failed. Try using simplified graphics mode.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as handleRenderingError] (ErrorHandler.js:416:21)
+      at ErrorRecovery.handleRenderingError (ErrorRecovery.js:239:35)
+      at Object.handleRenderingError (ErrorRecovery.test.js:225:42)
+
+  console.error
+    Rendering error: Error: Rendering failed
+        at Object.<anonymous> (/home/pi/source/LightBikes/ErrorRecovery.test.js:236:27)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      230 |      */
+      231 |     handleRenderingError(error, simplifiedRenderer) {
+    > 232 |         console.error('Rendering error:', error);
+          |                 ^
+      233 |         
+      234 |         if (simplifiedRenderer) {
+      235 |             try {
+
+      at ErrorRecovery.error [as handleRenderingError] (ErrorRecovery.js:232:17)
+      at Object.handleRenderingError (ErrorRecovery.test.js:238:42)
+
+  console.error
+    Simplified renderer also failed: Error: Simplified renderer failed
+        at /home/pi/source/LightBikes/ErrorRecovery.test.js:234:23
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:397:39
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:404:13
+        at mockConstructor (/home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:148:19)
+        at ErrorRecovery.simplifiedRenderer [as handleRenderingError] (/home/pi/source/LightBikes/ErrorRecovery.js:236:17)
+        at Object.handleRenderingError (/home/pi/source/LightBikes/ErrorRecovery.test.js:238:42)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      250 |                 return true;
+      251 |             } catch (fallbackError) {
+    > 252 |                 console.error('Simplified renderer also failed:', fallbackError);
+          |                         ^
+      253 |                 this.errorHandler.showError(
+      254 |                     'Unable to initialize graphics. Please reload the page.',
+      255 |                     { type: 'critical', duration: 0 }
+
+      at ErrorRecovery.error [as handleRenderingError] (ErrorRecovery.js:252:25)
+      at Object.handleRenderingError (ErrorRecovery.test.js:238:42)
+
+  console.error
+    [CRITICAL] Critical Error: Unable to initialize graphics. Please reload the page.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorRecovery.showError [as handleRenderingError] (ErrorRecovery.js:253:35)
+      at Object.handleRenderingError (ErrorRecovery.test.js:238:42)
+
+  console.error
+    Rendering error: Error: Rendering failed
+        at Object.<anonymous> (/home/pi/source/LightBikes/ErrorRecovery.test.js:244:27)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      230 |      */
+      231 |     handleRenderingError(error, simplifiedRenderer) {
+    > 232 |         console.error('Rendering error:', error);
+          |                 ^
+      233 |         
+      234 |         if (simplifiedRenderer) {
+      235 |             try {
+
+      at ErrorRecovery.error [as handleRenderingError] (ErrorRecovery.js:232:17)
+      at Object.handleRenderingError (ErrorRecovery.test.js:245:42)
+
+  console.error
+    [ERROR] Rendering Error: Rendering error: Rendering failed. Try using simplified graphics mode.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as handleRenderingError] (ErrorHandler.js:416:21)
+      at ErrorRecovery.handleRenderingError (ErrorRecovery.js:261:27)
+      at Object.handleRenderingError (ErrorRecovery.test.js:245:42)
+
+  console.error
+    Runtime error in TestFeature: Error: Runtime error
+        at Object.<anonymous> (/home/pi/source/LightBikes/ErrorRecovery.test.js:253:27)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      270 |      */
+      271 |     handleFeatureRuntimeError(featureName, error, disableCallback) {
+    > 272 |         console.error(`Runtime error in ${featureName}:`, error);
+          |                 ^
+      273 |         
+      274 |         // Check if feature is already disabled
+      275 |         if (this.isFeatureDisabled(featureName)) {
+
+      at ErrorRecovery.error [as handleFeatureRuntimeError] (ErrorRecovery.js:272:17)
+      at Object.handleFeatureRuntimeError (ErrorRecovery.test.js:255:27)
+
+  console.error
+    [WARNING] TestFeature Error: TestFeature encountered an error and may not work correctly: Runtime error
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as handleFeatureError] (ErrorHandler.js:446:21)
+      at ErrorRecovery.handleFeatureError [as handleFeatureRuntimeError] (ErrorRecovery.js:280:27)
+      at Object.handleFeatureRuntimeError (ErrorRecovery.test.js:255:27)
+
+  console.error
+    [WARNING] Warning: TestFeature has been disabled due to errors. The game will continue without this feature.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showWarning] (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as disableFeature] (ErrorRecovery.js:166:27)
+      at Object.disableFeature (ErrorRecovery.test.js:263:27)
+
+  console.warn
+    Feature disabled: TestFeature
+
+      169 |         );
+      170 |         
+    > 171 |         console.warn(`Feature disabled: ${featureName}`);
+          |                 ^
+      172 |     }
+      173 |
+      174 |     /**
+
+      at ErrorRecovery.warn [as disableFeature] (ErrorRecovery.js:171:17)
+      at Object.disableFeature (ErrorRecovery.test.js:263:27)
+
+  console.error
+    Runtime error in TestFeature: Error: Runtime error
+        at Object.<anonymous> (/home/pi/source/LightBikes/ErrorRecovery.test.js:266:27)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      270 |      */
+      271 |     handleFeatureRuntimeError(featureName, error, disableCallback) {
+    > 272 |         console.error(`Runtime error in ${featureName}:`, error);
+          |                 ^
+      273 |         
+      274 |         // Check if feature is already disabled
+      275 |         if (this.isFeatureDisabled(featureName)) {
+
+      at ErrorRecovery.error [as handleFeatureRuntimeError] (ErrorRecovery.js:272:17)
+      at Object.handleFeatureRuntimeError (ErrorRecovery.test.js:267:27)
+
+  console.error
+    Error in TestFeature: Error: Function failed
+        at /home/pi/source/LightBikes/ErrorRecovery.test.js:287:23
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:397:39
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:404:13
+        at mockConstructor (/home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:148:19)
+        at fn (/home/pi/source/LightBikes/ErrorRecovery.js:310:24)
+        at Object.wrapped (/home/pi/source/LightBikes/ErrorRecovery.test.js:292:28)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      310 |                 return fn(...args);
+      311 |             } catch (error) {
+    > 312 |                 console.error(`Error in ${featureName}:`, error);
+          |                         ^
+      313 |                 
+      314 |                 // Use fallback if available
+      315 |                 if (fallback) {
+
+      at error (ErrorRecovery.js:312:25)
+      at Object.wrapped (ErrorRecovery.test.js:292:28)
+
+  console.error
+    [WARNING] Warning: TestFeature has been disabled due to errors. The game will continue without this feature.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showWarning] (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as disableFeature] (ErrorRecovery.js:166:27)
+      at Object.disableFeature (ErrorRecovery.test.js:300:27)
+
+  console.warn
+    Feature disabled: TestFeature
+
+      169 |         );
+      170 |         
+    > 171 |         console.warn(`Feature disabled: ${featureName}`);
+          |                 ^
+      172 |     }
+      173 |
+      174 |     /**
+
+      at ErrorRecovery.warn [as disableFeature] (ErrorRecovery.js:171:17)
+      at Object.disableFeature (ErrorRecovery.test.js:300:27)
+
+  console.error
+    [WARNING] Warning: TestFeature has been disabled due to errors. The game will continue without this feature.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showWarning] (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as disableFeature] (ErrorRecovery.js:166:27)
+      at Object.disableFeature (ErrorRecovery.test.js:312:27)
+
+  console.warn
+    Feature disabled: TestFeature
+
+      169 |         );
+      170 |         
+    > 171 |         console.warn(`Feature disabled: ${featureName}`);
+          |                 ^
+      172 |     }
+      173 |
+      174 |     /**
+
+      at ErrorRecovery.warn [as disableFeature] (ErrorRecovery.js:171:17)
+      at Object.disableFeature (ErrorRecovery.test.js:312:27)
+
+  console.error
+    Error in TestComponent update: Error: Update failed
+        at /home/pi/source/LightBikes/ErrorRecovery.test.js:335:23
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:397:39
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:404:13
+        at mockConstructor (/home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:148:19)
+        at updateFn (/home/pi/source/LightBikes/ErrorRecovery.js:349:17)
+        at safeUpdate (/home/pi/source/LightBikes/ErrorRecovery.test.js:339:26)
+        at Object.<anonymous> (/home/pi/source/LightBikes/node_modules/expect/build/toThrowMatchers.js:74:11)
+        at Object.throwingMatcher [as toThrow] (/home/pi/source/LightBikes/node_modules/expect/build/index.js:320:21)
+        at Object.toThrow (/home/pi/source/LightBikes/ErrorRecovery.test.js:339:44)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      365 |                 errorCount = errorTimestamps.length;
+      366 |
+    > 367 |                 console.error(`Error in ${componentName} update:`, error);
+          |                         ^
+      368 |
+      369 |                 // Disable feature if too many errors
+      370 |                 if (errorCount >= maxErrors) {
+
+      at error (ErrorRecovery.js:367:25)
+      at safeUpdate (ErrorRecovery.test.js:339:26)
+      at Object.<anonymous> (node_modules/expect/build/toThrowMatchers.js:74:11)
+      at Object.throwingMatcher [as toThrow] (node_modules/expect/build/index.js:320:21)
+      at Object.toThrow (ErrorRecovery.test.js:339:44)
+
+  console.error
+    Error in TestComponent update: Error: Update failed
+        at /home/pi/source/LightBikes/ErrorRecovery.test.js:344:23
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:397:39
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:404:13
+        at mockConstructor (/home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:148:19)
+        at updateFn (/home/pi/source/LightBikes/ErrorRecovery.js:349:17)
+        at Object.safeUpdate (/home/pi/source/LightBikes/ErrorRecovery.test.js:350:17)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      365 |                 errorCount = errorTimestamps.length;
+      366 |
+    > 367 |                 console.error(`Error in ${componentName} update:`, error);
+          |                         ^
+      368 |
+      369 |                 // Disable feature if too many errors
+      370 |                 if (errorCount >= maxErrors) {
+
+      at error (ErrorRecovery.js:367:25)
+      at Object.safeUpdate (ErrorRecovery.test.js:350:17)
+
+  console.error
+    Error in TestComponent update: Error: Update failed
+        at /home/pi/source/LightBikes/ErrorRecovery.test.js:344:23
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:397:39
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:404:13
+        at mockConstructor (/home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:148:19)
+        at updateFn (/home/pi/source/LightBikes/ErrorRecovery.js:349:17)
+        at Object.safeUpdate (/home/pi/source/LightBikes/ErrorRecovery.test.js:350:17)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      365 |                 errorCount = errorTimestamps.length;
+      366 |
+    > 367 |                 console.error(`Error in ${componentName} update:`, error);
+          |                         ^
+      368 |
+      369 |                 // Disable feature if too many errors
+      370 |                 if (errorCount >= maxErrors) {
+
+      at error (ErrorRecovery.js:367:25)
+      at Object.safeUpdate (ErrorRecovery.test.js:350:17)
+
+  console.error
+    Error in TestComponent update: Error: Update failed
+        at /home/pi/source/LightBikes/ErrorRecovery.test.js:344:23
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:397:39
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:404:13
+        at mockConstructor (/home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:148:19)
+        at updateFn (/home/pi/source/LightBikes/ErrorRecovery.js:349:17)
+        at Object.safeUpdate (/home/pi/source/LightBikes/ErrorRecovery.test.js:350:17)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      365 |                 errorCount = errorTimestamps.length;
+      366 |
+    > 367 |                 console.error(`Error in ${componentName} update:`, error);
+          |                         ^
+      368 |
+      369 |                 // Disable feature if too many errors
+      370 |                 if (errorCount >= maxErrors) {
+
+      at error (ErrorRecovery.js:367:25)
+      at Object.safeUpdate (ErrorRecovery.test.js:350:17)
+
+  console.error
+    Error in TestComponent update: Error: Update failed
+        at /home/pi/source/LightBikes/ErrorRecovery.test.js:344:23
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:397:39
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:404:13
+        at mockConstructor (/home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:148:19)
+        at updateFn (/home/pi/source/LightBikes/ErrorRecovery.js:349:17)
+        at Object.safeUpdate (/home/pi/source/LightBikes/ErrorRecovery.test.js:350:17)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      365 |                 errorCount = errorTimestamps.length;
+      366 |
+    > 367 |                 console.error(`Error in ${componentName} update:`, error);
+          |                         ^
+      368 |
+      369 |                 // Disable feature if too many errors
+      370 |                 if (errorCount >= maxErrors) {
+
+      at error (ErrorRecovery.js:367:25)
+      at Object.safeUpdate (ErrorRecovery.test.js:350:17)
+
+  console.error
+    Error in TestComponent update: Error: Update failed
+        at /home/pi/source/LightBikes/ErrorRecovery.test.js:344:23
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:397:39
+        at /home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:404:13
+        at mockConstructor (/home/pi/source/LightBikes/node_modules/jest-mock/build/index.js:148:19)
+        at updateFn (/home/pi/source/LightBikes/ErrorRecovery.js:349:17)
+        at Object.safeUpdate (/home/pi/source/LightBikes/ErrorRecovery.test.js:350:17)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      365 |                 errorCount = errorTimestamps.length;
+      366 |
+    > 367 |                 console.error(`Error in ${componentName} update:`, error);
+          |                         ^
+      368 |
+      369 |                 // Disable feature if too many errors
+      370 |                 if (errorCount >= maxErrors) {
+
+      at error (ErrorRecovery.js:367:25)
+      at Object.safeUpdate (ErrorRecovery.test.js:350:17)
+
+  console.error
+    Runtime error in TestComponent: Error: Too many errors (5 in 10000ms)
+        at /home/pi/source/LightBikes/ErrorRecovery.js:373:25
+        at Object.safeUpdate (/home/pi/source/LightBikes/ErrorRecovery.test.js:350:17)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      270 |      */
+      271 |     handleFeatureRuntimeError(featureName, error, disableCallback) {
+    > 272 |         console.error(`Runtime error in ${featureName}:`, error);
+          |                 ^
+      273 |         
+      274 |         // Check if feature is already disabled
+      275 |         if (this.isFeatureDisabled(featureName)) {
+
+      at ErrorRecovery.error [as handleFeatureRuntimeError] (ErrorRecovery.js:272:17)
+      at handleFeatureRuntimeError (ErrorRecovery.js:371:26)
+      at Object.safeUpdate (ErrorRecovery.test.js:350:17)
+
+  console.error
+    [WARNING] TestComponent Error: TestComponent encountered an error and may not work correctly: Too many errors (5 in 10000ms)
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as handleFeatureError] (ErrorHandler.js:446:21)
+      at ErrorRecovery.handleFeatureError [as handleFeatureRuntimeError] (ErrorRecovery.js:280:27)
+      at handleFeatureRuntimeError (ErrorRecovery.js:371:26)
+      at Object.safeUpdate (ErrorRecovery.test.js:350:17)
+
+  console.error
+    [WARNING] Warning: TestComponent has been disabled due to errors. The game will continue without this feature.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showWarning] (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as disableFeature] (ErrorRecovery.js:166:27)
+      at Object.disableFeature (ErrorRecovery.test.js:358:27)
+
+  console.warn
+    Feature disabled: TestComponent
+
+      169 |         );
+      170 |         
+    > 171 |         console.warn(`Feature disabled: ${featureName}`);
+          |                 ^
+      172 |     }
+      173 |
+      174 |     /**
+
+      at ErrorRecovery.warn [as disableFeature] (ErrorRecovery.js:171:17)
+      at Object.disableFeature (ErrorRecovery.test.js:358:27)
+
+  console.error
+    [WARNING] Warning: Feature1 has been disabled due to errors. The game will continue without this feature.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showWarning] (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as disableFeature] (ErrorRecovery.js:166:27)
+      at Object.disableFeature (ErrorRecovery.test.js:369:27)
+
+  console.warn
+    Feature disabled: Feature1
+
+      169 |         );
+      170 |         
+    > 171 |         console.warn(`Feature disabled: ${featureName}`);
+          |                 ^
+      172 |     }
+      173 |
+      174 |     /**
+
+      at ErrorRecovery.warn [as disableFeature] (ErrorRecovery.js:171:17)
+      at Object.disableFeature (ErrorRecovery.test.js:369:27)
+
+  console.error
+    [WARNING] Warning: Feature1 has been disabled due to errors. The game will continue without this feature.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showWarning] (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as disableFeature] (ErrorRecovery.js:166:27)
+      at Object.disableFeature (ErrorRecovery.test.js:396:27)
+
+  console.warn
+    Feature disabled: Feature1
+
+      169 |         );
+      170 |         
+    > 171 |         console.warn(`Feature disabled: ${featureName}`);
+          |                 ^
+      172 |     }
+      173 |
+      174 |     /**
+
+      at ErrorRecovery.warn [as disableFeature] (ErrorRecovery.js:171:17)
+      at Object.disableFeature (ErrorRecovery.test.js:396:27)
+
+  console.error
+    [WARNING] Warning: Feature1 has been disabled due to errors. The game will continue without this feature.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showWarning] (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as disableFeature] (ErrorRecovery.js:166:27)
+      at Object.disableFeature (ErrorRecovery.test.js:425:27)
+
+  console.warn
+    Feature disabled: Feature1
+
+      169 |         );
+      170 |         
+    > 171 |         console.warn(`Feature disabled: ${featureName}`);
+          |                 ^
+      172 |     }
+      173 |
+      174 |     /**
+
+      at ErrorRecovery.warn [as disableFeature] (ErrorRecovery.js:171:17)
+      at Object.disableFeature (ErrorRecovery.test.js:425:27)
+
+  console.error
+    [WARNING] Warning: Feature2 has been disabled due to errors. The game will continue without this feature.
+
+      276 |
+      277 |         // Log to console
+    > 278 |         console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+          |                 ^
+      279 |
+      280 |         return id;
+      281 |     }
+
+      at ErrorHandler.error [as showError] (ErrorHandler.js:278:17)
+      at ErrorHandler.showError [as showWarning] (ErrorHandler.js:465:21)
+      at ErrorRecovery.showWarning [as disableFeature] (ErrorRecovery.js:166:27)
+      at Object.disableFeature (ErrorRecovery.test.js:426:27)
+
+  console.warn
+    Feature disabled: Feature2
+
+      169 |         );
+      170 |         
+    > 171 |         console.warn(`Feature disabled: ${featureName}`);
+          |                 ^
+      172 |     }
+      173 |
+      174 |     /**
+
+      at ErrorRecovery.warn [as disableFeature] (ErrorRecovery.js:171:17)
+      at Object.disableFeature (ErrorRecovery.test.js:426:27)
+
+FAIL ./ErrorRecovery.test.js
+  ErrorRecovery
+    registerStrategy
+      ✓ should register a recovery strategy (5 ms)
+      ✓ should set default values for strategy (1 ms)
+    initializeWithRecovery
+      ✓ should initialize component successfully (2 ms)
+      ✓ should throw error if no strategy registered (19 ms)
+      ✓ should reset retry count on successful initialization (1 ms)
+      ✓ should remove component from failed list on success (1 ms)
+    attemptRecovery
+      ✓ should use fallback when max retries reached (74 ms)
+      ✓ should disable non-critical feature when fallback fails (13 ms)
+      ✓ should throw error for critical component when recovery fails (12 ms)
+    retryInitialization
+      ✓ should retry initialization successfully (5 ms)
+      ✓ should reset retry count on successful retry (5 ms)
+    disableFeature
+      ✓ should disable a feature (6 ms)
+      ✓ should show warning when disabling feature (7 ms)
+    enableFeature
+      ✓ should enable a disabled feature (7 ms)
+    isFeatureDisabled
+      ✓ should return false for enabled features
+      ✓ should return true for disabled features (5 ms)
+    handleRenderingError
+      ✓ should use simplified renderer on error (7 ms)
+      ✓ should return false if simplified renderer fails (8 ms)
+      ✓ should return false if no simplified renderer provided (6 ms)
+    handleFeatureRuntimeError
+      ✓ should handle feature runtime error (8 ms)
+      ✕ should not show error if feature already disabled (13 ms)
+    wrapWithRecovery
+      ✓ should execute function normally (2 ms)
+      ✓ should use fallback on error (3 ms)
+      ✓ should skip execution if feature disabled (6 ms)
+      ✓ should use fallback if feature disabled and fallback provided (5 ms)
+    createSafeUpdateLoop
+      ✓ should execute update function normally (1 ms)
+      ✓ should handle errors in update function (3 ms)
+      ✕ should disable feature after too many errors (17 ms)
+      ✓ should skip execution if feature disabled (6 ms)
+    reset
+      ✓ should reset recovery state (6 ms)
+      ✓ should reset retry counts (1 ms)
+    getStatus
+      ✓ should return recovery status (6 ms)
+    getFailedComponents
+      ✓ should return list of failed components (1 ms)
+    getDisabledFeatures
+      ✓ should return list of disabled features (22 ms)
+    delay
+      ✓ should delay execution (102 ms)
+
+  ● ErrorRecovery › handleFeatureRuntimeError › should not show error if feature already disabled
+
+    expect(received).toBeFalsy()
+
+    Received: <div class="error-message warning removing" data-error-id="error-0">
+                <div class="error-header">
+                    <div class="error-title">Warning</div>
+                    <button aria-label="Close" class="error-close">×</button>
+                </div>
+                <div class="error-body">TestFeature has been disabled due to errors. The game will continue without this feature.</div>·············
+            </div>
+
+      268 |
+      269 |             const errorElement = document.querySelector('.error-message');
+    > 270 |             expect(errorElement).toBeFalsy();
+          |                                  ^
+      271 |         });
+      272 |     });
+      273 |
+
+      at Object.toBeFalsy (ErrorRecovery.test.js:270:34)
+
+  ● ErrorRecovery › createSafeUpdateLoop › should disable feature after too many errors
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      351 |             }
+      352 |
+    > 353 |             expect(errorRecovery.isFeatureDisabled('TestComponent')).toBe(true);
+          |                                                                      ^
+      354 |         });
+      355 |
+      356 |         it('should skip execution if feature disabled', () => {
+
+      at Object.toBe (ErrorRecovery.test.js:353:70)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 33 passed, 35 total
+Snapshots:   0 total
+Time:        1.038 s
+Ran all test suites matching /ErrorRecovery.test.js/i.

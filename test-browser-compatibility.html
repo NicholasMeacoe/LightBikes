@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Compatibility Test - LightBikes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #ffffff;
+        }
+        
+        h1 {
+            color: #4ecdc4;
+            text-align: center;
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #4ecdc4;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .test-section h2 {
+            color: #4ecdc4;
+            margin-top: 0;
+        }
+        
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .test-pass {
+            background: rgba(0, 255, 0, 0.2);
+            border-left: 4px solid #00ff00;
+        }
+        
+        .test-fail {
+            background: rgba(255, 0, 0, 0.2);
+            border-left: 4px solid #ff0000;
+        }
+        
+        .test-warn {
+            background: rgba(255, 255, 0, 0.2);
+            border-left: 4px solid #ffff00;
+        }
+        
+        button {
+            background: #4ecdc4;
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .feature-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #666;
+        }
+        
+        .feature-item.supported {
+            border-left-color: #00ff00;
+        }
+        
+        .feature-item.unsupported {
+            border-left-color: #ff0000;
+        }
+        
+        .feature-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .feature-status {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #4ecdc4;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Browser Compatibility Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Controls</h2>
+        <button onclick="runFullCompatibilityCheck()">Run Full Compatibility Check</button>
+        <button onclick="showWarningUI()">Show Warning UI (Test)</button>
+        <button onclick="showCriticalErrorUI()">Show Critical Error UI (Test)</button>
+        <button onclick="clearSession()">Clear Session Storage</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Browser Information</h2>
+        <div id="browserInfo"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Feature Detection Results</h2>
+        <div id="featureResults" class="feature-list"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Compatibility Report</h2>
+        <div id="compatibilityReport"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Console Output</h2>
+        <pre id="consoleOutput"></pre>
+    </div>
+
+    <script src="BrowserCompatibility.js"></script>
+    <script src="CompatibilityWarningUI.js"></script>
+    <script>
+        let consoleLog = [];
+        
+        // Capture console output
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.log = function(...args) {
+            consoleLog.push(['LOG', ...args]);
+            updateConsoleOutput();
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            consoleLog.push(['ERROR', ...args]);
+            updateConsoleOutput();
+            originalError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            consoleLog.push(['WARN', ...args]);
+            updateConsoleOutput();
+            originalWarn.apply(console, args);
+        };
+        
+        function updateConsoleOutput() {
+            const output = document.getElementById('consoleOutput');
+            output.textContent = consoleLog.map(entry => {
+                const [type, ...args] = entry;
+                return `[${type}] ${args.map(arg => 
+                    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg
+                ).join(' ')}`;
+            }).join('\n');
+        }
+        
+        function runFullCompatibilityCheck() {
+            consoleLog = [];
+            console.log('Starting full compatibility check...');
+            
+            const compatibility = new BrowserCompatibility();
+            const report = compatibility.checkCompatibility();
+            
+            // Display browser info
+            displayBrowserInfo(report.browserInfo);
+            
+            // Display feature results
+            displayFeatureResults(report.features);
+            
+            // Display compatibility report
+            displayCompatibilityReport(report);
+            
+            console.log('Compatibility check complete');
+            console.log('Report:', report);
+        }
+        
+        function displayBrowserInfo(browserInfo) {
+            const container = document.getElementById('browserInfo');
+            const supportedClass = browserInfo.isSupported ? 'test-pass' : 'test-warn';
+            
+            container.innerHTML = `
+                <div class="test-result ${supportedClass}">
+                    <strong>Browser:</strong> ${browserInfo.name} ${browserInfo.version}<br>
+                    <strong>Supported:</strong> ${browserInfo.isSupported ? '✓ Yes' : '⚠ May have issues'}
+                </div>
+            `;
+        }
+        
+        function displayFeatureResults(features) {
+            const container = document.getElementById('featureResults');
+            container.innerHTML = '';
+            
+            for (const [feature, supported] of Object.entries(features)) {
+                const div = document.createElement('div');
+                div.className = `feature-item ${supported ? 'supported' : 'unsupported'}`;
+                div.innerHTML = `
+                    <div class="feature-name">${feature.toUpperCase()}</div>
+                    <div class="feature-status">${supported ? '✓ Supported' : '✗ Not Supported'}</div>
+                `;
+                container.appendChild(div);
+            }
+        }
+        
+        function displayCompatibilityReport(report) {
+            const container = document.getElementById('compatibilityReport');
+            let html = '';
+            
+            // Overall status
+            const statusClass = report.isCompatible ? 'test-pass' : 'test-fail';
+            html += `
+                <div class="test-result ${statusClass}">
+                    <strong>Overall Status:</strong> ${report.isCompatible ? '✓ Compatible' : '✗ Incompatible'}
+                </div>
+            `;
+            
+            // Errors
+            if (report.errors.length > 0) {
+                html += '<h3 style="color: #ff6b6b;">Critical Errors:</h3>';
+                report.errors.forEach(error => {
+                    html += `<div class="test-result test-fail">• ${error}</div>`;
+                });
+            }
+            
+            // Warnings
+            if (report.warnings.length > 0) {
+                html += '<h3 style="color: #ffd93d;">Warnings:</h3>';
+                report.warnings.forEach(warning => {
+                    html += `<div class="test-result test-warn">• ${warning}</div>`;
+                });
+            }
+            
+            // Success message
+            if (report.errors.length === 0 && report.warnings.length === 0) {
+                html += `
+                    <div class="test-result test-pass">
+                        ✓ All features supported! Your browser is fully compatible with LightBikes.
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        function showWarningUI() {
+            console.log('Showing warning UI (test mode)...');
+            
+            const compatibility = new BrowserCompatibility();
+            const report = compatibility.checkCompatibility();
+            
+            // Add a test warning if none exist
+            if (report.warnings.length === 0 && report.errors.length === 0) {
+                report.warnings.push('This is a test warning to demonstrate the UI');
+            }
+            
+            const warningUI = new CompatibilityWarningUI();
+            warningUI.showWarning(report);
+        }
+        
+        function showCriticalErrorUI() {
+            console.log('Showing critical error UI (test mode)...');
+            
+            const warningUI = new CompatibilityWarningUI();
+            warningUI.showCriticalError('This is a test critical error message. The game cannot run without required features.');
+        }
+        
+        function clearSession() {
+            sessionStorage.removeItem('lightbikes_compatibility_acknowledged');
+            console.log('Session storage cleared');
+            alert('Session storage cleared. Compatibility warnings will show again.');
+        }
+        
+        // Run check on page load
+        window.addEventListener('load', () => {
+            console.log('Page loaded, running initial compatibility check...');
+            runFullCompatibilityCheck();
+        });
+    </script>
+</body>
+</html>

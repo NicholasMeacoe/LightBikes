@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Encoding Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        .icon-test {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            margin: 5px;
+        }
+        .icon-emoji {
+            display: inline-block;
+        }
+        .icon-fallback {
+            display: none;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .no-emoji-support .icon-emoji {
+            display: none;
+        }
+        .no-emoji-support .icon-fallback {
+            display: inline-block !important;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .status.success {
+            background-color: rgba(0, 255, 0, 0.2);
+            border: 1px solid green;
+        }
+        .status.warning {
+            background-color: rgba(255, 165, 0, 0.2);
+            border: 1px solid orange;
+        }
+    </style>
+</head>
+<body>
+    <h1>Icon Encoding Test</h1>
+    
+    <div class="test-section">
+        <h2>Character Encoding Test</h2>
+        <p>Document charset: <span id="charsetInfo"></span></p>
+        <p>Content-Type: <span id="contentTypeInfo"></span></p>
+    </div>
+    
+    <div class="test-section">
+        <h2>Emoji Support Detection</h2>
+        <div id="emojiStatus" class="status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Icon Display Test</h2>
+        <p>Game Icons:</p>
+        <div style="display: flex; flex-wrap: wrap;">
+            <div class="icon-test">
+                <span class="icon-emoji">🔊</span>
+                <span class="icon-fallback">Audio</span>
+            </div>
+            <div class="icon-test">
+                <span class="icon-emoji">⚡</span>
+                <span class="icon-fallback">Perf</span>
+            </div>
+            <div class="icon-test">
+                <span class="icon-emoji">✨</span>
+                <span class="icon-fallback">FX</span>
+            </div>
+            <div class="icon-test">
+                <span class="icon-emoji">💫</span>
+                <span class="icon-fallback">Glow</span>
+            </div>
+            <div class="icon-test">
+                <span class="icon-emoji">📹</span>
+                <span class="icon-fallback">Cam</span>
+            </div>
+            <div class="icon-test">
+                <span class="icon-emoji">🎵</span>
+                <span class="icon-fallback">Music</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Data Attributes Test</h2>
+        <p>AI Count Buttons:</p>
+        <button data-count="1">1 AI (data-count="1")</button>
+        <button data-count="2">2 AIs (data-count="2")</button>
+        <button data-count="3">3 AIs (data-count="3")</button>
+        <button data-count="4">4 AIs (data-count="4")</button>
+        
+        <p>Difficulty Buttons:</p>
+        <button data-level="easy">Easy (data-level="easy")</button>
+        <button data-level="medium">Medium (data-level="medium")</button>
+        <button data-level="hard">Hard (data-level="hard")</button>
+    </div>
+    
+    <script>
+        // Display charset info
+        document.getElementById('charsetInfo').textContent = document.characterSet || 'Unknown';
+        document.getElementById('contentTypeInfo').textContent = document.contentType || 'Unknown';
+        
+        // Emoji support detection
+        function detectEmojiSupport() {
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return false;
+                
+                ctx.textBaseline = 'top';
+                ctx.font = '32px Arial';
+                ctx.fillText('😀', 0, 0);
+                
+                const imageData = ctx.getImageData(16, 16, 1, 1).data;
+                return imageData[0] !== 0 || imageData[1] !== 0 || imageData[2] !== 0;
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        const emojiSupported = detectEmojiSupport();
+        const statusDiv = document.getElementById('emojiStatus');
+        
+        if (emojiSupported) {
+            statusDiv.className = 'status success';
+            statusDiv.textContent = '✓ Emoji support detected - Icons will display as emoji';
+        } else {
+            statusDiv.className = 'status warning';
+            statusDiv.textContent = '⚠ Emoji support not detected - Using fallback text';
+            document.body.classList.add('no-emoji-support');
+        }
+        
+        // Test data attributes
+        document.querySelectorAll('[data-count]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                console.log('AI Count clicked:', e.target.dataset.count);
+                alert('AI Count: ' + e.target.dataset.count);
+            });
+        });
+        
+        document.querySelectorAll('[data-level]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                console.log('Difficulty clicked:', e.target.dataset.level);
+                alert('Difficulty: ' + e.target.dataset.level);
+            });
+        });
+    </script>
+</body>
+</html>

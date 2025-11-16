@@ -1,0 +1,14 @@
+  console.error
+    Invalid score value: -1
+
+      19 |
+      20 |         if (!this.isValidScore(score)) {
+    > 21 |             console.error('Invalid score value:', score);
+         |                     ^
+      22 |             return false;
+      23 |         }
+      24 |
+
+      at ScorePersistence.error [as saveHighScore] (scorePersistence.js:21:21)
+      at Object.saveHighScore (scorePersistence.test.js:90:45)
+

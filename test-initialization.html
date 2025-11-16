@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Game Initialization</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+        }
+        
+        #test-results {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 2px solid #00ffff;
+            border-radius: 5px;
+            z-index: 10001;
+            max-width: 400px;
+        }
+        
+        .test-item {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        
+        .test-pass {
+            color: #00ff00;
+        }
+        
+        .test-fail {
+            color: #ff0000;
+        }
+        
+        .test-pending {
+            color: #ffff00;
+        }
+    </style>
+</head>
+<body>
+    <div id="test-results">
+        <h2>Initialization Test</h2>
+        <div id="test-list"></div>
+    </div>
+    
+    <!-- Game UI elements (minimal for testing) -->
+    <div id="gameOver" style="display: none;"></div>
+    <button id="restart" style="display: none;">Restart</button>
+    <button id="muteButton" style="display: none;">🔊</button>
+    <button id="performanceButton" style="display: none;">⚡</button>
+    <button id="particleSettingsButton" style="display: none;">✨</button>
+    <button id="glowSettingsButton" style="display: none;">💫</button>
+    <button id="cameraEffectsButton" style="display: none;">📹</button>
+    <button id="customizationButton" style="display: none;">🎨</button>
+    <button id="musicSettingsButton" style="display: none;">🎵</button>
+    
+    <div id="pauseOverlay" style="display: none;">
+        <button id="resumeButton">Resume</button>
+    </div>
+    
+    <div id="difficultySelector" style="display: none;">
+        <button class="difficulty-btn" data-level="easy">Easy</button>
+        <button class="difficulty-btn" data-level="medium">Medium</button>
+        <button class="difficulty-btn" data-level="hard">Hard</button>
+    </div>
+    
+    <div id="aiCountSelector" style="display: none;">
+        <button class="ai-count-btn" data-count="1">1 AI</button>
+        <button class="ai-count-btn" data-count="2">2 AIs</button>
+        <button class="ai-count-btn" data-count="3">3 AIs</button>
+        <button class="ai-count-btn" data-count="4">4 AIs</button>
+    </div>
+    
+    <!-- Touch controls -->
+    <button id="up" style="display: none;">↑</button>
+    <button id="down" style="display: none;">↓</button>
+    <button id="left" style="display: none;">←</button>
+    <button id="right" style="display: none;">→</button>
+    
+    <!-- Three.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // Test harness
+        const testResults = [];
+        
+        function addTest(name, status, message = '') {
+            testResults.push({ name, status, message });
+            updateTestDisplay();
+        }
+        
+        function updateTestDisplay() {
+            const testList = document.getElementById('test-list');
+            testList.innerHTML = testResults.map(test => {
+                const className = test.status === 'pass' ? 'test-pass' : 
+                                 test.status === 'fail' ? 'test-fail' : 'test-pending';
+                const icon = test.status === 'pass' ? '✓' : 
+                            test.status === 'fail' ? '✗' : '⋯';
+                return `<div class="test-item ${className}">${icon} ${test.name}${test.message ? ': ' + test.message : ''}</div>`;
+            }).join('');
+        }
+        
+        // Monitor initialization
+        addTest('WebGL Support', 'pending');
+        addTest('Renderer Creation', 'pending');
+        addTest('Game Instance', 'pending');
+        addTest('Event Listeners', 'pending');
+        addTest('Loading Indicator', 'pending');
+        addTest('Initialization Complete', 'pending');
+        
+        // Check for loading indicator
+        setTimeout(() => {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                addTest('Loading Indicator', 'pass', 'Shown during init');
+            } else {
+                addTest('Loading Indicator', 'fail', 'Not found');
+            }
+        }, 100);
+        
+        // Monitor for initialization completion
+        const checkInterval = setInterval(() => {
+            // Check if game components are initialized
+            if (window.game) {
+                addTest('Game Instance', 'pass');
+            }
+            
+            if (window.renderingEngine && window.renderingEngine.renderer) {
+                addTest('Renderer Creation', 'pass');
+                addTest('WebGL Support', 'pass');
+            }
+            
+            // Check if loading indicator is hidden (initialization complete)
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator && loadingIndicator.style.display === 'none') {
+                addTest('Initialization Complete', 'pass');
+                clearInterval(checkInterval);
+                
+                // Final summary
+                setTimeout(() => {
+                    const passed = testResults.filter(t => t.status === 'pass').length;
+                    const failed = testResults.filter(t => t.status === 'fail').length;
+                    const pending = testResults.filter(t => t.status === 'pending').length;
+                    
+                    const summary = document.createElement('div');
+                    summary.style.marginTop = '20px';
+                    summary.style.padding = '10px';
+                    summary.style.borderTop = '2px solid #00ffff';
+                    summary.innerHTML = `
+                        <strong>Summary:</strong><br>
+                        Passed: ${passed}<br>
+                        Failed: ${failed}<br>
+                        Pending: ${pending}
+                    `;
+                    document.getElementById('test-list').appendChild(summary);
+                }, 1000);
+            }
+        }, 500);
+        
+        // Timeout after 10 seconds
+        setTimeout(() => {
+            clearInterval(checkInterval);
+            testResults.forEach(test => {
+                if (test.status === 'pending') {
+                    test.status = 'fail';
+                    test.message = 'Timeout';
+                }
+            });
+            updateTestDisplay();
+        }, 10000);
+    </script>
+    
+    <!-- Load the game -->
+    <script src="bundle.js"></script>
+</body>
+</html>
