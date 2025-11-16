@@ -34,7 +34,7 @@ npm install
 # Build the project
 npm run build
 
-# Open index.html in your browser
+# Open public/index.html in your browser
 ```
 
 ### Development
@@ -79,15 +79,24 @@ The project follows a modular, component-based architecture with clear separatio
 
 ```
 LightBikes/
-├── game.js           # Core game logic and state management
-├── ai.js             # AI decision-making and pathfinding
-├── collision.js      # Collision detection engine
-├── renderer.js       # Three.js rendering logic
-├── controls.js       # Input handling
-├── script.js         # Main orchestrator and game loop
-├── index.html        # HTML structure
-└── bundle.js         # Browserify output
+├── src/              # Source code
+│   ├── core/        # Core game logic (game, ai, collision)
+│   ├── rendering/   # Graphics and visual effects
+│   ├── effects/     # Camera effects and motion
+│   ├── ui/          # User interface components
+│   ├── audio/       # Audio system
+│   ├── multiplayer/ # Networking and multiplayer
+│   ├── systems/     # Game systems (achievements, scoring, etc.)
+│   └── utils/       # Utilities and helpers
+├── server/          # Multiplayer server
+├── public/          # Public assets (index.html, bundle.js)
+├── tests/           # Test files
+├── sounds/          # Audio assets
+├── docs/            # Documentation
+└── script.js        # Main entry point
 ```
+
+See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for detailed structure documentation.
 
 ### Key Components
 
@@ -181,9 +190,10 @@ Requires WebGL support for 3D rendering.
 
 ## 📖 Documentation
 
-- [GAME_LOGIC.md](GAME_LOGIC.md) - Detailed game mechanics and logic
-- [DESIGN.md](DESIGN.md) - Technical architecture and design patterns
-- [ROADMAP.md](ROADMAP.md) - Development roadmap and task breakdown
+- [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) - Detailed project structure and organization
+- [docs/GAME_LOGIC.md](docs/GAME_LOGIC.md) - Detailed game mechanics and logic
+- [docs/DESIGN.md](docs/DESIGN.md) - Technical architecture and design patterns
+- [docs/ROADMAP.md](docs/ROADMAP.md) - Development roadmap and task breakdown
 
 ## 🤝 Contributing
 

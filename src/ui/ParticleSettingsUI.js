@@ -4,7 +4,7 @@
  * Provides real-time settings updates and visual feedback
  */
 
-const { ParticleSettings } = require('./ParticleSettings.js');
+const { ParticleSettings } = require('../systems/ParticleSettings.js');
 
 /**
  * ParticleSettingsUI class for managing the settings interface

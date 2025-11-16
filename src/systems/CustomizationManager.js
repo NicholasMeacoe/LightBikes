@@ -11,7 +11,7 @@ class CustomizationManager {
         // Initialize performance optimizer
         this.performanceOptimizer = null;
         if (renderingEngine && renderingEngine.scene && renderingEngine.renderer) {
-            const { PerformanceOptimizer } = require('./PerformanceOptimizer.js');
+            const { PerformanceOptimizer } = require('../utils/PerformanceOptimizer.js');
             this.performanceOptimizer = new PerformanceOptimizer(
                 renderingEngine.scene, 
                 renderingEngine.renderer

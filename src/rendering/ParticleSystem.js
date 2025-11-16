@@ -6,7 +6,7 @@
 
 const { ParticlePool } = require('./ParticlePool.js');
 const { Particle } = require('./Particle.js');
-const { PerformanceMonitor } = require('./PerformanceMonitor.js');
+const { PerformanceMonitor } = require('../utils/PerformanceMonitor.js');
 
 /**
  * Main Particle System class

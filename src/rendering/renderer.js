@@ -22,7 +22,7 @@ class RenderingEngine {
         this.cameraEffectsManager = null; // Will be set by orchestrator
 
         // Initialize ThemeEngine for arena theme management
-        const { ThemeEngine } = require('./ThemeEngine.js');
+        const { ThemeEngine } = require('../systems/ThemeEngine.js');
         this.themeEngine = new ThemeEngine(this.scene, this.renderer);
         
         // Initialize emissive material system for glow effects
@@ -562,7 +562,7 @@ class RenderingEngine {
     updateCameraForPlayers(gameState) {
         // Initialize split screen camera if not already done
         if (!this.splitScreenCamera) {
-            const { SplitScreenCamera } = require('./SplitScreenCamera.js');
+            const { SplitScreenCamera } = require('../multiplayer/SplitScreenCamera.js');
             this.splitScreenCamera = new SplitScreenCamera(this.camera);
         }
 

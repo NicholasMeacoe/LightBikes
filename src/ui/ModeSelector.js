@@ -2,7 +2,7 @@
  * ModeSelector - Component for game mode selection UI
  * Handles mode selection, persistence, and UI state management
  */
-const { GameModes } = require('./GameModes.js');
+const { GameModes } = require('../systems/GameModes.js');
 
 class ModeSelector {
     constructor(gameInstance) {

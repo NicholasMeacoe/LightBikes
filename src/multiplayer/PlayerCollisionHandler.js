@@ -1,4 +1,4 @@
-const { CollisionDetectionEngine } = require('./collision.js');
+const { CollisionDetectionEngine } = require('../core/collision.js');
 
 /**
  * PlayerCollisionHandler - Extends CollisionDetectionEngine for player vs player scenarios

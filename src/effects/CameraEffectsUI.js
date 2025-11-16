@@ -3,7 +3,7 @@
  * Manages the settings panel, user interactions, and integration with EffectsConfigManager
  */
 
-const { EffectsConfigManager } = require('./EffectsConfigManager.js');
+const { EffectsConfigManager } = require('../systems/EffectsConfigManager.js');
 
 class CameraEffectsUI {
     constructor() {

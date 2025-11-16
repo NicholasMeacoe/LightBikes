@@ -1,7 +1,7 @@
-const { Game } = require('./game.js');
+const { Game } = require('../core/game.js');
 const { PlayerEntity } = require('./PlayerEntity.js');
-const { GameModes } = require('./GameModes.js');
-const { LocalScoring } = require('./LocalScoring.js');
+const { GameModes } = require('../systems/GameModes.js');
+const { LocalScoring } = require('../systems/LocalScoring.js');
 
 /**
  * MultiplayerGame - Extends Game class to support local 2-player multiplayer

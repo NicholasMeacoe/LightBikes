@@ -1,9 +1,9 @@
 
 
-const { ScoreManager } = require('./scoreManager.js');
-const { GameModes } = require('./GameModes.js');
-const { SurvivalTimer } = require('./SurvivalTimer.js');
-const { ArenaShrinker } = require('./ArenaShrinker.js');
+const { ScoreManager } = require('../systems/scoreManager.js');
+const { GameModes } = require('../systems/GameModes.js');
+const { SurvivalTimer } = require('../ui/SurvivalTimer.js');
+const { ArenaShrinker } = require('../systems/ArenaShrinker.js');
 
 class Game {
     constructor(mode = GameModes.CLASSIC, config = {}) {
