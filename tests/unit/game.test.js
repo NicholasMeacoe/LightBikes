@@ -1,8 +1,8 @@
-const { Game } = require('./game.js');
-const { ScoreManager } = require('./scoreManager.js');
+const { Game } = require('../../src/core/game.js');
+const { ScoreManager } = require('../../src/systems/scoreManager.js');
 
 // Mock ScorePersistence to ensure consistent test behavior
-jest.mock('./scorePersistence.js', () => ({
+jest.mock('../../src/systems/scorePersistence.js', () => ({
     ScorePersistence: {
         loadHighScore: jest.fn(() => 0),
         saveHighScore: jest.fn(() => true)

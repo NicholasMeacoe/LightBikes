@@ -1,4 +1,4 @@
-const { AIController } = require('./ai.js');
+const { AIController } = require('../../src/core/ai.js');
 
 describe('AIController', () => {
     let aiController;
@@ -690,7 +690,7 @@ describe('AIController', () => {
         let aiEntities;
 
         beforeEach(() => {
-            const { AICoordinator } = require('./ai.js');
+            const { AICoordinator } = require('../../src/core/ai.js');
             coordinator = new AICoordinator();
             
             // Create mock AI entities

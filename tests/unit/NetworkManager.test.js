@@ -2,7 +2,7 @@
  * Tests for NetworkManager class
  */
 
-const { NetworkManager } = require('./NetworkManager');
+const { NetworkManager } = require('../../src/multiplayer/NetworkManager');
 
 // Mock socket.io-client
 jest.mock('socket.io-client');
