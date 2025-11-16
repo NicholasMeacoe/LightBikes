@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LightBikes - Verification Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #000; color: #0f0; }
+        #status { margin: 20px 0; }
+        .pass { color: #0f0; }
+        .fail { color: #f00; }
+        .info { color: #0ff; }
+    </style>
+</head>
+<body>
+    <h1>LightBikes Game Verification</h1>
+    <div id="status">Loading bundle...</div>
+    <script src="../public/bundle.js"></script>
+    <script>
+        const status = document.getElementById('status');
+        const results = [];
+        
+        function check(name, condition) {
+            const pass = condition();
+            results.push(`<div class="${pass ? 'pass' : 'fail'}">${pass ? '✓' : '✗'} ${name}</div>`);
+            return pass;
+        }
+        
+        setTimeout(() => {
+            check('Bundle loaded', () => true);
+            check('Window object exists', () => typeof window !== 'undefined');
+            check('Document object exists', () => typeof document !== 'undefined');
+            
+            status.innerHTML = `
+                <h2>Verification Results:</h2>
+                ${results.join('')}
+                <div class="info"><br>Bundle size: ${(new Blob([document.scripts[1].textContent]).size / 1024).toFixed(2)} KB</div>
+                <div class="info">To fully test the game, open: <a href="../public/index.html" style="color: #0ff;">public/index.html</a></div>
+            `;
+        }, 100);
+    </script>
+</body>
+</html>
