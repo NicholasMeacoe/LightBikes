@@ -1,4 +1,4 @@
-const { NearMissDetector } = require('./NearMissDetector.js');
+const { NearMissDetector } = require('@/effects/NearMissDetector.js');
 
 describe('NearMissDetector', () => {
     let detector;

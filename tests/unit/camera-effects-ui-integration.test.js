@@ -3,8 +3,8 @@
  * Tests the complete integration between UI, settings manager, and camera effects
  */
 
-const { CameraEffectsUI } = require('./CameraEffectsUI.js');
-const { EffectsConfigManager } = require('./EffectsConfigManager.js');
+const { CameraEffectsUI } = require('@/effects/CameraEffectsUI.js');
+const { EffectsConfigManager } = require('@/systems/EffectsConfigManager.js');
 
 // Mock basic DOM environment
 global.document = {

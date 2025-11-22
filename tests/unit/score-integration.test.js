@@ -3,11 +3,11 @@
  * Tests end-to-end workflows combining ScoreManager, ScorePersistence, ScoreDisplay, and Game integration
  */
 
-const { Game } = require('./game.js');
-const { ScoreManager } = require('./scoreManager.js');
-const { ScorePersistence } = require('./scorePersistence.js');
-const { ScoreDisplay } = require('./scoreDisplay.js');
-const { CollisionDetectionEngine } = require('./collision.js');
+const { Game } = require('@/core/game.js');
+const { ScoreManager } = require('@/systems/scoreManager.js');
+const { ScorePersistence } = require('@/systems/scorePersistence.js');
+const { ScoreDisplay } = require('@/ui/scoreDisplay.js');
+const { CollisionDetectionEngine } = require('@/core/collision.js');
 
 // Mock localStorage for consistent testing
 const mockLocalStorage = {

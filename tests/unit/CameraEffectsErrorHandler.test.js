@@ -1,4 +1,4 @@
-const { CameraEffectsErrorHandler } = require('./CameraEffectsErrorHandler.js');
+const { CameraEffectsErrorHandler } = require('@/effects/CameraEffectsErrorHandler.js');
 
 // Mock components
 const mockCameraEffectsManager = {

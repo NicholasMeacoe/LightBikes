@@ -330,10 +330,10 @@ const mockLocalStorage = {
 global.THREE = mockThree;
 global.localStorage = mockLocalStorage;
 
-const { ParticleSystem } = require('./ParticleSystem.js');
-const { RenderingEngine } = require('./renderer.js');
-const { Game } = require('./game.js');
-const { ParticleSettingsUI } = require('./ParticleSettingsUI.js');
+const { ParticleSystem } = require('@/rendering/ParticleSystem.js');
+const { RenderingEngine } = require('@/rendering/renderer.js');
+const { Game } = require('@/core/game.js');
+const { ParticleSettingsUI } = require('@/ui/ParticleSettingsUI.js');
 
 describe('ParticleSystem Integration Tests', () => {
     let mockScene;

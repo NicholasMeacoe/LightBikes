@@ -1,4 +1,4 @@
-const { ErrorRecoveryStrategies } = require('./ErrorRecoveryStrategies.js');
+const { ErrorRecoveryStrategies } = require('@/utils/ErrorRecoveryStrategies.js');
 
 describe('ErrorRecoveryStrategies', () => {
     let strategies;

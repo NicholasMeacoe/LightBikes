@@ -3,7 +3,7 @@
  * Verifies settings persistence, validation, and localStorage integration
  */
 
-const { MusicSettings } = require('./MusicSettings.js');
+const { MusicSettings } = require('@/audio/MusicSettings.js');
 
 // Mock localStorage for testing
 const mockLocalStorage = {

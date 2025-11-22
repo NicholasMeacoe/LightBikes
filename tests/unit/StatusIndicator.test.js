@@ -1,4 +1,4 @@
-const { StatusIndicator } = require('./StatusIndicator.js');
+const { StatusIndicator } = require('@/ui/StatusIndicator.js');
 
 describe('StatusIndicator', () => {
     let statusIndicator;

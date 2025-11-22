@@ -3,7 +3,7 @@
  * Tests that CanvasVerifier is properly integrated into the game initialization
  */
 
-const { CanvasVerifier } = require('./CanvasVerifier');
+const { CanvasVerifier } = require('@/utils/CanvasVerifier.js');
 
 describe('Canvas Verification Integration', () => {
     let canvasVerifier;

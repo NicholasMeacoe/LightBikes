@@ -3,14 +3,14 @@
  * Tests complete Time Trial session from mode selection to leaderboard
  */
 
-const { Game } = require('./game.js');
-const { GameModes } = require('./GameModes.js');
-const { ModeSelector } = require('./ModeSelector.js');
-const { SurvivalTimer } = require('./SurvivalTimer.js');
-const { CountdownTimer } = require('./CountdownTimer.js');
-const { LeaderboardSystem } = require('./LeaderboardSystem.js');
-const { AchievementSystem } = require('./AchievementSystem.js');
-const { CollisionDetectionEngine } = require('./collision.js');
+const { Game } = require('@/core/game.js');
+const { GameModes } = require('@/systems/GameModes.js');
+const { ModeSelector } = require('@/ui/ModeSelector.js');
+const { SurvivalTimer } = require('@/ui/SurvivalTimer.js');
+const { CountdownTimer } = require('@/ui/CountdownTimer.js');
+const { LeaderboardSystem } = require('@/systems/LeaderboardSystem.js');
+const { AchievementSystem } = require('@/systems/AchievementSystem.js');
+const { CollisionDetectionEngine } = require('@/core/collision.js');
 
 // Mock ScorePersistence to ensure consistent test behavior
 jest.mock('./scorePersistence.js', () => ({

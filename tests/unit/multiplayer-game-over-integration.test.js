@@ -3,10 +3,10 @@
  * Tests the complete flow from game end to restart
  */
 
-const { MultiplayerGame } = require('./MultiplayerGame.js');
-const { MultiplayerGameOverUI } = require('./MultiplayerGameOverUI.js');
-const { LocalScoringUI } = require('./LocalScoringUI.js');
-const { PlayerCollisionHandler } = require('./PlayerCollisionHandler.js');
+const { MultiplayerGame } = require('@/multiplayer/MultiplayerGame.js');
+const { MultiplayerGameOverUI } = require('@/ui/MultiplayerGameOverUI.js');
+const { LocalScoringUI } = require('@/ui/LocalScoringUI.js');
+const { PlayerCollisionHandler } = require('@/multiplayer/PlayerCollisionHandler.js');
 
 describe('Multiplayer Game Over and Restart Integration', () => {
     let multiplayerGame;

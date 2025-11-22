@@ -4,13 +4,13 @@
  * Tests the coordination between Game, AIController, AICoordinator, CollisionDetectionEngine, and RenderingEngine
  */
 
-const { Game } = require('./game.js');
-const { AIController, AICoordinator } = require('./ai.js');
-const { CollisionDetectionEngine } = require('./collision.js');
-const { ColorManager } = require('./ColorManager.js');
-const { PositionManager } = require('./PositionManager.js');
-const { PerformanceMonitor } = require('./PerformanceMonitor.js');
-const { PerformanceDegradationManager } = require('./PerformanceDegradationManager.js');
+const { Game } = require('@/core/game.js');
+const { AIController, AICoordinator } = require('@/core/ai.js');
+const { CollisionDetectionEngine } = require('@/core/collision.js');
+const { ColorManager } = require('@/systems/ColorManager.js');
+const { PositionManager } = require('@/multiplayer/PositionManager.js');
+const { PerformanceMonitor } = require('@/utils/PerformanceMonitor.js');
+const { PerformanceDegradationManager } = require('@/utils/PerformanceDegradationManager.js');
 
 describe('Multi-AI System Integration', () => {
     let game;

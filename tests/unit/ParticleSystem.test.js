@@ -124,7 +124,7 @@ global.document = {
     }
 };
 
-const { ParticleSystem, Particle } = require('./ParticleSystem.js');
+const { ParticleSystem, Particle } = require('@/rendering/ParticleSystem.js');
 
 describe('Particle', () => {
     let particle;

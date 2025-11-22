@@ -3,10 +3,10 @@
  * Verifies that all requirements from the requirements document are met
  */
 
-const { CameraEffectsManager } = require('./CameraEffectsManager.js');
-const { Game } = require('./game.js');
-const { GameModes } = require('./GameModes.js');
-const { RenderingEngine } = require('./renderer.js');
+const { CameraEffectsManager } = require('@/effects/CameraEffectsManager.js');
+const { Game } = require('@/core/game.js');
+const { GameModes } = require('@/systems/GameModes.js');
+const { RenderingEngine } = require('@/rendering/renderer.js');
 
 // Mock THREE.js for testing
 global.THREE = {

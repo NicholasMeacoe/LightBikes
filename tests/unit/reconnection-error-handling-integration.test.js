@@ -3,8 +3,8 @@
  * Tests the interaction between ReconnectionManager and NetworkErrorHandler
  */
 
-const { ReconnectionManager } = require('./ReconnectionManager');
-const { NetworkErrorHandler } = require('./NetworkErrorHandler');
+const { ReconnectionManager } = require('@/multiplayer/ReconnectionManager.js');
+const { NetworkErrorHandler } = require('@/multiplayer/NetworkErrorHandler.js');
 
 describe('Reconnection and Error Handling Integration', () => {
     let reconnectionManager;

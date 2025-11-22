@@ -7,3 +7,4 @@ coverage/
 .specify/
 .gemini/
 .amazonq/
+script.js.legacy

@@ -3,10 +3,10 @@
  * Tests customization system functionality across all game modes
  */
 
-const { Game } = require('./game.js');
-const { GameModes } = require('./GameModes.js');
-const { CustomizationManager } = require('./CustomizationManager.js');
-const { PreferenceStorage } = require('./PreferenceStorage.js');
+const { Game } = require('@/core/game.js');
+const { GameModes } = require('@/systems/GameModes.js');
+const { CustomizationManager } = require('@/systems/CustomizationManager.js');
+const { PreferenceStorage } = require('@/systems/PreferenceStorage.js');
 
 // Mock ThemeEngine to avoid Three.js issues
 jest.mock('./ThemeEngine.js', () => ({

@@ -1,4 +1,4 @@
-const { AccessibilityHandler } = require('./AccessibilityHandler.js');
+const { AccessibilityHandler } = require('@/utils/AccessibilityHandler.js');
 
 // Mock matchMedia
 const createMockMediaQueryList = (matches = false) => ({

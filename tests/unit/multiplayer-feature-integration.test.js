@@ -10,11 +10,11 @@
  * Requirements: 6.1, 6.2, 6.3, 6.4, 6.5
  */
 
-const { MultiplayerGame } = require('./MultiplayerGame.js');
-const { PlayerEntity } = require('./PlayerEntity.js');
-const { ArenaShrinker } = require('./ArenaShrinker.js');
-const { ParticleSystem } = require('./ParticleSystem.js');
-const { CustomizationManager } = require('./CustomizationManager.js');
+const { MultiplayerGame } = require('@/multiplayer/MultiplayerGame.js');
+const { PlayerEntity } = require('@/multiplayer/PlayerEntity.js');
+const { ArenaShrinker } = require('@/systems/ArenaShrinker.js');
+const { ParticleSystem } = require('@/rendering/ParticleSystem.js');
+const { CustomizationManager } = require('@/systems/CustomizationManager.js');
 
 // Mock THREE.js
 global.THREE = {

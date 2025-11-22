@@ -45,7 +45,7 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('Frame Rate Monitoring', () => {
         it('should accurately track frame rate over time', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Simulate consistent 60 FPS
@@ -60,7 +60,7 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should detect performance drops accurately', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Simulate performance drop from 60 FPS to 30 FPS
@@ -78,7 +78,7 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should maintain frame rate history within limits', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Add more frames than the history limit
@@ -95,7 +95,7 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('Quality Scaling Effectiveness', () => {
         it('should scale down quality when performance drops', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
             
             let qualityChanges = [];
@@ -118,7 +118,7 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should scale up quality after sustained good performance', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
             
             // Start at lower quality
@@ -146,7 +146,7 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should provide different quality settings with measurable impact', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             const qualities = ['high', 'medium', 'low', 'minimal'];
@@ -169,7 +169,7 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('Memory Usage Validation', () => {
         it('should track memory usage over time', () => {
-            const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
+            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
             const materialSystem = new EmissiveMaterialSystem();
 
             // Create multiple materials to simulate memory usage
@@ -192,7 +192,7 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should prevent memory leaks through proper disposal', () => {
-            const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
+            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
             const materialSystem = new EmissiveMaterialSystem();
 
             // Create materials
@@ -213,7 +213,7 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should handle large numbers of materials efficiently', () => {
-            const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
+            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
             const materialSystem = new EmissiveMaterialSystem();
 
             const startTime = performance.now();
@@ -241,7 +241,7 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('Performance Scaling Thresholds', () => {
         it('should trigger scaling at correct FPS thresholds', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             expect(scaler.targetFPS).toBe(60);
@@ -263,7 +263,7 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should recommend appropriate quality levels based on performance', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             const recommendations = [
@@ -283,7 +283,7 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('Adaptive Scaling Performance', () => {
         it('should apply dynamic adjustments based on performance', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Simulate poor performance for aggressive downscaling
@@ -299,7 +299,7 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should track scaling effectiveness over time', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Perform several quality changes
@@ -318,7 +318,7 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('Post-processing Performance', () => {
         it('should handle different quality levels efficiently', () => {
-            const { PostProcessingPipeline } = require('./PostProcessingPipeline.js');
+            const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
             
             const mockRenderer = { getSize: jest.fn(() => ({ x: 1920, y: 1080 })) };
             const mockScene = {};
@@ -341,7 +341,7 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should handle resize operations efficiently', () => {
-            const { PostProcessingPipeline } = require('./PostProcessingPipeline.js');
+            const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
             
             const mockRenderer = { getSize: jest.fn(() => ({ x: 800, y: 600 })) };
             const mockScene = {};
@@ -371,9 +371,9 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('System Integration Performance', () => {
         it('should maintain performance with multiple systems active', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
-            const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
-            const { PostProcessingPipeline } = require('./PostProcessingPipeline.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
+            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
+            const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
 
             const scaler = new PerformanceScaler();
             const materialSystem = new EmissiveMaterialSystem();
@@ -412,7 +412,7 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should provide comprehensive performance analysis', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Add performance data
@@ -440,7 +440,7 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('Performance Regression Detection', () => {
         it('should detect performance regressions over time', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Simulate initial good performance
@@ -466,7 +466,7 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should track performance recovery', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Start with poor performance

@@ -1,4 +1,4 @@
-const { ColorManager } = require('./ColorManager.js');
+const { ColorManager } = require('@/systems/ColorManager.js');
 
 describe('ColorManager', () => {
     describe('assignColors', () => {

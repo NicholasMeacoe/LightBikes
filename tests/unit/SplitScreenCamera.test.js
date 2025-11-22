@@ -1,4 +1,4 @@
-const { SplitScreenCamera } = require('./SplitScreenCamera.js');
+const { SplitScreenCamera } = require('@/multiplayer/SplitScreenCamera.js');
 
 // Mock THREE.js camera
 class MockCamera {

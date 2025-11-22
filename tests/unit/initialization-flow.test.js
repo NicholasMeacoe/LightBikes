@@ -77,7 +77,7 @@ describe('Initialization Flow', () => {
     });
 
     describe('Error Type Usage', () => {
-        const { DOMNotReadyError, CanvasCreationError, ModeSelectorError } = require('./InitializationErrors.js');
+        const { DOMNotReadyError, CanvasCreationError, ModeSelectorError } = require('@/utils/InitializationErrors.js');
 
         it('should use DOMNotReadyError for DOM timing issues', () => {
             const error = new DOMNotReadyError();
@@ -105,7 +105,7 @@ describe('Initialization Flow', () => {
     });
 
     describe('Recovery Strategies', () => {
-        const { ErrorRecoveryStrategies } = require('./ErrorRecoveryStrategies.js');
+        const { ErrorRecoveryStrategies } = require('@/utils/ErrorRecoveryStrategies.js');
 
         it('should provide WebGL compatibility messages', () => {
             const strategies = new ErrorRecoveryStrategies();
@@ -145,7 +145,7 @@ describe('Initialization Flow', () => {
     });
 
     describe('Loading Indicator Integration', () => {
-        const { LoadingIndicator } = require('./LoadingIndicator.js');
+        const { LoadingIndicator } = require('@/ui/LoadingIndicator.js');
 
         beforeEach(() => {
             document.body.innerHTML = '';
@@ -197,7 +197,7 @@ describe('Initialization Flow', () => {
     });
 
     describe('Canvas Verification', () => {
-        const { CanvasVerifier } = require('./CanvasVerifier.js');
+        const { CanvasVerifier } = require('@/utils/CanvasVerifier.js');
 
         it('should verify canvas after renderer creation', () => {
             const verifier = new CanvasVerifier();
@@ -261,7 +261,7 @@ describe('Initialization Flow', () => {
 
     describe('Error Handling Flow', () => {
         it('should use custom error types with actionable steps', () => {
-            const { CanvasCreationError } = require('./InitializationErrors.js');
+            const { CanvasCreationError } = require('@/utils/InitializationErrors.js');
             const error = new CanvasCreationError('WebGL not supported');
             
             expect(error.actionableSteps).toBeDefined();
@@ -270,7 +270,7 @@ describe('Initialization Flow', () => {
         });
 
         it('should provide retry callback for recoverable errors', () => {
-            const { LoadingIndicator } = require('./LoadingIndicator.js');
+            const { LoadingIndicator } = require('@/ui/LoadingIndicator.js');
             const indicator = new LoadingIndicator();
             
             const retryCallback = jest.fn();

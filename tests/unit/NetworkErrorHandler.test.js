@@ -1,4 +1,4 @@
-const { NetworkErrorHandler } = require('./NetworkErrorHandler');
+const { NetworkErrorHandler } = require('@/multiplayer/NetworkErrorHandler.js');
 
 describe('NetworkErrorHandler', () => {
     let errorHandler;

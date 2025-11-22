@@ -1,4 +1,4 @@
-const { PerformanceDegradationManager } = require('./PerformanceDegradationManager.js');
+const { PerformanceDegradationManager } = require('@/utils/PerformanceDegradationManager.js');
 
 // Mock components
 const mockCameraEffectsManager = {

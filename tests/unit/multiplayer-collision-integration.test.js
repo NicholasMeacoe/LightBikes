@@ -1,5 +1,5 @@
-const { MultiplayerGame } = require('./MultiplayerGame.js');
-const { PlayerCollisionHandler } = require('./PlayerCollisionHandler.js');
+const { MultiplayerGame } = require('@/multiplayer/MultiplayerGame.js');
+const { PlayerCollisionHandler } = require('@/multiplayer/PlayerCollisionHandler.js');
 
 describe('Multiplayer Collision Integration', () => {
     let multiplayerGame;

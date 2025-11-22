@@ -3,7 +3,7 @@
  * Verifies browser compatibility detection, autoplay handling, and mobile audio management
  */
 
-const { MusicCompatibility } = require('./MusicCompatibility.js');
+const { MusicCompatibility } = require('@/audio/MusicCompatibility.js');
 
 // Mock Web Audio API
 const mockAudioContext = {

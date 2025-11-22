@@ -2,7 +2,7 @@
  * Integration tests for GlowSettings persistence functionality
  * Tests localStorage handling, error recovery, and settings migration
  */
-const { GlowSettings } = require('./GlowSettings.js');
+const { GlowSettings } = require('@/systems/GlowSettings.js');
 
 describe('GlowSettings Persistence Integration', () => {
     let mockLocalStorage;

@@ -2,7 +2,7 @@
  * Tests for ChatSystem class
  */
 
-const { ChatSystem } = require('./ChatSystem');
+const { ChatSystem } = require('@/multiplayer/ChatSystem.js');
 
 describe('ChatSystem', () => {
     let chatSystem;

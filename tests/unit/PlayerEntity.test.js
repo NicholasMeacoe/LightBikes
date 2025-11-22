@@ -1,4 +1,4 @@
-const { PlayerEntity } = require('./PlayerEntity.js');
+const { PlayerEntity } = require('@/multiplayer/PlayerEntity.js');
 
 describe('PlayerEntity', () => {
     let playerEntity;

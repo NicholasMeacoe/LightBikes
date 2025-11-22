@@ -112,7 +112,7 @@ jest.mock('./TrailStyleRenderer.js', () => ({
     }))
 }));
 
-const { RenderingEngine } = require('./renderer.js');
+const { RenderingEngine } = require('@/rendering/renderer.js');
 
 describe('RenderingEngine Multiplayer Visual Distinction', () => {
     let renderer;

@@ -1,4 +1,4 @@
-const { LocalScoring } = require('./LocalScoring.js');
+const { LocalScoring } = require('@/systems/LocalScoring.js');
 
 describe('LocalScoring', () => {
     let localScoring;

@@ -3,7 +3,7 @@
  * Verifies audio loading, metadata management, and track functionality
  */
 
-const { MusicTrack } = require('./MusicTrack.js');
+const { MusicTrack } = require('@/audio/MusicTrack.js');
 
 // Mock Web Audio API for testing
 const mockAudioContext = {

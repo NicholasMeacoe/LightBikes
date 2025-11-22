@@ -1,4 +1,4 @@
-const { PreferenceStorage } = require('./PreferenceStorage.js');
+const { PreferenceStorage } = require('@/systems/PreferenceStorage.js');
 
 // Mock localStorage
 const mockLocalStorage = {

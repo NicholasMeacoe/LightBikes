@@ -3,9 +3,9 @@
  * Tests the complete flow: server state management -> network -> client prediction -> interpolation
  */
 
-const { GameRoom } = require('./server/GameRoom');
-const { ClientPrediction } = require('./ClientPrediction');
-const { LatencyCompensation } = require('./LatencyCompensation');
+const { GameRoom } = require('../../server/GameRoom.js');
+const { ClientPrediction } = require('@/multiplayer/ClientPrediction.js');
+const { LatencyCompensation } = require('@/multiplayer/LatencyCompensation.js');
 
 describe('State Synchronization Integration', () => {
     let gameRoom;

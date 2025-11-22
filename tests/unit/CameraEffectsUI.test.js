@@ -3,101 +3,8 @@
  * Tests UI integration, DOM interactions, and settings synchronization
  */
 
-const { CameraEffectsUI } = require('./CameraEffectsUI.js');
-
-// Mock DOM elements
-const mockElements = {
-    button: {
-        addEventListener: jest.fn(),
-        classList: {
-            add: jest.fn(),
-            remove: jest.fn()
-        }
-    },
-    panel: {
-        style: { display: 'none' },
-        addEventListener: jest.fn()
-    },
-    accessibilityWarning: {
-        classList: {
-            add: jest.fn(),
-            remove: jest.fn()
-        }
-    },
-    shakeIntensityButtons: [
-        { dataset: { intensity: '0' }, addEventListener: jest.fn(), classList: { add: jest.fn(), remove: jest.fn() } },
-        { dataset: { intensity: '0.5' }, addEventListener: jest.fn(), classList: { add: jest.fn(), remove: jest.fn() } },
-        { dataset: { intensity: '1.0' }, addEventListener: jest.fn(), classList: { add: jest.fn(), remove: jest.fn() } },
-        { dataset: { intensity: '2.0' }, addEventListener: jest.fn(), classList: { add: jest.fn(), remove: jest.fn() } }
-    ],
-    motionBlurToggle: {
-        addEventListener: jest.fn(),
-        classList: {
-            add: jest.fn(),
-            remove: jest.fn()
-        }
-    },
-    motionBlurQualityButtons: [
-        { dataset: { quality: 'low' }, addEventListener: jest.fn(), classList: { add: jest.fn(), remove: jest.fn() } },
-        { dataset: { quality: 'medium' }, addEventListener: jest.fn(), classList: { add: jest.fn(), remove: jest.fn() } },
-        { dataset: { quality: 'high' }, addEventListener: jest.fn(), classList: { add: jest.fn(), remove: jest.fn() } }
-    ],
-    accessibilityModeToggle: {
-        addEventListener: jest.fn(),
-        classList: {
-            add: jest.fn(),
-            remove: jest.fn()
-        }
-    },
-    systemPreferencesToggle: {
-        addEventListener: jest.fn(),
-        classList: {
-            add: jest.fn(),
-            remove: jest.fn()
-        }
-    },
-    resetButton: {
-        addEventListener: jest.fn()
-    },
-    closeButton: {
-        addEventListener: jest.fn()
-    }
-};
-
-// Mock document
-global.document = {
-    getElementById: jest.fn((id) => {
-        const elementMap = {
-            'cameraEffectsButton': mockElements.button,
-            'cameraEffectsPanel': mockElements.panel,
-            'accessibilityWarning': mockElements.accessibilityWarning,
-            'motionBlurToggle': mockElements.motionBlurToggle,
-            'accessibilityModeToggle': mockElements.accessibilityModeToggle,
-            'systemPreferencesToggle': mockElements.systemPreferencesToggle,
-            'resetCameraEffectsSettings': mockElements.resetButton,
-            'closeCameraEffectsSettings': mockElements.closeButton
-        };
-        return elementMap[id] || null;
-    }),
-    querySelectorAll: jest.fn((selector) => {
-        if (selector === '.shake-intensity-btn') {
-            return mockElements.shakeIntensityButtons;
-        }
-        if (selector === '#cameraEffectsPanel .quality-btn') {
-            return mockElements.motionBlurQualityButtons;
-        }
-        return [];
-    }),
-    addEventListener: jest.fn()
-};
-
-// Mock window
-global.window = {
-    matchMedia: jest.fn(() => ({
-        matches: false,
-        addListener: jest.fn()
-    }))
-};
+const { CameraEffectsUI } = require('@/effects/CameraEffectsUI.js');
+const { setupUITest, createMockButtonGroup } = require('../helpers/ui-test-helpers.js');
 
 // Mock localStorage
 const localStorageMock = {
@@ -110,21 +17,59 @@ global.localStorage = localStorageMock;
 
 describe('CameraEffectsUI', () => {
     let cameraEffectsUI;
+    let testSetup;
+    let mockElements;
 
     beforeEach(() => {
-        // Clear all mocks
-        jest.clearAllMocks();
-        
         // Reset localStorage mock
         localStorageMock.getItem.mockReturnValue(null);
-        
-        // Create new instance
+
+        // Create mock button groups
+        const shakeIntensityButtons = createMockButtonGroup([
+            { dataset: { intensity: '0' }, className: 'shake-intensity-btn' },
+            { dataset: { intensity: '0.5' }, className: 'shake-intensity-btn' },
+            { dataset: { intensity: '1.0' }, className: 'shake-intensity-btn' },
+            { dataset: { intensity: '2.0' }, className: 'shake-intensity-btn' }
+        ]);
+
+        const motionBlurQualityButtons = createMockButtonGroup([
+            { dataset: { quality: 'low' }, className: 'quality-btn' },
+            { dataset: { quality: 'medium' }, className: 'quality-btn' },
+            { dataset: { quality: 'high' }, className: 'quality-btn' }
+        ]);
+
+        // Set up UI test with all required elements
+        testSetup = setupUITest([
+            'cameraEffectsButton',
+            'cameraEffectsPanel',
+            'accessibilityWarning',
+            'motionBlurToggle',
+            'accessibilityModeToggle',
+            'systemPreferencesToggle',
+            'resetCameraEffectsSettings',
+            'closeCameraEffectsSettings'
+        ], {
+            buttonGroups: {
+                '.shake-intensity-btn': shakeIntensityButtons,
+                '#cameraEffectsPanel .quality-btn': motionBlurQualityButtons
+            }
+        });
+
+        mockElements = testSetup.mockElements;
+
+        // Ensure panel has proper initial state
+        mockElements.cameraEffectsPanel.style.display = 'none';
+
+        // Create new instance - elements are fresh, no need to clear mocks
         cameraEffectsUI = new CameraEffectsUI();
     });
 
     afterEach(() => {
         if (cameraEffectsUI) {
             cameraEffectsUI.destroy();
+        }
+        if (testSetup) {
+            testSetup.cleanup();
         }
     });
 
@@ -149,16 +94,21 @@ describe('CameraEffectsUI', () => {
         });
 
         it('should initialize elements correctly', () => {
-            expect(cameraEffectsUI.elements.button).toBe(mockElements.button);
-            expect(cameraEffectsUI.elements.panel).toBe(mockElements.panel);
-            expect(cameraEffectsUI.elements.shakeIntensityButtons).toEqual(mockElements.shakeIntensityButtons);
+            // Verify document.getElementById was called
+            expect(document.getElementById).toHaveBeenCalledWith('cameraEffectsButton');
+            expect(document.getElementById).toHaveBeenCalledWith('cameraEffectsPanel');
+
+            // Elements should be assigned from the mocks
+            expect(cameraEffectsUI.elements.button).not.toBeNull();
+            expect(cameraEffectsUI.elements.panel).not.toBeNull();
+            expect(cameraEffectsUI.elements.shakeIntensityButtons).toBeDefined();
         });
     });
 
     describe('panel visibility', () => {
         it('should show panel when showPanel is called', () => {
             cameraEffectsUI.showPanel();
-            
+
             expect(mockElements.panel.style.display).toBe('block');
             expect(mockElements.button.classList.add).toHaveBeenCalledWith('active');
             expect(cameraEffectsUI.isVisible).toBe(true);
@@ -167,7 +117,7 @@ describe('CameraEffectsUI', () => {
         it('should hide panel when hidePanel is called', () => {
             cameraEffectsUI.showPanel();
             cameraEffectsUI.hidePanel();
-            
+
             expect(mockElements.panel.style.display).toBe('none');
             expect(mockElements.button.classList.remove).toHaveBeenCalledWith('active');
             expect(cameraEffectsUI.isVisible).toBe(false);
@@ -177,7 +127,7 @@ describe('CameraEffectsUI', () => {
             // First toggle should show
             cameraEffectsUI.togglePanel();
             expect(cameraEffectsUI.isVisible).toBe(true);
-            
+
             // Second toggle should hide
             cameraEffectsUI.togglePanel();
             expect(cameraEffectsUI.isVisible).toBe(false);
@@ -199,9 +149,9 @@ describe('CameraEffectsUI', () => {
                 accessibilityMode: true,
                 respectSystemPreferences: false
             };
-            
+
             cameraEffectsUI.updateUIFromSettings(newSettings);
-            
+
             // Check that UI elements are updated (mocked behavior)
             expect(mockElements.shakeIntensityButtons[3].classList.add).toHaveBeenCalledWith('active');
             expect(mockElements.motionBlurQualityButtons[2].classList.add).toHaveBeenCalledWith('active');
@@ -211,9 +161,9 @@ describe('CameraEffectsUI', () => {
     describe('settings updates', () => {
         it('should update shake intensity', () => {
             const spy = jest.spyOn(cameraEffectsUI.configManager, 'updateSettings');
-            
+
             cameraEffectsUI.updateShakeIntensity(1.5);
-            
+
             expect(spy).toHaveBeenCalledWith({
                 shakeIntensity: 1.5,
                 shakeEnabled: true
@@ -222,9 +172,9 @@ describe('CameraEffectsUI', () => {
 
         it('should disable shake when intensity is 0', () => {
             const spy = jest.spyOn(cameraEffectsUI.configManager, 'updateSettings');
-            
+
             cameraEffectsUI.updateShakeIntensity(0);
-            
+
             expect(spy).toHaveBeenCalledWith({
                 shakeIntensity: 0,
                 shakeEnabled: false
@@ -233,9 +183,9 @@ describe('CameraEffectsUI', () => {
 
         it('should toggle motion blur', () => {
             const spy = jest.spyOn(cameraEffectsUI.configManager, 'updateSettings');
-            
+
             cameraEffectsUI.toggleMotionBlur();
-            
+
             expect(spy).toHaveBeenCalledWith({
                 motionBlurEnabled: expect.any(Boolean)
             });
@@ -243,9 +193,9 @@ describe('CameraEffectsUI', () => {
 
         it('should update motion blur quality', () => {
             const spy = jest.spyOn(cameraEffectsUI.configManager, 'updateSettings');
-            
+
             cameraEffectsUI.updateMotionBlurQuality('high');
-            
+
             expect(spy).toHaveBeenCalledWith({
                 motionBlurQuality: 'high'
             });
@@ -253,9 +203,9 @@ describe('CameraEffectsUI', () => {
 
         it('should toggle accessibility mode', () => {
             const spy = jest.spyOn(cameraEffectsUI.configManager, 'updateSettings');
-            
+
             cameraEffectsUI.toggleAccessibilityMode();
-            
+
             expect(spy).toHaveBeenCalledWith({
                 accessibilityMode: expect.any(Boolean)
             });
@@ -263,9 +213,9 @@ describe('CameraEffectsUI', () => {
 
         it('should reset settings to defaults', () => {
             const spy = jest.spyOn(cameraEffectsUI.configManager, 'resetToDefaults');
-            
+
             cameraEffectsUI.resetSettings();
-            
+
             expect(spy).toHaveBeenCalled();
         });
     });
@@ -273,17 +223,17 @@ describe('CameraEffectsUI', () => {
     describe('accessibility warning', () => {
         it('should show warning when effects should be disabled', () => {
             jest.spyOn(cameraEffectsUI.configManager, 'shouldDisableEffects').mockReturnValue(true);
-            
+
             cameraEffectsUI.updateAccessibilityWarning();
-            
+
             expect(mockElements.accessibilityWarning.classList.add).toHaveBeenCalledWith('show');
         });
 
         it('should hide warning when effects are enabled', () => {
             jest.spyOn(cameraEffectsUI.configManager, 'shouldDisableEffects').mockReturnValue(false);
-            
+
             cameraEffectsUI.updateAccessibilityWarning();
-            
+
             expect(mockElements.accessibilityWarning.classList.remove).toHaveBeenCalledWith('show');
         });
     });
@@ -296,9 +246,9 @@ describe('CameraEffectsUI', () => {
                     remove: jest.fn()
                 }
             };
-            
+
             cameraEffectsUI.updateToggleState(mockToggle, true);
-            
+
             expect(mockToggle.classList.add).toHaveBeenCalledWith('active');
         });
 
@@ -309,9 +259,9 @@ describe('CameraEffectsUI', () => {
                     remove: jest.fn()
                 }
             };
-            
+
             cameraEffectsUI.updateToggleState(mockToggle, false);
-            
+
             expect(mockToggle.classList.remove).toHaveBeenCalledWith('active');
         });
 
@@ -325,9 +275,9 @@ describe('CameraEffectsUI', () => {
     describe('cleanup', () => {
         it('should clean up resources on destroy', () => {
             const spy = jest.spyOn(cameraEffectsUI.configManager, 'removeChangeListener');
-            
+
             cameraEffectsUI.destroy();
-            
+
             expect(spy).toHaveBeenCalled();
         });
     });

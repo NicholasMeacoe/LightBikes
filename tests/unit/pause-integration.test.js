@@ -1,5 +1,5 @@
-const { Game } = require('./game.js');
-const { PlayerController } = require('./controls.js');
+const { Game } = require('@/core/game.js');
+const { PlayerController } = require('@/utils/controls.js');
 
 describe('Pause System Integration Tests', () => {
     let game;
@@ -318,8 +318,8 @@ describe('Pause System Integration Tests', () => {
         let collisionDetectionEngine;
 
         beforeEach(() => {
-            const { AIController } = require('./ai.js');
-            const { CollisionDetectionEngine } = require('./collision.js');
+            const { AIController } = require('@/core/ai.js');
+            const { CollisionDetectionEngine } = require('@/core/collision.js');
             
             aiController = new AIController();
             collisionDetectionEngine = new CollisionDetectionEngine();

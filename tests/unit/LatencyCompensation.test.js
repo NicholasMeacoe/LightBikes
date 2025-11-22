@@ -1,4 +1,4 @@
-const { LatencyCompensation } = require('./LatencyCompensation');
+const { LatencyCompensation } = require('@/multiplayer/LatencyCompensation.js');
 
 describe('LatencyCompensation', () => {
     let latencyComp;

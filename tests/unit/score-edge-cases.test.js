@@ -4,10 +4,10 @@
  * display under various screen sizes, and performance impact
  */
 
-const { ScoreManager } = require('./scoreManager.js');
-const { ScorePersistence } = require('./scorePersistence.js');
-const { ScoreDisplay } = require('./scoreDisplay.js');
-const { Game } = require('./game.js');
+const { ScoreManager } = require('@/systems/scoreManager.js');
+const { ScorePersistence } = require('@/systems/scorePersistence.js');
+const { ScoreDisplay } = require('@/ui/scoreDisplay.js');
+const { Game } = require('@/core/game.js');
 
 // Mock performance.now for performance testing
 const mockPerformance = {

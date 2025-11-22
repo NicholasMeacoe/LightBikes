@@ -1,4 +1,4 @@
-const { ScorePersistence } = require('./scorePersistence.js');
+const { ScorePersistence } = require('@/systems/scorePersistence.js');
 
 describe('ScorePersistence', () => {
     let mockLocalStorage;

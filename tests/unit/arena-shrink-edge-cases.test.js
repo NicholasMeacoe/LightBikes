@@ -3,9 +3,9 @@
  * Tests edge cases, error conditions, and system stability
  */
 
-const { Game } = require('./game.js');
-const { ArenaShrinker } = require('./ArenaShrinker.js');
-const { GameModes } = require('./GameModes.js');
+const { Game } = require('@/core/game.js');
+const { ArenaShrinker } = require('@/systems/ArenaShrinker.js');
+const { GameModes } = require('@/systems/GameModes.js');
 
 describe('Arena Shrink Mode Edge Cases and Error Handling', () => {
     let game;

@@ -3,9 +3,9 @@
  * Tests frame rate monitoring, memory usage, WebGL resource management, and mobile compatibility
  */
 
-const { CameraEffectsManager } = require('./CameraEffectsManager.js');
-const { MotionBlurController } = require('./MotionBlurController.js');
-const { CameraShakeController } = require('./CameraShakeController.js');
+const { CameraEffectsManager } = require('@/effects/CameraEffectsManager.js');
+const { MotionBlurController } = require('@/effects/MotionBlurController.js');
+const { CameraShakeController } = require('@/effects/CameraShakeController.js');
 
 // Mock performance.now for consistent timing
 const mockPerformanceNow = jest.fn();

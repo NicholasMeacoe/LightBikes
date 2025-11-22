@@ -2,7 +2,7 @@
  * Tests for DifficultyManager class and configuration system
  */
 
-const { DifficultyManager, DIFFICULTY_CONFIGS } = require('./difficulty.js');
+const { DifficultyManager, DIFFICULTY_CONFIGS } = require('@/systems/difficulty.js');
 
 // Mock localStorage for testing
 const localStorageMock = {

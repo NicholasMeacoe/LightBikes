@@ -3,10 +3,10 @@
  * Tests performance impact and optimization effectiveness
  */
 
-const { CustomizationManager } = require('./CustomizationManager.js');
-const { PerformanceOptimizer } = require('./PerformanceOptimizer.js');
-const { ThemeEngine } = require('./ThemeEngine.js');
-const { TrailStyleRenderer } = require('./TrailStyleRenderer.js');
+const { CustomizationManager } = require('@/systems/CustomizationManager.js');
+const { PerformanceOptimizer } = require('@/utils/PerformanceOptimizer.js');
+const { ThemeEngine } = require('@/systems/ThemeEngine.js');
+const { TrailStyleRenderer } = require('@/rendering/TrailStyleRenderer.js');
 
 // Mock Three.js with performance tracking
 const mockThreeJS = {

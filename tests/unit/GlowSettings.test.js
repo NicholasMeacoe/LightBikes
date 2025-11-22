@@ -1,4 +1,4 @@
-const { GlowSettings } = require('./GlowSettings.js');
+const { GlowSettings } = require('@/systems/GlowSettings.js');
 
 describe('GlowSettings', () => {
     let glowSettings;

@@ -7,17 +7,17 @@ class CustomizationManager {
         this.renderingEngine = renderingEngine;
         this.preferenceStorage = preferenceStorage;
         this.themeEngine = null; // Will be initialized when needed
-        
+
         // Initialize performance optimizer
         this.performanceOptimizer = null;
         if (renderingEngine && renderingEngine.scene && renderingEngine.renderer) {
             const { PerformanceOptimizer } = require('../utils/PerformanceOptimizer.js');
             this.performanceOptimizer = new PerformanceOptimizer(
-                renderingEngine.scene, 
+                renderingEngine.scene,
                 renderingEngine.renderer
             );
         }
-        
+
         // Current customization state
         this.currentState = {
             bikeColor: '#00FF00',      // Default green
@@ -25,15 +25,15 @@ class CustomizationManager {
             trailStyle: 'solid',       // Default solid trail
             arenaTheme: 'classic-grid' // Default classic theme
         };
-        
+
         // Preview state management
         this.previewMode = false;
         this.previewState = null;
         this.originalState = null;
-        
+
         // Preference loading state
         this.pendingPreferenceApplication = false;
-        
+
         // Default color presets
         this.colorPresets = {
             red: '#FF0000',
@@ -45,7 +45,7 @@ class CustomizationManager {
             cyan: '#00FFFF',
             white: '#FFFFFF'
         };
-        
+
         // Trail style definitions
         this.trailStyles = {
             solid: {
@@ -69,11 +69,11 @@ class CustomizationManager {
                 effects: ['color-cycle']
             }
         };
-        
+
         // Initialize with saved preferences
         this.initializePreferences();
     }
-    
+
     /**
      * Set bike color for a specific player
      * @param {string} playerId - Player identifier ('player' or AI ID)
@@ -85,22 +85,22 @@ class CustomizationManager {
             console.warn('Invalid color format:', color);
             return false;
         }
-        
+
         const targetState = this.previewMode ? this.previewState : this.currentState;
-        
+
         if (playerId === 'player') {
             targetState.bikeColor = color;
-            
+
             // Apply to rendering engine immediately
             if (this.renderingEngine && this.renderingEngine.emissiveMaterialSystem) {
                 const colorHex = parseInt(color.replace('#', ''), 16);
                 this.renderingEngine.emissiveMaterialSystem.updateBikeMaterial('player', colorHex);
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * Set trail color for a specific player
      * @param {string} playerId - Player identifier ('player' or AI ID)
@@ -112,12 +112,12 @@ class CustomizationManager {
             console.warn('Invalid color format:', color);
             return false;
         }
-        
+
         const targetState = this.previewMode ? this.previewState : this.currentState;
-        
+
         if (playerId === 'player') {
             targetState.trailColor = color;
-            
+
             // Apply to rendering engine immediately
             if (this.renderingEngine && this.renderingEngine.emissiveMaterialSystem) {
                 const colorHex = parseInt(color.replace('#', ''), 16);
@@ -125,10 +125,10 @@ class CustomizationManager {
                 this.updateExistingTrailMaterials('player', colorHex);
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * Set trail style for a specific player
      * @param {string} playerId - Player identifier ('player' or AI ID)
@@ -140,19 +140,19 @@ class CustomizationManager {
             console.warn('Invalid trail style:', style);
             return false;
         }
-        
+
         const targetState = this.previewMode ? this.previewState : this.currentState;
-        
+
         if (playerId === 'player') {
             targetState.trailStyle = style;
-            
+
             // Apply style changes to rendering engine
             this.applyTrailStyle(playerId, style);
         }
-        
+
         return true;
     }
-    
+
     /**
      * Set arena theme
      * @param {string} themeName - Theme name ('classic-grid', 'neon-city', 'space', 'tron-legacy')
@@ -163,21 +163,21 @@ class CustomizationManager {
         if (!this.themeEngine) {
             this.initializeThemeEngine();
         }
-        
+
         if (!this.themeEngine.isValidTheme(themeName)) {
             console.warn('Invalid theme name:', themeName);
             return false;
         }
-        
+
         const targetState = this.previewMode ? this.previewState : this.currentState;
         targetState.arenaTheme = themeName;
-        
+
         // Apply theme to rendering engine
         this.themeEngine.loadTheme(themeName);
-        
+
         return true;
     }
-    
+
     /**
      * Enable preview mode for testing changes without committing
      */
@@ -185,12 +185,12 @@ class CustomizationManager {
         if (this.previewMode) {
             return; // Already in preview mode
         }
-        
+
         this.previewMode = true;
         this.originalState = { ...this.currentState };
         this.previewState = { ...this.currentState };
     }
-    
+
     /**
      * Disable preview mode and revert to original state
      */
@@ -198,18 +198,18 @@ class CustomizationManager {
         if (!this.previewMode) {
             return; // Not in preview mode
         }
-        
+
         // Revert to original state
         if (this.originalState) {
             this.applyState(this.originalState);
             this.currentState = { ...this.originalState };
         }
-        
+
         this.previewMode = false;
         this.previewState = null;
         this.originalState = null;
     }
-    
+
     /**
      * Apply preview changes to current state
      */
@@ -217,25 +217,25 @@ class CustomizationManager {
         if (!this.previewMode || !this.previewState) {
             return false;
         }
-        
+
         this.currentState = { ...this.previewState };
         this.previewMode = false;
         this.previewState = null;
         this.originalState = null;
-        
+
         // Save the applied changes
         this.saveCurrentPreferences();
-        
+
         return true;
     }
-    
+
     /**
      * Cancel preview changes and revert to original state
      */
     cancelPreviewChanges() {
         this.disablePreviewMode();
     }
-    
+
     /**
      * Load saved preferences from storage
      * @param {boolean} forceApply - Force application even if rendering engine isn't ready
@@ -245,7 +245,7 @@ class CustomizationManager {
             const savedPreferences = this.preferenceStorage.loadPreferences();
             if (savedPreferences && savedPreferences.preferences) {
                 const prefs = savedPreferences.preferences;
-                
+
                 // Validate and apply saved preferences
                 if (prefs.bikeColor && this.validateColor(prefs.bikeColor)) {
                     this.currentState.bikeColor = prefs.bikeColor;
@@ -259,7 +259,7 @@ class CustomizationManager {
                 if (prefs.arenaTheme) {
                     this.currentState.arenaTheme = prefs.arenaTheme;
                 }
-                
+
                 // Apply loaded preferences to rendering engine if available
                 if (forceApply || this.isRenderingEngineReady()) {
                     this.applyState(this.currentState);
@@ -267,7 +267,7 @@ class CustomizationManager {
                     // Mark that preferences need to be applied when rendering engine is ready
                     this.pendingPreferenceApplication = true;
                 }
-                
+
                 console.log('Loaded saved preferences:', this.currentState);
                 return true;
             } else {
@@ -280,18 +280,18 @@ class CustomizationManager {
             return false;
         }
     }
-    
+
     /**
      * Check if rendering engine is ready for preference application
      * @returns {boolean} True if rendering engine is ready
      */
     isRenderingEngineReady() {
-        return this.renderingEngine && 
-               this.renderingEngine.emissiveMaterialSystem && 
-               this.renderingEngine.scene &&
-               this.renderingEngine.renderer;
+        return this.renderingEngine &&
+            this.renderingEngine.emissiveMaterialSystem &&
+            this.renderingEngine.scene &&
+            this.renderingEngine.renderer;
     }
-    
+
     /**
      * Apply pending preferences when rendering engine becomes ready
      * This should be called after the rendering engine is fully initialized
@@ -305,7 +305,7 @@ class CustomizationManager {
         }
         return false;
     }
-    
+
     /**
      * Initialize or reinitialize preferences loading
      * This can be called multiple times safely
@@ -313,15 +313,15 @@ class CustomizationManager {
     initializePreferences() {
         // Load preferences from storage
         const loaded = this.loadSavedPreferences(false);
-        
+
         // If no preferences were loaded, ensure defaults are applied
         if (!loaded && this.isRenderingEngineReady()) {
             this.applyState(this.currentState);
         }
-        
+
         return loaded;
     }
-    
+
     /**
      * Save current preferences to storage
      */
@@ -333,13 +333,13 @@ class CustomizationManager {
                 trailStyle: this.currentState.trailStyle,
                 arenaTheme: this.currentState.arenaTheme
             };
-            
+
             this.preferenceStorage.savePreferences(preferences);
         } catch (error) {
             console.error('Failed to save preferences:', error);
         }
     }
-    
+
     /**
      * Reset all customizations to default values
      */
@@ -350,18 +350,18 @@ class CustomizationManager {
             trailStyle: 'solid',
             arenaTheme: 'classic-grid'
         };
-        
+
         if (this.previewMode) {
             this.previewState = { ...defaultState };
         } else {
             this.currentState = { ...defaultState };
             this.saveCurrentPreferences();
         }
-        
+
         // Apply default state to rendering engine
         this.applyState(defaultState);
     }
-    
+
     /**
      * Get current customization state
      * @returns {Object} Current state object
@@ -369,7 +369,7 @@ class CustomizationManager {
     getCurrentState() {
         return this.previewMode ? { ...this.previewState } : { ...this.currentState };
     }
-    
+
     /**
      * Get saved customization state from storage
      * @returns {Object} Saved state object
@@ -388,7 +388,7 @@ class CustomizationManager {
         } catch (error) {
             console.warn('Failed to load saved preferences:', error);
         }
-        
+
         // Return default state if no saved preferences
         return {
             bikeColor: '#00FF00',
@@ -397,7 +397,7 @@ class CustomizationManager {
             arenaTheme: 'classic-grid'
         };
     }
-    
+
     /**
      * Get available color presets
      * @returns {Object} Color presets object
@@ -405,7 +405,7 @@ class CustomizationManager {
     getColorPresets() {
         return { ...this.colorPresets };
     }
-    
+
     /**
      * Get available trail styles
      * @returns {Array} Array of trail style names
@@ -413,7 +413,7 @@ class CustomizationManager {
     getAvailableTrailStyles() {
         return Object.keys(this.trailStyles);
     }
-    
+
     /**
      * Get available arena themes
      * @returns {Array} Array of theme names
@@ -424,7 +424,7 @@ class CustomizationManager {
         }
         return this.themeEngine.getAvailableThemes();
     }
-    
+
     /**
      * Validate color format (hex string)
      * @param {string} color - Color string to validate
@@ -432,12 +432,12 @@ class CustomizationManager {
      */
     validateColor(color) {
         if (typeof color !== 'string') return false;
-        
+
         // Check hex format (#RRGGBB)
         const hexRegex = /^#[0-9A-Fa-f]{6}$/;
         return hexRegex.test(color);
     }
-    
+
     /**
      * Check color contrast against arena background
      * @param {string} color - Color to check
@@ -448,13 +448,13 @@ class CustomizationManager {
         // Simple contrast calculation
         const colorLuminance = this.calculateLuminance(color);
         const bgLuminance = this.calculateLuminance(backgroundColor);
-        
-        const contrast = (Math.max(colorLuminance, bgLuminance) + 0.05) / 
-                        (Math.min(colorLuminance, bgLuminance) + 0.05);
-        
+
+        const contrast = (Math.max(colorLuminance, bgLuminance) + 0.05) /
+            (Math.min(colorLuminance, bgLuminance) + 0.05);
+
         return contrast >= 3.0; // WCAG AA standard
     }
-    
+
     /**
      * Calculate relative luminance of a color
      * @param {string} color - Hex color string
@@ -465,14 +465,14 @@ class CustomizationManager {
         const r = parseInt(hex.substr(0, 2), 16) / 255;
         const g = parseInt(hex.substr(2, 2), 16) / 255;
         const b = parseInt(hex.substr(4, 2), 16) / 255;
-        
+
         const sRGB = [r, g, b].map(c => {
             return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
         });
-        
+
         return 0.2126 * sRGB[0] + 0.7152 * sRGB[1] + 0.0722 * sRGB[2];
     }
-    
+
     /**
      * Apply a complete state to the rendering engine
      * @param {Object} state - State object to apply
@@ -481,35 +481,38 @@ class CustomizationManager {
         // Apply bike color with performance optimization
         if (state.bikeColor && this.renderingEngine && this.renderingEngine.emissiveMaterialSystem) {
             const colorHex = parseInt(state.bikeColor.replace('#', ''), 16);
-            
+
             // Use performance optimizer for material reuse if available
             if (this.performanceOptimizer) {
                 const optimizedMaterial = this.performanceOptimizer.getOrCreateBikeMaterial(colorHex, {
                     emissive: colorHex,
                     emissiveIntensity: 0.2
                 });
-                
+
                 // Apply optimized material to bike
                 if (this.renderingEngine.player && this.renderingEngine.player.material) {
                     this.renderingEngine.player.material = optimizedMaterial;
                 }
             } else {
                 // Fallback to original method
-                this.renderingEngine.emissiveMaterialSystem.updateBikeMaterial('player', colorHex);
+                if (this.renderingEngine.emissiveMaterialSystem &&
+                    typeof this.renderingEngine.emissiveMaterialSystem.updateBikeMaterial === 'function') {
+                    this.renderingEngine.emissiveMaterialSystem.updateBikeMaterial('player', colorHex);
+                }
             }
         }
-        
+
         // Apply trail color with performance optimization
         if (state.trailColor && this.renderingEngine && this.renderingEngine.emissiveMaterialSystem) {
             const colorHex = parseInt(state.trailColor.replace('#', ''), 16);
             this.updateExistingTrailMaterials('player', colorHex);
         }
-        
+
         // Apply trail style
         if (state.trailStyle) {
             this.applyTrailStyle('player', state.trailStyle);
         }
-        
+
         // Apply arena theme
         if (state.arenaTheme) {
             if (!this.themeEngine) {
@@ -517,13 +520,13 @@ class CustomizationManager {
             }
             this.themeEngine.loadTheme(state.arenaTheme);
         }
-        
+
         // Trigger performance optimization
         if (this.performanceOptimizer && this.renderingEngine.camera) {
             this.performanceOptimizer.optimizeScene(this.renderingEngine.camera.position);
         }
     }
-    
+
     /**
      * Apply trail style to rendering engine
      * @param {string} playerId - Player identifier
@@ -532,13 +535,13 @@ class CustomizationManager {
     applyTrailStyle(playerId, style) {
         const styleConfig = this.trailStyles[style];
         if (!styleConfig || !this.renderingEngine) return;
-        
+
         // Apply style through the trail style renderer
         if (this.renderingEngine.trailStyleRenderer) {
             this.renderingEngine.trailStyleRenderer.setTrailStyle(playerId, style);
         }
     }
-    
+
     /**
      * Update existing trail materials with new color
      * @param {string} playerId - Player identifier
@@ -546,20 +549,20 @@ class CustomizationManager {
      */
     updateExistingTrailMaterials(playerId, colorHex) {
         if (!this.renderingEngine || !this.renderingEngine.emissiveMaterialSystem) return;
-        
+
         // Update trail material template for future segments
         this.renderingEngine.emissiveMaterialSystem.updateTrailMaterialTemplate(playerId, colorHex);
-        
+
         // Note: Updating existing trail segments would require tracking all trail segment materials
         // This is a simplified implementation that affects new trail segments
     }
-    
+
     /**
      * Initialize theme engine
      */
     initializeThemeEngine() {
         if (this.themeEngine) return;
-        
+
         try {
             const { ThemeEngine } = require('./ThemeEngine.js');
             this.themeEngine = new ThemeEngine(
@@ -572,7 +575,7 @@ class CustomizationManager {
             this.themeEngine = this.createMinimalThemeEngine();
         }
     }
-    
+
     /**
      * Create minimal theme engine for fallback
      * @returns {Object} Minimal theme engine
@@ -586,7 +589,7 @@ class CustomizationManager {
             getAvailableThemes: () => ['classic-grid']
         };
     }
-    
+
     /**
      * Get performance metrics from the optimizer
      * @returns {Object|null} Performance metrics or null if optimizer not available
@@ -594,7 +597,7 @@ class CustomizationManager {
     getPerformanceMetrics() {
         return this.performanceOptimizer ? this.performanceOptimizer.getPerformanceMetrics() : null;
     }
-    
+
     /**
      * Check if performance is within acceptable limits
      * @returns {boolean} True if performance is acceptable
@@ -602,7 +605,7 @@ class CustomizationManager {
     isPerformanceAcceptable() {
         return this.performanceOptimizer ? this.performanceOptimizer.isPerformanceAcceptable() : true;
     }
-    
+
     /**
      * Optimize scene performance
      */
@@ -611,7 +614,7 @@ class CustomizationManager {
             this.performanceOptimizer.optimizeScene(this.renderingEngine.camera.position);
         }
     }
-    
+
     /**
      * Clean up performance optimizer resources
      */

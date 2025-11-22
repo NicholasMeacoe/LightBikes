@@ -1,7 +1,7 @@
-const { SurvivalTimer } = require('./SurvivalTimer.js');
-const { LeaderboardSystem } = require('./LeaderboardSystem.js');
-const { Game } = require('./game.js');
-const { GameModes } = require('./GameModes.js');
+const { SurvivalTimer } = require('@/ui/SurvivalTimer.js');
+const { LeaderboardSystem } = require('@/systems/LeaderboardSystem.js');
+const { Game } = require('@/core/game.js');
+const { GameModes } = require('@/systems/GameModes.js');
 
 // Mock performance.now for controlled testing
 const mockPerformanceNow = jest.fn();

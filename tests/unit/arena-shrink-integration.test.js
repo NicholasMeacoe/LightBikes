@@ -3,9 +3,9 @@
  * Tests the integration of Arena Shrink mode with the UI and game systems
  */
 
-const { Game } = require('./game.js');
-const { ModeSelector } = require('./ModeSelector.js');
-const { GameModes } = require('./GameModes.js');
+const { Game } = require('@/core/game.js');
+const { ModeSelector } = require('@/ui/ModeSelector.js');
+const { GameModes } = require('@/systems/GameModes.js');
 
 // Mock DOM environment
 const mockDocument = {

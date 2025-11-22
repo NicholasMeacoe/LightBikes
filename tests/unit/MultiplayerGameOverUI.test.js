@@ -1,4 +1,4 @@
-const { MultiplayerGameOverUI } = require('./MultiplayerGameOverUI.js');
+const { MultiplayerGameOverUI } = require('@/ui/MultiplayerGameOverUI.js');
 
 describe('MultiplayerGameOverUI', () => {
     let gameOverUI;

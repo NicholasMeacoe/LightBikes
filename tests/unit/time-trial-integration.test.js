@@ -1,8 +1,8 @@
-const { Game } = require('./game.js');
-const { GameModes } = require('./GameModes.js');
-const { SurvivalTimer } = require('./SurvivalTimer.js');
-const { CountdownTimer } = require('./CountdownTimer.js');
-const { TimerDisplay } = require('./TimerDisplay.js');
+const { Game } = require('@/core/game.js');
+const { GameModes } = require('@/systems/GameModes.js');
+const { SurvivalTimer } = require('@/ui/SurvivalTimer.js');
+const { CountdownTimer } = require('@/ui/CountdownTimer.js');
+const { TimerDisplay } = require('@/ui/TimerDisplay.js');
 
 // Mock ScorePersistence to ensure consistent test behavior
 jest.mock('./scorePersistence.js', () => ({

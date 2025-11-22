@@ -1,6 +1,6 @@
-const { Game } = require('./game.js');
-const { GameModes } = require('./GameModes.js');
-const { ModeSelector } = require('./ModeSelector.js');
+const { Game } = require('@/core/game.js');
+const { GameModes } = require('@/systems/GameModes.js');
+const { ModeSelector } = require('@/ui/ModeSelector.js');
 
 // Mock ScorePersistence to ensure consistent test behavior
 jest.mock('./scorePersistence.js', () => ({

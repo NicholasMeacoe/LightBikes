@@ -3,7 +3,7 @@
  * Tests particle culling, LOD system, batch operations, and memory monitoring
  */
 
-const { ParticleSystem } = require('./ParticleSystem.js');
+const { ParticleSystem } = require('@/rendering/ParticleSystem.js');
 
 // Mock THREE.js objects for testing
 global.THREE = {

@@ -1,4 +1,4 @@
-const { PerformanceMonitor } = require('./PerformanceMonitor.js');
+const { PerformanceMonitor } = require('@/utils/PerformanceMonitor.js');
 
 describe('PerformanceMonitor', () => {
     let performanceMonitor;

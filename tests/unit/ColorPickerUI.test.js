@@ -3,7 +3,7 @@
  * Tests for the color picker UI component functionality
  */
 
-const { ColorPickerUI } = require('./ColorPickerUI.js');
+const { ColorPickerUI } = require('@/ui/ColorPickerUI.js');
 
 // Mock DOM methods for testing
 const mockElement = {

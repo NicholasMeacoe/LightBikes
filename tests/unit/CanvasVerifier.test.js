@@ -1,4 +1,4 @@
-const { CanvasVerifier } = require('./CanvasVerifier');
+const { CanvasVerifier } = require('@/utils/CanvasVerifier.js');
 
 describe('CanvasVerifier', () => {
     let verifier;

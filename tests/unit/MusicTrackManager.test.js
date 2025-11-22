@@ -3,8 +3,8 @@
  * Verifies track management, preloading, and error handling functionality
  */
 
-const { MusicTrackManager } = require('./MusicTrackManager.js');
-const { MusicTrack } = require('./MusicTrack.js');
+const { MusicTrackManager } = require('@/audio/MusicTrackManager.js');
+const { MusicTrack } = require('@/audio/MusicTrack.js');
 
 // Mock dependencies
 jest.mock('./MusicTrack.js');

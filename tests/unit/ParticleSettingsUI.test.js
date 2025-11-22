@@ -3,7 +3,7 @@
  * Tests UI integration, DOM interactions, and settings synchronization
  */
 
-const { ParticleSettingsUI } = require('./ParticleSettingsUI.js');
+const { ParticleSettingsUI } = require('@/ui/ParticleSettingsUI.js');
 
 // Mock DOM elements
 const mockElements = {

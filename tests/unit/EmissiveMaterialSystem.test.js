@@ -25,7 +25,7 @@ const THREE = {
 
 global.THREE = THREE;
 
-const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
+const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
 
 describe('EmissiveMaterialSystem', () => {
     let materialSystem;

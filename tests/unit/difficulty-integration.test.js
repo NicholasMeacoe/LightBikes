@@ -3,9 +3,9 @@
  * Tests the integration between DifficultyManager, Game, and AIController
  */
 
-const { Game } = require('./game.js');
-const { AIController } = require('./ai.js');
-const { DifficultyManager } = require('./difficulty.js');
+const { Game } = require('@/core/game.js');
+const { AIController } = require('@/core/ai.js');
+const { DifficultyManager } = require('@/systems/difficulty.js');
 
 describe('DifficultyManager Integration', () => {
     let game;

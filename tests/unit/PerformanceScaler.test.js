@@ -1,7 +1,7 @@
 /**
  * Tests for PerformanceScaler class
  */
-const { PerformanceScaler } = require('./PerformanceScaler.js');
+const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
 
 describe('PerformanceScaler', () => {
     let scaler;

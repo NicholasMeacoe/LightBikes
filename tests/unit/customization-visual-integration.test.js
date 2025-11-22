@@ -3,11 +3,11 @@
  * Tests visual changes, performance impact, and cross-mode compatibility
  */
 
-const { CustomizationManager } = require('./CustomizationManager.js');
-const { ThemeEngine } = require('./ThemeEngine.js');
-const { TrailStyleRenderer } = require('./TrailStyleRenderer.js');
-const { PerformanceOptimizer } = require('./PerformanceOptimizer.js');
-const { PreferenceStorage } = require('./PreferenceStorage.js');
+const { CustomizationManager } = require('@/systems/CustomizationManager.js');
+const { ThemeEngine } = require('@/systems/ThemeEngine.js');
+const { TrailStyleRenderer } = require('@/rendering/TrailStyleRenderer.js');
+const { PerformanceOptimizer } = require('@/utils/PerformanceOptimizer.js');
+const { PreferenceStorage } = require('@/systems/PreferenceStorage.js');
 
 // Mock Three.js environment
 const mockThreeJS = {

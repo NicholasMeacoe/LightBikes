@@ -3,9 +3,9 @@
  * Tests the integration points with RenderingEngine and game loop
  */
 
-const { CameraEffectsManager } = require('./CameraEffectsManager.js');
-const { RenderingEngine } = require('./renderer.js');
-const { Game } = require('./game.js');
+const { CameraEffectsManager } = require('@/effects/CameraEffectsManager.js');
+const { RenderingEngine } = require('@/rendering/renderer.js');
+const { Game } = require('@/core/game.js');
 
 // Mock THREE.js for testing
 global.THREE = {

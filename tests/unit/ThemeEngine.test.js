@@ -1,4 +1,4 @@
-const { ThemeEngine } = require('./ThemeEngine.js');
+const { ThemeEngine } = require('@/systems/ThemeEngine.js');
 
 // Mock Three.js objects
 const mockScene = {

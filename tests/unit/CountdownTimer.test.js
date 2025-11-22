@@ -1,4 +1,4 @@
-const { CountdownTimer } = require('./CountdownTimer.js');
+const { CountdownTimer } = require('@/ui/CountdownTimer.js');
 
 // Mock DOM methods
 const mockElement = {

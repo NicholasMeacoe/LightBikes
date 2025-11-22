@@ -55,7 +55,7 @@ global.THREE = {
     }
 };
 
-const { TrailStyleRenderer } = require('./TrailStyleRenderer.js');
+const { TrailStyleRenderer } = require('@/rendering/TrailStyleRenderer.js');
 
 describe('TrailStyleRenderer', () => {
     let renderer;

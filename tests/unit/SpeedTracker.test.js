@@ -6,7 +6,7 @@
  * and integration with game state and power-up systems.
  */
 
-const { SpeedTracker } = require('./SpeedTracker.js');
+const { SpeedTracker } = require('@/effects/SpeedTracker.js');
 
 describe('SpeedTracker', () => {
     let speedTracker;

@@ -1,5 +1,5 @@
-const { CameraShakeController } = require('./CameraShakeController.js');
-const { ShakeInstance } = require('./ShakeInstance.js');
+const { CameraShakeController } = require('@/effects/CameraShakeController.js');
+const { ShakeInstance } = require('@/effects/ShakeInstance.js');
 
 // Mock Three.js camera
 const createMockCamera = () => ({

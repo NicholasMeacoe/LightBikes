@@ -3,7 +3,7 @@
  * Tests pause/resume, game restart, and game over handling
  */
 
-const { ParticleSystem } = require('./ParticleSystem.js');
+const { ParticleSystem } = require('@/rendering/ParticleSystem.js');
 
 // Mock Three.js
 global.THREE = {

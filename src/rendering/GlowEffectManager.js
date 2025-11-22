@@ -64,30 +64,30 @@ class GlowEffectManager {
         this.renderer = renderer;
         this.scene = scene;
         this.camera = camera;
-        
+
         // Initialize subsystems
         this.postProcessing = null;
         this.materialSystem = null;
         this.performanceScaler = null;
         this.settings = null;
-        
+
         // System state
         this.initialized = false;
         this.enabled = true;
         this.currentIntensity = 'MEDIUM';
         this.fallbackMode = false;
         this.forceQualityMode = null;
-        
+
         // Performance monitoring
         this.lastFrameTime = 0;
         this.frameCount = 0;
         this.isPaused = false;
         this.lastQuality = null;
-        
+
         // Memory monitoring
         this.memoryStats = null;
         this.memoryMonitorInterval = null;
-        
+
         // Logging and debugging
         this.initializeLogging();
     }
@@ -144,7 +144,9 @@ class GlowEffectManager {
             // Import and initialize subsystems
             const { PostProcessingPipeline } = require('./PostProcessingPipeline.js');
             const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
-            
+            const { PerformanceScaler } = require('../utils/PerformanceScaler.js');
+            const { GlowSettings } = require('../systems/GlowSettings.js');
+
             this.postProcessing = new PostProcessingPipeline(this.renderer, this.scene, this.camera);
             this.materialSystem = new EmissiveMaterialSystem();
             this.performanceScaler = new PerformanceScaler();
@@ -190,7 +192,7 @@ class GlowEffectManager {
         } catch (error) {
             console.error('GlowEffectManager: Failed to initialize:', error);
             console.log('GlowEffectManager: Attempting fallback mode');
-            
+
             try {
                 this.initializeFallbackRendering();
                 this.enabled = false;
@@ -264,9 +266,9 @@ class GlowEffectManager {
                 try {
                     this.materialSystem.updatePulseAnimation(deltaTime);
                 } catch (error) {
-                    this.logError('update', 'Error updating pulse animation', { 
-                        deltaTime, 
-                        error: error.message 
+                    this.logError('update', 'Error updating pulse animation', {
+                        deltaTime,
+                        error: error.message
                     });
                 }
             }
@@ -275,17 +277,17 @@ class GlowEffectManager {
             if (this.performanceScaler) {
                 try {
                     this.performanceScaler.monitorPerformance(deltaTime);
-                    
+
                     // Apply dynamic scaling if performance drops
-                    const currentQuality = this.performanceScaler.getCurrentQuality();
+                    const currentQuality = this.performanceScaler.currentQuality;
                     if (currentQuality !== this.lastQuality) {
                         this.applyQualityScaling(currentQuality);
                         this.lastQuality = currentQuality;
                     }
                 } catch (error) {
-                    this.logError('update', 'Error in performance scaling', { 
-                        deltaTime, 
-                        error: error.message 
+                    this.logError('update', 'Error in performance scaling', {
+                        deltaTime,
+                        error: error.message
                     });
                 }
             }
@@ -294,17 +296,17 @@ class GlowEffectManager {
             try {
                 this.handlePauseStateChange(gameState);
             } catch (error) {
-                this.logError('update', 'Error handling pause state change', { 
-                    gameState, 
-                    error: error.message 
+                this.logError('update', 'Error handling pause state change', {
+                    gameState,
+                    error: error.message
                 });
             }
 
         } catch (error) {
-            this.logError('update', 'Unexpected error during update', { 
-                deltaTime, 
-                gameState, 
-                error: error.message 
+            this.logError('update', 'Unexpected error during update', {
+                deltaTime,
+                gameState,
+                error: error.message
             });
         }
     }
@@ -401,7 +403,7 @@ class GlowEffectManager {
             this.postProcessing.render();
         } catch (error) {
             this.logError('render', 'Error during post-processing render', { error: error.message });
-            
+
             // Attempt recovery
             if (this.handleRenderingFailure(error, 'post-processing')) {
                 // Retry with recovery settings
@@ -468,9 +470,9 @@ class GlowEffectManager {
             }
 
             if (!this.enabled || !this.initialized) {
-                this.logWarning('setIntensity', 'Glow system not enabled or initialized', { 
-                    enabled: this.enabled, 
-                    initialized: this.initialized 
+                this.logWarning('setIntensity', 'Glow system not enabled or initialized', {
+                    enabled: this.enabled,
+                    initialized: this.initialized
                 });
                 return false;
             }
@@ -482,13 +484,13 @@ class GlowEffectManager {
             if (!this.applyIntensitySettings()) {
                 // Rollback on failure
                 this.currentIntensity = previousIntensity;
-                this.logError('setIntensity', 'Failed to apply intensity settings, rolled back', { 
-                    attempted: level, 
-                    rolledBackTo: previousIntensity 
+                this.logError('setIntensity', 'Failed to apply intensity settings, rolled back', {
+                    attempted: level,
+                    rolledBackTo: previousIntensity
                 });
                 return false;
             }
-            
+
             // Save setting with error handling
             try {
                 this.settings.setIntensity(level);
@@ -513,12 +515,12 @@ class GlowEffectManager {
      */
     validateIntensityLevel(level) {
         const validLevels = ['OFF', 'LOW', 'MEDIUM', 'HIGH'];
-        
+
         // Check type
         if (typeof level !== 'string') {
             return false;
         }
-        
+
         // Check if it's a valid level
         return validLevels.includes(level.toUpperCase());
     }
@@ -617,7 +619,7 @@ class GlowEffectManager {
         if (this.fallbackMode && this.fallbackMaterials) {
             return this.fallbackMaterials.createBikeMaterial(entityId, color);
         }
-        
+
         if (!this.enabled || !this.initialized) {
             // Return standard material as fallback
             return new THREE.MeshLambertMaterial({ color: color });
@@ -667,13 +669,13 @@ class GlowEffectManager {
         if (this.fallbackMode && this.fallbackMaterials) {
             return this.fallbackMaterials.createTrailMaterial(entityId, color);
         }
-        
+
         if (!this.enabled || !this.initialized) {
             // Return standard material as fallback
-            return new THREE.MeshBasicMaterial({ 
-                color: color, 
-                transparent: true, 
-                opacity: 0.5 
+            return new THREE.MeshBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0.5
             });
         }
 
@@ -689,7 +691,7 @@ class GlowEffectManager {
         if (this.postProcessing) {
             this.postProcessing.resize(width, height);
         }
-        
+
         // Update UI positioning if needed
         if (window.glowSettingsUI) {
             window.glowSettingsUI.handleResize();
@@ -799,7 +801,7 @@ class GlowEffectManager {
      */
     dispose() {
         console.log('GlowEffectManager: Starting resource cleanup');
-        
+
         try {
             // Dispose of post-processing pipeline
             if (this.postProcessing) {
@@ -866,7 +868,7 @@ class GlowEffectManager {
         }
 
         console.log('GlowEffectManager: Starting memory monitoring');
-        
+
         this.memoryStats = {
             initialMemory: this.getMemoryUsage(),
             peakMemory: 0,
@@ -945,7 +947,7 @@ class GlowEffectManager {
      */
     handleMemoryLeak() {
         console.warn('GlowEffectManager: Attempting to recover from memory leak');
-        
+
         try {
             // Force garbage collection if available
             if (window.gc) {
@@ -1000,10 +1002,10 @@ class GlowEffectManager {
         this.debugMode = this.isDebugMode();
         this.logHistory = [];
         this.maxLogHistory = 100;
-        
+
         if (this.debugMode) {
             console.log('GlowEffectManager: Debug mode enabled');
-            
+
             // Expose debug methods to window for console access
             window.glowDebug = {
                 getStatus: () => this.getStatus(),
@@ -1043,7 +1045,7 @@ class GlowEffectManager {
             message,
             context
         };
-        
+
         this.addToLogHistory(logEntry);
         console.error(`GlowEffectManager.${method}: ${message}`, context);
     }
@@ -1062,7 +1064,7 @@ class GlowEffectManager {
             message,
             context
         };
-        
+
         this.addToLogHistory(logEntry);
         console.warn(`GlowEffectManager.${method}: ${message}`, context);
     }
@@ -1081,9 +1083,9 @@ class GlowEffectManager {
             message,
             context
         };
-        
+
         this.addToLogHistory(logEntry);
-        
+
         if (this.debugMode) {
             console.log(`GlowEffectManager.${method}: ${message}`, context);
         }
@@ -1097,9 +1099,9 @@ class GlowEffectManager {
         if (!this.logHistory) {
             this.logHistory = [];
         }
-        
+
         this.logHistory.push(logEntry);
-        
+
         // Keep only recent logs to prevent memory issues
         if (this.logHistory.length > this.maxLogHistory) {
             this.logHistory.shift();
@@ -1139,7 +1141,7 @@ class GlowEffectManager {
             },
             postProcessing: this.postProcessing ? this.postProcessing.getStatus() : null,
             performance: this.performanceScaler ? {
-                currentQuality: this.performanceScaler.getCurrentQuality(),
+                currentQuality: this.performanceScaler.currentQuality,
                 scalingEnabled: this.performanceScaler.scalingEnabled
             } : null,
             memory: this.getMemoryStats(),
@@ -1162,10 +1164,10 @@ class GlowEffectManager {
     getWebGLInfo() {
         try {
             const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl2') || 
-                      canvas.getContext('webgl') || 
-                      canvas.getContext('experimental-webgl');
-            
+            const gl = canvas.getContext('webgl2') ||
+                canvas.getContext('webgl') ||
+                canvas.getContext('experimental-webgl');
+
             if (!gl) {
                 return { supported: false };
             }
@@ -1181,9 +1183,9 @@ class GlowEffectManager {
             };
 
         } catch (error) {
-            return { 
-                supported: false, 
-                error: error.message 
+            return {
+                supported: false,
+                error: error.message
             };
         }
     }
@@ -1194,9 +1196,9 @@ class GlowEffectManager {
      * @param {string} context - Context where the error occurred
      */
     handleRenderingFailure(error, context = 'unknown') {
-        this.logError('handleRenderingFailure', `Rendering failure in ${context}`, { 
+        this.logError('handleRenderingFailure', `Rendering failure in ${context}`, {
             error: error.message,
-            stack: error.stack 
+            stack: error.stack
         });
 
         try {
@@ -1221,9 +1223,9 @@ class GlowEffectManager {
             return false;
 
         } catch (recoveryError) {
-            this.logError('handleRenderingFailure', 'Error during recovery attempt', { 
+            this.logError('handleRenderingFailure', 'Error during recovery attempt', {
                 originalError: error.message,
-                recoveryError: recoveryError.message 
+                recoveryError: recoveryError.message
             });
             return false;
         }
@@ -1236,7 +1238,7 @@ class GlowEffectManager {
     attemptQualityReduction() {
         if (this.performanceScaler && this.performanceScaler.canScaleDown()) {
             this.performanceScaler.scaleDown();
-            this.applyQualityScaling(this.performanceScaler.getCurrentQuality());
+            this.applyQualityScaling(this.performanceScaler.currentQuality);
             return true;
         }
         return false;
@@ -1275,12 +1277,12 @@ class GlowEffectManager {
     checkWebGLSupport() {
         try {
             const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl2') || 
-                      canvas.getContext('webgl') || 
-                      canvas.getContext('experimental-webgl');
-            
+            const gl = canvas.getContext('webgl2') ||
+                canvas.getContext('webgl') ||
+                canvas.getContext('experimental-webgl');
+
             if (!gl) {
-                this.showCompatibilityNotification('WebGL not supported', 
+                this.showCompatibilityNotification('WebGL not supported',
                     'Your browser does not support WebGL. Glow effects will be disabled.');
                 return false;
             }
@@ -1292,13 +1294,13 @@ class GlowEffectManager {
             ];
 
             const supportedExtensions = gl.getSupportedExtensions() || [];
-            const missingExtensions = requiredExtensions.filter(ext => 
+            const missingExtensions = requiredExtensions.filter(ext =>
                 !supportedExtensions.includes(ext) && !gl.getExtension(ext)
             );
 
             if (missingExtensions.length > 0) {
                 console.warn('GlowEffectManager: Missing WebGL extensions:', missingExtensions);
-                this.showCompatibilityNotification('Limited WebGL support', 
+                this.showCompatibilityNotification('Limited WebGL support',
                     'Some advanced glow effects may not work properly on this device.');
                 // Continue with limited functionality
             }
@@ -1306,10 +1308,10 @@ class GlowEffectManager {
             // Check WebGL capabilities
             const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
             const maxRenderbufferSize = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
-            
+
             if (maxTextureSize < 1024 || maxRenderbufferSize < 1024) {
                 console.warn('GlowEffectManager: Limited texture/renderbuffer size');
-                this.showCompatibilityNotification('Limited graphics capabilities', 
+                this.showCompatibilityNotification('Limited graphics capabilities',
                     'Glow effects will use reduced quality on this device.');
                 // Set low quality mode
                 this.forceQualityMode = 'low';
@@ -1326,7 +1328,7 @@ class GlowEffectManager {
 
         } catch (error) {
             console.error('GlowEffectManager: WebGL compatibility check failed:', error);
-            this.showCompatibilityNotification('Graphics initialization failed', 
+            this.showCompatibilityNotification('Graphics initialization failed',
                 'Unable to initialize graphics system. Glow effects will be disabled.');
             return false;
         }
@@ -1342,7 +1344,7 @@ class GlowEffectManager {
             'adreno', 'mali', 'powervr', 'videocore', 'tegra',
             'apple', 'qualcomm', 'arm', 'imagination'
         ];
-        
+
         const rendererLower = renderer.toLowerCase();
         return mobileIndicators.some(indicator => rendererLower.includes(indicator));
     }
@@ -1412,20 +1414,20 @@ class GlowEffectManager {
      */
     initializeFallbackRendering() {
         console.log('GlowEffectManager: Initializing fallback rendering mode');
-        
+
         // Create simple material factory for fallback
         this.fallbackMaterials = {
             createBikeMaterial: (entityId, color) => {
-                return new THREE.MeshLambertMaterial({ 
+                return new THREE.MeshLambertMaterial({
                     color: color,
                     // Add slight brightness to simulate glow
                     emissive: new THREE.Color(color).multiplyScalar(0.1)
                 });
             },
             createTrailMaterial: (entityId, color) => {
-                return new THREE.MeshBasicMaterial({ 
-                    color: color, 
-                    transparent: true, 
+                return new THREE.MeshBasicMaterial({
+                    color: color,
+                    transparent: true,
                     opacity: 0.6,
                     // Add slight brightness to simulate glow
                     emissive: new THREE.Color(color).multiplyScalar(0.05)
@@ -1434,7 +1436,7 @@ class GlowEffectManager {
         };
 
         // Show user that fallback mode is active
-        this.showCompatibilityNotification('Compatibility Mode', 
+        this.showCompatibilityNotification('Compatibility Mode',
             'Running in compatibility mode with simplified graphics.');
     }
 
@@ -1455,59 +1457,59 @@ class GlowEffectManager {
     applyIntensitySettings() {
         try {
             const config = this.getIntensityConfig(this.currentIntensity);
-            
+
             // Validate configuration before applying
             const validation = this.validateConfiguration(config);
             if (!validation.isValid) {
-                this.logError('applyIntensitySettings', 'Invalid configuration', { 
-                    config, 
-                    errors: validation.errors 
+                this.logError('applyIntensitySettings', 'Invalid configuration', {
+                    config,
+                    errors: validation.errors
                 });
                 return false;
             }
 
             let success = true;
-            
+
             // Apply to post-processing with error handling
             if (this.postProcessing) {
                 try {
                     this.postProcessing.setBloomStrength(config.bloom);
-                    
+
                     // Configure bloom parameters based on intensity level
                     const bloomParams = this.getBloomParameters(this.currentIntensity);
                     this.postProcessing.configureBloomParameters(bloomParams);
                 } catch (error) {
-                    this.logError('applyIntensitySettings', 'Failed to apply post-processing settings', { 
-                        config, 
-                        error: error.message 
+                    this.logError('applyIntensitySettings', 'Failed to apply post-processing settings', {
+                        config,
+                        error: error.message
                     });
                     success = false;
                 }
             }
-            
+
             // Apply to material system with error handling
             if (this.materialSystem) {
                 try {
                     this.materialSystem.setEmissiveIntensity(config.emissive);
                 } catch (error) {
-                    this.logError('applyIntensitySettings', 'Failed to apply material settings', { 
-                        config, 
-                        error: error.message 
+                    this.logError('applyIntensitySettings', 'Failed to apply material settings', {
+                        config,
+                        error: error.message
                     });
                     success = false;
                 }
             }
-            
+
             if (success) {
                 this.logInfo('applyIntensitySettings', `Applied ${this.currentIntensity} intensity settings`, config);
             }
-            
+
             return success;
 
         } catch (error) {
-            this.logError('applyIntensitySettings', 'Unexpected error applying settings', { 
-                intensity: this.currentIntensity, 
-                error: error.message 
+            this.logError('applyIntensitySettings', 'Unexpected error applying settings', {
+                intensity: this.currentIntensity,
+                error: error.message
             });
             return false;
         }
@@ -1562,7 +1564,7 @@ class GlowEffectManager {
             enabled: this.enabled,
             initialized: this.initialized,
             intensity: this.currentIntensity,
-            quality: this.performanceScaler ? this.performanceScaler.getCurrentQuality() : 'high'
+            quality: this.performanceScaler ? this.performanceScaler.currentQuality : 'high'
         };
     }
 }
@@ -1629,7 +1631,7 @@ class EmissiveMaterialSystem {
         // Update pulse time (2.5 second cycle)
         this.pulseState.time += deltaTime;
         const cycle = (this.pulseState.time % 2.5) / 2.5;
-        
+
         // Calculate pulse intensity (80% to 100%)
         this.pulseState.intensity = 0.8 + 0.2 * Math.sin(cycle * Math.PI * 2);
 
@@ -1669,7 +1671,7 @@ class EmissiveMaterialSystem {
      */
     dispose() {
         console.log(`EmissiveMaterialSystem: Disposing ${this.materials.size} materials`);
-        
+
         try {
             // Dispose of all materials and their textures
             this.materials.forEach((material, id) => {
@@ -1680,7 +1682,7 @@ class EmissiveMaterialSystem {
                     if (material.normalMap) material.normalMap.dispose();
                     if (material.roughnessMap) material.roughnessMap.dispose();
                     if (material.metalnessMap) material.metalnessMap.dispose();
-                    
+
                     // Dispose of material itself
                     if (material.dispose) {
                         material.dispose();
@@ -1689,18 +1691,18 @@ class EmissiveMaterialSystem {
                     console.warn(`EmissiveMaterialSystem: Error disposing material ${id}:`, error);
                 }
             });
-            
+
             this.materials.clear();
-            
+
             // Reset pulse state
             this.pulseState = {
                 time: 0,
                 intensity: 1.0,
                 paused: false
             };
-            
+
             console.log('EmissiveMaterialSystem: Disposal completed');
-            
+
         } catch (error) {
             console.error('EmissiveMaterialSystem: Error during disposal:', error);
         }
@@ -1711,10 +1713,10 @@ class EmissiveMaterialSystem {
      */
     clearCache() {
         console.log('EmissiveMaterialSystem: Clearing material cache');
-        
+
         // Keep track of materials that are still in use
         const activeMaterials = new Map();
-        
+
         // Only dispose materials that are not currently being used
         this.materials.forEach((material, id) => {
             // Check if material is still referenced in the scene
@@ -1731,7 +1733,7 @@ class EmissiveMaterialSystem {
                 }
             }
         });
-        
+
         this.materials = activeMaterials;
         console.log(`EmissiveMaterialSystem: Cache cleared, ${this.materials.size} materials retained`);
     }

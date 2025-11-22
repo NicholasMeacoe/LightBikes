@@ -3,8 +3,8 @@
  * Verifies error handling, recovery strategies, and graceful degradation
  */
 
-const { MusicErrorHandler } = require('./MusicErrorHandler.js');
-const { ERROR_TYPES } = require('./MusicConfig.js');
+const { MusicErrorHandler } = require('@/audio/MusicErrorHandler.js');
+const { ERROR_TYPES } = require('@/audio/MusicConfig.js');
 
 // Mock navigator for network monitoring
 Object.defineProperty(navigator, 'onLine', {

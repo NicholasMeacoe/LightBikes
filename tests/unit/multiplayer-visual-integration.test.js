@@ -135,8 +135,8 @@ jest.mock('./game.js', () => ({
     }))
 }));
 
-const { RenderingEngine } = require('./renderer.js');
-const { MultiplayerGame } = require('./MultiplayerGame.js');
+const { RenderingEngine } = require('@/rendering/renderer.js');
+const { MultiplayerGame } = require('@/multiplayer/MultiplayerGame.js');
 
 describe('Multiplayer Visual Integration', () => {
     let renderer;

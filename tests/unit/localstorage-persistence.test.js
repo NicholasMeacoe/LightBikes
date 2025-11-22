@@ -3,8 +3,8 @@
  * Verifies that AI count and difficulty level are saved and loaded correctly
  */
 
-const { DifficultyManager } = require('./difficulty.js');
-const { Game } = require('./game.js');
+const { DifficultyManager } = require('@/systems/difficulty.js');
+const { Game } = require('@/core/game.js');
 
 describe('localStorage Persistence', () => {
     let localStorageMock;

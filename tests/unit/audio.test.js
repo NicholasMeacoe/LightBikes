@@ -3,7 +3,7 @@
  * Tests for audio initialization, preloading, and error handling
  */
 
-const { AudioManager } = require('./audio.js');
+const { AudioManager } = require('@/audio/audio.js');
 
 // Mock Web Audio API
 const mockAudioContext = {

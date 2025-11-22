@@ -1,4 +1,4 @@
-const { PlayerCollisionHandler } = require('./PlayerCollisionHandler.js');
+const { PlayerCollisionHandler } = require('@/multiplayer/PlayerCollisionHandler.js');
 
 describe('PlayerCollisionHandler', () => {
     let playerCollisionHandler;

@@ -3,7 +3,7 @@
  * Validates UI rendering, positioning, and score presentation functionality
  */
 
-const { ScoreDisplay } = require('./scoreDisplay.js');
+const { ScoreDisplay } = require('@/ui/scoreDisplay.js');
 
 // Mock DOM environment
 const mockElement = {

@@ -3,7 +3,7 @@
  * Tests all requirements from tasks.md
  */
 
-const { DifficultyManager, DIFFICULTY_CONFIGS } = require('./difficulty.js');
+const { DifficultyManager, DIFFICULTY_CONFIGS } = require('@/systems/difficulty.js');
 
 describe('Task 4: Difficulty Level Selector Functionality', () => {
     let mockGame;

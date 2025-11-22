@@ -3,10 +3,10 @@
  * Verifies track selection and metadata management functionality
  */
 
-const { MusicTrackSelector } = require('./MusicTrackSelector.js');
+const { MusicTrackSelector } = require('@/audio/MusicTrackSelector.js');
 
 // Mock dependencies
-jest.mock('./MusicConfig.js', () => ({
+jest.mock('@/audio/MusicConfig.js', () => ({
     MUSIC_TRACKS: {
         'ambient-space': {
             id: 'ambient-space',
@@ -111,9 +111,9 @@ describe('MusicTrackSelector', () => {
 
         it('should validate initial selection', () => {
             mockSettings.getSelectedTrack.mockReturnValue('invalid-track');
-            
+
             const selector = new MusicTrackSelector(mockTrackManager, mockSettings);
-            
+
             // Should reset to default
             expect(mockSettings.setSelectedTrack).toHaveBeenCalledWith('ambient-space');
         });
@@ -122,7 +122,7 @@ describe('MusicTrackSelector', () => {
     describe('track listing', () => {
         it('should get all available tracks', () => {
             const tracks = trackSelector.getAvailableTracks();
-            
+
             expect(tracks).toHaveLength(4);
             expect(tracks[0]).toMatchObject({
                 id: 'ambient-space',
@@ -134,7 +134,7 @@ describe('MusicTrackSelector', () => {
 
         it('should group tracks by energy level', () => {
             const grouped = trackSelector.getTracksByEnergyLevel();
-            
+
             expect(grouped.ambient).toHaveLength(1);
             expect(grouped.upbeat).toHaveLength(1);
             expect(grouped.intense).toHaveLength(1);
@@ -143,7 +143,7 @@ describe('MusicTrackSelector', () => {
 
         it('should get tracks by specific energy level', () => {
             const ambientTracks = trackSelector.getTracksByEnergy('ambient');
-            
+
             expect(ambientTracks).toHaveLength(1);
             expect(ambientTracks[0].energyLevel).toBe('ambient');
         });
@@ -152,35 +152,35 @@ describe('MusicTrackSelector', () => {
     describe('track selection', () => {
         it('should select valid track', async () => {
             const result = await trackSelector.selectTrack('cyber-pulse');
-            
+
             expect(result).toBe(true);
             expect(mockSettings.setSelectedTrack).toHaveBeenCalledWith('cyber-pulse');
             expect(mockSettings.save).toHaveBeenCalled();
-            
+
             const currentTrack = trackSelector.getCurrentTrack();
             expect(currentTrack.id).toBe('cyber-pulse');
         });
 
         it('should reject invalid track ID', async () => {
             const result = await trackSelector.selectTrack('invalid-track');
-            
+
             expect(result).toBe(false);
             expect(mockSettings.setSelectedTrack).not.toHaveBeenCalled();
         });
 
         it('should reject non-existent track', async () => {
             mockTrackManager.hasTrack.mockReturnValue(false);
-            
+
             const result = await trackSelector.selectTrack('cyber-pulse');
-            
+
             expect(result).toBe(false);
         });
 
         it('should handle settings save failure', async () => {
             mockSettings.save.mockRejectedValue(new Error('Save failed'));
-            
+
             const result = await trackSelector.selectTrack('cyber-pulse');
-            
+
             expect(result).toBe(false);
             // Should revert selection
             expect(trackSelector.getCurrentTrack().id).toBe('ambient-space');
@@ -202,10 +202,10 @@ describe('MusicTrackSelector', () => {
             // Start at ambient-space, go to cyber-pulse
             let next = trackSelector.getNextTrack();
             expect(next).toBe('cyber-pulse');
-            
+
             // Simulate selection change
             trackSelector.currentTrackId = 'cyber-pulse';
-            
+
             // Next should be neon-rush
             next = trackSelector.getNextTrack();
             expect(next).toBe('neon-rush');
@@ -213,7 +213,7 @@ describe('MusicTrackSelector', () => {
 
         it('should skip "none" when requested', () => {
             trackSelector.currentTrackId = 'neon-rush';
-            
+
             const next = trackSelector.getNextTrack(true); // Skip none
             expect(next).toBe('ambient-space'); // Should wrap around
         });
@@ -222,7 +222,7 @@ describe('MusicTrackSelector', () => {
             // Create a selector with no tracks by mocking getAvailableTracks
             const emptySelector = new MusicTrackSelector(mockTrackManager, mockSettings);
             emptySelector.getAvailableTracks = () => [];
-            
+
             const next = emptySelector.getNextTrack();
             expect(next).toBeNull();
         });
@@ -232,25 +232,25 @@ describe('MusicTrackSelector', () => {
         it('should get random track by energy level', () => {
             // Mock Math.random to return predictable value
             jest.spyOn(Math, 'random').mockReturnValue(0);
-            
+
             const randomTrack = trackSelector.getRandomTrackByEnergy('ambient');
             expect(randomTrack).toBe('ambient-space');
-            
+
             Math.random.mockRestore();
         });
 
         it('should exclude current track when requested', () => {
             // Test with upbeat energy level where we have multiple tracks
             trackSelector.currentTrackId = 'cyber-pulse';
-            
+
             // Mock Math.random to return predictable value
             jest.spyOn(Math, 'random').mockReturnValue(0);
-            
+
             const randomTrack = trackSelector.getRandomTrackByEnergy('upbeat', true);
             // Since cyber-pulse is current and excluded, but it's the only upbeat track,
             // the method falls back to returning any track from that energy level
             expect(randomTrack).toBe('cyber-pulse');
-            
+
             Math.random.mockRestore();
         });
     });
@@ -267,7 +267,7 @@ describe('MusicTrackSelector', () => {
 
         it('should consider error tracks unavailable', () => {
             mockTrackManager.hasTrackError.mockReturnValue(true);
-            
+
             expect(trackSelector.isTrackAvailable('ambient-space')).toBe(false);
         });
     });
@@ -277,9 +277,9 @@ describe('MusicTrackSelector', () => {
             mockTrackManager.isTrackLoaded.mockImplementation((id) => id === 'ambient-space');
             mockTrackManager.isTrackLoading.mockImplementation((id) => id === 'cyber-pulse');
             mockTrackManager.hasTrackError.mockImplementation((id) => id === 'neon-rush');
-            
+
             const stats = trackSelector.getSelectionStats();
-            
+
             expect(stats.total).toBe(4);
             expect(stats.loaded).toBe(1);
             expect(stats.loading).toBe(1);
@@ -294,7 +294,7 @@ describe('MusicTrackSelector', () => {
     describe('track details', () => {
         it('should get detailed track metadata', () => {
             const details = trackSelector.getTrackDetails('ambient-space');
-            
+
             expect(details).toMatchObject({
                 id: 'ambient-space',
                 name: 'Ambient Space',
@@ -315,9 +315,9 @@ describe('MusicTrackSelector', () => {
         it('should register and call selection change callbacks', async () => {
             const callback = jest.fn();
             trackSelector.onSelectionChange(callback);
-            
+
             await trackSelector.selectTrack('cyber-pulse');
-            
+
             expect(callback).toHaveBeenCalledWith('cyber-pulse', 'ambient-space');
         });
 
@@ -325,9 +325,9 @@ describe('MusicTrackSelector', () => {
             const callback = jest.fn();
             trackSelector.onSelectionChange(callback);
             trackSelector.removeSelectionCallback(callback);
-            
+
             await trackSelector.selectTrack('cyber-pulse');
-            
+
             expect(callback).not.toHaveBeenCalled();
         });
 
@@ -336,12 +336,12 @@ describe('MusicTrackSelector', () => {
                 throw new Error('Callback error');
             });
             const goodCallback = jest.fn();
-            
+
             trackSelector.onSelectionChange(errorCallback);
             trackSelector.onSelectionChange(goodCallback);
-            
+
             await trackSelector.selectTrack('cyber-pulse');
-            
+
             expect(goodCallback).toHaveBeenCalled();
         });
     });
@@ -349,16 +349,16 @@ describe('MusicTrackSelector', () => {
     describe('state management', () => {
         it('should reset to default', async () => {
             trackSelector.currentTrackId = 'cyber-pulse';
-            
+
             const result = await trackSelector.resetToDefault();
-            
+
             expect(result).toBe(true);
             expect(trackSelector.getCurrentTrack().id).toBe('ambient-space');
         });
 
         it('should export current state', () => {
             const state = trackSelector.exportState();
-            
+
             expect(state).toHaveProperty('currentTrackId');
             expect(state).toHaveProperty('availableTracks');
             expect(state).toHaveProperty('stats');
@@ -370,9 +370,9 @@ describe('MusicTrackSelector', () => {
         it('should clean up resources', () => {
             const callback = jest.fn();
             trackSelector.onSelectionChange(callback);
-            
+
             trackSelector.cleanup();
-            
+
             expect(trackSelector.selectionCallbacks).toHaveLength(0);
         });
     });

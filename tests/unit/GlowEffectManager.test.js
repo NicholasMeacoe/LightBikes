@@ -87,7 +87,53 @@ global.performance = {
     }
 };
 
-const { GlowEffectManager } = require('./GlowEffectManager.js');
+// Mock dependencies
+jest.mock('@/rendering/PostProcessingPipeline.js', () => ({
+    PostProcessingPipeline: jest.fn().mockImplementation(() => ({
+        initialize: jest.fn().mockReturnValue(true),
+        render: jest.fn(),
+        resize: jest.fn(),
+        configureBloomParameters: jest.fn(),
+        dispose: jest.fn(),
+        setBloomStrength: jest.fn(),
+        getStatus: jest.fn().mockReturnValue({})
+    }))
+}));
+
+jest.mock('@/rendering/EmissiveMaterialSystem.js', () => ({
+    EmissiveMaterialSystem: jest.fn().mockImplementation(() => ({
+        createBikeMaterial: jest.fn(),
+        createTrailMaterial: jest.fn(),
+        updatePulseAnimation: jest.fn(),
+        pausePulse: jest.fn(),
+        resumePulse: jest.fn(),
+        dispose: jest.fn(),
+        materials: new Map(),
+        pulseState: 'active',
+        setEmissiveIntensity: jest.fn()
+    }))
+}));
+
+jest.mock('@/utils/PerformanceScaler.js', () => ({
+    PerformanceScaler: jest.fn().mockImplementation(() => ({
+        monitorPerformance: jest.fn(),
+        currentQuality: 'high',
+        setQuality: jest.fn(),
+        dispose: jest.fn(),
+        setOnQualityChange: jest.fn(),
+        setOnPerformanceWarning: jest.fn()
+    }))
+}));
+
+jest.mock('@/systems/GlowSettings.js', () => ({
+    GlowSettings: jest.fn().mockImplementation(() => ({
+        load: jest.fn(),
+        setIntensity: jest.fn(),
+        getIntensity: jest.fn().mockReturnValue('MEDIUM')
+    }))
+}));
+
+const { GlowEffectManager } = require('@/rendering/GlowEffectManager.js');
 
 describe('GlowEffectManager', () => {
     let glowEffectManager;
@@ -95,17 +141,24 @@ describe('GlowEffectManager', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         localStorageMock.getItem.mockReturnValue(null);
-        
+
         // Reset document mock
-        mockCanvas.getContext.mockReturnValue({
-            getParameter: jest.fn(),
+        const mockContext = {
+            getParameter: jest.fn((param) => {
+                if (param === 0x1F01) return 'Test Renderer'; // RENDERER
+                return 2048;
+            }),
             getSupportedExtensions: jest.fn(() => ['OES_texture_float']),
-            getExtension: jest.fn()
-        });
-        
+            getExtension: jest.fn(),
+            MAX_TEXTURE_SIZE: 0x0D33,
+            MAX_RENDERBUFFER_SIZE: 0x84E8,
+            RENDERER: 0x1F01
+        };
+        mockCanvas.getContext.mockReturnValue(mockContext);
+
         // Spy on document.createElement to ensure our mock is used
         jest.spyOn(document, 'createElement').mockReturnValue(mockCanvas);
-        
+
         glowEffectManager = new GlowEffectManager(mockRenderer, mockScene, mockCamera);
     });
 
@@ -166,11 +219,12 @@ describe('GlowEffectManager', () => {
         it('should detect mobile GPU and set appropriate quality', () => {
             mockCanvas.getContext.mockReturnValue({
                 getParameter: jest.fn((param) => {
-                    if (param === 'RENDERER') return 'Adreno (TM) 640';
+                    if (param === 0x1F01) return 'Adreno (TM) 640';
                     return 1024;
                 }),
                 getSupportedExtensions: jest.fn(() => ['OES_texture_float']),
-                getExtension: jest.fn()
+                getExtension: jest.fn(),
+                RENDERER: 0x1F01
             });
 
             glowEffectManager.initialize();
@@ -264,7 +318,7 @@ describe('GlowEffectManager', () => {
             expect(() => {
                 glowEffectManager.render();
             }).not.toThrow();
-            
+
             expect(mockRenderer.render).toHaveBeenCalledWith(mockScene, mockCamera);
         });
     });
@@ -276,7 +330,7 @@ describe('GlowEffectManager', () => {
 
         it('should set valid intensity levels', () => {
             const validLevels = ['OFF', 'LOW', 'MEDIUM', 'HIGH'];
-            
+
             validLevels.forEach(level => {
                 const result = glowEffectManager.setIntensity(level);
                 expect(result).toBe(true);
@@ -287,7 +341,7 @@ describe('GlowEffectManager', () => {
         it('should reject invalid intensity levels', () => {
             const originalIntensity = glowEffectManager.currentIntensity;
             const result = glowEffectManager.setIntensity('INVALID');
-            
+
             expect(result).toBe(false);
             expect(glowEffectManager.currentIntensity).toBe(originalIntensity);
         });
@@ -337,14 +391,14 @@ describe('GlowEffectManager', () => {
 
         it('should create bike materials when enabled', () => {
             const material = glowEffectManager.createBikeMaterial('player', 0x00ff00);
-            
+
             expect(glowEffectManager.materialSystem.createBikeMaterial)
                 .toHaveBeenCalledWith('player', 0x00ff00);
         });
 
         it('should create trail materials when enabled', () => {
             const material = glowEffectManager.createTrailMaterial('player', 0x00ff00);
-            
+
             expect(glowEffectManager.materialSystem.createTrailMaterial)
                 .toHaveBeenCalledWith('player', 0x00ff00);
         });
@@ -352,14 +406,14 @@ describe('GlowEffectManager', () => {
         it('should create fallback materials when disabled', () => {
             glowEffectManager.enabled = false;
             const material = glowEffectManager.createBikeMaterial('player', 0x00ff00);
-            
+
             expect(THREE.MeshLambertMaterial).toHaveBeenCalledWith({ color: 0x00ff00 });
         });
 
         it('should create fallback materials in fallback mode', () => {
             glowEffectManager.fallbackMode = true;
             glowEffectManager.initializeFallbackRendering();
-            
+
             const material = glowEffectManager.createBikeMaterial('player', 0x00ff00);
             expect(material).toBeDefined();
         });
@@ -374,7 +428,7 @@ describe('GlowEffectManager', () => {
             expect(() => {
                 glowEffectManager.handleGameRestart();
             }).not.toThrow();
-            
+
             expect(glowEffectManager.isPaused).toBe(false);
         });
 
@@ -405,7 +459,7 @@ describe('GlowEffectManager', () => {
 
         it('should handle resize when post-processing is not available', () => {
             glowEffectManager.postProcessing = null;
-            
+
             expect(() => {
                 glowEffectManager.handleResize(1024, 768);
             }).not.toThrow();
@@ -415,19 +469,20 @@ describe('GlowEffectManager', () => {
     describe('Error Handling and Recovery', () => {
         beforeEach(() => {
             glowEffectManager.initialize();
+            glowEffectManager.logHistory = [];
         });
 
         it('should handle rendering failures', () => {
             const error = new Error('Mock render error');
             const result = glowEffectManager.handleRenderingFailure(error, 'test');
-            
+
             // Should attempt recovery
             expect(typeof result).toBe('boolean');
         });
 
         it('should log errors with context', () => {
             glowEffectManager.logError('testMethod', 'Test error message', { test: 'context' });
-            
+
             const logs = glowEffectManager.getLogHistory();
             expect(logs).toHaveLength(1);
             expect(logs[0].level).toBe('ERROR');
@@ -437,7 +492,7 @@ describe('GlowEffectManager', () => {
 
         it('should log warnings with context', () => {
             glowEffectManager.logWarning('testMethod', 'Test warning', { test: 'context' });
-            
+
             const logs = glowEffectManager.getLogHistory();
             expect(logs).toHaveLength(1);
             expect(logs[0].level).toBe('WARNING');
@@ -448,7 +503,7 @@ describe('GlowEffectManager', () => {
             for (let i = 0; i < 105; i++) {
                 glowEffectManager.logInfo('test', `Log ${i}`);
             }
-            
+
             const logs = glowEffectManager.getLogHistory();
             expect(logs).toHaveLength(100);
         });
@@ -465,7 +520,7 @@ describe('GlowEffectManager', () => {
                 value: { hostname: 'localhost' },
                 writable: true
             });
-            
+
             glowEffectManager.startMemoryMonitoring();
             expect(glowEffectManager.memoryStats).toBeDefined();
         });
@@ -478,7 +533,7 @@ describe('GlowEffectManager', () => {
                 leakWarningThreshold: 50000000,
                 lastGCTime: Date.now()
             };
-            
+
             expect(() => {
                 glowEffectManager.checkMemoryUsage();
             }).not.toThrow();
@@ -496,7 +551,7 @@ describe('GlowEffectManager', () => {
                 peakMemory: 60000000,
                 samples: [{ timestamp: Date.now(), memory: 50000000 }]
             };
-            
+
             const stats = glowEffectManager.getMemoryStats();
             expect(stats).toHaveProperty('current');
             expect(stats).toHaveProperty('peak');
@@ -507,7 +562,7 @@ describe('GlowEffectManager', () => {
     describe('Status and Debugging', () => {
         it('should return correct status information', () => {
             const status = glowEffectManager.getStatus();
-            
+
             expect(status).toHaveProperty('enabled');
             expect(status).toHaveProperty('initialized');
             expect(status).toHaveProperty('intensity');
@@ -517,7 +572,7 @@ describe('GlowEffectManager', () => {
         it('should dump debug state', () => {
             glowEffectManager.initialize();
             const debugState = glowEffectManager.dumpDebugState();
-            
+
             expect(debugState).toHaveProperty('timestamp');
             expect(debugState).toHaveProperty('system');
             expect(debugState.system).toHaveProperty('enabled');
@@ -533,9 +588,9 @@ describe('GlowEffectManager', () => {
     describe('Cleanup and Disposal', () => {
         it('should dispose resources properly', () => {
             glowEffectManager.initialize();
-            
+
             glowEffectManager.dispose();
-            
+
             expect(glowEffectManager.initialized).toBe(false);
             expect(glowEffectManager.enabled).toBe(false);
             expect(glowEffectManager.postProcessing).toBeNull();
@@ -544,22 +599,22 @@ describe('GlowEffectManager', () => {
 
         it('should handle disposal errors gracefully', () => {
             glowEffectManager.initialize();
-            
+
             // Mock disposal error
             glowEffectManager.postProcessing.dispose = jest.fn(() => {
                 throw new Error('Disposal error');
             });
-            
+
             expect(() => {
                 glowEffectManager.dispose();
             }).not.toThrow();
         });
 
         it('should clear memory monitoring interval', () => {
-            glowEffectManager.memoryMonitorInterval = setInterval(() => {}, 1000);
-            
+            glowEffectManager.memoryMonitorInterval = setInterval(() => { }, 1000);
+
             glowEffectManager.dispose();
-            
+
             expect(glowEffectManager.memoryMonitorInterval).toBeNull();
         });
     });
@@ -579,7 +634,7 @@ describe('GlowEffectManager', () => {
             expect(() => {
                 glowEffectManager.initializeFallbackRendering();
             }).not.toThrow();
-            
+
             expect(glowEffectManager.fallbackMaterials).toBeDefined();
         });
 

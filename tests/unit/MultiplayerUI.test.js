@@ -2,7 +2,7 @@
  * Tests for MultiplayerUI class
  */
 
-const { MultiplayerUI } = require('./MultiplayerUI');
+const { MultiplayerUI } = require('@/ui/MultiplayerUI.js');
 
 describe('MultiplayerUI', () => {
     let multiplayerUI;

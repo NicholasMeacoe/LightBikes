@@ -1,5 +1,5 @@
-const { ScoreManager } = require('./scoreManager.js');
-const { ScorePersistence } = require('./scorePersistence.js');
+const { ScoreManager } = require('@/systems/scoreManager.js');
+const { ScorePersistence } = require('@/systems/scorePersistence.js');
 
 // Mock ScorePersistence
 jest.mock('./scorePersistence.js', () => ({

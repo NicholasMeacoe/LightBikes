@@ -1,5 +1,5 @@
-const { LocalScoringUI } = require('./LocalScoringUI.js');
-const { LocalScoring } = require('./LocalScoring.js');
+const { LocalScoringUI } = require('@/ui/LocalScoringUI.js');
+const { LocalScoring } = require('@/systems/LocalScoring.js');
 
 describe('LocalScoringUI', () => {
     let localScoring;

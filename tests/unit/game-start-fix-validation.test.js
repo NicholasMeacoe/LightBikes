@@ -3,11 +3,11 @@
  * Tests all requirements from tasks 1-9
  */
 
-const { InitializationState } = require('./InitializationState.js');
-const { LoadingIndicator } = require('./LoadingIndicator.js');
-const { CanvasVerifier } = require('./CanvasVerifier.js');
-const { DOMNotReadyError, CanvasCreationError, ModeSelectorError } = require('./InitializationErrors.js');
-const { ErrorRecoveryStrategies } = require('./ErrorRecoveryStrategies.js');
+const { InitializationState } = require('@/utils/InitializationState.js');
+const { LoadingIndicator } = require('@/ui/LoadingIndicator.js');
+const { CanvasVerifier } = require('@/utils/CanvasVerifier.js');
+const { DOMNotReadyError, CanvasCreationError, ModeSelectorError } = require('@/utils/InitializationErrors.js');
+const { ErrorRecoveryStrategies } = require('@/utils/ErrorRecoveryStrategies.js');
 
 describe('Game Start Fix Validation', () => {
     beforeEach(() => {

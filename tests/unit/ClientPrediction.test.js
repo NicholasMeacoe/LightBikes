@@ -1,4 +1,4 @@
-const { ClientPrediction } = require('./ClientPrediction');
+const { ClientPrediction } = require('@/multiplayer/ClientPrediction.js');
 
 describe('ClientPrediction', () => {
     let clientPrediction;

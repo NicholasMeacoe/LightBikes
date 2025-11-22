@@ -3,7 +3,7 @@
  * Tests the interaction between difficulty buttons and DifficultyManager
  */
 
-const { DifficultyManager } = require('./difficulty.js');
+const { DifficultyManager } = require('@/systems/difficulty.js');
 
 describe('Difficulty UI Integration', () => {
     let mockGame;

@@ -1,5 +1,5 @@
-const { Game } = require('../../src/core/game.js');
-const { ScoreManager } = require('../../src/systems/scoreManager.js');
+const { Game } = require('@/core/game.js');
+const { ScoreManager } = require('@/systems/scoreManager.js');
 
 // Mock ScorePersistence to ensure consistent test behavior
 jest.mock('../../src/systems/scorePersistence.js', () => ({
@@ -638,7 +638,7 @@ describe('Game', () => {
         let arenaShrinkGame;
 
         beforeEach(() => {
-            const { GameModes } = require('./GameModes.js');
+            const { GameModes } = require('@/systems/GameModes.js');
             arenaShrinkGame = new Game(GameModes.ARENA_SHRINK);
         });
 

@@ -3,7 +3,7 @@
  * Focuses on core functional logic and integration points
  */
 
-const { CameraEffectsManager } = require('./CameraEffectsManager.js');
+const { CameraEffectsManager } = require('@/effects/CameraEffectsManager.js');
 
 // Mock THREE.js objects for testing
 const mockCamera = {

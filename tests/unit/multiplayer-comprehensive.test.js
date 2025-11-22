@@ -4,11 +4,11 @@
  * Requirements: 8.5, 4.5, 5.4, 6.1, 6.2, 6.3, 1.5, 3.5
  */
 
-const { MultiplayerGame } = require('./MultiplayerGame.js');
-const { DualControlScheme } = require('./DualControlScheme.js');
-const { SplitScreenCamera } = require('./SplitScreenCamera.js');
-const { PlayerCollisionHandler } = require('./PlayerCollisionHandler.js');
-const { LocalScoring } = require('./LocalScoring.js');
+const { MultiplayerGame } = require('@/multiplayer/MultiplayerGame.js');
+const { DualControlScheme } = require('@/utils/DualControlScheme.js');
+const { SplitScreenCamera } = require('@/multiplayer/SplitScreenCamera.js');
+const { PlayerCollisionHandler } = require('@/multiplayer/PlayerCollisionHandler.js');
+const { LocalScoring } = require('@/systems/LocalScoring.js');
 
 // Mock THREE.js camera
 class MockCamera {

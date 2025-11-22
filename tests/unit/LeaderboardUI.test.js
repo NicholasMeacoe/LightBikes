@@ -1,5 +1,5 @@
-const { LeaderboardUI } = require('./LeaderboardUI.js');
-const { LeaderboardSystem } = require('./LeaderboardSystem.js');
+const { LeaderboardUI } = require('@/ui/LeaderboardUI.js');
+const { LeaderboardSystem } = require('@/systems/LeaderboardSystem.js');
 
 // Mock DOM methods
 Object.defineProperty(document, 'createElement', {

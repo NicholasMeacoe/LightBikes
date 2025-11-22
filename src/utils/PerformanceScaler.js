@@ -66,7 +66,7 @@ class PerformanceScaler {
         this.frameRateHistory = [];
         this.frameRateHistorySize = 30; // Track last 30 frames (0.5 seconds at 60fps)
         this.lastFrameTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
-        
+
         // Quality scaling settings
         this.qualityLevels = {
             high: {
@@ -105,39 +105,39 @@ class PerformanceScaler {
                 description: 'Glow effects disabled'
             }
         };
-        
+
         this.currentQuality = 'high';
         this.scalingEnabled = true;
-        
+
         // Scaling state tracking
         this.lowFPSStartTime = null;
         this.lowFPSDuration = 0;
         this.scalingTriggerDelay = 2000; // Wait 2 seconds before scaling down
-        
+
         // Recovery tracking
         this.goodFPSStartTime = null;
         this.goodFPSDuration = 0;
         this.recoveryDelay = 5000; // Wait 5 seconds of good performance before scaling up
-        
+
         // Performance callbacks
         this.onQualityChangeCallback = null;
         this.onPerformanceWarningCallback = null;
-        
+
         // Scaling history for debugging
         this.scalingHistory = [];
         this.maxScalingHistory = 10;
-        
+
         // Dynamic adjustment settings
         this.dynamicAdjustments = {};
         this.adaptiveScaling = true;
         this.performanceBuffer = 0.1; // 10% performance buffer for adjustments
-        
+
         // Recovery logic settings
         this.recoveryAttempts = 0;
         this.maxRecoveryAttempts = 3;
         this.recoveryBackoffMultiplier = 1.5;
         this.baseRecoveryDelay = 5000; // Base recovery delay in milliseconds
-        
+
         // Fallback settings
         this.fallbackEnabled = true;
         this.fallbackTriggered = false;
@@ -166,10 +166,14 @@ class PerformanceScaler {
      */
     monitorPerformance(deltaTime) {
         if (!this.scalingEnabled) return;
-        
+
         const currentTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
-        const frameTime = currentTime - this.lastFrameTime;
-        
+
+        // Use provided deltaTime or calculate from timestamp
+        const frameTime = (deltaTime !== undefined && deltaTime !== null)
+            ? deltaTime
+            : (currentTime - this.lastFrameTime);
+
         // Calculate FPS, handle edge cases
         let fps;
         if (frameTime <= 0) {
@@ -177,16 +181,16 @@ class PerformanceScaler {
         } else {
             fps = 1000 / frameTime;
         }
-        
+
         // Update frame rate history
         this.frameRateHistory.push(fps);
         if (this.frameRateHistory.length > this.frameRateHistorySize) {
             this.frameRateHistory.shift();
         }
-        
+
         // Check for performance issues
         this.checkPerformanceConditions(fps, currentTime);
-        
+
         this.lastFrameTime = currentTime;
     }
 
@@ -197,24 +201,24 @@ class PerformanceScaler {
      */
     checkPerformanceConditions(currentFPS, currentTime) {
         const averageFPS = this.getAverageFPS();
-        
+
         // Check for critical performance issues (fallback to disable)
         if (this.fallbackEnabled && averageFPS < this.criticalFPSThreshold && !this.fallbackTriggered) {
             this.triggerFallback();
             return;
         }
-        
+
         // Check for low FPS condition
         if (averageFPS < this.minFPS) {
             if (this.lowFPSStartTime === null) {
                 this.lowFPSStartTime = currentTime;
             }
             this.lowFPSDuration = currentTime - this.lowFPSStartTime;
-            
+
             // Reset good FPS tracking
             this.goodFPSStartTime = null;
             this.goodFPSDuration = 0;
-            
+
             // Trigger scaling down if condition persists
             if (this.lowFPSDuration >= this.scalingTriggerDelay) {
                 this.scaleQualityDown();
@@ -225,14 +229,14 @@ class PerformanceScaler {
                 this.goodFPSStartTime = currentTime;
             }
             this.goodFPSDuration = currentTime - this.goodFPSStartTime;
-            
+
             // Reset low FPS tracking
             this.lowFPSStartTime = null;
             this.lowFPSDuration = 0;
-            
+
             // Calculate dynamic recovery delay based on attempts
             const dynamicRecoveryDelay = this.baseRecoveryDelay * Math.pow(this.recoveryBackoffMultiplier, this.recoveryAttempts);
-            
+
             // Trigger scaling up if condition persists and we're not at highest quality
             if (this.goodFPSDuration >= dynamicRecoveryDelay && this.currentQuality !== 'high') {
                 this.attemptQualityRecovery();
@@ -252,11 +256,11 @@ class PerformanceScaler {
     scaleQualityDown() {
         const qualityOrder = ['high', 'medium', 'low', 'minimal', 'disabled'];
         const currentIndex = qualityOrder.indexOf(this.currentQuality);
-        
+
         if (currentIndex < qualityOrder.length - 1) {
             const newQuality = qualityOrder[currentIndex + 1];
             const success = this.scaleQuality(newQuality, 'automatic_downscale');
-            
+
             if (success) {
                 // Notify about performance warning
                 if (this.onPerformanceWarningCallback) {
@@ -269,7 +273,7 @@ class PerformanceScaler {
                 }
             }
         }
-        
+
         // Reset timing after scaling
         this.lowFPSStartTime = null;
         this.lowFPSDuration = 0;
@@ -281,12 +285,12 @@ class PerformanceScaler {
     scaleQualityUp() {
         const qualityOrder = ['disabled', 'minimal', 'low', 'medium', 'high'];
         const currentIndex = qualityOrder.indexOf(this.currentQuality);
-        
+
         if (currentIndex < qualityOrder.length - 1) {
             const newQuality = qualityOrder[currentIndex + 1];
             this.scaleQuality(newQuality, 'automatic_upscale');
         }
-        
+
         // Reset timing after scaling
         this.goodFPSStartTime = null;
         this.goodFPSDuration = 0;
@@ -303,42 +307,42 @@ class PerformanceScaler {
             console.warn(`Invalid quality level: ${targetQuality}`);
             return false;
         }
-        
+
         if (this.currentQuality === targetQuality) {
             return false; // No change needed
         }
-        
+
         const previousQuality = this.currentQuality;
         const previousSettings = this.getQualitySettings();
         const targetSettings = this.qualityLevels[targetQuality];
-        
+
         // Apply dynamic adjustments based on current performance
         const adjustedSettings = this.calculateDynamicAdjustments(targetSettings, reason);
-        
+
         // Update current quality
         this.currentQuality = targetQuality;
-        
+
         // Store adjusted settings temporarily
         this.dynamicAdjustments = adjustedSettings;
-        
+
         // Record scaling event
         this.recordScalingEvent(previousQuality, targetQuality, reason);
-        
+
         // Get final quality settings (with adjustments)
         const finalSettings = this.getQualitySettings();
-        
+
         // Notify callback
         if (this.onQualityChangeCallback) {
             this.onQualityChangeCallback(targetQuality, finalSettings, reason);
         }
-        
+
         console.log(`Glow effect quality scaled: ${previousQuality} → ${targetQuality} (${reason})`);
-        
+
         // Log dynamic adjustments if any
         if (Object.keys(adjustedSettings).length > 0) {
             console.log('Dynamic adjustments applied:', adjustedSettings);
         }
-        
+
         return true;
     }
 
@@ -361,11 +365,11 @@ class PerformanceScaler {
         if (!this.adaptiveScaling) {
             return {};
         }
-        
+
         const adjustments = {};
         const currentFPS = this.getAverageFPS();
         const performanceRatio = currentFPS / this.targetFPS;
-        
+
         // Apply performance-based adjustments
         if (reason === 'automatic_downscale' && performanceRatio < 0.8) {
             // Aggressive downscaling for poor performance
@@ -378,7 +382,7 @@ class PerformanceScaler {
             adjustments.bloomResolution = Math.min(1.0, baseSettings.bloomResolution * bufferRatio);
             adjustments.bloomStrength = Math.min(2.0, baseSettings.bloomStrength * bufferRatio);
         }
-        
+
         // Apply recovery attempt adjustments
         if (this.recoveryAttempts > 0) {
             const recoveryPenalty = 1 - (this.recoveryAttempts * 0.1);
@@ -389,7 +393,7 @@ class PerformanceScaler {
                 adjustments.bloomStrength *= recoveryPenalty;
             }
         }
-        
+
         return adjustments;
     }
 
@@ -399,12 +403,12 @@ class PerformanceScaler {
      */
     getQualitySettings() {
         const baseSettings = { ...this.qualityLevels[this.currentQuality] };
-        
+
         // Apply dynamic adjustments if any
         if (this.dynamicAdjustments && Object.keys(this.dynamicAdjustments).length > 0) {
             return { ...baseSettings, ...this.dynamicAdjustments };
         }
-        
+
         return baseSettings;
     }
 
@@ -425,7 +429,7 @@ class PerformanceScaler {
      */
     getAverageFPS() {
         if (this.frameRateHistory.length === 0) return 60;
-        
+
         const sum = this.frameRateHistory.reduce((acc, fps) => acc + fps, 0);
         return sum / this.frameRateHistory.length;
     }
@@ -463,9 +467,9 @@ class PerformanceScaler {
             averageFPS: this.getAverageFPS(),
             frameRateHistory: [...this.frameRateHistory]
         };
-        
+
         this.scalingHistory.push(event);
-        
+
         // Keep only recent events
         if (this.scalingHistory.length > this.maxScalingHistory) {
             this.scalingHistory.shift();
@@ -478,7 +482,7 @@ class PerformanceScaler {
      */
     setScalingEnabled(enabled) {
         this.scalingEnabled = enabled;
-        
+
         if (!enabled) {
             // Reset timing when disabling
             this.lowFPSStartTime = null;
@@ -526,7 +530,7 @@ class PerformanceScaler {
     getPerformanceAnalysis() {
         const metrics = this.getPerformanceMetrics();
         const recoveryStatus = this.getRecoveryStatus();
-        
+
         return {
             ...metrics,
             ...recoveryStatus,
@@ -568,17 +572,17 @@ class PerformanceScaler {
      */
     calculateScalingEffectiveness() {
         if (this.scalingHistory.length === 0) return 1.0;
-        
+
         let effectiveScalings = 0;
         let totalScalings = this.scalingHistory.length;
-        
+
         this.scalingHistory.forEach(event => {
             // Consider scaling effective if it was followed by improved performance
             if (event.reason === 'automatic_downscale' || event.reason === 'automatic_upscale') {
                 effectiveScalings++;
             }
         });
-        
+
         return effectiveScalings / totalScalings;
     }
 
@@ -613,7 +617,7 @@ class PerformanceScaler {
     getPerformanceStatus() {
         const metrics = this.getPerformanceMetrics();
         const recoveryStatus = this.getRecoveryStatus();
-        
+
         return {
             fps: Math.round(metrics.currentFPS),
             avgFPS: Math.round(metrics.averageFPS),
@@ -639,12 +643,12 @@ class PerformanceScaler {
             console.log('Maximum recovery attempts reached, maintaining current quality');
             return;
         }
-        
+
         this.recoveryAttempts++;
         console.log(`Attempting quality recovery (attempt ${this.recoveryAttempts}/${this.maxRecoveryAttempts})`);
-        
+
         this.scaleQualityUp();
-        
+
         // Reset good FPS timing after recovery attempt
         this.goodFPSStartTime = null;
         this.goodFPSDuration = 0;
@@ -655,12 +659,12 @@ class PerformanceScaler {
      */
     triggerFallback() {
         if (this.fallbackTriggered) return;
-        
+
         this.fallbackTriggered = true;
         console.warn('Critical performance detected, disabling glow effects completely');
-        
+
         this.scaleQuality('disabled', 'fallback');
-        
+
         // Notify about fallback
         if (this.onPerformanceWarningCallback) {
             this.onPerformanceWarningCallback({
@@ -687,7 +691,7 @@ class PerformanceScaler {
      */
     setAdaptiveScaling(enabled) {
         this.adaptiveScaling = enabled;
-        
+
         if (!enabled) {
             // Clear dynamic adjustments when disabling
             this.dynamicAdjustments = {};
@@ -710,17 +714,17 @@ class PerformanceScaler {
     forceQuality(quality) {
         const wasEnabled = this.scalingEnabled;
         this.scalingEnabled = false;
-        
+
         // Clear dynamic adjustments when forcing quality
         this.dynamicAdjustments = {};
-        
+
         const result = this.setQuality(quality, 'forced');
-        
+
         // Re-enable scaling after a delay to allow forced quality to be tested
         setTimeout(() => {
             this.scalingEnabled = wasEnabled;
         }, 10000); // 10 seconds
-        
+
         return result;
     }
 }

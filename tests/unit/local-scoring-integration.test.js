@@ -2,9 +2,9 @@
  * Integration tests for local multiplayer scoring system
  * Tests the complete flow from game events to UI updates
  */
-const { MultiplayerGame } = require('./MultiplayerGame.js');
-const { LocalScoringUI } = require('./LocalScoringUI.js');
-const { PlayerCollisionHandler } = require('./PlayerCollisionHandler.js');
+const { MultiplayerGame } = require('@/multiplayer/MultiplayerGame.js');
+const { LocalScoringUI } = require('@/ui/LocalScoringUI.js');
+const { PlayerCollisionHandler } = require('@/multiplayer/PlayerCollisionHandler.js');
 
 describe('Local Scoring Integration', () => {
     let game;

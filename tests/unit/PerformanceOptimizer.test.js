@@ -1,4 +1,4 @@
-const { PerformanceOptimizer } = require('./PerformanceOptimizer.js');
+const { PerformanceOptimizer } = require('@/utils/PerformanceOptimizer.js');
 
 // Mock Three.js objects
 const mockScene = {

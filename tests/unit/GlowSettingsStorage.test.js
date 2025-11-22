@@ -1,4 +1,4 @@
-const { GlowSettingsStorage } = require('./GlowSettingsStorage.js');
+const { GlowSettingsStorage } = require('@/systems/GlowSettingsStorage.js');
 
 describe('GlowSettingsStorage', () => {
     let storage;

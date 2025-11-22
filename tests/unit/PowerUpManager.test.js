@@ -1,4 +1,4 @@
-const { PowerUpManager, PowerUpEntity, ActiveEffect, POWER_UP_TYPES, SPAWN_CONFIG } = require('./PowerUpManager.js');
+const { PowerUpManager, PowerUpEntity, ActiveEffect, POWER_UP_TYPES, SPAWN_CONFIG } = require('@/systems/PowerUpManager.js');
 
 // Mock dependencies
 const mockGame = {

@@ -1,4 +1,4 @@
-const { AchievementSystem } = require('./AchievementSystem.js');
+const { AchievementSystem } = require('@/systems/AchievementSystem.js');
 
 describe('AchievementSystem', () => {
     let achievementSystem;

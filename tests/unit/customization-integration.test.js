@@ -3,11 +3,11 @@
  * Tests the complete customization system integration
  */
 
-const { CustomizationManager } = require('./CustomizationManager.js');
-const { CustomizationUI } = require('./CustomizationUI.js');
-const { ColorPickerUI } = require('./ColorPickerUI.js');
-const { PreferenceStorage } = require('./PreferenceStorage.js');
-const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
+const { CustomizationManager } = require('@/systems/CustomizationManager.js');
+const { CustomizationUI } = require('@/ui/CustomizationUI.js');
+const { ColorPickerUI } = require('@/ui/ColorPickerUI.js');
+const { PreferenceStorage } = require('@/systems/PreferenceStorage.js');
+const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
 
 // Mock DOM for UI components
 const mockElement = {

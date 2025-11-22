@@ -1,4 +1,4 @@
-const { LeaderboardSystem } = require('./LeaderboardSystem.js');
+const { LeaderboardSystem } = require('@/systems/LeaderboardSystem.js');
 
 describe('LeaderboardSystem', () => {
     let leaderboard;

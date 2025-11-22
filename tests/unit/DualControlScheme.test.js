@@ -1,4 +1,4 @@
-const { DualControlScheme } = require('./DualControlScheme.js');
+const { DualControlScheme } = require('@/utils/DualControlScheme.js');
 
 describe('DualControlScheme', () => {
     let dualControls;

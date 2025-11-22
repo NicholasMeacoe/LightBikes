@@ -1,4 +1,4 @@
-const { ReconnectionManager } = require('./ReconnectionManager');
+const { ReconnectionManager } = require('@/multiplayer/ReconnectionManager.js');
 
 describe('ReconnectionManager', () => {
     let reconnectionManager;

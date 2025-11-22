@@ -3,7 +3,7 @@
  * Verifies seamless looping functionality and gap detection
  */
 
-const { MusicLoopController } = require('./MusicLoopController.js');
+const { MusicLoopController } = require('@/audio/MusicLoopController.js');
 
 describe('MusicLoopController', () => {
     let mockAudioContext;

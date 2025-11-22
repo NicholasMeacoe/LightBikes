@@ -3,14 +3,14 @@
  * Tests customization system integration with existing game features
  */
 
-const { Game } = require('./game.js');
-const { GameModes } = require('./GameModes.js');
-const { CustomizationManager } = require('./CustomizationManager.js');
-const { PreferenceStorage } = require('./PreferenceStorage.js');
-const { ParticleSystem } = require('./ParticleSystem.js');
-const { GlowEffectManager } = require('./GlowEffectManager.js');
-const { PowerUpManager } = require('./PowerUpManager.js');
-const { CollisionDetectionEngine } = require('./collision.js');
+const { Game } = require('@/core/game.js');
+const { GameModes } = require('@/systems/GameModes.js');
+const { CustomizationManager } = require('@/systems/CustomizationManager.js');
+const { PreferenceStorage } = require('@/systems/PreferenceStorage.js');
+const { ParticleSystem } = require('@/rendering/ParticleSystem.js');
+const { GlowEffectManager } = require('@/rendering/GlowEffectManager.js');
+const { PowerUpManager } = require('@/systems/PowerUpManager.js');
+const { CollisionDetectionEngine } = require('@/core/collision.js');
 
 // Mock Three.js
 global.THREE = {

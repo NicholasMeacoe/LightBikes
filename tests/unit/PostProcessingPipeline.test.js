@@ -31,7 +31,7 @@ global.THREE = {
     EffectComposer: mockEffectComposer
 };
 
-const { PostProcessingPipeline } = require('./PostProcessingPipeline.js');
+const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
 
 describe('PostProcessingPipeline', () => {
     let pipeline;

@@ -81,7 +81,7 @@ describe('Glow Effects Integration Tests', () => {
 
     describe('Post-processing Pipeline Integration', () => {
         it('should integrate post-processing with existing renderer', () => {
-            const { PostProcessingPipeline } = require('./PostProcessingPipeline.js');
+            const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
             
             const pipeline = new PostProcessingPipeline(mockRenderer, mockScene, mockCamera);
             const result = pipeline.initialize();
@@ -93,7 +93,7 @@ describe('Glow Effects Integration Tests', () => {
         });
 
         it('should handle quality changes affecting bloom parameters', () => {
-            const { PostProcessingPipeline } = require('./PostProcessingPipeline.js');
+            const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
             
             const pipeline = new PostProcessingPipeline(mockRenderer, mockScene, mockCamera);
             pipeline.initialize();
@@ -107,7 +107,7 @@ describe('Glow Effects Integration Tests', () => {
         });
 
         it('should render through post-processing pipeline', () => {
-            const { PostProcessingPipeline } = require('./PostProcessingPipeline.js');
+            const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
             
             const pipeline = new PostProcessingPipeline(mockRenderer, mockScene, mockCamera);
             pipeline.initialize();
@@ -119,7 +119,7 @@ describe('Glow Effects Integration Tests', () => {
 
     describe('Performance Scaling Integration', () => {
         it('should scale quality based on performance metrics', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             
             const scaler = new PerformanceScaler();
             const qualityChangeCallback = jest.fn();
@@ -137,7 +137,7 @@ describe('Glow Effects Integration Tests', () => {
         });
 
         it('should provide performance metrics for monitoring', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             
             const scaler = new PerformanceScaler();
             
@@ -157,7 +157,7 @@ describe('Glow Effects Integration Tests', () => {
 
     describe('Settings Persistence Integration', () => {
         it('should persist and load glow settings', () => {
-            const { GlowSettings } = require('./GlowSettings.js');
+            const { GlowSettings } = require('@/systems/GlowSettings.js');
             
             const settings = new GlowSettings();
             
@@ -176,7 +176,7 @@ describe('Glow Effects Integration Tests', () => {
         });
 
         it('should provide configuration for different intensity levels', () => {
-            const { GlowSettings } = require('./GlowSettings.js');
+            const { GlowSettings } = require('@/systems/GlowSettings.js');
             
             const settings = new GlowSettings();
             
@@ -194,7 +194,7 @@ describe('Glow Effects Integration Tests', () => {
 
     describe('Material System Integration', () => {
         it('should create and manage materials for game entities', () => {
-            const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
+            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
             
             const materialSystem = new EmissiveMaterialSystem();
             
@@ -225,7 +225,7 @@ describe('Glow Effects Integration Tests', () => {
         });
 
         it('should update pulse animation across all materials', () => {
-            const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
+            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
             
             const materialSystem = new EmissiveMaterialSystem();
             
@@ -247,7 +247,7 @@ describe('Glow Effects Integration Tests', () => {
         });
 
         it('should handle global intensity changes', () => {
-            const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
+            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
             
             const materialSystem = new EmissiveMaterialSystem();
             
@@ -263,7 +263,7 @@ describe('Glow Effects Integration Tests', () => {
 
     describe('Game State Integration', () => {
         it('should handle pause and resume states', () => {
-            const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
+            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
             
             const materialSystem = new EmissiveMaterialSystem();
             materialSystem.createBikeMaterial('player', 0x00ff00);
@@ -285,7 +285,7 @@ describe('Glow Effects Integration Tests', () => {
         });
 
         it('should handle entity lifecycle (creation and disposal)', () => {
-            const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
+            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
             
             const materialSystem = new EmissiveMaterialSystem();
             
@@ -305,7 +305,7 @@ describe('Glow Effects Integration Tests', () => {
             // Mock WebGL failure
             mockCanvas.getContext.mockReturnValue(null);
             
-            const { PostProcessingPipeline } = require('./PostProcessingPipeline.js');
+            const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
             
             const pipeline = new PostProcessingPipeline(mockRenderer, mockScene, mockCamera);
             const result = pipeline.initialize();
@@ -316,7 +316,7 @@ describe('Glow Effects Integration Tests', () => {
         });
 
         it('should handle rendering errors with fallback', () => {
-            const { PostProcessingPipeline } = require('./PostProcessingPipeline.js');
+            const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
             
             const pipeline = new PostProcessingPipeline(mockRenderer, mockScene, mockCamera);
             pipeline.initialize();
@@ -335,7 +335,7 @@ describe('Glow Effects Integration Tests', () => {
         });
 
         it('should handle settings corruption gracefully', () => {
-            const { GlowSettings } = require('./GlowSettings.js');
+            const { GlowSettings } = require('@/systems/GlowSettings.js');
             
             // Mock corrupted localStorage data
             localStorageMock.getItem.mockReturnValue('invalid json');
@@ -349,8 +349,8 @@ describe('Glow Effects Integration Tests', () => {
 
     describe('Performance Integration', () => {
         it('should coordinate performance scaling with quality settings', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
-            const { PostProcessingPipeline } = require('./PostProcessingPipeline.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
+            const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
             
             const scaler = new PerformanceScaler();
             const pipeline = new PostProcessingPipeline(mockRenderer, mockScene, mockCamera);
@@ -368,8 +368,8 @@ describe('Glow Effects Integration Tests', () => {
         });
 
         it('should provide comprehensive system status', () => {
-            const { PerformanceScaler } = require('./PerformanceScaler.js');
-            const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
+            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
+            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
             
             const scaler = new PerformanceScaler();
             const materialSystem = new EmissiveMaterialSystem();
@@ -390,8 +390,8 @@ describe('Glow Effects Integration Tests', () => {
 
     describe('Memory Management Integration', () => {
         it('should properly dispose of all resources', () => {
-            const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
-            const { PostProcessingPipeline } = require('./PostProcessingPipeline.js');
+            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
+            const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
             
             const materialSystem = new EmissiveMaterialSystem();
             const pipeline = new PostProcessingPipeline(mockRenderer, mockScene, mockCamera);

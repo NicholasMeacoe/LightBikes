@@ -2,7 +2,7 @@
  * Tests for BrowserCompatibility.js
  */
 
-const { BrowserCompatibility } = require('./BrowserCompatibility.js');
+const { BrowserCompatibility } = require('@/utils/BrowserCompatibility.js');
 
 describe('BrowserCompatibility', () => {
     let compatibility;

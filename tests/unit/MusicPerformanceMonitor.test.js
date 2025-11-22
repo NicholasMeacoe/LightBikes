@@ -3,7 +3,7 @@
  * Verifies performance tracking, memory monitoring, and optimization recommendations
  */
 
-const { MusicPerformanceMonitor } = require('./MusicPerformanceMonitor.js');
+const { MusicPerformanceMonitor } = require('@/audio/MusicPerformanceMonitor.js');
 
 // Mock performance API
 global.performance = {

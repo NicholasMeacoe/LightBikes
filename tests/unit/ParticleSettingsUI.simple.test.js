@@ -3,7 +3,7 @@
  * Tests core functionality without complex DOM mocking
  */
 
-const { ParticleSettingsUI } = require('./ParticleSettingsUI.js');
+const { ParticleSettingsUI } = require('@/ui/ParticleSettingsUI.js');
 
 // Mock localStorage
 const localStorageMock = {

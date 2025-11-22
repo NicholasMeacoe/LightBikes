@@ -1,24 +1,26 @@
 # LightBikes 3D
 
-A browser-based 3D recreation of the classic light cycle game from TRON, built with Three.js. Race against an AI opponent while leaving a deadly trail of light behind you. Don't crash into the walls, your own trail, or your opponent's trail!
+A high-performance 3D TRON-style light cycle game built with Three.js, featuring single-player and multiplayer modes, AI opponents, particle effects, and dynamic audio.
 
-![LightBikes Game](https://img.shields.io/badge/status-active-success.svg)
-![License](https://img.shields.io/badge/license-ISC-blue.svg)
+![Game Preview](docs/preview.png)
 
-## 🎮 Features
+## ✨ Features
 
-- **3D Graphics**: Immersive 3D arena rendered with Three.js
-- **AI Opponent**: Intelligent AI that adapts to your movements
-- **Collision Detection**: Precise collision system for trails and boundaries
-- **Responsive Controls**: Keyboard controls with mobile touch support
-- **Trail System**: Dynamic light trails that persist throughout the game
-- **Game Over Detection**: Automatic detection of collisions and game end states
+- **Single-Player Mode**: Face off against intelligent AI opponents with multiple difficulty levels
+- **Multiplayer Mode**: Real-time multiplayer battles via WebSocket
+- **Advanced Graphics**: Bloom effects, particle systems, and dynamic lighting
+- **Immersive Audio**: Dynamic music system with mood-based tracks
+- **Multiple Game Modes**: Classic, Elimination, Survival, and Team modes
+- **Power-Ups**: Speed boosts, shields, and special abilities
+- **Customization**: Vehicle skins, trails, and color schemes
+- **Accessibility**: Full keyboard, gamepad, and mobile touch support
+- **Anti-Cheat**: Server-side validation and cheat detection
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
+- Node.js v18+ or v20+
 - npm or yarn
 
 ### Installation
@@ -31,173 +33,231 @@ cd LightBikes
 # Install dependencies
 npm install
 
-# Build the project
-npm run build
-
-# Open public/index.html in your browser
+# Copy environment template (optional, for AI features)
+cp .env.example .env
+# Edit .env and add your API keys if needed
 ```
 
 ### Development
 
 ```bash
-# Run tests
-npm test
+# Start development server with hot reload
+npm run dev
 
-# Run tests with coverage
-npm run test
+# Open browser at http://localhost:3000
+```
 
-# Build bundle
+### Production Build
+
+```bash
+# Build optimized bundle
 npm run build
+
+# Preview production build
+npm run preview
 ```
 
-## 🎯 How to Play
+### Run Multiplayer Server
 
-### Controls
+```bash
+# Start game server
+npm run server
 
-- **Arrow Keys**: Change direction
-  - ↑ Up Arrow: Move forward (Z-axis)
-  - ↓ Down Arrow: Move backward (Z-axis)
-  - ← Left Arrow: Move left (X-axis)
-  - → Right Arrow: Move right (X-axis)
-
-### Mobile Controls
-
-Touch the on-screen directional buttons to control your light cycle.
-
-### Objective
-
-- Survive longer than your AI opponent
-- Avoid crashing into:
-  - Arena boundaries
-  - Your own trail
-  - The AI's trail
-- Force the AI to crash into obstacles
-
-## 🏗️ Architecture
-
-The project follows a modular, component-based architecture with clear separation of concerns:
-
+# Or with auto-reload during development
+npm run server:dev
 ```
-LightBikes/
-├── src/              # Source code
-│   ├── core/        # Core game logic (game, ai, collision)
-│   ├── rendering/   # Graphics and visual effects
-│   ├── effects/     # Camera effects and motion
-│   ├── ui/          # User interface components
-│   ├── audio/       # Audio system
-│   ├── multiplayer/ # Networking and multiplayer
-│   ├── systems/     # Game systems (achievements, scoring, etc.)
-│   └── utils/       # Utilities and helpers
-├── server/          # Multiplayer server
-├── public/          # Public assets (index.html, bundle.js)
-├── tests/           # Test files
-├── sounds/          # Audio assets
-├── docs/            # Documentation
-└── script.js        # Main entry point
-```
-
-See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for detailed structure documentation.
-
-### Key Components
-
-- **Game**: Manages game state, entity positions, and trails
-- **AI Controller**: Implements intelligent opponent behavior
-- **Collision Engine**: Detects collisions between entities and trails
-- **Renderer**: Handles 3D graphics and visual effects
-- **Controls**: Processes user input from keyboard and touch
 
 ## 🧪 Testing
-
-The project uses Jest for unit testing with jsdom for browser environment simulation.
 
 ```bash
 # Run all tests
 npm test
 
+# Run tests in watch mode
+npm test -- --watch
+
+# Run specific test file
+npm test -- tests/unit/game.test.js
+
 # View coverage report
-open coverage/lcov-report/index.html
+npm test
+# Open coverage/lcov-report/index.html
 ```
 
-### Test Coverage
+## 📁 Project Structure
 
-- Game logic tests (`game.test.js`)
-- AI behavior tests (`ai.test.js`)
-- Collision detection tests (`collision.test.js`)
+```
+LightBikes/
+├── src/                    # Client-side source code
+│   ├── main.js            # Application entry point
+│   ├── core/              # Core game logic
+│   ├── rendering/         # Graphics and rendering
+│   ├── audio/             # Audio system
+│   ├── ui/                # User interface
+│   ├── multiplayer/       # Multiplayer client
+│   ├── systems/           # Game systems (AI, power-ups)
+│   └── utils/             # Utilities and helpers
+├── server/                # Multiplayer server
+│   ├── index.js           # Server entry point
+│   ├── GameServer.js      # WebSocket server
+│   ├── GameRoom.js        # Room management
+│   ├── security.js        # Security middleware
+│   └── ...
+├── tests/                 # Test files
+│   ├── unit/              # Unit tests
+│   └── integration/       # Integration tests
+├── public/                # Static assets
+├── docs/                  # Documentation
+├── .github/               # CI/CD workflows
+└── index.html             # Main HTML file
+```
 
-## 📋 Roadmap
+## 🛠️ Development
 
-See [ROADMAP.md](ROADMAP.md) for detailed development plans including:
+### Code Quality
 
-### Phase 1: Quick Wins
-- ✅ Core gameplay mechanics
-- 🔄 Pause functionality
-- 🔄 Score tracking
-- 🔄 Sound effects
-- 🔄 Difficulty levels
+```bash
+# Lint code
+npm run lint
 
-### Phase 2: Gameplay Enhancements
-- Power-up system
-- Time trial mode
-- Arena shrink mode
-- Multiple AI opponents
+# Fix linting issues
+npm run lint:fix
 
-### Phase 3: Visual & Audio Polish
-- Particle effects
-- Neon glow effects
-- Camera shake and motion blur
-- Customization system
-- Background music
+# Format code
+npm run format
 
-### Phase 4: Multiplayer & Social
-- Local multiplayer (split-screen)
-- Online multiplayer
-- Spectator mode
-- Leaderboards and social sharing
+# Check formatting
+npm run format:check
+```
 
-### Phase 5: Advanced Features
-- 3D arena variations
-- Replay system
-- Video recording and GIF export
-- Mobile optimization
-- Accessibility features
+### Environment Variables
 
-### Phase 6: Technical Improvements
-- TypeScript migration
-- CI/CD pipeline
-- E2E testing
-- Performance monitoring
+Create a `.env` file based on `.env.example`:
 
-## 🛠️ Technical Details
+```bash
+# Gemini API for AI features (optional)
+GEMINI_API_KEY=your_api_key_here
 
-### Dependencies
+# Server configuration
+PORT=3000
+NODE_ENV=development
+LOG_LEVEL=info
+```
 
-**Production:**
-- Three.js (r128) - 3D graphics library
+**Important**: Never commit `.env` files to version control.
 
-**Development:**
-- Browserify - Module bundler
-- Jest - Testing framework
-- jest-environment-jsdom - Browser environment for tests
+## 🏗️ Architecture
 
-### Browser Support
+- **Frontend**: Vite + Three.js + Socket.io-client
+- **Backend**: Node.js + Socket.io + Express-style middleware
+- **Testing**: Jest + jsdom
+- **Build Tool**: Vite with code splitting and tree-shaking
+- **Security**: Helmet, rate limiting, input validation, Winston logging
 
-- Chrome (recommended)
-- Firefox
-- Safari
-- Edge
+### Key Design Patterns
 
-Requires WebGL support for 3D rendering.
+- **Entity Component System** for game objects
+- **Event-driven architecture** for multiplayer
+- **State management** with centralized game state
+- **Anti-cheat validation** on server-side
+- **Optimistic updates** with server reconciliation
+
+## 📊 Performance
+
+- Bundle size: < 500KB initial load (gzipped)
+- Code splitting for audio and particle systems
+- 60 FPS target on modern hardware
+- Mobile-optimized rendering pipeline
+
+## 🔒 Security
+
+The server implements multiple security layers:
+
+- **Helmet.js**: Security headers (CSP, HSTS, etc.)
+- **Rate Limiting**: Protection against DoS attacks
+- **Input Validation**: Sanitization of all user inputs
+- **Anti-Cheat**: Server-side movement validation
+- **Structured Logging**: Winston for audit trails
+
+See `server/SECURITY.md` for details.
+
+## 🧪 Testing Strategy
+
+- **Unit Tests**: Core game logic, systems, and utilities
+- **Integration Tests**: Full game flow and multiplayer
+- **Coverage Target**: > 80%
+- **CI/CD**: Automated testing on every push
+
+Current status: 70/138 test suites passing (50.7%)
+
+## 🚢 Deployment
+
+### Manual Deployment
+
+```bash
+# Build production bundle
+npm run build
+
+# Deploy dist/ folder to your hosting service
+# Ensure server is running for multiplayer
+```
+
+### Docker (Coming Soon)
+
+```bash
+docker build -t lightbikes .
+docker run -p 3000:3000 lightbikes
+```
 
 ## 📖 Documentation
 
-- [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) - Detailed project structure and organization
-- [docs/GAME_LOGIC.md](docs/GAME_LOGIC.md) - Detailed game mechanics and logic
-- [docs/DESIGN.md](docs/DESIGN.md) - Technical architecture and design patterns
-- [docs/ROADMAP.md](docs/ROADMAP.md) - Development roadmap and task breakdown
+- [Project Structure](docs/PROJECT_STRUCTURE.md)
+- [Game Logic](docs/GAME_LOGIC.md)
+- [Multiplayer Architecture](docs/MULTIPLAYER.md)
+- [Audio System](docs/AUDIO.md)
+- [Server Security](server/SECURITY.md)
+- [Contributing Guidelines](docs/CONTRIBUTING.md)
+
+## 🗺️ Roadmap
+
+### Phase 1: Core Improvements ✅
+- [x] Modern build system (Vite)
+- [x] Code splitting and optimization
+- [x] CI/CD pipeline
+- [x] Security hardening
+- [x] Linting and formatting
+
+### Phase 2: Testing & Quality 🚧
+- [x] Fix test infrastructure
+- [ ] Increase test coverage to 80%+
+- [ ] Add E2E tests (Playwright)
+- [ ] Performance benchmarks
+
+### Phase 3: Features 📋
+- [ ] Tournament mode
+- [ ] Replay system
+- [ ] Spectator mode improvements
+- [ ] Custom maps/arenas
+- [ ] Achievements and progression
+- [ ] Leaderboards
+
+### Phase 4: Polish 🎨
+- [ ] Enhanced visual effects
+- [ ] More music tracks
+- [ ] Better mobile experience
+- [ ] Accessibility improvements
+- [ ] Internationalization (i18n)
+
+## 🐛 Known Issues
+
+- Mobile touch controls need calibration improvements
+- Performance issues on older hardware (< 4GB RAM)
+- Trail rendering can be GPU-intensive
+- Some tests still failing (being addressed)
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! Please:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -205,31 +265,31 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-### Development Guidelines
+Make sure to run tests and linting before submitting:
 
-- Write tests for new features
-- Follow existing code style
-- Update documentation as needed
-- Ensure all tests pass before submitting PR
+```bash
+npm test
+npm run lint
+npm run format
+```
 
-## 📝 License
+## 📜 License
 
-This project is licensed under the ISC License.
+ISC License - see LICENSE file for details.
 
-## 🎨 Credits
+## 🙏 Acknowledgments
 
-Inspired by the light cycle sequences from TRON (1982).
-
-## 🐛 Known Issues
-
-- Mobile touch controls may need calibration on some devices
-- Performance may vary on older hardware
-- Trail rendering can be intensive with long trails
+- Three.js team for the excellent 3D library
+- Socket.io for real-time communication
+- Jest for testing framework
+- All contributors and testers
 
 ## 📞 Support
 
-For issues, questions, or suggestions, please open an issue on the repository.
+- Report bugs via GitHub Issues
+- Join our Discord community (coming soon)
+- Read the docs at `docs/`
 
 ---
 
-**Enjoy the game! May your light cycle never crash! 🏍️💡**
+Built with ❤️ and ⚡ by the LightBikes team

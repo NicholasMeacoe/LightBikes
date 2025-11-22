@@ -3,11 +3,11 @@
  * Tests camera effects integration across Classic, Time Trial, and Arena Shrink modes
  */
 
-const { CameraEffectsManager } = require('./CameraEffectsManager.js');
-const { Game } = require('./game.js');
-const { GameModes } = require('./GameModes.js');
-const { RenderingEngine } = require('./renderer.js');
-const { AIController, AICoordinator } = require('./ai.js');
+const { CameraEffectsManager } = require('@/effects/CameraEffectsManager.js');
+const { Game } = require('@/core/game.js');
+const { GameModes } = require('@/systems/GameModes.js');
+const { RenderingEngine } = require('@/rendering/renderer.js');
+const { AIController, AICoordinator } = require('@/core/ai.js');
 
 // Mock THREE.js for testing
 global.THREE = {

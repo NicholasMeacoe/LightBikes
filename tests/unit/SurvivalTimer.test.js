@@ -1,4 +1,4 @@
-const { SurvivalTimer } = require('./SurvivalTimer.js');
+const { SurvivalTimer } = require('@/ui/SurvivalTimer.js');
 
 // Mock performance.now globally
 const mockPerformanceNow = jest.fn();

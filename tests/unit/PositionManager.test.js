@@ -1,4 +1,4 @@
-const { PositionManager } = require('./PositionManager.js');
+const { PositionManager } = require('@/multiplayer/PositionManager.js');
 
 describe('PositionManager', () => {
     describe('calculateStartingPositions', () => {

@@ -1,4 +1,4 @@
-const { EffectsConfigManager } = require('./EffectsConfigManager.js');
+const { EffectsConfigManager } = require('@/systems/EffectsConfigManager.js');
 
 // Mock localStorage
 const localStorageMock = {

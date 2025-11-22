@@ -1,4 +1,4 @@
-const { CustomizationManager } = require('./CustomizationManager.js');
+const { CustomizationManager } = require('@/systems/CustomizationManager.js');
 
 // Mock Three.js
 global.THREE = {

@@ -1,4 +1,4 @@
-const { IntensityConfigManager } = require('./IntensityConfigManager.js');
+const { IntensityConfigManager } = require('@/systems/IntensityConfigManager.js');
 
 describe('IntensityConfigManager', () => {
     let intensityManager;

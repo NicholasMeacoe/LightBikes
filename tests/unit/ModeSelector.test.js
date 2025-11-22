@@ -1,5 +1,5 @@
-const { ModeSelector } = require('./ModeSelector.js');
-const { GameModes } = require('./GameModes.js');
+const { ModeSelector } = require('@/ui/ModeSelector.js');
+const { GameModes } = require('@/systems/GameModes.js');
 
 // Mock localStorage
 const localStorageMock = {

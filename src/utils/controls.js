@@ -8,8 +8,8 @@ class PlayerController {
     }
 
     init() {
-        // Keyboard event listeners
-        document.addEventListener('keydown', (event) => {
+        // Store bound listeners to allow removal
+        this.handleKeyDown = (event) => {
             // Handle pause controls
             if (event.key === 'p' || event.key === 'Escape') {
                 event.preventDefault();
@@ -21,24 +21,36 @@ class PlayerController {
                 }
                 return;
             }
-            
+
             // Handle direction controls based on game mode
             if (this.isMultiplayerMode && this.dualControlScheme) {
                 this.handleMultiplayerInput(event);
             } else {
                 this.handleSinglePlayerInput(event);
             }
-        });
+        };
 
-        // Handle key up events for multiplayer mode
-        document.addEventListener('keyup', (event) => {
+        this.handleKeyUp = (event) => {
             if (this.isMultiplayerMode && this.dualControlScheme) {
                 this.dualControlScheme.handleKeyUp(event);
             }
-        });
+        };
+
+        // Keyboard event listeners
+        document.addEventListener('keydown', this.handleKeyDown);
+        document.addEventListener('keyup', this.handleKeyUp);
 
         // UI button event listeners - setup when DOM is ready
         this.setupUIEventListeners();
+    }
+
+    cleanup() {
+        if (this.handleKeyDown) {
+            document.removeEventListener('keydown', this.handleKeyDown);
+        }
+        if (this.handleKeyUp) {
+            document.removeEventListener('keyup', this.handleKeyUp);
+        }
     }
 
     /**
@@ -47,38 +59,38 @@ class PlayerController {
      */
     handleSinglePlayerInput(event) {
         const directionChanged = this.game.changePlayerDirection(event.key);
-        
+
         // Trigger turn sound if direction actually changed
         if (directionChanged && window.audioManager) {
             window.audioManager.playTurnSound();
         }
     }
-    
+
     /**
      * Handle multiplayer input using dual control scheme
      * @param {KeyboardEvent} event - The keyboard event
      */
     handleMultiplayerInput(event) {
         const inputResult = this.dualControlScheme.handleKeyDown(event);
-        
+
         if (inputResult.playerId && inputResult.directionChanged) {
             // Get current player direction for validation
             const currentDirection = this.game.getPlayerDirection(inputResult.playerId);
-            
+
             // Validate direction change to prevent 180-degree reversals
             const isValidChange = this.dualControlScheme.validateDirectionChange(
                 inputResult.playerId,
                 currentDirection,
                 inputResult.newDirection
             );
-            
+
             if (isValidChange) {
                 // Apply direction change to the game
                 const directionChanged = this.game.changePlayerDirection(
-                    inputResult.playerId, 
+                    inputResult.playerId,
                     inputResult.key
                 );
-                
+
                 // Trigger turn sound if direction actually changed
                 if (directionChanged && window.audioManager) {
                     window.audioManager.playTurnSound();
@@ -86,7 +98,7 @@ class PlayerController {
             }
         }
     }
-    
+
     /**
      * Enable multiplayer mode with dual control scheme
      */
@@ -94,7 +106,7 @@ class PlayerController {
         this.isMultiplayerMode = true;
         this.dualControlScheme = new DualControlScheme();
     }
-    
+
     /**
      * Disable multiplayer mode and return to single player
      */
@@ -105,7 +117,7 @@ class PlayerController {
             this.dualControlScheme = null;
         }
     }
-    
+
     /**
      * Get the dual control scheme instance (for testing/debugging)
      * @returns {DualControlScheme|null} The dual control scheme or null if not in multiplayer mode
@@ -113,7 +125,7 @@ class PlayerController {
     getDualControlScheme() {
         return this.dualControlScheme;
     }
-    
+
     /**
      * Check if currently in multiplayer mode
      * @returns {boolean} True if in multiplayer mode

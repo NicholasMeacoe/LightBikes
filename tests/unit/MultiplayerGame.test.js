@@ -1,5 +1,5 @@
-const { MultiplayerGame } = require('./MultiplayerGame.js');
-const { GameModes } = require('./GameModes.js');
+const { MultiplayerGame } = require('@/multiplayer/MultiplayerGame.js');
+const { GameModes } = require('@/systems/GameModes.js');
 
 describe('MultiplayerGame', () => {
     let multiplayerGame;

@@ -1,4 +1,4 @@
-const { AchievementNotification } = require('./AchievementNotification.js');
+const { AchievementNotification } = require('@/ui/AchievementNotification.js');
 
 // Mock DOM methods
 const mockElement = {

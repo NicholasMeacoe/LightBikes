@@ -4,9 +4,9 @@
  * fade transitions, and audio ducking integration
  */
 
-const { MusicPlayer } = require('./MusicPlayer.js');
-const { MusicSettings } = require('./MusicSettings.js');
-const { AudioManager } = require('./audio.js');
+const { MusicPlayer } = require('@/audio/MusicPlayer.js');
+const { MusicSettings } = require('@/audio/MusicSettings.js');
+const { AudioManager } = require('@/audio/audio.js');
 
 // Mock Web Audio API
 const mockAudioContext = {

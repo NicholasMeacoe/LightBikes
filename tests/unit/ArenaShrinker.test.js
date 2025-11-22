@@ -1,4 +1,4 @@
-const { ArenaShrinker } = require('./ArenaShrinker.js');
+const { ArenaShrinker } = require('@/systems/ArenaShrinker.js');
 
 describe('ArenaShrinker', () => {
     let arenaShrinker;

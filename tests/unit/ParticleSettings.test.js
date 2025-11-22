@@ -3,7 +3,7 @@
  * Tests settings management, localStorage persistence, and validation
  */
 
-const { ParticleSettings } = require('./ParticleSettings.js');
+const { ParticleSettings } = require('@/systems/ParticleSettings.js');
 
 // Mock localStorage for testing
 const localStorageMock = {

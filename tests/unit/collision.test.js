@@ -1,4 +1,4 @@
-const { CollisionDetectionEngine } = require('../../src/core/collision.js');
+const { CollisionDetectionEngine } = require('@/core/collision.js');
 
 describe('CollisionDetectionEngine', () => {
     let collisionDetectionEngine;

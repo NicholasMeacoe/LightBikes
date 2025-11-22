@@ -1,6 +1,6 @@
-const { CustomizationUI } = require('./CustomizationUI.js');
-const { CustomizationManager } = require('./CustomizationManager.js');
-const { PreferenceStorage } = require('./PreferenceStorage.js');
+const { CustomizationUI } = require('@/ui/CustomizationUI.js');
+const { CustomizationManager } = require('@/systems/CustomizationManager.js');
+const { PreferenceStorage } = require('@/systems/PreferenceStorage.js');
 
 // Mock DOM elements
 const mockDocument = {

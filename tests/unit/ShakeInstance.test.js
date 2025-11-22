@@ -1,4 +1,4 @@
-const { ShakeInstance } = require('./ShakeInstance.js');
+const { ShakeInstance } = require('@/effects/ShakeInstance.js');
 
 describe('ShakeInstance', () => {
     describe('constructor', () => {

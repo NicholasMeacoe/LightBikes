@@ -3,9 +3,9 @@
  * Tests performance impact, memory usage, and timing precision
  */
 
-const { Game } = require('./game.js');
-const { ArenaShrinker } = require('./ArenaShrinker.js');
-const { GameModes } = require('./GameModes.js');
+const { Game } = require('@/core/game.js');
+const { ArenaShrinker } = require('@/systems/ArenaShrinker.js');
+const { GameModes } = require('@/systems/GameModes.js');
 
 describe('Arena Shrink Mode Performance Validation', () => {
     let game;

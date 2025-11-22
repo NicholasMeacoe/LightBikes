@@ -1,5 +1,5 @@
-const { ErrorRecovery } = require('./ErrorRecovery.js');
-const { ErrorHandler } = require('./ErrorHandler.js');
+const { ErrorRecovery } = require('@/utils/ErrorRecovery.js');
+const { ErrorHandler } = require('@/utils/ErrorHandler.js');
 
 describe('ErrorRecovery', () => {
     let errorRecovery;

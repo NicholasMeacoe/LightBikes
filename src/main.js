@@ -1,45 +1,45 @@
-const { Game } = require('./src/core/game.js');
-const { MultiplayerGame } = require('./src/multiplayer/MultiplayerGame.js');
-const { AIController, AICoordinator } = require('./src/core/ai.js');
-const { CollisionDetectionEngine } = require('./src/core/collision.js');
-const { PlayerCollisionHandler } = require('./src/multiplayer/PlayerCollisionHandler.js');
-const { PlayerController } = require('./src/utils/controls.js');
-const { DualControlScheme } = require('./src/utils/DualControlScheme.js');
-const { RenderingEngine } = require('./src/rendering/renderer.js');
-const { SplitScreenCamera } = require('./src/multiplayer/SplitScreenCamera.js');
-const { ScoreDisplay } = require('./src/ui/scoreDisplay.js');
-const { AudioManager } = require('./src/audio/audio.js');
-const { DifficultyManager } = require('./src/systems/difficulty.js');
-const { PowerUpManager } = require('./src/systems/PowerUpManager.js');
-const { StatusIndicator } = require('./src/ui/StatusIndicator.js');
-const { ModeSelector } = require('./src/ui/ModeSelector.js');
-const { SurvivalTimer } = require('./src/ui/SurvivalTimer.js');
-const { CountdownTimer } = require('./src/ui/CountdownTimer.js');
-const { LeaderboardSystem } = require('./src/systems/LeaderboardSystem.js');
-const { AchievementSystem } = require('./src/systems/AchievementSystem.js');
-const { GameModes } = require('./src/systems/GameModes.js');
-const { PerformanceMonitor } = require('./src/utils/PerformanceMonitor.js');
-const { PerformanceDegradationManager } = require('./src/utils/PerformanceDegradationManager.js');
-const { ParticleSystem } = require('./src/rendering/ParticleSystem.js');
-const { ParticleSettingsUI } = require('./src/ui/ParticleSettingsUI.js');
-const { GlowEffectManager } = require('./src/rendering/GlowEffectManager.js');
-const { CameraEffectsManager } = require('./src/effects/CameraEffectsManager.js');
-const { CameraEffectsUI } = require('./src/effects/CameraEffectsUI.js');
-const { CustomizationManager } = require('./src/systems/CustomizationManager.js');
-const { CustomizationUI } = require('./src/ui/CustomizationUI.js');
-const { PreferenceStorage } = require('./src/systems/PreferenceStorage.js');
-const { MusicSettingsUI } = require('./src/ui/MusicSettingsUI.js');
-const { MultiplayerGameOverUI } = require('./src/ui/MultiplayerGameOverUI.js');
-const { LocalScoringUI } = require('./src/ui/LocalScoringUI.js');
-const { BrowserCompatibility } = require('./src/utils/BrowserCompatibility.js');
-const { CompatibilityWarningUI } = require('./src/ui/CompatibilityWarningUI.js');
-const { ErrorHandler } = require('./src/utils/ErrorHandler.js');
-const { ErrorRecovery } = require('./src/utils/ErrorRecovery.js');
-const { CanvasVerifier } = require('./src/utils/CanvasVerifier.js');
-const { LoadingIndicator } = require('./src/ui/LoadingIndicator.js');
-const { DOMNotReadyError, CanvasCreationError, ModeSelectorError } = require('./src/utils/InitializationErrors.js');
-const { ErrorRecoveryStrategies } = require('./src/utils/ErrorRecoveryStrategies.js');
-const { InitializationState } = require('./src/utils/InitializationState.js');
+const { Game } = require('./core/game.js');
+const { MultiplayerGame } = require('./multiplayer/MultiplayerGame.js');
+const { AIController, AICoordinator } = require('./core/ai.js');
+const { CollisionDetectionEngine } = require('./core/collision.js');
+const { PlayerCollisionHandler } = require('./multiplayer/PlayerCollisionHandler.js');
+const { PlayerController } = require('./utils/controls.js');
+const { DualControlScheme } = require('./utils/DualControlScheme.js');
+const { RenderingEngine } = require('./rendering/renderer.js');
+const { SplitScreenCamera } = require('./multiplayer/SplitScreenCamera.js');
+const { ScoreDisplay } = require('./ui/scoreDisplay.js');
+const { AudioManager } = require('./audio/audio.js');
+const { DifficultyManager } = require('./systems/difficulty.js');
+const { PowerUpManager } = require('./systems/PowerUpManager.js');
+const { StatusIndicator } = require('./ui/StatusIndicator.js');
+const { ModeSelector } = require('./ui/ModeSelector.js');
+const { SurvivalTimer } = require('./ui/SurvivalTimer.js');
+const { CountdownTimer } = require('./ui/CountdownTimer.js');
+const { LeaderboardSystem } = require('./systems/LeaderboardSystem.js');
+const { AchievementSystem } = require('./systems/AchievementSystem.js');
+const { GameModes } = require('./systems/GameModes.js');
+const { PerformanceMonitor } = require('./utils/PerformanceMonitor.js');
+const { PerformanceDegradationManager } = require('./utils/PerformanceDegradationManager.js');
+const { ParticleSystem } = require('./rendering/ParticleSystem.js');
+const { ParticleSettingsUI } = require('./ui/ParticleSettingsUI.js');
+const { GlowEffectManager } = require('./rendering/GlowEffectManager.js');
+const { CameraEffectsManager } = require('./effects/CameraEffectsManager.js');
+const { CameraEffectsUI } = require('./effects/CameraEffectsUI.js');
+const { CustomizationManager } = require('./systems/CustomizationManager.js');
+const { CustomizationUI } = require('./ui/CustomizationUI.js');
+const { PreferenceStorage } = require('./systems/PreferenceStorage.js');
+const { MusicSettingsUI } = require('./ui/MusicSettingsUI.js');
+const { MultiplayerGameOverUI } = require('./ui/MultiplayerGameOverUI.js');
+const { LocalScoringUI } = require('./ui/LocalScoringUI.js');
+const { BrowserCompatibility } = require('./utils/BrowserCompatibility.js');
+const { CompatibilityWarningUI } = require('./ui/CompatibilityWarningUI.js');
+const { ErrorHandler } = require('./utils/ErrorHandler.js');
+const { ErrorRecovery } = require('./utils/ErrorRecovery.js');
+const { CanvasVerifier } = require('./utils/CanvasVerifier.js');
+const { LoadingIndicator } = require('./ui/LoadingIndicator.js');
+const { DOMNotReadyError, CanvasCreationError, ModeSelectorError } = require('./utils/InitializationErrors.js');
+const { ErrorRecoveryStrategies } = require('./utils/ErrorRecoveryStrategies.js');
+const { InitializationState } = require('./utils/InitializationState.js');
 
 // Emoji support detection and fallback
 function detectEmojiSupport() {
@@ -2937,7 +2937,7 @@ async function initializeGameSystemsWithRecovery() {
     
     // Initialize glow settings UI
     try {
-        const { GlowSettingsUI } = require('./src/ui/GlowSettingsUI.js');
+        const { GlowSettingsUI } = require('./ui/GlowSettingsUI.js');
         if (glowEffectManager && glowEffectManager.settings) {
             glowSettingsUI = new GlowSettingsUI(glowEffectManager.settings, glowEffectManager);
         } else {

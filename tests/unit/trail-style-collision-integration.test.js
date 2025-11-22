@@ -47,8 +47,8 @@ global.THREE = {
     }
 };
 
-const { TrailStyleRenderer } = require('./TrailStyleRenderer.js');
-const { CollisionDetectionEngine } = require('./collision.js');
+const { TrailStyleRenderer } = require('@/rendering/TrailStyleRenderer.js');
+const { CollisionDetectionEngine } = require('@/core/collision.js');
 
 describe('Trail Style and Collision Detection Integration', () => {
     let trailStyleRenderer;

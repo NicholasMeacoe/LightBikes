@@ -46,7 +46,7 @@ global.THREE = {
     }
 };
 
-const { ParticlePool } = require('./ParticlePool.js');
+const { ParticlePool } = require('@/rendering/ParticlePool.js');
 
 describe('ParticlePool', () => {
     let pool;

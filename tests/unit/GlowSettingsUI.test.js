@@ -1,5 +1,5 @@
-const { GlowSettingsUI } = require('./GlowSettingsUI.js');
-const { GlowSettings } = require('./GlowSettings.js');
+const { GlowSettingsUI } = require('@/ui/GlowSettingsUI.js');
+const { GlowSettings } = require('@/systems/GlowSettings.js');
 
 describe('GlowSettingsUI', () => {
     let glowSettingsUI;

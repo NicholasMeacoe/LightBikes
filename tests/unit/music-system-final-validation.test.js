@@ -3,11 +3,11 @@
  * Tests end-to-end functionality and requirement compliance
  */
 
-const { AudioManager } = require('./audio.js');
-const { MusicPlayer } = require('./MusicPlayer.js');
-const { MusicSettings } = require('./MusicSettings.js');
-const { MusicTrack } = require('./MusicTrack.js');
-const { MUSIC_TRACKS, ERROR_TYPES } = require('./MusicConfig.js');
+const { AudioManager } = require('@/audio/audio.js');
+const { MusicPlayer } = require('@/audio/MusicPlayer.js');
+const { MusicSettings } = require('@/audio/MusicSettings.js');
+const { MusicTrack } = require('@/audio/MusicTrack.js');
+const { MUSIC_TRACKS, ERROR_TYPES } = require('@/audio/MusicConfig.js');
 
 // Mock Web Audio API for testing
 global.AudioContext = class MockAudioContext {
@@ -35,6 +35,19 @@ global.AudioContext = class MockAudioContext {
             onended: null
         };
     }
+
+    createBuffer(channels, length, sampleRate) {
+        return {
+            duration: length / sampleRate,
+            length: length,
+            numberOfChannels: channels,
+            sampleRate: sampleRate,
+            getChannelData: jest.fn(() => new Float32Array(length)),
+            copyFromChannel: jest.fn(),
+            copyToChannel: jest.fn()
+        };
+    }
+
     
     decodeAudioData() {
         return Promise.resolve({

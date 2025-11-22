@@ -1,4 +1,4 @@
-const { InitializationState } = require('./InitializationState.js');
+const { InitializationState } = require('@/utils/InitializationState.js');
 
 describe('InitializationState', () => {
     let state;

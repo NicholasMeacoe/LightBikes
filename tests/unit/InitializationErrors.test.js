@@ -1,4 +1,4 @@
-const { DOMNotReadyError, CanvasCreationError, ModeSelectorError } = require('./InitializationErrors.js');
+const { DOMNotReadyError, CanvasCreationError, ModeSelectorError } = require('@/utils/InitializationErrors.js');
 
 describe('InitializationErrors', () => {
     describe('DOMNotReadyError', () => {
