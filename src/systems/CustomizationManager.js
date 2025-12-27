@@ -2,6 +2,10 @@
  * CustomizationManager - Central coordinator for all customization functionality
  * Manages color customization, trail styles, arena themes, and preview functionality
  */
+
+const { Logger } = require('../utils/Logger');
+const logger = new Logger('CustomizationManager');
+
 class CustomizationManager {
     constructor(renderingEngine, preferenceStorage) {
         this.renderingEngine = renderingEngine;
@@ -20,10 +24,10 @@ class CustomizationManager {
 
         // Current customization state
         this.currentState = {
-            bikeColor: '#00FF00',      // Default green
-            trailColor: '#00FF00',     // Default green
-            trailStyle: 'solid',       // Default solid trail
-            arenaTheme: 'classic-grid' // Default classic theme
+            bikeColor: '#00FF00', // Default green
+            trailColor: '#00FF00', // Default green
+            trailStyle: 'solid', // Default solid trail
+            arenaTheme: 'classic-grid', // Default classic theme
         };
 
         // Preview state management
@@ -43,7 +47,7 @@ class CustomizationManager {
             purple: '#800080',
             orange: '#FFA500',
             cyan: '#00FFFF',
-            white: '#FFFFFF'
+            white: '#FFFFFF',
         };
 
         // Trail style definitions
@@ -51,23 +55,23 @@ class CustomizationManager {
             solid: {
                 opacity: 0.8,
                 segments: 'continuous',
-                effects: []
+                effects: [],
             },
             dashed: {
                 opacity: 0.8,
                 segments: 'alternating',
-                effects: []
+                effects: [],
             },
             glowing: {
                 opacity: 0.9,
                 segments: 'continuous',
-                effects: ['emissive', 'bloom']
+                effects: ['emissive', 'bloom'],
             },
             rainbow: {
                 opacity: 0.8,
                 segments: 'continuous',
-                effects: ['color-cycle']
-            }
+                effects: ['color-cycle'],
+            },
         };
 
         // Initialize with saved preferences
@@ -82,7 +86,7 @@ class CustomizationManager {
      */
     setBikeColor(playerId, color) {
         if (!this.validateColor(color)) {
-            console.warn('Invalid color format:', color);
+            logger.warn('Invalid color format:', color);
             return false;
         }
 
@@ -93,8 +97,16 @@ class CustomizationManager {
 
             // Apply to rendering engine immediately
             if (this.renderingEngine && this.renderingEngine.emissiveMaterialSystem) {
-                const colorHex = parseInt(color.replace('#', ''), 16);
-                this.renderingEngine.emissiveMaterialSystem.updateBikeMaterial('player', colorHex);
+                try {
+                    const colorHex = parseInt(color.replace('#', ''), 16);
+                    this.renderingEngine.emissiveMaterialSystem.updateBikeMaterial(
+                        'player',
+                        colorHex
+                    );
+                } catch (error) {
+                    logger.warn('Failed to apply bike color to rendering engine:', error.message);
+                    // Continue anyway - state was updated successfully
+                }
             }
         }
 
@@ -109,7 +121,7 @@ class CustomizationManager {
      */
     setTrailColor(playerId, color) {
         if (!this.validateColor(color)) {
-            console.warn('Invalid color format:', color);
+            logger.warn('Invalid color format:', color);
             return false;
         }
 
@@ -137,7 +149,7 @@ class CustomizationManager {
      */
     setTrailStyle(playerId, style) {
         if (!this.trailStyles[style]) {
-            console.warn('Invalid trail style:', style);
+            logger.warn('Invalid trail style:', style);
             return false;
         }
 
@@ -165,7 +177,7 @@ class CustomizationManager {
         }
 
         if (!this.themeEngine.isValidTheme(themeName)) {
-            console.warn('Invalid theme name:', themeName);
+            logger.warn('Invalid theme name:', themeName);
             return false;
         }
 
@@ -268,14 +280,14 @@ class CustomizationManager {
                     this.pendingPreferenceApplication = true;
                 }
 
-                console.log('Loaded saved preferences:', this.currentState);
+                logger.info('Loaded saved preferences:', this.currentState);
                 return true;
             } else {
-                console.log('No saved preferences found, using defaults');
+                logger.info('No saved preferences found, using defaults');
                 return false;
             }
         } catch (error) {
-            console.warn('Failed to load saved preferences:', error);
+            logger.warn('Failed to load saved preferences:', error);
             // Continue with default state
             return false;
         }
@@ -286,10 +298,12 @@ class CustomizationManager {
      * @returns {boolean} True if rendering engine is ready
      */
     isRenderingEngineReady() {
-        return this.renderingEngine &&
+        return (
+            this.renderingEngine &&
             this.renderingEngine.emissiveMaterialSystem &&
             this.renderingEngine.scene &&
-            this.renderingEngine.renderer;
+            this.renderingEngine.renderer
+        );
     }
 
     /**
@@ -298,7 +312,7 @@ class CustomizationManager {
      */
     applyPendingPreferences() {
         if (this.pendingPreferenceApplication && this.isRenderingEngineReady()) {
-            console.log('Applying pending preferences to rendering engine');
+            logger.info('Applying pending preferences to rendering engine');
             this.applyState(this.currentState);
             this.pendingPreferenceApplication = false;
             return true;
@@ -331,12 +345,12 @@ class CustomizationManager {
                 bikeColor: this.currentState.bikeColor,
                 trailColor: this.currentState.trailColor,
                 trailStyle: this.currentState.trailStyle,
-                arenaTheme: this.currentState.arenaTheme
+                arenaTheme: this.currentState.arenaTheme,
             };
 
             this.preferenceStorage.savePreferences(preferences);
         } catch (error) {
-            console.error('Failed to save preferences:', error);
+            logger.error('Failed to save preferences:', error);
         }
     }
 
@@ -348,7 +362,7 @@ class CustomizationManager {
             bikeColor: '#00FF00',
             trailColor: '#00FF00',
             trailStyle: 'solid',
-            arenaTheme: 'classic-grid'
+            arenaTheme: 'classic-grid',
         };
 
         if (this.previewMode) {
@@ -382,11 +396,11 @@ class CustomizationManager {
                     bikeColor: savedPreferences.bikeColor || '#00FF00',
                     trailColor: savedPreferences.trailColor || '#00FF00',
                     trailStyle: savedPreferences.trailStyle || 'solid',
-                    arenaTheme: savedPreferences.arenaTheme || 'classic-grid'
+                    arenaTheme: savedPreferences.arenaTheme || 'classic-grid',
                 };
             }
         } catch (error) {
-            console.warn('Failed to load saved preferences:', error);
+            logger.warn('Failed to load saved preferences:', error);
         }
 
         // Return default state if no saved preferences
@@ -394,7 +408,7 @@ class CustomizationManager {
             bikeColor: '#00FF00',
             trailColor: '#00FF00',
             trailStyle: 'solid',
-            arenaTheme: 'classic-grid'
+            arenaTheme: 'classic-grid',
         };
     }
 
@@ -449,7 +463,8 @@ class CustomizationManager {
         const colorLuminance = this.calculateLuminance(color);
         const bgLuminance = this.calculateLuminance(backgroundColor);
 
-        const contrast = (Math.max(colorLuminance, bgLuminance) + 0.05) /
+        const contrast =
+            (Math.max(colorLuminance, bgLuminance) + 0.05) /
             (Math.min(colorLuminance, bgLuminance) + 0.05);
 
         return contrast >= 3.0; // WCAG AA standard
@@ -466,7 +481,7 @@ class CustomizationManager {
         const g = parseInt(hex.substr(2, 2), 16) / 255;
         const b = parseInt(hex.substr(4, 2), 16) / 255;
 
-        const sRGB = [r, g, b].map(c => {
+        const sRGB = [r, g, b].map((c) => {
             return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
         });
 
@@ -479,15 +494,22 @@ class CustomizationManager {
      */
     applyState(state) {
         // Apply bike color with performance optimization
-        if (state.bikeColor && this.renderingEngine && this.renderingEngine.emissiveMaterialSystem) {
+        if (
+            state.bikeColor &&
+            this.renderingEngine &&
+            this.renderingEngine.emissiveMaterialSystem
+        ) {
             const colorHex = parseInt(state.bikeColor.replace('#', ''), 16);
 
             // Use performance optimizer for material reuse if available
             if (this.performanceOptimizer) {
-                const optimizedMaterial = this.performanceOptimizer.getOrCreateBikeMaterial(colorHex, {
-                    emissive: colorHex,
-                    emissiveIntensity: 0.2
-                });
+                const optimizedMaterial = this.performanceOptimizer.getOrCreateBikeMaterial(
+                    colorHex,
+                    {
+                        emissive: colorHex,
+                        emissiveIntensity: 0.2,
+                    }
+                );
 
                 // Apply optimized material to bike
                 if (this.renderingEngine.player && this.renderingEngine.player.material) {
@@ -495,15 +517,25 @@ class CustomizationManager {
                 }
             } else {
                 // Fallback to original method
-                if (this.renderingEngine.emissiveMaterialSystem &&
-                    typeof this.renderingEngine.emissiveMaterialSystem.updateBikeMaterial === 'function') {
-                    this.renderingEngine.emissiveMaterialSystem.updateBikeMaterial('player', colorHex);
+                if (
+                    this.renderingEngine.emissiveMaterialSystem &&
+                    typeof this.renderingEngine.emissiveMaterialSystem.updateBikeMaterial ===
+                        'function'
+                ) {
+                    this.renderingEngine.emissiveMaterialSystem.updateBikeMaterial(
+                        'player',
+                        colorHex
+                    );
                 }
             }
         }
 
         // Apply trail color with performance optimization
-        if (state.trailColor && this.renderingEngine && this.renderingEngine.emissiveMaterialSystem) {
+        if (
+            state.trailColor &&
+            this.renderingEngine &&
+            this.renderingEngine.emissiveMaterialSystem
+        ) {
             const colorHex = parseInt(state.trailColor.replace('#', ''), 16);
             this.updateExistingTrailMaterials('player', colorHex);
         }
@@ -570,7 +602,7 @@ class CustomizationManager {
                 this.renderingEngine.renderer
             );
         } catch (error) {
-            console.error('Failed to initialize ThemeEngine:', error);
+            logger.error('Failed to initialize ThemeEngine:', error);
             // Create a minimal theme engine for basic functionality
             this.themeEngine = this.createMinimalThemeEngine();
         }
@@ -584,9 +616,9 @@ class CustomizationManager {
         return {
             isValidTheme: (themeName) => themeName === 'classic-grid',
             loadTheme: (themeName) => {
-                console.log('Loading theme:', themeName);
+                logger.info('Loading theme:', themeName);
             },
-            getAvailableThemes: () => ['classic-grid']
+            getAvailableThemes: () => ['classic-grid'],
         };
     }
 
@@ -603,7 +635,9 @@ class CustomizationManager {
      * @returns {boolean} True if performance is acceptable
      */
     isPerformanceAcceptable() {
-        return this.performanceOptimizer ? this.performanceOptimizer.isPerformanceAcceptable() : true;
+        return this.performanceOptimizer
+            ? this.performanceOptimizer.isPerformanceAcceptable()
+            : true;
     }
 
     /**

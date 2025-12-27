@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { CollisionDetectionEngine } = require('@/core/collision.js');
 
 describe('CollisionDetectionEngine', () => {
@@ -12,7 +28,7 @@ describe('CollisionDetectionEngine', () => {
             playerTrail: [],
             ai: { x: 0, y: 0, z: -10 },
             aiTrail: [],
-            frameCount: 10
+            frameCount: 10,
         };
     });
 
@@ -58,7 +74,14 @@ describe('CollisionDetectionEngine', () => {
 
     describe('Trail Collision Detection', () => {
         it('should detect player trail collision', () => {
-            gameState.playerTrail = [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }];
+            gameState.playerTrail = [
+                { x: 0, y: 0, z: 0 },
+                { x: 0, y: 0, z: 0 },
+                { x: 0, y: 0, z: 0 },
+                { x: 0, y: 0, z: 0 },
+                { x: 0, y: 0, z: 0 },
+                { x: 0, y: 0, z: 0 },
+            ];
             const { playerCollided } = collisionDetectionEngine.checkCollisions(gameState);
             expect(playerCollided).toBe(true);
         });
@@ -76,7 +99,14 @@ describe('CollisionDetectionEngine', () => {
         });
 
         it('should detect ai trail collision with ai', () => {
-            gameState.aiTrail = [{ x: 0, y: 0, z: -10 }, { x: 0, y: 0, z: -10 }, { x: 0, y: 0, z: -10 }, { x: 0, y: 0, z: -10 }, { x: 0, y: 0, z: -10 }, { x: 0, y: 0, z: -10 }];
+            gameState.aiTrail = [
+                { x: 0, y: 0, z: -10 },
+                { x: 0, y: 0, z: -10 },
+                { x: 0, y: 0, z: -10 },
+                { x: 0, y: 0, z: -10 },
+                { x: 0, y: 0, z: -10 },
+                { x: 0, y: 0, z: -10 },
+            ];
             const { aiCollided } = collisionDetectionEngine.checkCollisions(gameState);
             expect(aiCollided).toBe(true);
         });
@@ -95,7 +125,8 @@ describe('CollisionDetectionEngine', () => {
         });
 
         it('should handle collision detection with empty trails', () => {
-            const { playerCollided, aiCollided, winner } = collisionDetectionEngine.checkCollisions(gameState);
+            const { playerCollided, aiCollided, winner } =
+                collisionDetectionEngine.checkCollisions(gameState);
             expect(playerCollided).toBe(false);
             expect(aiCollided).toBe(false);
             expect(winner).toBe(null);
@@ -105,7 +136,8 @@ describe('CollisionDetectionEngine', () => {
     describe('Winner Determination', () => {
         it('should return ai as winner when only player collides', () => {
             gameState.player.x = gameState.bounds + 1; // Player collides with boundary
-            const { playerCollided, aiCollided, winner } = collisionDetectionEngine.checkCollisions(gameState);
+            const { playerCollided, aiCollided, winner } =
+                collisionDetectionEngine.checkCollisions(gameState);
             expect(playerCollided).toBe(true);
             expect(aiCollided).toBe(false);
             expect(winner).toBe('ai');
@@ -113,7 +145,8 @@ describe('CollisionDetectionEngine', () => {
 
         it('should return player as winner when only ai collides', () => {
             gameState.ai.x = gameState.bounds + 1; // AI collides with boundary
-            const { playerCollided, aiCollided, winner } = collisionDetectionEngine.checkCollisions(gameState);
+            const { playerCollided, aiCollided, winner } =
+                collisionDetectionEngine.checkCollisions(gameState);
             expect(playerCollided).toBe(false);
             expect(aiCollided).toBe(true);
             expect(winner).toBe('player');
@@ -122,7 +155,8 @@ describe('CollisionDetectionEngine', () => {
         it('should return tie when both player and ai collide', () => {
             gameState.player.x = gameState.bounds + 1; // Player collides with boundary
             gameState.ai.x = gameState.bounds + 1; // AI collides with boundary
-            const { playerCollided, aiCollided, winner } = collisionDetectionEngine.checkCollisions(gameState);
+            const { playerCollided, aiCollided, winner } =
+                collisionDetectionEngine.checkCollisions(gameState);
             expect(playerCollided).toBe(true);
             expect(aiCollided).toBe(true);
             expect(winner).toBe('tie');
@@ -130,7 +164,8 @@ describe('CollisionDetectionEngine', () => {
 
         it('should return null winner when neither player nor ai collides', () => {
             // Both players in safe positions
-            const { playerCollided, aiCollided, winner } = collisionDetectionEngine.checkCollisions(gameState);
+            const { playerCollided, aiCollided, winner } =
+                collisionDetectionEngine.checkCollisions(gameState);
             expect(playerCollided).toBe(false);
             expect(aiCollided).toBe(false);
             expect(winner).toBe(null);
@@ -139,7 +174,8 @@ describe('CollisionDetectionEngine', () => {
         it('should return correct winner for trail collisions', () => {
             // Player collides with AI trail
             gameState.aiTrail = [{ x: 0, y: 0, z: 0 }];
-            const { playerCollided, aiCollided, winner } = collisionDetectionEngine.checkCollisions(gameState);
+            const { playerCollided, aiCollided, winner } =
+                collisionDetectionEngine.checkCollisions(gameState);
             expect(playerCollided).toBe(true);
             expect(aiCollided).toBe(false);
             expect(winner).toBe('ai');
@@ -149,7 +185,8 @@ describe('CollisionDetectionEngine', () => {
             // Both collide with each other's trails
             gameState.playerTrail = [{ x: 0, y: 0, z: -10 }]; // AI position
             gameState.aiTrail = [{ x: 0, y: 0, z: 0 }]; // Player position
-            const { playerCollided, aiCollided, winner } = collisionDetectionEngine.checkCollisions(gameState);
+            const { playerCollided, aiCollided, winner } =
+                collisionDetectionEngine.checkCollisions(gameState);
             expect(playerCollided).toBe(true);
             expect(aiCollided).toBe(true);
             expect(winner).toBe('tie');
@@ -162,26 +199,36 @@ describe('CollisionDetectionEngine', () => {
             gameState.aiOpponents = [
                 {
                     id: 'ai_1',
-                    x: 5, y: 0, z: 0,
+                    x: 5,
+                    y: 0,
+                    z: 0,
                     direction: { x: 1, z: 0 },
-                    trail: [{ x: 4, y: 0, z: 0 }, { x: 3, y: 0, z: 0 }],
-                    alive: true
+                    trail: [
+                        { x: 4, y: 0, z: 0 },
+                        { x: 3, y: 0, z: 0 },
+                    ],
+                    alive: true,
                 },
                 {
                     id: 'ai_2',
-                    x: 0, y: 0, z: 5,
+                    x: 0,
+                    y: 0,
+                    z: 5,
                     direction: { x: 0, z: 1 },
-                    trail: [{ x: 0, y: 0, z: 4 }, { x: 0, y: 0, z: 3 }],
-                    alive: true
-                }
+                    trail: [
+                        { x: 0, y: 0, z: 4 },
+                        { x: 0, y: 0, z: 3 },
+                    ],
+                    alive: true,
+                },
             ];
         });
 
         it('should detect player collision with multiple AI trails', () => {
             gameState.player = { x: 4, y: 0, z: 0 }; // On ai_1's trail
-            
+
             const result = collisionDetectionEngine.checkCollisions(gameState);
-            
+
             expect(result.playerCollided).toBe(true);
             expect(result.crashedEntities).toContain('player');
             expect(result.winner).toBe(null); // AIs still alive
@@ -191,9 +238,9 @@ describe('CollisionDetectionEngine', () => {
             // Position ai_2 on ai_1's trail
             gameState.aiOpponents[1].x = 4;
             gameState.aiOpponents[1].z = 0;
-            
+
             const result = collisionDetectionEngine.checkCollisions(gameState);
-            
+
             expect(result.aiCollided).toBe(true);
             expect(result.crashedEntities).toContain('ai_2');
             expect(result.survivingEntities).toContain('player');
@@ -205,12 +252,12 @@ describe('CollisionDetectionEngine', () => {
             gameState.player = { x: 4, y: 0, z: 0 }; // On ai_1's trail
             gameState.aiOpponents[0].x = 0; // ai_1 on player's starting position
             gameState.aiOpponents[0].z = 0;
-            
+
             // Add player trail at ai_1's new position for collision
             gameState.playerTrail.push({ x: 0, y: 0, z: 0 });
-            
+
             const result = collisionDetectionEngine.checkCollisions(gameState);
-            
+
             expect(result.playerCollided).toBe(true);
             expect(result.aiCollided).toBe(true);
             expect(result.crashedEntities).toContain('player');
@@ -223,9 +270,9 @@ describe('CollisionDetectionEngine', () => {
             // Crash all AIs, leave player alive
             gameState.aiOpponents[0].x = gameState.bounds + 1; // ai_1 hits boundary
             gameState.aiOpponents[1].x = gameState.bounds + 1; // ai_2 hits boundary
-            
+
             const result = collisionDetectionEngine.checkCollisions(gameState);
-            
+
             expect(result.crashedEntities).toContain('ai_1');
             expect(result.crashedEntities).toContain('ai_2');
             expect(result.survivingEntities).toEqual(['player']);
@@ -237,9 +284,9 @@ describe('CollisionDetectionEngine', () => {
             gameState.player.x = gameState.bounds + 1;
             gameState.aiOpponents[0].x = gameState.bounds + 1;
             gameState.aiOpponents[1].x = gameState.bounds + 1;
-            
+
             const result = collisionDetectionEngine.checkCollisions(gameState);
-            
+
             expect(result.crashedEntities).toContain('player');
             expect(result.crashedEntities).toContain('ai_1');
             expect(result.crashedEntities).toContain('ai_2');
@@ -250,9 +297,9 @@ describe('CollisionDetectionEngine', () => {
         it('should continue game when multiple entities survive', () => {
             // Only crash one AI
             gameState.aiOpponents[0].x = gameState.bounds + 1;
-            
+
             const result = collisionDetectionEngine.checkCollisions(gameState);
-            
+
             expect(result.crashedEntities).toEqual(['ai_1']);
             expect(result.survivingEntities).toContain('player');
             expect(result.survivingEntities).toContain('ai_2');
@@ -262,9 +309,9 @@ describe('CollisionDetectionEngine', () => {
         it('should handle dead AI entities correctly', () => {
             gameState.aiOpponents[1].alive = false;
             gameState.aiOpponents[0].x = gameState.bounds + 1; // Crash remaining AI
-            
+
             const result = collisionDetectionEngine.checkCollisions(gameState);
-            
+
             expect(result.crashedEntities).toEqual(['ai_1']);
             expect(result.survivingEntities).toEqual(['player']);
             expect(result.winner).toBe('player');
@@ -274,15 +321,15 @@ describe('CollisionDetectionEngine', () => {
             const playerTrails = collisionDetectionEngine.getOtherTrails('player', gameState);
             const ai1Trails = collisionDetectionEngine.getOtherTrails('ai_1', gameState);
             const ai2Trails = collisionDetectionEngine.getOtherTrails('ai_2', gameState);
-            
+
             // Player should see all AI trails
             expect(playerTrails).toContainEqual({ x: 4, y: 0, z: 0 }); // ai_1 trail
             expect(playerTrails).toContainEqual({ x: 0, y: 0, z: 4 }); // ai_2 trail
-            
+
             // ai_1 should see player trail and ai_2 trail, but not own trail
             expect(ai1Trails).toContainEqual({ x: 0, y: 0, z: 4 }); // ai_2 trail
             expect(ai1Trails).not.toContainEqual({ x: 4, y: 0, z: 0 }); // Not own trail
-            
+
             // ai_2 should see player trail and ai_1 trail, but not own trail
             expect(ai2Trails).toContainEqual({ x: 4, y: 0, z: 0 }); // ai_1 trail
             expect(ai2Trails).not.toContainEqual({ x: 0, y: 0, z: 4 }); // Not own trail
@@ -291,9 +338,9 @@ describe('CollisionDetectionEngine', () => {
         it('should maintain grace period and tolerance settings', () => {
             gameState.frameCount = 5; // Within grace period
             gameState.player.x = gameState.bounds + 1; // Should collide but grace period prevents it
-            
+
             const result = collisionDetectionEngine.checkCollisions(gameState);
-            
+
             expect(result.playerCollided).toBe(false);
             expect(result.winner).toBe(null);
         });
@@ -303,9 +350,9 @@ describe('CollisionDetectionEngine', () => {
             gameState.ai = { x: 0, y: 0, z: -10 };
             gameState.aiTrail = [];
             gameState.player.x = gameState.bounds + 1;
-            
+
             const result = collisionDetectionEngine.checkCollisions(gameState);
-            
+
             // Should use legacy format
             expect(result).toHaveProperty('playerCollided');
             expect(result).toHaveProperty('aiCollided');
@@ -321,8 +368,9 @@ describe('CollisionDetectionEngine', () => {
             gameState.player.x = gameState.bounds + 1; // Should collide with boundary
             gameState.ai.x = gameState.bounds + 1; // Should collide with boundary
             gameState.isPaused = true;
-            
-            const { playerCollided, aiCollided, winner } = collisionDetectionEngine.checkCollisions(gameState);
+
+            const { playerCollided, aiCollided, winner } =
+                collisionDetectionEngine.checkCollisions(gameState);
             expect(playerCollided).toBe(false);
             expect(aiCollided).toBe(false);
             expect(winner).toBe(null);
@@ -333,8 +381,9 @@ describe('CollisionDetectionEngine', () => {
             gameState.player.x = gameState.bounds + 1; // Should collide with boundary
             gameState.ai.x = gameState.bounds + 1; // Should collide with boundary
             gameState.isPaused = false;
-            
-            const { playerCollided, aiCollided, winner } = collisionDetectionEngine.checkCollisions(gameState);
+
+            const { playerCollided, aiCollided, winner } =
+                collisionDetectionEngine.checkCollisions(gameState);
             expect(playerCollided).toBe(true);
             expect(aiCollided).toBe(true);
             expect(winner).toBe('tie');
@@ -350,20 +399,20 @@ describe('CollisionDetectionEngine', () => {
                 { x: 1, y: 0, z: 1 },
                 { x: 1, y: 0, z: 1 },
                 { x: 1, y: 0, z: 1 },
-                { x: 1, y: 0, z: 1 } // Last 5 segments excluded
+                { x: 1, y: 0, z: 1 }, // Last 5 segments excluded
             ];
-            
+
             // Normal operation - should detect collision
             gameState.isPaused = false;
             const normalResult = collisionDetectionEngine.checkCollisions(gameState);
             expect(normalResult.playerCollided).toBe(true);
-            
+
             // Pause - should not detect collision
             gameState.isPaused = true;
             const pausedResult = collisionDetectionEngine.checkCollisions(gameState);
             expect(pausedResult.playerCollided).toBe(false);
             expect(pausedResult.winner).toBe(null);
-            
+
             // Resume - should detect collision again
             gameState.isPaused = false;
             const resumedResult = collisionDetectionEngine.checkCollisions(gameState);
@@ -377,14 +426,14 @@ describe('CollisionDetectionEngine', () => {
             gameState.ai = { x: 0, y: 0, z: -10 };
             gameState.playerTrail = [{ x: 0.05, y: 0, z: -10.05 }]; // Near AI (within tolerance)
             gameState.aiTrail = [{ x: 0.05, y: 0, z: 0.05 }]; // Near player (within tolerance)
-            
+
             // Pause state should prevent all collision detection
             gameState.isPaused = true;
             const pausedResult = collisionDetectionEngine.checkCollisions(gameState);
             expect(pausedResult.playerCollided).toBe(false);
             expect(pausedResult.aiCollided).toBe(false);
             expect(pausedResult.winner).toBe(null);
-            
+
             // Resume should allow normal collision detection
             gameState.isPaused = false;
             const resumedResult = collisionDetectionEngine.checkCollisions(gameState);
@@ -397,11 +446,11 @@ describe('CollisionDetectionEngine', () => {
             gameState.frameCount = 5; // Within grace period
             gameState.player.x = gameState.bounds + 1; // Should collide but grace period prevents it
             gameState.isPaused = true;
-            
+
             const result = collisionDetectionEngine.checkCollisions(gameState);
             expect(result.playerCollided).toBe(false); // No collision due to grace period AND pause
             expect(result.winner).toBe(null);
-            
+
             // Test with pause disabled but still in grace period
             gameState.isPaused = false;
             const gracePeriodResult = collisionDetectionEngine.checkCollisions(gameState);

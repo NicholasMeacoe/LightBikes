@@ -1,13 +1,29 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { Game } = require('@/core/game.js');
 const { GameModes } = require('@/systems/GameModes.js');
 const { ModeSelector } = require('@/ui/ModeSelector.js');
 
 // Mock ScorePersistence to ensure consistent test behavior
-jest.mock('./scorePersistence.js', () => ({
+jest.mock('../../src/systems/scorePersistence.js', () => ({
     ScorePersistence: {
         loadHighScore: jest.fn(() => 0),
-        saveHighScore: jest.fn(() => true)
-    }
+        saveHighScore: jest.fn(() => true),
+    },
 }));
 
 // Mock performance.now for consistent timing tests
@@ -21,20 +37,20 @@ const mockElement = {
     style: { display: '' },
     textContent: '',
     addEventListener: jest.fn(),
-    removeEventListener: jest.fn()
+    removeEventListener: jest.fn(),
 };
 
 global.document = {
     createElement: jest.fn(() => mockElement),
     body: { appendChild: jest.fn() },
     head: { appendChild: jest.fn() },
-    getElementById: jest.fn(() => null)
+    getElementById: jest.fn(() => null),
 };
 
 global.localStorage = {
     getItem: jest.fn(() => null),
     setItem: jest.fn(),
-    removeItem: jest.fn()
+    removeItem: jest.fn(),
 };
 
 describe('Time Trial Backward Compatibility Tests', () => {
@@ -68,7 +84,7 @@ describe('Time Trial Backward Compatibility Tests', () => {
             // AI should have moved
             expect(classicGame.ai.x).not.toBe(initialAIPosition.x);
             expect(classicGame.aiTrail.length).toBeGreaterThan(0);
-            
+
             // AI direction should be maintained or changed based on AI logic
             expect(classicGame.aiDirection).toBeDefined();
             expect(typeof classicGame.aiDirection.x).toBe('number');
@@ -156,13 +172,13 @@ describe('Time Trial Backward Compatibility Tests', () => {
 
             // Verify handleRoundEnd method exists and works
             expect(typeof classicGame.handleRoundEnd).toBe('function');
-            
+
             // Test collision handling
             const mockCollisionResult = { playerCollided: false, aiCollided: true };
             expect(() => {
                 classicGame.handleRoundEnd(mockCollisionResult);
             }).not.toThrow();
-            
+
             // Verify score was updated correctly
             const state = classicGame.getGameState();
             expect(state.playerScore).toBe(1);
@@ -193,7 +209,7 @@ describe('Time Trial Backward Compatibility Tests', () => {
             expect(classicState2.survivalTime).toBeUndefined();
 
             // Verify Time Trial mode is isolated
-            expect(timeTrialState.ai).toBeUndefined();
+            expect(timeTrialState.ai).toBeNull();
             expect(timeTrialState.survivalTime).toBeDefined();
         });
 
@@ -217,13 +233,11 @@ describe('Time Trial Backward Compatibility Tests', () => {
                 const expectedMode = index % 2 === 0 ? GameModes.CLASSIC : GameModes.TIME_TRIAL;
                 expect(game.gameMode).toBe(expectedMode);
 
-                if (expectedMode === GameModes.CLASSIC) {
-                    expect(game.ai).toBeDefined();
-                    expect(game.survivalTimer).toBeNull();
-                } else {
-                    expect(game.ai).toBeNull();
-                    expect(game.survivalTimer).toBeDefined();
-                }
+                const isClassic = expectedMode === GameModes.CLASSIC;
+                // Check if AI exists (truthy) matching Classic mode
+                expect(!!game.ai).toBe(isClassic);
+                // Check if survival timer exists (truthy) matching Time Trial mode (not Classic)
+                expect(!!game.survivalTimer).toBe(!isClassic);
             });
         });
 
@@ -246,7 +260,7 @@ describe('Time Trial Backward Compatibility Tests', () => {
 
             expect(classicState.ai).toBeDefined();
             expect(classicState.survivalTime).toBeUndefined();
-            expect(timeTrialState.ai).toBeUndefined();
+            expect(timeTrialState.ai).toBeNull();
             expect(timeTrialState.survivalTime).toBeDefined();
 
             // Operations on one should not affect the other
@@ -267,11 +281,16 @@ describe('Time Trial Backward Compatibility Tests', () => {
 
             // Verify all control methods exist and work
             const controlMethods = [
-                'update', 'pause', 'resume', 'restart', 
-                'changePlayerDirection', 'getGameState', 'handleRoundEnd'
+                'update',
+                'pause',
+                'resume',
+                'restart',
+                'changePlayerDirection',
+                'getGameState',
+                'handleRoundEnd',
             ];
 
-            controlMethods.forEach(method => {
+            controlMethods.forEach((method) => {
                 expect(typeof classicGame[method]).toBe('function');
                 expect(typeof timeTrialGame[method]).toBe('function');
             });
@@ -319,7 +338,7 @@ describe('Time Trial Backward Compatibility Tests', () => {
 
             // Test collision handling works in both modes
             const mockCollisionResult = { playerCollided: true, aiCollided: false };
-            
+
             expect(() => {
                 classicGame.handleRoundEnd(mockCollisionResult);
                 timeTrialGame.handleRoundEnd(mockCollisionResult);
@@ -328,10 +347,10 @@ describe('Time Trial Backward Compatibility Tests', () => {
             // Verify different behavior: Classic updates scores, Time Trial stops timer
             const classicState = classicGame.getGameState();
             const timeTrialState = timeTrialGame.getGameState();
-            
+
             // Classic mode should have updated AI score
             expect(classicState.aiScore).toBe(1);
-            
+
             // Time Trial mode should have stopped timer
             expect(timeTrialGame.survivalTimer.isRunning).toBe(false);
         });
@@ -344,7 +363,7 @@ describe('Time Trial Backward Compatibility Tests', () => {
             for (let i = 0; i < 3; i++) {
                 classicGame.update();
                 timeTrialGame.update();
-                
+
                 classicGame.restart();
                 timeTrialGame.restart();
 
@@ -359,9 +378,8 @@ describe('Time Trial Backward Compatibility Tests', () => {
 
                 // Mode-specific checks
                 expect(classicState.aiTrail.length).toBe(0);
-                if (timeTrialState.survivalTime !== undefined) {
-                    expect(timeTrialState.survivalTime).toBe(0);
-                }
+                // timeTrialState should have survivalTime initialized to 0
+                expect(timeTrialState.survivalTime).toBe(0);
             }
         });
     });
@@ -412,7 +430,7 @@ describe('Time Trial Backward Compatibility Tests', () => {
             // Should be able to switch back to Classic
             modeSelector.selectMode(GameModes.CLASSIC);
             expect(modeSelector.getSelectedMode()).toBe(GameModes.CLASSIC);
-            
+
             // Test that mode selection works without throwing errors
             expect(() => {
                 modeSelector.selectMode(GameModes.TIME_TRIAL);
@@ -428,12 +446,18 @@ describe('Time Trial Backward Compatibility Tests', () => {
 
             // List of methods that should exist for backward compatibility
             const requiredMethods = [
-                'update', 'pause', 'resume', 'restart',
-                'changePlayerDirection', 'getGameState',
-                'handleRoundEnd', 'init', 'setGameSpeed'
+                'update',
+                'pause',
+                'resume',
+                'restart',
+                'changePlayerDirection',
+                'getGameState',
+                'handleRoundEnd',
+                'init',
+                'setGameSpeed',
             ];
 
-            requiredMethods.forEach(method => {
+            requiredMethods.forEach((method) => {
                 expect(classicGame[method]).toBeDefined();
                 expect(typeof classicGame[method]).toBe('function');
                 expect(timeTrialGame[method]).toBeDefined();

@@ -3,6 +3,22 @@
  * Verifies that AI count and difficulty level are saved and loaded correctly
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { DifficultyManager } = require('@/systems/difficulty.js');
 const { Game } = require('@/core/game.js');
 
@@ -24,11 +40,11 @@ describe('localStorage Persistence', () => {
             }),
             clear: jest.fn(() => {
                 localStorageMock.store = {};
-            })
+            }),
         };
 
         global.localStorage = localStorageMock;
-        global.Storage = function() {};
+        global.Storage = function () {};
 
         // Create game instance
         game = new Game();
@@ -70,7 +86,7 @@ describe('localStorage Persistence', () => {
         it('should use consistent key names for difficulty', () => {
             difficultyManager = new DifficultyManager(game, null);
             difficultyManager.setDifficulty('easy');
-            
+
             // Verify the key is used consistently
             const savedData = localStorage.getItem('lightbikes_difficulty');
             expect(savedData).toBeDefined();
@@ -94,7 +110,7 @@ describe('localStorage Persistence', () => {
             const testData = {
                 selectedDifficulty: 'hard',
                 timestamp: Date.now(),
-                version: '1.0'
+                version: '1.0',
             };
             localStorage.setItem('lightbikes_difficulty', JSON.stringify(testData));
 
@@ -121,7 +137,7 @@ describe('localStorage Persistence', () => {
             const testData = {
                 selectedDifficulty: 'easy',
                 timestamp: Date.now(),
-                version: '1.0'
+                version: '1.0',
             };
             localStorage.setItem('lightbikes_difficulty', JSON.stringify(testData));
 
@@ -151,7 +167,7 @@ describe('localStorage Persistence', () => {
             // Load it
             const loadedCount = localStorage.getItem('lightbikes_ai_count');
             const parsedCount = parseInt(loadedCount);
-            
+
             // Should be NaN
             expect(isNaN(parsedCount)).toBe(true);
         });
@@ -161,14 +177,11 @@ describe('localStorage Persistence', () => {
             localStorage.setItem('lightbikes_difficulty', 'invalid json');
 
             // Create manager
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
             difficultyManager = new DifficultyManager(game, null);
 
             // Should fall back to default
             expect(difficultyManager.getCurrentDifficulty()).toBe('medium');
-            expect(consoleSpy).toHaveBeenCalled();
-
-            consoleSpy.mockRestore();
+            expect(mockLogger.warn).toHaveBeenCalled();
         });
     });
 
@@ -206,7 +219,7 @@ describe('localStorage Persistence', () => {
             // Verify they don't interfere
             const aiCount = parseInt(localStorage.getItem('lightbikes_ai_count'));
             const diffData = JSON.parse(localStorage.getItem('lightbikes_difficulty'));
-            
+
             expect(aiCount).toBe(3);
             expect(diffData.selectedDifficulty).toBe('easy');
         });

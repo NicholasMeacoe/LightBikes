@@ -1,3 +1,30 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn().mockReturnValue(mockLogger);
+
+// Mock all possible ways the Logger could be required
+jest.mock('@/utils/Logger', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn().mockReturnValue(mockLogger),
+}));
+
+jest.mock(
+    '../utils/Logger',
+    () => ({
+        Logger: MockLoggerClass,
+        logger: mockLogger,
+        createLogger: jest.fn().mockReturnValue(mockLogger),
+    }),
+    { virtual: true }
+);
+
 const { CustomizationManager } = require('@/systems/CustomizationManager.js');
 const { PreferenceStorage } = require('@/systems/PreferenceStorage.js');
 
@@ -5,20 +32,20 @@ const { PreferenceStorage } = require('@/systems/PreferenceStorage.js');
 const mockRenderingEngine = {
     emissiveMaterialSystem: {
         updateBikeMaterial: jest.fn(),
-        updateTrailMaterialTemplate: jest.fn()
+        updateTrailMaterialTemplate: jest.fn(),
     },
-    scene: {},
-    renderer: {},
+    scene: { traverse: jest.fn() },
+    renderer: { setClearColor: jest.fn() },
     camera: { position: { x: 0, y: 20, z: 20 } },
     player: { material: null },
     trailStyleRenderer: {
-        setTrailStyle: jest.fn()
-    }
+        setTrailStyle: jest.fn(),
+    },
 };
 
 const mockPreferenceStorage = {
     loadPreferences: jest.fn(),
-    savePreferences: jest.fn()
+    savePreferences: jest.fn(),
 };
 
 describe('CustomizationManager', () => {
@@ -27,6 +54,7 @@ describe('CustomizationManager', () => {
     beforeEach(() => {
         // Reset mocks
         jest.clearAllMocks();
+        mockPreferenceStorage.loadPreferences.mockReturnValue(null);
 
         // Create fresh instance
         customizationManager = new CustomizationManager(mockRenderingEngine, mockPreferenceStorage);
@@ -65,8 +93,9 @@ describe('CustomizationManager', () => {
         it('should apply bike color to rendering engine', () => {
             customizationManager.setBikeColor('player', '#FF0000');
 
-            expect(mockRenderingEngine.emissiveMaterialSystem.updateBikeMaterial)
-                .toHaveBeenCalledWith('player', 0xFF0000);
+            expect(
+                mockRenderingEngine.emissiveMaterialSystem.updateBikeMaterial
+            ).toHaveBeenCalledWith('player', 0xff0000);
         });
     });
 
@@ -104,8 +133,10 @@ describe('CustomizationManager', () => {
         it('should apply trail style to rendering engine', () => {
             customizationManager.setTrailStyle('player', 'dashed');
 
-            expect(mockRenderingEngine.trailStyleRenderer.setTrailStyle)
-                .toHaveBeenCalledWith('player', 'dashed');
+            expect(mockRenderingEngine.trailStyleRenderer.setTrailStyle).toHaveBeenCalledWith(
+                'player',
+                'dashed'
+            );
         });
     });
 
@@ -156,7 +187,7 @@ describe('CustomizationManager', () => {
                 bikeColor: '#FF0000',
                 trailColor: '#00FF00',
                 trailStyle: 'solid',
-                arenaTheme: 'classic-grid'
+                arenaTheme: 'classic-grid',
             });
         });
 
@@ -166,8 +197,8 @@ describe('CustomizationManager', () => {
                     bikeColor: '#FF0000',
                     trailColor: '#0000FF',
                     trailStyle: 'glowing',
-                    arenaTheme: 'neon-city'
-                }
+                    arenaTheme: 'neon-city',
+                },
             };
 
             mockPreferenceStorage.loadPreferences.mockReturnValue(savedPrefs);
@@ -187,7 +218,7 @@ describe('CustomizationManager', () => {
             const result = customizationManager.loadSavedPreferences();
 
             expect(result).toBe(false);
-            // Should maintain default state
+            // Should maintain default state (manager defaults to green)
             expect(customizationManager.currentState.bikeColor).toBe('#00FF00');
         });
 
@@ -207,48 +238,62 @@ describe('CustomizationManager', () => {
 
     describe('performance optimization integration', () => {
         it('should initialize performance optimizer when rendering engine is available', () => {
-            const customizationManagerWithOptimizer = new CustomizationManager(mockRenderingEngine, mockPreferenceStorage);
+            const customizationManagerWithOptimizer = new CustomizationManager(
+                mockRenderingEngine,
+                mockPreferenceStorage
+            );
 
             expect(customizationManagerWithOptimizer.performanceOptimizer).toBeDefined();
         });
 
         it('should get performance metrics', () => {
-            if (customizationManager.performanceOptimizer) {
-                customizationManager.performanceOptimizer.getPerformanceMetrics = jest.fn().mockReturnValue({
-                    frameTime: 16,
-                    drawCalls: 10,
-                    materialCount: 5
-                });
-
-                const metrics = customizationManager.getPerformanceMetrics();
-
-                expect(metrics).toEqual({
-                    frameTime: 16,
-                    drawCalls: 10,
-                    materialCount: 5
-                });
+            if (!customizationManager.performanceOptimizer) {
+                customizationManager.performanceOptimizer = {};
             }
+
+            customizationManager.performanceOptimizer.getPerformanceMetrics = jest
+                .fn()
+                .mockReturnValue({
+                    frameTime: 16,
+                    drawCalls: 10,
+                    materialCount: 5,
+                });
+
+            const metrics = customizationManager.getPerformanceMetrics();
+
+            expect(metrics).toEqual({
+                frameTime: 16,
+                drawCalls: 10,
+                materialCount: 5,
+            });
         });
 
         it('should check performance acceptability', () => {
-            if (customizationManager.performanceOptimizer) {
-                customizationManager.performanceOptimizer.isPerformanceAcceptable = jest.fn().mockReturnValue(true);
-
-                const isAcceptable = customizationManager.isPerformanceAcceptable();
-
-                expect(isAcceptable).toBe(true);
+            if (!customizationManager.performanceOptimizer) {
+                customizationManager.performanceOptimizer = {};
             }
+
+            customizationManager.performanceOptimizer.isPerformanceAcceptable = jest
+                .fn()
+                .mockReturnValue(true);
+
+            const isAcceptable = customizationManager.isPerformanceAcceptable();
+
+            expect(isAcceptable).toBe(true);
         });
 
         it('should optimize performance', () => {
-            if (customizationManager.performanceOptimizer) {
-                customizationManager.performanceOptimizer.optimizeScene = jest.fn();
-
-                customizationManager.optimizePerformance();
-
-                expect(customizationManager.performanceOptimizer.optimizeScene)
-                    .toHaveBeenCalledWith(mockRenderingEngine.camera.position);
+            if (!customizationManager.performanceOptimizer) {
+                customizationManager.performanceOptimizer = {};
             }
+
+            customizationManager.performanceOptimizer.optimizeScene = jest.fn();
+
+            customizationManager.optimizePerformance();
+
+            expect(customizationManager.performanceOptimizer.optimizeScene).toHaveBeenCalledWith(
+                mockRenderingEngine.camera.position
+            );
         });
     });
 

@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { LocalScoring } = require('@/systems/LocalScoring.js');
 
 describe('LocalScoring', () => {
@@ -129,7 +145,7 @@ describe('LocalScoring', () => {
                 player2Wins: 1,
                 currentRound: 4,
                 totalRounds: 3,
-                roundHistory: ['P1', 'P2', 'P1']
+                roundHistory: ['P1', 'P2', 'P1'],
             });
         });
 
@@ -286,7 +302,7 @@ describe('LocalScoring', () => {
                 player2Wins: 2,
                 currentRound: 6,
                 totalRounds: 5,
-                roundHistory: ['P1', 'P2', 'P1', 'P1', 'P2']
+                roundHistory: ['P1', 'P2', 'P1', 'P1', 'P2'],
             });
         });
 
@@ -305,7 +321,7 @@ describe('LocalScoring', () => {
                 player2Wins: 3,
                 currentRound: 8,
                 totalRounds: 7,
-                roundHistory: ['P1', 'P2', 'P1', 'P2', 'P1', 'P1', 'P2']
+                roundHistory: ['P1', 'P2', 'P1', 'P2', 'P1', 'P1', 'P2'],
             };
 
             localScoring.importState(state);
@@ -331,7 +347,7 @@ describe('LocalScoring', () => {
 
         it('should handle partial state with defaults', () => {
             const state = {
-                player1Wins: 2
+                player1Wins: 2,
             };
 
             localScoring.importState(state);

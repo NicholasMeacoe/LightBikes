@@ -1,11 +1,11 @@
 /**
  * GlowSettings - User preference management for neon glow effects
- * 
+ *
  * This class manages user preferences for glow effect intensity with robust
  * localStorage persistence, settings validation, and migration support.
  * It provides a simple API for storing and retrieving user preferences
  * while handling edge cases like corrupted data and storage unavailability.
- * 
+ *
  * Key Features:
  * - Four-level intensity system (Off, Low, Medium, High)
  * - Robust localStorage persistence with error recovery
@@ -13,44 +13,48 @@
  * - Version-based migration system for future updates
  * - Default fallback values for all settings
  * - Graceful handling of storage limitations
- * 
+ *
  * Intensity Levels:
  * - OFF: Completely disables glow effects (emissive: 0, bloom: 0)
  * - LOW: Subtle glow for performance-conscious users (emissive: 0.3, bloom: 0.5)
  * - MEDIUM: Balanced glow (default setting) (emissive: 0.6, bloom: 1.0)
  * - HIGH: Maximum visual impact (emissive: 0.8, bloom: 1.5)
- * 
+ *
  * Storage Strategy:
  * - Primary storage in localStorage with automatic backup creation
  * - Settings validation on load with fallback to defaults
  * - Version tracking for future migration support
  * - Graceful degradation when localStorage is unavailable
- * 
+ *
  * Usage Example:
  * ```javascript
  * const settings = new GlowSettings();
- * 
+ *
  * // Get current intensity
  * const currentLevel = settings.getIntensity(); // 'MEDIUM'
- * 
+ *
  * // Change intensity
  * settings.setIntensity('HIGH');
- * 
+ *
  * // Get configuration for current level
  * const config = settings.getIntensityConfig();
  * console.log(config); // { emissive: 0.8, bloom: 1.5, label: 'High' }
- * 
+ *
  * // Check if effects are enabled
  * if (settings.isEnabled()) {
  *     // Apply glow effects
  * }
  * ```
- * 
+ *
  * @class GlowSettings
  * @author LightBikes Development Team
  * @version 1.0.0
  * @since 2024
  */
+
+const { Logger } = require('../utils/Logger');
+const logger = new Logger('GlowSettings');
+
 class GlowSettings {
     constructor() {
         // Define intensity levels with emissive and bloom values
@@ -58,13 +62,13 @@ class GlowSettings {
             OFF: { emissive: 0, bloom: 0, label: 'Off' },
             LOW: { emissive: 0.3, bloom: 0.5, label: 'Low' },
             MEDIUM: { emissive: 0.6, bloom: 1.0, label: 'Medium' },
-            HIGH: { emissive: 0.8, bloom: 1.5, label: 'High' }
+            HIGH: { emissive: 0.8, bloom: 1.5, label: 'High' },
         };
 
         // Default settings
         this.defaults = {
             intensity: 'MEDIUM',
-            version: 1
+            version: 1,
         };
 
         // Current settings
@@ -92,7 +96,7 @@ class GlowSettings {
      */
     setIntensity(level) {
         if (!this.isValidIntensity(level)) {
-            console.warn(`Invalid glow intensity level: ${level}`);
+            logger.warn(`Invalid glow intensity level: ${level}`);
             return false;
         }
 
@@ -123,7 +127,12 @@ class GlowSettings {
      * @returns {boolean} True if valid
      */
     isValidIntensity(level) {
-        return !!(level && typeof level === 'string' && level.trim() !== '' && this.intensityLevels.hasOwnProperty(level));
+        return !!(
+            level &&
+            typeof level === 'string' &&
+            level.trim() !== '' &&
+            this.intensityLevels.hasOwnProperty(level)
+        );
     }
 
     /**
@@ -138,18 +147,18 @@ class GlowSettings {
             }
 
             const parsed = JSON.parse(stored);
-            
+
             // Validate loaded settings
             if (this.validateSettings(parsed)) {
                 // Handle settings migration if needed
                 const migrated = this.migrateSettings(parsed);
                 this.settings = { ...this.defaults, ...migrated };
             } else {
-                console.warn('Invalid stored glow settings, using defaults');
+                logger.warn('Invalid stored glow settings, using defaults');
                 this.settings = { ...this.defaults };
             }
         } catch (error) {
-            console.error('Error loading glow settings:', error);
+            logger.error('Error loading glow settings:', error);
             this.settings = { ...this.defaults };
         }
     }
@@ -161,11 +170,11 @@ class GlowSettings {
         try {
             const toStore = {
                 ...this.settings,
-                version: this.defaults.version
+                version: this.defaults.version,
             };
             localStorage.setItem(this.storageKey, JSON.stringify(toStore));
         } catch (error) {
-            console.error('Error saving glow settings:', error);
+            logger.error('Error saving glow settings:', error);
         }
     }
 
@@ -197,7 +206,7 @@ class GlowSettings {
 
         // Handle version migrations
         const settingsVersion = settings.version || 0;
-        
+
         if (settingsVersion < 1) {
             // Migration from version 0 to 1
             // No changes needed for v1, just ensure version is set

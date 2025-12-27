@@ -4,28 +4,44 @@
  */
 
 // Mock Three.js
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const mockScene = {
     add: jest.fn(),
     remove: jest.fn(),
-    children: []
+    children: [],
 };
 
 const mockCamera = {
-    position: { 
-        x: 0, 
-        y: 0, 
+    position: {
+        x: 0,
+        y: 0,
         z: 0,
         set: jest.fn(),
-        clone: jest.fn(() => ({ x: 0, y: 0, z: 0 }))
+        clone: jest.fn(() => ({ x: 0, y: 0, z: 0 })),
     },
-    lookAt: jest.fn()
+    lookAt: jest.fn(),
 };
 
 const mockRenderer = {
     setSize: jest.fn(),
     setClearColor: jest.fn(),
     render: jest.fn(),
-    domElement: document.createElement('canvas')
+    domElement: document.createElement('canvas'),
 };
 
 const mockMesh = {
@@ -33,17 +49,17 @@ const mockMesh = {
     visible: true,
     geometry: { dispose: jest.fn() },
     material: { dispose: jest.fn() },
-    parent: mockScene
+    parent: mockScene,
 };
 
 const mockGeometry = {
-    dispose: jest.fn()
+    dispose: jest.fn(),
 };
 
 const mockMaterial = {
     dispose: jest.fn(),
     color: { setHex: jest.fn() },
-    opacity: 1.0
+    opacity: 1.0,
 };
 
 // Mock Three.js classes
@@ -66,50 +82,50 @@ global.THREE = {
         ...mockMesh,
         setMatrixAt: jest.fn(),
         instanceMatrix: { needsUpdate: false },
-        count: 0
+        count: 0,
     })),
     Matrix4: jest.fn(() => ({
         makeScale: jest.fn(),
         compose: jest.fn(),
-        setMatrixAt: jest.fn()
+        setMatrixAt: jest.fn(),
     })),
     Quaternion: jest.fn(() => ({
-        setFromEuler: jest.fn()
+        setFromEuler: jest.fn(),
     })),
-    Euler: jest.fn()
+    Euler: jest.fn(),
 };
 
 // Mock DOM and window
 document.body.appendChild = jest.fn();
 global.window = {
     innerWidth: 1024,
-    innerHeight: 768
+    innerHeight: 768,
 };
 
 // Mock dependencies
-jest.mock('./ThemeEngine.js', () => ({
+jest.mock('../../src/systems/ThemeEngine.js', () => ({
     ThemeEngine: jest.fn(() => ({
         loadTheme: jest.fn(),
-        getCurrentTheme: jest.fn(() => 'classic-grid')
-    }))
+        getCurrentTheme: jest.fn(() => 'classic-grid'),
+    })),
 }));
 
-jest.mock('./EmissiveMaterialSystem.js', () => ({
+jest.mock('../../src/rendering/EmissiveMaterialSystem.js', () => ({
     EmissiveMaterialSystem: jest.fn(() => ({
         createBikeMaterial: jest.fn(() => mockMaterial),
         updatePulseAnimation: jest.fn(),
         pausePulse: jest.fn(),
         resumePulse: jest.fn(),
-        disposeMaterial: jest.fn()
-    }))
+        disposeMaterial: jest.fn(),
+    })),
 }));
 
-jest.mock('./TrailStyleRenderer.js', () => ({
+jest.mock('../../src/rendering/TrailStyleRenderer.js', () => ({
     TrailStyleRenderer: jest.fn(() => ({
         createStyledTrailSegment: jest.fn(() => mockMesh),
         updateTrailEffects: jest.fn(),
-        clearAllTrails: jest.fn()
-    }))
+        clearAllTrails: jest.fn(),
+    })),
 }));
 
 const { RenderingEngine } = require('@/rendering/renderer.js');
@@ -153,15 +169,15 @@ describe('RenderingEngine Multiplayer Visual Distinction', () => {
                     x: -10,
                     z: 0,
                     isAlive: true,
-                    trail: []
+                    trail: [],
                 },
                 player2: {
                     id: 'P2',
                     x: 10,
                     z: 0,
                     isAlive: true,
-                    trail: []
-                }
+                    trail: [],
+                },
             };
 
             renderer.updatePlayerEntities(gameState);
@@ -179,16 +195,16 @@ describe('RenderingEngine Multiplayer Visual Distinction', () => {
                         x: -10,
                         z: 0,
                         isAlive: true,
-                        trail: []
+                        trail: [],
                     },
                     {
                         id: 'P2',
                         x: 10,
                         z: 0,
                         isAlive: true,
-                        trail: []
-                    }
-                ]
+                        trail: [],
+                    },
+                ],
             };
 
             renderer.updatePlayerEntities(gameState);
@@ -204,21 +220,21 @@ describe('RenderingEngine Multiplayer Visual Distinction', () => {
                     x: -10,
                     z: 0,
                     isAlive: false,
-                    trail: []
+                    trail: [],
                 },
                 player2: {
                     id: 'P2',
                     x: 10,
                     z: 0,
                     isAlive: true,
-                    trail: []
-                }
+                    trail: [],
+                },
             };
 
             // First create the entities
             const aliveGameState = {
                 player1: { ...gameState.player1, isAlive: true },
-                player2: gameState.player2
+                player2: gameState.player2,
             };
             renderer.updatePlayerEntities(aliveGameState);
 
@@ -249,8 +265,8 @@ describe('RenderingEngine Multiplayer Visual Distinction', () => {
                     x: -10,
                     z: 5,
                     isAlive: true,
-                    trail: []
-                }
+                    trail: [],
+                },
             };
 
             // Should not throw errors when updating player entities
@@ -268,15 +284,15 @@ describe('RenderingEngine Multiplayer Visual Distinction', () => {
                     x: -10,
                     z: 0,
                     isAlive: true,
-                    trail: [{ x: -10, y: 0, z: 0 }]
+                    trail: [{ x: -10, y: 0, z: 0 }],
                 },
                 player2: {
                     id: 'P2',
                     x: 10,
                     z: 0,
                     isAlive: true,
-                    trail: [{ x: 10, y: 0, z: 0 }]
-                }
+                    trail: [{ x: 10, y: 0, z: 0 }],
+                },
             };
 
             renderer.updatePlayerTrails(gameState);
@@ -300,7 +316,7 @@ describe('RenderingEngine Multiplayer Visual Distinction', () => {
         it('should handle backward compatibility with single player trails', () => {
             const gameState = {
                 player: { x: 0, z: 0 },
-                playerTrail: [{ x: 0, y: 0, z: 0 }]
+                playerTrail: [{ x: 0, y: 0, z: 0 }],
             };
 
             renderer.updatePlayerTrails(gameState);
@@ -322,14 +338,14 @@ describe('RenderingEngine Multiplayer Visual Distinction', () => {
                     id: 'P1',
                     x: -10,
                     z: 0,
-                    isAlive: true
+                    isAlive: true,
                 },
                 player2: {
                     id: 'P2',
                     x: 10,
                     z: 0,
-                    isAlive: true
-                }
+                    isAlive: true,
+                },
             };
 
             renderer.updateCameraForPlayers(gameState);
@@ -346,25 +362,25 @@ describe('RenderingEngine Multiplayer Visual Distinction', () => {
                     id: 'P1',
                     x: -20,
                     z: 0,
-                    isAlive: true
+                    isAlive: true,
                 },
                 player2: {
                     id: 'P2',
                     x: 20,
                     z: 0,
-                    isAlive: true
-                }
+                    isAlive: true,
+                },
             };
 
             renderer.updateCameraForPlayers(gameState);
 
             // Test the split screen camera's zoom calculation directly
             const distance = renderer.splitScreenCamera.calculateDistance(
-                { x: -20, z: 0 }, 
+                { x: -20, z: 0 },
                 { x: 20, z: 0 }
             );
             const optimalZoom = renderer.splitScreenCamera.calculateOptimalZoom(distance);
-            
+
             expect(distance).toBe(40);
             expect(optimalZoom).toBeGreaterThan(20); // Should be higher than base height
         });
@@ -376,15 +392,15 @@ describe('RenderingEngine Multiplayer Visual Distinction', () => {
                         id: 'P1',
                         x: -10,
                         z: 5,
-                        isAlive: true
+                        isAlive: true,
                     },
                     {
                         id: 'P2',
                         x: 10,
                         z: 0,
-                        isAlive: false
-                    }
-                ]
+                        isAlive: false,
+                    },
+                ],
             };
 
             renderer.updateCameraForPlayers(gameState);
@@ -406,15 +422,15 @@ describe('RenderingEngine Multiplayer Visual Distinction', () => {
                     x: -10,
                     z: 0,
                     isAlive: true,
-                    trail: [{ x: -10, y: 0, z: 0 }]
+                    trail: [{ x: -10, y: 0, z: 0 }],
                 },
                 player2: {
                     id: 'P2',
                     x: 10,
                     z: 0,
                     isAlive: true,
-                    trail: [{ x: 10, y: 0, z: 0 }]
-                }
+                    trail: [{ x: 10, y: 0, z: 0 }],
+                },
             };
 
             // Should not throw errors
@@ -436,15 +452,15 @@ describe('RenderingEngine Multiplayer Visual Distinction', () => {
                     x: -10,
                     z: 0,
                     isAlive: true,
-                    trail: [{ x: -10, y: 0, z: 0 }]
+                    trail: [{ x: -10, y: 0, z: 0 }],
                 },
                 player2: {
                     id: 'P2',
                     x: 10,
                     z: 0,
                     isAlive: true,
-                    trail: [{ x: 10, y: 0, z: 0 }]
-                }
+                    trail: [{ x: 10, y: 0, z: 0 }],
+                },
             };
 
             renderer.updatePlayerEntities(gameState);
@@ -467,12 +483,12 @@ describe('RenderingEngine Multiplayer Visual Distinction', () => {
                     x: -10,
                     z: 0,
                     isAlive: true,
-                    trail: []
-                }
+                    trail: [],
+                },
             };
 
             renderer.updatePlayerEntities(gameState);
-            
+
             // Should not throw errors when clearing players
             expect(() => {
                 renderer.clearAllPlayers();
@@ -484,7 +500,7 @@ describe('RenderingEngine Multiplayer Visual Distinction', () => {
         it('should maintain compatibility with single player game state', () => {
             const gameState = {
                 player: { x: 0, z: 0 },
-                playerTrail: [{ x: 0, y: 0, z: 0 }]
+                playerTrail: [{ x: 0, y: 0, z: 0 }],
             };
 
             // Should not throw errors

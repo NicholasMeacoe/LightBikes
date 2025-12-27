@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { MultiplayerGame } = require('@/multiplayer/MultiplayerGame.js');
 const { GameModes } = require('@/systems/GameModes.js');
 
@@ -169,9 +185,9 @@ describe('MultiplayerGame', () => {
     describe('handleRoundEnd', () => {
         it('should increment Player 1 wins when Player 2 crashes', () => {
             const collisionResult = { player1Collided: false, player2Collided: true };
-            
+
             multiplayerGame.handleRoundEnd(collisionResult);
-            
+
             const scoring = multiplayerGame.getLocalScoring();
             expect(scoring.player1Wins).toBe(1);
             expect(scoring.player2Wins).toBe(0);
@@ -180,9 +196,9 @@ describe('MultiplayerGame', () => {
 
         it('should increment Player 2 wins when Player 1 crashes', () => {
             const collisionResult = { player1Collided: true, player2Collided: false };
-            
+
             multiplayerGame.handleRoundEnd(collisionResult);
-            
+
             const scoring = multiplayerGame.getLocalScoring();
             expect(scoring.player1Wins).toBe(0);
             expect(scoring.player2Wins).toBe(1);
@@ -191,9 +207,9 @@ describe('MultiplayerGame', () => {
 
         it('should not change scores on tie (both crash)', () => {
             const collisionResult = { player1Collided: true, player2Collided: true };
-            
+
             multiplayerGame.handleRoundEnd(collisionResult);
-            
+
             const scoring = multiplayerGame.getLocalScoring();
             expect(scoring.player1Wins).toBe(0);
             expect(scoring.player2Wins).toBe(0);

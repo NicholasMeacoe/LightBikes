@@ -2,6 +2,11 @@
  * ScorePersistence - Handles localStorage operations for high score persistence
  * Provides static methods for saving/loading high scores with error handling
  */
+const { Logger } = require('../utils/Logger');
+
+// Create a logger instance for the static class
+const logger = Logger.create('ScorePersistence');
+
 class ScorePersistence {
     static HIGH_SCORE_KEY = 'lightbikes_high_score';
     static MAX_SCORE_VALUE = 999999;
@@ -20,12 +25,12 @@ class ScorePersistence {
      */
     static saveHighScore(score) {
         if (!this.isStorageAvailable()) {
-            console.warn('localStorage not available, high score will not persist');
+            logger.warn('localStorage not available, high score will not persist');
             return false;
         }
 
         if (!this.isValidScore(score)) {
-            console.error('Invalid score value:', score);
+            logger.error(`Invalid score value: ${score}`);
             return false;
         }
 
@@ -33,7 +38,7 @@ class ScorePersistence {
             this.getStorage().setItem(this.HIGH_SCORE_KEY, score.toString());
             return true;
         } catch (error) {
-            console.error('Failed to save high score to localStorage:', error);
+            logger.error('Failed to save high score to localStorage:', error);
             return false;
         }
     }
@@ -44,28 +49,28 @@ class ScorePersistence {
      */
     static loadHighScore() {
         if (!this.isStorageAvailable()) {
-            console.warn('localStorage not available, using default high score');
+            logger.warn('localStorage not available, using default high score');
             return 0;
         }
 
         try {
             const storedScore = this.getStorage().getItem(this.HIGH_SCORE_KEY);
-            
+
             if (storedScore === null) {
                 return 0; // No high score stored yet
             }
 
             const parsedScore = parseInt(storedScore, 10);
-            
+
             if (!this.isValidScore(parsedScore)) {
-                console.warn('Invalid high score in storage, resetting to 0');
+                logger.warn('Invalid high score in storage, resetting to 0');
                 this.saveHighScore(0); // Clean up invalid data
                 return 0;
             }
 
             return parsedScore;
         } catch (error) {
-            console.error('Failed to load high score from localStorage:', error);
+            logger.error('Failed to load high score from localStorage:', error);
             return 0;
         }
     }
@@ -118,7 +123,7 @@ class ScorePersistence {
             this.getStorage().removeItem(this.HIGH_SCORE_KEY);
             return true;
         } catch (error) {
-            console.error('Failed to clear high score from localStorage:', error);
+            logger.error('Failed to clear high score from localStorage:', error);
             return false;
         }
     }

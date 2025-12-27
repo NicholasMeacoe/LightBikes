@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { GlowSettings } = require('@/systems/GlowSettings.js');
 
 describe('GlowSettings', () => {
@@ -17,13 +33,13 @@ describe('GlowSettings', () => {
             }),
             clear: jest.fn(() => {
                 mockLocalStorage.data = {};
-            })
+            }),
         };
 
         // Replace global localStorage
         Object.defineProperty(window, 'localStorage', {
             value: mockLocalStorage,
-            writable: true
+            writable: true,
         });
 
         // Clear localStorage before each test
@@ -48,7 +64,7 @@ describe('GlowSettings', () => {
 
         it('should have proper intensity level configurations', () => {
             const levels = glowSettings.getAvailableLevels();
-            
+
             expect(levels.OFF).toEqual({ emissive: 0, bloom: 0, label: 'Off' });
             expect(levels.LOW).toEqual({ emissive: 0.3, bloom: 0.5, label: 'Low' });
             expect(levels.MEDIUM).toEqual({ emissive: 0.6, bloom: 1.0, label: 'Medium' });
@@ -66,13 +82,10 @@ describe('GlowSettings', () => {
         });
 
         it('should reject invalid intensity levels', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-            
             expect(glowSettings.setIntensity('INVALID')).toBe(false);
             expect(glowSettings.getIntensity()).toBe('MEDIUM'); // Should remain unchanged
-            
-            expect(consoleSpy).toHaveBeenCalledWith('Invalid glow intensity level: INVALID');
-            consoleSpy.mockRestore();
+
+            expect(mockLogger.warn).toHaveBeenCalledWith('Invalid glow intensity level: INVALID');
         });
 
         it('should save settings when intensity is changed', () => {
@@ -88,14 +101,14 @@ describe('GlowSettings', () => {
         it('should return configuration for current intensity', () => {
             glowSettings.setIntensity('HIGH');
             const config = glowSettings.getIntensityConfig();
-            
+
             expect(config).toEqual({ emissive: 0.8, bloom: 1.5, label: 'High' });
         });
 
         it('should return OFF configuration when disabled', () => {
             glowSettings.setIntensity('OFF');
             const config = glowSettings.getIntensityConfig();
-            
+
             expect(config).toEqual({ emissive: 0, bloom: 0, label: 'Off' });
         });
     });
@@ -119,7 +132,7 @@ describe('GlowSettings', () => {
     describe('localStorage persistence', () => {
         it('should save settings to localStorage', () => {
             glowSettings.setIntensity('HIGH');
-            
+
             expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
                 'lightbikes_glow_settings',
                 expect.stringContaining('"intensity":"HIGH"')
@@ -130,7 +143,7 @@ describe('GlowSettings', () => {
             // Pre-populate localStorage
             mockLocalStorage.data['lightbikes_glow_settings'] = JSON.stringify({
                 intensity: 'LOW',
-                version: 1
+                version: 1,
             });
 
             // Create new instance to trigger loading
@@ -145,30 +158,30 @@ describe('GlowSettings', () => {
         });
 
         it('should handle corrupted localStorage data', () => {
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-            
             // Set invalid JSON
             mockLocalStorage.data['lightbikes_glow_settings'] = 'invalid json';
-            
+
             const newSettings = new GlowSettings();
             expect(newSettings.getIntensity()).toBe('MEDIUM'); // Should use defaults
-            
-            expect(consoleSpy).toHaveBeenCalledWith('Error loading glow settings:', expect.any(Error));
-            consoleSpy.mockRestore();
+
+            expect(mockLogger.error).toHaveBeenCalledWith(
+                'Error loading glow settings:',
+                expect.any(Error)
+            );
         });
 
         it('should handle localStorage errors during save', () => {
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-            
             // Mock localStorage.setItem to throw error
             mockLocalStorage.setItem.mockImplementation(() => {
                 throw new Error('Storage quota exceeded');
             });
-            
+
             glowSettings.setIntensity('HIGH');
-            
-            expect(consoleSpy).toHaveBeenCalledWith('Error saving glow settings:', expect.any(Error));
-            consoleSpy.mockRestore();
+
+            expect(mockLogger.error).toHaveBeenCalledWith(
+                'Error saving glow settings:',
+                expect.any(Error)
+            );
         });
     });
 
@@ -186,18 +199,17 @@ describe('GlowSettings', () => {
         });
 
         it('should handle settings with invalid intensity', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-            
             mockLocalStorage.data['lightbikes_glow_settings'] = JSON.stringify({
                 intensity: 'INVALID_LEVEL',
-                version: 1
+                version: 1,
             });
-            
+
             const newSettings = new GlowSettings();
             expect(newSettings.getIntensity()).toBe('MEDIUM'); // Should use defaults
-            
-            expect(consoleSpy).toHaveBeenCalledWith('Invalid stored glow settings, using defaults');
-            consoleSpy.mockRestore();
+
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                'Invalid stored glow settings, using defaults'
+            );
         });
     });
 
@@ -205,7 +217,7 @@ describe('GlowSettings', () => {
         it('should migrate settings from version 0 to 1', () => {
             const oldSettings = { intensity: 'HIGH' }; // No version property
             const migrated = glowSettings.migrateSettings(oldSettings);
-            
+
             expect(migrated.version).toBe(1);
             expect(migrated.intensity).toBe('HIGH');
         });
@@ -213,7 +225,7 @@ describe('GlowSettings', () => {
         it('should preserve settings that are already current version', () => {
             const currentSettings = { intensity: 'LOW', version: 1 };
             const migrated = glowSettings.migrateSettings(currentSettings);
-            
+
             expect(migrated).toEqual(currentSettings);
         });
     });
@@ -254,7 +266,7 @@ describe('GlowSettings', () => {
         it('should reset to defaults', () => {
             glowSettings.setIntensity('HIGH');
             glowSettings.resetToDefaults();
-            
+
             expect(glowSettings.getIntensity()).toBe('MEDIUM');
             expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
                 'lightbikes_glow_settings',
@@ -265,9 +277,9 @@ describe('GlowSettings', () => {
         it('should return settings copy for debugging', () => {
             glowSettings.setIntensity('LOW');
             const settings = glowSettings.getSettings();
-            
+
             expect(settings.intensity).toBe('LOW');
-            
+
             // Should be a copy, not reference
             settings.intensity = 'HIGH';
             expect(glowSettings.getIntensity()).toBe('LOW');

@@ -2,6 +2,10 @@
  * LeaderboardSystem - Manages Time Trial leaderboard with localStorage persistence
  * Handles top 10 score storage, ranking, and data validation
  */
+
+const { Logger } = require('../utils/Logger');
+const logger = new Logger('LeaderboardSystem');
+
 class LeaderboardSystem {
     constructor() {
         this.storageKey = 'lightbikes_time_trial_scores';
@@ -31,8 +35,10 @@ class LeaderboardSystem {
             }
 
             // Validate and clean data
-            const validScores = parsed.filter(score => this.isValidScore(score)).slice(0, this.maxEntries);
-            
+            const validScores = parsed
+                .filter((score) => this.isValidScore(score))
+                .slice(0, this.maxEntries);
+
             // Sort by time (descending - longer survival times first)
             validScores.sort((a, b) => b.timeMs - a.timeMs);
 
@@ -43,7 +49,7 @@ class LeaderboardSystem {
 
             return validScores;
         } catch (error) {
-            console.warn('Error loading leaderboard scores:', error);
+            logger.warn('Error loading leaderboard scores:', error);
             this.clearScores();
             return [];
         }
@@ -70,11 +76,11 @@ class LeaderboardSystem {
                     localStorage.setItem(this.storageKey, JSON.stringify(reducedScores));
                     return true;
                 } catch (retryError) {
-                    console.warn('Failed to save leaderboard even after cleanup:', retryError);
+                    logger.warn('Failed to save leaderboard even after cleanup:', retryError);
                     return false;
                 }
             }
-            console.warn('Error saving leaderboard scores:', error);
+            logger.warn('Error saving leaderboard scores:', error);
             return false;
         }
     }
@@ -92,15 +98,15 @@ class LeaderboardSystem {
         const newScore = {
             timeMs: timeMs,
             timestamp: Date.now(),
-            formattedTime: this.formatTime(timeMs)
+            formattedTime: this.formatTime(timeMs),
         };
 
         // Check if score qualifies
         if (!this.isNewRecord(timeMs)) {
-            return { 
-                success: false, 
+            return {
+                success: false,
                 reason: 'Time does not qualify for top 10',
-                time: newScore.formattedTime
+                time: newScore.formattedTime,
             };
         }
 
@@ -120,7 +126,7 @@ class LeaderboardSystem {
             success: saved,
             ranking: insertIndex + 1,
             time: newScore.formattedTime,
-            isNewBest: insertIndex === 0
+            isNewBest: insertIndex === 0,
         };
     }
 
@@ -176,7 +182,7 @@ class LeaderboardSystem {
                 localStorage.removeItem(this.storageKey);
             }
         } catch (error) {
-            console.warn('Error clearing leaderboard scores:', error);
+            logger.warn('Error clearing leaderboard scores:', error);
         }
     }
 
@@ -187,7 +193,7 @@ class LeaderboardSystem {
      */
     formatTime(timeMs) {
         if (!this.isValidTimeMs(timeMs)) {
-            return "00:00.00";
+            return '00:00.00';
         }
 
         const totalSeconds = Math.floor(timeMs / 1000);
@@ -222,12 +228,14 @@ class LeaderboardSystem {
         if (!score || typeof score !== 'object' || score === null) {
             return false;
         }
-        
-        return typeof score.timeMs === 'number' &&
-               score.timeMs > 0 &&
-               score.timeMs < 6000000 && // Max 100 minutes
-               typeof score.timestamp === 'number' &&
-               typeof score.formattedTime === 'string';
+
+        return (
+            typeof score.timeMs === 'number' &&
+            score.timeMs > 0 &&
+            score.timeMs < 6000000 && // Max 100 minutes
+            typeof score.timestamp === 'number' &&
+            typeof score.formattedTime === 'string'
+        );
     }
 
     /**
@@ -236,11 +244,13 @@ class LeaderboardSystem {
      * @returns {boolean} True if time is valid
      */
     isValidTimeMs(timeMs) {
-        return typeof timeMs === 'number' && 
-               timeMs > 0 && 
-               timeMs < 6000000 && // Max 100 minutes
-               !isNaN(timeMs) && 
-               isFinite(timeMs);
+        return (
+            typeof timeMs === 'number' &&
+            timeMs > 0 &&
+            timeMs < 6000000 && // Max 100 minutes
+            !isNaN(timeMs) &&
+            isFinite(timeMs)
+        );
     }
 
     /**
@@ -252,7 +262,7 @@ class LeaderboardSystem {
             return {
                 totalScores: 0,
                 bestTime: null,
-                averageTime: null
+                averageTime: null,
             };
         }
 
@@ -262,7 +272,7 @@ class LeaderboardSystem {
         return {
             totalScores: this.scores.length,
             bestTime: this.formatTime(this.scores[0].timeMs),
-            averageTime: this.formatTime(averageTime)
+            averageTime: this.formatTime(averageTime),
         };
     }
 }

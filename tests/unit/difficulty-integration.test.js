@@ -3,6 +3,22 @@
  * Tests the integration between DifficultyManager, Game, and AIController
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { Game } = require('@/core/game.js');
 const { AIController } = require('@/core/ai.js');
 const { DifficultyManager } = require('@/systems/difficulty.js');
@@ -15,7 +31,7 @@ describe('DifficultyManager Integration', () => {
     beforeEach(() => {
         // Clear localStorage before each test
         localStorage.clear();
-        
+
         // Initialize components
         game = new Game();
         aiController = new AIController();
@@ -30,10 +46,13 @@ describe('DifficultyManager Integration', () => {
 
         it('should load saved difficulty from localStorage', () => {
             // Save a difficulty setting
-            localStorage.setItem('lightbikes_difficulty', JSON.stringify({
-                selectedDifficulty: 'hard',
-                timestamp: Date.now()
-            }));
+            localStorage.setItem(
+                'lightbikes_difficulty',
+                JSON.stringify({
+                    selectedDifficulty: 'hard',
+                    timestamp: Date.now(),
+                })
+            );
 
             // Create new game and manager to test loading
             const newGame = new Game();
@@ -47,21 +66,21 @@ describe('DifficultyManager Integration', () => {
     describe('difficulty changes', () => {
         it('should immediately apply easy difficulty to game speed', () => {
             difficultyManager.setDifficulty('easy');
-            
+
             expect(game.gameSpeed).toBe(0.08);
             expect(difficultyManager.getCurrentDifficulty()).toBe('easy');
         });
 
         it('should immediately apply hard difficulty to game speed', () => {
             difficultyManager.setDifficulty('hard');
-            
+
             expect(game.gameSpeed).toBe(0.12);
             expect(difficultyManager.getCurrentDifficulty()).toBe('hard');
         });
 
         it('should apply difficulty config to AI controller', () => {
             difficultyManager.setDifficulty('easy');
-            
+
             const config = difficultyManager.getDifficultyConfig();
             expect(aiController.difficultyConfig).toEqual(config);
             expect(aiController.difficultyConfig.turnThreshold).toBe(15);
@@ -73,7 +92,7 @@ describe('DifficultyManager Integration', () => {
         it('should use difficulty config in AI calculations', () => {
             // Set to easy difficulty
             difficultyManager.setDifficulty('easy');
-            
+
             // Create a game state
             const gameState = {
                 ai: { x: 0, z: 0 },
@@ -82,13 +101,13 @@ describe('DifficultyManager Integration', () => {
                 aiTrail: [],
                 bounds: 30,
                 aiDirection: { x: 1, z: 0 },
-                isPaused: false
+                isPaused: false,
             };
 
             // Get difficulty config and call AI with it
             const config = difficultyManager.getDifficultyConfig();
             const result = aiController.calculateAIDirection(gameState, config);
-            
+
             // Verify AI received the config (this tests the integration pattern)
             expect(result).toHaveProperty('newDirection');
             expect(result).toHaveProperty('newState');
@@ -97,7 +116,7 @@ describe('DifficultyManager Integration', () => {
         it('should handle different difficulty configs in AI', () => {
             // Test with hard difficulty
             difficultyManager.setDifficulty('hard');
-            
+
             const gameState = {
                 ai: { x: 0, z: 0 },
                 player: { x: 10, z: 0 },
@@ -105,13 +124,13 @@ describe('DifficultyManager Integration', () => {
                 aiTrail: [],
                 bounds: 30,
                 aiDirection: { x: 1, z: 0 },
-                isPaused: false
+                isPaused: false,
             };
 
             const hardConfig = difficultyManager.getDifficultyConfig();
             expect(hardConfig.turnThreshold).toBe(8);
             expect(hardConfig.randomTurnChance).toBe(0.01);
-            
+
             const result = aiController.calculateAIDirection(gameState, hardConfig);
             expect(result).toHaveProperty('newDirection');
         });
@@ -120,10 +139,10 @@ describe('DifficultyManager Integration', () => {
     describe('persistence integration', () => {
         it('should persist difficulty changes to localStorage', () => {
             difficultyManager.setDifficulty('hard');
-            
+
             const stored = localStorage.getItem('lightbikes_difficulty');
             const data = JSON.parse(stored);
-            
+
             expect(data.selectedDifficulty).toBe('hard');
             expect(data.timestamp).toBeGreaterThan(0);
         });
@@ -150,20 +169,18 @@ describe('DifficultyManager Integration', () => {
 
     describe('error handling', () => {
         it('should handle invalid difficulty levels gracefully', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-            
             difficultyManager.setDifficulty('invalid');
-            
-            expect(consoleSpy).toHaveBeenCalledWith('Invalid difficulty level: "invalid", using medium. Valid options: easy, medium, hard');
+
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                'Invalid difficulty level: "invalid", using medium. Valid options: easy, medium, hard'
+            );
             expect(difficultyManager.getCurrentDifficulty()).toBe('medium');
             expect(game.gameSpeed).toBe(0.1);
-            
-            consoleSpy.mockRestore();
         });
 
         it('should handle missing game reference gracefully', () => {
             const managerWithoutGame = new DifficultyManager(null, aiController);
-            
+
             expect(() => {
                 managerWithoutGame.setDifficulty('easy');
             }).not.toThrow();
@@ -171,7 +188,7 @@ describe('DifficultyManager Integration', () => {
 
         it('should handle missing AI controller gracefully', () => {
             const managerWithoutAI = new DifficultyManager(game, null);
-            
+
             expect(() => {
                 managerWithoutAI.setDifficulty('easy');
             }).not.toThrow();
@@ -182,10 +199,10 @@ describe('DifficultyManager Integration', () => {
         it('should be available globally when integrated in script.js', () => {
             // Simulate the global assignment from script.js
             window.difficultyManager = difficultyManager;
-            
+
             expect(window.difficultyManager).toBeDefined();
             expect(window.difficultyManager.getCurrentDifficulty()).toBe('medium');
-            
+
             // Test that global instance works
             window.difficultyManager.setDifficulty('hard');
             expect(game.gameSpeed).toBe(0.12);

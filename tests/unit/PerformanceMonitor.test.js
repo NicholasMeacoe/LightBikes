@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { PerformanceMonitor } = require('@/utils/PerformanceMonitor.js');
 
 describe('PerformanceMonitor', () => {
@@ -5,7 +21,7 @@ describe('PerformanceMonitor', () => {
 
     beforeEach(() => {
         performanceMonitor = new PerformanceMonitor();
-        
+
         // Mock performance.now() for consistent testing
         global.performance = {
             now: jest.fn(() => 1000),
@@ -14,8 +30,8 @@ describe('PerformanceMonitor', () => {
             memory: {
                 usedJSHeapSize: 10 * 1024 * 1024, // 10MB
                 totalJSHeapSize: 20 * 1024 * 1024, // 20MB
-                jsHeapSizeLimit: 100 * 1024 * 1024 // 100MB
-            }
+                jsHeapSizeLimit: 100 * 1024 * 1024, // 100MB
+            },
         };
     });
 
@@ -35,11 +51,11 @@ describe('PerformanceMonitor', () => {
             global.performance.now = jest.fn(() => currentTime);
 
             performanceMonitor.startFrameMonitoring();
-            
+
             // Simulate 16.67ms frame time (60 FPS)
             currentTime += 16.67;
             global.performance.now = jest.fn(() => currentTime);
-            
+
             performanceMonitor.endFrameMonitoring();
 
             const metrics = performanceMonitor.getPerformanceMetrics();
@@ -52,10 +68,10 @@ describe('PerformanceMonitor', () => {
             global.performance.now = jest.fn(() => currentTime);
 
             performanceMonitor.startFrameMonitoring();
-            
+
             currentTime += 33.33;
             global.performance.now = jest.fn(() => currentTime);
-            
+
             performanceMonitor.endFrameMonitoring();
 
             const metrics = performanceMonitor.getPerformanceMetrics();
@@ -82,7 +98,8 @@ describe('PerformanceMonitor', () => {
             global.performance.now = jest.fn(() => currentTime);
 
             // Simulate sustained low FPS for more than threshold
-            for (let i = 0; i < 200; i++) { // Simulate ~3+ seconds of low FPS
+            for (let i = 0; i < 200; i++) {
+                // Simulate ~3+ seconds of low FPS
                 performanceMonitor.startFrameMonitoring();
                 currentTime += 33.33; // 30 FPS
                 global.performance.now = jest.fn(() => currentTime);
@@ -99,10 +116,10 @@ describe('PerformanceMonitor', () => {
             global.performance.now = jest.fn(() => currentTime);
 
             performanceMonitor.startAICalculation('ai_1');
-            
+
             currentTime += 1.5; // 1.5ms calculation time
             global.performance.now = jest.fn(() => currentTime);
-            
+
             performanceMonitor.endAICalculation('ai_1');
 
             const metrics = performanceMonitor.getPerformanceMetrics();
@@ -131,15 +148,17 @@ describe('PerformanceMonitor', () => {
             global.performance.now = jest.fn(() => currentTime);
 
             performanceMonitor.startAICalculation('slow_ai');
-            
+
             currentTime += 5.0; // 5ms calculation time (exceeds 2ms target)
             global.performance.now = jest.fn(() => currentTime);
-            
+
             performanceMonitor.endAICalculation('slow_ai');
 
             const metrics = performanceMonitor.getPerformanceMetrics();
             expect(metrics.performanceWarnings.length).toBeGreaterThan(0);
-            expect(metrics.performanceWarnings[0].warning).toContain('AI calculation time exceeded target');
+            expect(metrics.performanceWarnings[0].warning).toContain(
+                'AI calculation time exceeded target'
+            );
         });
     });
 
@@ -149,10 +168,10 @@ describe('PerformanceMonitor', () => {
             global.performance.now = jest.fn(() => currentTime);
 
             performanceMonitor.startCollisionDetection();
-            
+
             currentTime += 3.0; // 3ms detection time
             global.performance.now = jest.fn(() => currentTime);
-            
+
             performanceMonitor.endCollisionDetection();
 
             const metrics = performanceMonitor.getPerformanceMetrics();
@@ -165,7 +184,7 @@ describe('PerformanceMonitor', () => {
 
             // Record multiple collision detections
             const times = [2.0, 3.0, 4.0, 2.5, 3.5];
-            times.forEach(time => {
+            times.forEach((time) => {
                 performanceMonitor.startCollisionDetection();
                 currentTime += time;
                 global.performance.now = jest.fn(() => currentTime);
@@ -182,15 +201,17 @@ describe('PerformanceMonitor', () => {
             global.performance.now = jest.fn(() => currentTime);
 
             performanceMonitor.startCollisionDetection();
-            
+
             currentTime += 8.0; // 8ms detection time (exceeds 5ms target)
             global.performance.now = jest.fn(() => currentTime);
-            
+
             performanceMonitor.endCollisionDetection();
 
             const metrics = performanceMonitor.getPerformanceMetrics();
             expect(metrics.performanceWarnings.length).toBeGreaterThan(0);
-            expect(metrics.performanceWarnings[0].warning).toContain('Collision detection time exceeded target');
+            expect(metrics.performanceWarnings[0].warning).toContain(
+                'Collision detection time exceeded target'
+            );
         });
     });
 
@@ -218,7 +239,7 @@ describe('PerformanceMonitor', () => {
             global.performance.memory = {
                 usedJSHeapSize: 85 * 1024 * 1024, // 85MB
                 totalJSHeapSize: 90 * 1024 * 1024, // 90MB
-                jsHeapSizeLimit: 100 * 1024 * 1024 // 100MB
+                jsHeapSizeLimit: 100 * 1024 * 1024, // 100MB
             };
 
             performanceMonitor.monitorMemoryUsage();
@@ -272,19 +293,15 @@ describe('PerformanceMonitor', () => {
         });
 
         it('should generate performance report when enabled', () => {
-            const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-            
             performanceMonitor.setReportingEnabled(true);
-            
+
             // Force report generation by setting last report time to 0 and current time ahead
             performanceMonitor.lastReport = 0;
             global.performance.now = jest.fn(() => 10000); // 10 seconds later
-            
+
             performanceMonitor.generatePerformanceReport();
 
-            expect(consoleSpy).toHaveBeenCalledWith('=== Performance Report ===');
-            
-            consoleSpy.mockRestore();
+            expect(mockLogger.info).toHaveBeenCalledWith('=== Performance Report ===');
         });
     });
 
@@ -303,7 +320,9 @@ describe('PerformanceMonitor', () => {
 
             // Verify data exists
             expect(performanceMonitor.frameRateHistory.length).toBeGreaterThan(0);
-            expect(performanceMonitor.performanceMetrics.performanceWarnings.length).toBeGreaterThan(0);
+            expect(
+                performanceMonitor.performanceMetrics.performanceWarnings.length
+            ).toBeGreaterThan(0);
 
             // Reset and verify data is cleared
             performanceMonitor.reset();
@@ -320,7 +339,10 @@ describe('PerformanceMonitor', () => {
         it('should call all necessary update methods', () => {
             const endFrameMonitoringSpy = jest.spyOn(performanceMonitor, 'endFrameMonitoring');
             const monitorMemoryUsageSpy = jest.spyOn(performanceMonitor, 'monitorMemoryUsage');
-            const generatePerformanceReportSpy = jest.spyOn(performanceMonitor, 'generatePerformanceReport');
+            const generatePerformanceReportSpy = jest.spyOn(
+                performanceMonitor,
+                'generatePerformanceReport'
+            );
             const startFrameMonitoringSpy = jest.spyOn(performanceMonitor, 'startFrameMonitoring');
 
             performanceMonitor.update();

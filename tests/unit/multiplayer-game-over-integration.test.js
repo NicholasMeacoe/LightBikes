@@ -3,6 +3,22 @@
  * Tests the complete flow from game end to restart
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { MultiplayerGame } = require('@/multiplayer/MultiplayerGame.js');
 const { MultiplayerGameOverUI } = require('@/ui/MultiplayerGameOverUI.js');
 const { LocalScoringUI } = require('@/ui/LocalScoringUI.js');
@@ -17,9 +33,9 @@ describe('Multiplayer Game Over and Restart Integration', () => {
     beforeEach(() => {
         // Clear document
         document.body.innerHTML = '';
-        
+
         // Remove existing styles
-        ['multiplayerGameOverStyles', 'localScoringStyles'].forEach(id => {
+        ['multiplayerGameOverStyles', 'localScoringStyles'].forEach((id) => {
             const existing = document.getElementById(id);
             if (existing) existing.remove();
         });
@@ -40,12 +56,12 @@ describe('Multiplayer Game Over and Restart Integration', () => {
         it('should display winner announcement when Player 1 wins', () => {
             // Simulate Player 2 crash
             multiplayerGame.player2.isAlive = false;
-            
+
             const collisionResult = {
                 player1Collided: false,
-                player2Collided: true
+                player2Collided: true,
             };
-            
+
             multiplayerGame.handleRoundEnd(collisionResult);
             multiplayerGame.gameOver = true;
 
@@ -61,12 +77,12 @@ describe('Multiplayer Game Over and Restart Integration', () => {
         it('should display winner announcement when Player 2 wins', () => {
             // Simulate Player 1 crash
             multiplayerGame.player1.isAlive = false;
-            
+
             const collisionResult = {
                 player1Collided: true,
-                player2Collided: false
+                player2Collided: false,
             };
-            
+
             multiplayerGame.handleRoundEnd(collisionResult);
             multiplayerGame.gameOver = true;
 
@@ -83,12 +99,12 @@ describe('Multiplayer Game Over and Restart Integration', () => {
             // Simulate both players crash
             multiplayerGame.player1.isAlive = false;
             multiplayerGame.player2.isAlive = false;
-            
+
             const collisionResult = {
                 player1Collided: true,
-                player2Collided: true
+                player2Collided: true,
             };
-            
+
             multiplayerGame.handleRoundEnd(collisionResult);
             multiplayerGame.gameOver = true;
 
@@ -107,7 +123,7 @@ describe('Multiplayer Game Over and Restart Integration', () => {
                 multiplayerGame.player2.isAlive = false;
                 multiplayerGame.handleRoundEnd({
                     player1Collided: false,
-                    player2Collided: true
+                    player2Collided: true,
                 });
                 multiplayerGame.restart();
             }
@@ -116,7 +132,7 @@ describe('Multiplayer Game Over and Restart Integration', () => {
                 multiplayerGame.player1.isAlive = false;
                 multiplayerGame.handleRoundEnd({
                     player1Collided: true,
-                    player2Collided: false
+                    player2Collided: false,
                 });
                 multiplayerGame.restart();
             }
@@ -139,16 +155,16 @@ describe('Multiplayer Game Over and Restart Integration', () => {
             multiplayerGame.player2.isAlive = false;
             multiplayerGame.handleRoundEnd({
                 player1Collided: false,
-                player2Collided: true
+                player2Collided: true,
             });
-            
+
             const scoresBefore = multiplayerGame.localScoring.getScoreDetails();
-            
+
             // Restart
             multiplayerGame.restart();
 
             const scoresAfter = multiplayerGame.localScoring.getScoreDetails();
-            
+
             expect(scoresAfter.player1Wins).toBe(scoresBefore.player1Wins);
             expect(scoresAfter.player2Wins).toBe(scoresBefore.player2Wins);
             expect(multiplayerGame.player1.isAlive).toBe(true);
@@ -157,10 +173,10 @@ describe('Multiplayer Game Over and Restart Integration', () => {
 
         it('should call restart callback when restart button is clicked', () => {
             const restartCallback = jest.fn();
-            
+
             multiplayerGame.gameOver = true;
             const gameState = multiplayerGame.getGameState();
-            
+
             gameOverUI.show(gameState, restartCallback, jest.fn(), jest.fn());
 
             const restartBtn = document.getElementById('multiplayerRestartBtn');
@@ -175,23 +191,23 @@ describe('Multiplayer Game Over and Restart Integration', () => {
             multiplayerGame.player2.isAlive = false;
             multiplayerGame.handleRoundEnd({
                 player1Collided: false,
-                player2Collided: true
+                player2Collided: true,
             });
-            
+
             const resetCallback = jest.fn(() => {
                 multiplayerGame.resetScores();
             });
-            
+
             multiplayerGame.gameOver = true;
             const gameState = multiplayerGame.getGameState();
-            
+
             gameOverUI.show(gameState, jest.fn(), resetCallback, jest.fn());
 
             const resetBtn = document.getElementById('multiplayerResetBtn');
             resetBtn.click();
 
             expect(resetCallback).toHaveBeenCalled();
-            
+
             const scores = multiplayerGame.localScoring.getScoreDetails();
             expect(scores.player1Wins).toBe(0);
             expect(scores.player2Wins).toBe(0);
@@ -199,10 +215,10 @@ describe('Multiplayer Game Over and Restart Integration', () => {
 
         it('should call single player callback when single player button is clicked', () => {
             const singlePlayerCallback = jest.fn();
-            
+
             multiplayerGame.gameOver = true;
             const gameState = multiplayerGame.getGameState();
-            
+
             gameOverUI.show(gameState, jest.fn(), jest.fn(), singlePlayerCallback);
 
             const singlePlayerBtn = document.getElementById('multiplayerSinglePlayerBtn');
@@ -221,7 +237,7 @@ describe('Multiplayer Game Over and Restart Integration', () => {
             multiplayerGame.player2.isAlive = false;
             multiplayerGame.handleRoundEnd({
                 player1Collided: false,
-                player2Collided: true
+                player2Collided: true,
             });
 
             scoringUI.updateScores();
@@ -262,7 +278,7 @@ describe('Multiplayer Game Over and Restart Integration', () => {
             multiplayerGame.player2.isAlive = false;
             multiplayerGame.handleRoundEnd({
                 player1Collided: false,
-                player2Collided: true
+                player2Collided: true,
             });
             multiplayerGame.gameOver = true;
 
@@ -280,7 +296,7 @@ describe('Multiplayer Game Over and Restart Integration', () => {
             multiplayerGame.player1.isAlive = false;
             multiplayerGame.handleRoundEnd({
                 player1Collided: true,
-                player2Collided: false
+                player2Collided: false,
             });
             multiplayerGame.gameOver = true;
 
@@ -300,7 +316,7 @@ describe('Multiplayer Game Over and Restart Integration', () => {
             multiplayerGame.player2.isAlive = false;
             multiplayerGame.handleRoundEnd({
                 player1Collided: false,
-                player2Collided: true
+                player2Collided: true,
             });
             multiplayerGame.restart();
 
@@ -314,7 +330,7 @@ describe('Multiplayer Game Over and Restart Integration', () => {
                 multiplayerGame.player2.isAlive = false;
                 multiplayerGame.handleRoundEnd({
                     player1Collided: false,
-                    player2Collided: true
+                    player2Collided: true,
                 });
                 multiplayerGame.restart();
             }
@@ -347,7 +363,7 @@ describe('Multiplayer Game Over and Restart Integration', () => {
             for (let i = 0; i < 3; i++) {
                 gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());
                 expect(gameOverUI.isVisible()).toBe(true);
-                
+
                 gameOverUI.hide();
                 expect(gameOverUI.isVisible()).toBe(false);
             }

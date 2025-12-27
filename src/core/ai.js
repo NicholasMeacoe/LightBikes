@@ -50,16 +50,20 @@ class AIController {
         const whiskers = {
             forward: { x: aiDirection.x, z: aiDirection.z },
             left: { x: aiDirection.z, z: -aiDirection.x },
-            right: { x: -aiDirection.z, z: aiDirection.x }
+            right: { x: -aiDirection.z, z: aiDirection.x },
         };
 
         // Adapt whisker length based on arena size for better performance in smaller spaces
         const whiskerLength = this.adaptWhiskerLength(currentBounds, gameState.dynamicBounds);
-        
+
         // Collect all obstacle trails - include player trail and all other AI trails
         const obstacles = this.getAllObstacleTrails(ai.id || 'ai', gameState);
-        
-        const whiskerDistances = { forward: whiskerLength, left: whiskerLength, right: whiskerLength };
+
+        const whiskerDistances = {
+            forward: whiskerLength,
+            left: whiskerLength,
+            right: whiskerLength,
+        };
 
         for (const [direction, whisker] of Object.entries(whiskers)) {
             for (let i = 1; i <= whiskerLength; i++) {
@@ -67,7 +71,7 @@ class AIController {
                 const checkZ = ai.z + whisker.z * i * 0.1;
 
                 let collision = false;
-                
+
                 // Use dynamic boundary collision detection
                 if (this.isOutsideBounds(checkX, checkZ, currentBounds)) {
                     collision = true;
@@ -75,8 +79,15 @@ class AIController {
 
                 if (!collision) {
                     for (const segment of obstacles) {
-                        if (segment && typeof segment.x === 'number' && typeof segment.z === 'number') {
-                            if (Math.abs(checkX - segment.x) < 0.15 && Math.abs(checkZ - segment.z) < 0.15) {
+                        if (
+                            segment &&
+                            typeof segment.x === 'number' &&
+                            typeof segment.z === 'number'
+                        ) {
+                            if (
+                                Math.abs(checkX - segment.x) < 0.15 &&
+                                Math.abs(checkZ - segment.z) < 0.15
+                            ) {
                                 collision = true;
                                 break;
                             }
@@ -90,7 +101,7 @@ class AIController {
                 }
             }
         }
-        
+
         // Cache whisker distances for pause state
         this.lastWhiskerDistances = whiskerDistances;
         return whiskerDistances;
@@ -113,13 +124,14 @@ class AIController {
 
         // Add other AI trails as obstacles (multi-AI support)
         if (gameState.aiOpponents) {
-            gameState.aiOpponents.forEach(otherAI => {
+            gameState.aiOpponents.forEach((otherAI) => {
                 if (otherAI.id !== aiId && otherAI.alive && otherAI.trail) {
                     // Exclude recent segments from other AI trails to prevent immediate collision
                     const excludeRecentSegments = 10;
-                    const trailToAdd = otherAI.trail.length > excludeRecentSegments 
-                        ? otherAI.trail.slice(0, otherAI.trail.length - excludeRecentSegments)
-                        : otherAI.trail; // Include all segments if trail is short
+                    const trailToAdd =
+                        otherAI.trail.length > excludeRecentSegments
+                            ? otherAI.trail.slice(0, otherAI.trail.length - excludeRecentSegments)
+                            : otherAI.trail; // Include all segments if trail is short
                     obstacles.push(...trailToAdd);
                 }
             });
@@ -128,12 +140,12 @@ class AIController {
         // Add own trail as obstacle (self-collision avoidance)
         // First check if we have the current AI in aiOpponents
         if (gameState.aiOpponents) {
-            const currentAI = gameState.aiOpponents.find(ai => ai.id === aiId);
+            const currentAI = gameState.aiOpponents.find((ai) => ai.id === aiId);
             if (currentAI && currentAI.trail && currentAI.trail.length > 10) {
                 obstacles.push(...currentAI.trail.slice(0, currentAI.trail.length - 10));
             }
         }
-        
+
         // Legacy support - add own trail from gameState.aiTrail if available
         if (gameState.aiTrail && gameState.aiTrail.length > 10) {
             obstacles.push(...gameState.aiTrail.slice(0, gameState.aiTrail.length - 10));
@@ -152,7 +164,7 @@ class AIController {
         if (gameState.dynamicBounds) {
             return gameState.dynamicBounds;
         }
-        
+
         // Fall back to static boundaries - use the original logic for compatibility
         const bounds = gameState.bounds || 30;
         return {
@@ -160,7 +172,7 @@ class AIController {
             maxX: bounds,
             minZ: -bounds,
             maxZ: bounds,
-            size: bounds * 2
+            size: bounds * 2,
         };
     }
 
@@ -172,10 +184,12 @@ class AIController {
      * @returns {boolean} True if position is outside bounds
      */
     isOutsideBounds(x, z, boundaries) {
-        return x <= boundaries.minX || 
-               x >= boundaries.maxX || 
-               z <= boundaries.minZ || 
-               z >= boundaries.maxZ;
+        return (
+            x <= boundaries.minX ||
+            x >= boundaries.maxX ||
+            z <= boundaries.minZ ||
+            z >= boundaries.maxZ
+        );
     }
 
     /**
@@ -191,14 +205,14 @@ class AIController {
             return 20; // Default whisker length for static modes
         }
 
-        const arenaSize = boundaries.size || (boundaries.maxX - boundaries.minX);
-        
+        const arenaSize = boundaries.size || boundaries.maxX - boundaries.minX;
+
         // Scale whisker length based on arena size
         // Minimum 8 units for very small arenas, maximum 20 for large arenas
         const baseLength = 20;
         const minLength = 8;
         const scaleFactor = Math.max(0.4, arenaSize / 30); // Scale down for smaller arenas
-        
+
         return Math.max(minLength, Math.floor(baseLength * scaleFactor));
     }
 
@@ -216,12 +230,12 @@ class AIController {
         }
 
         const boundaries = this.getCurrentBoundaries(gameState);
-        const arenaSize = boundaries.size || (boundaries.maxX - boundaries.minX);
-        
+        const arenaSize = boundaries.size || boundaries.maxX - boundaries.minX;
+
         // Reduce turn threshold in smaller arenas to make AI more reactive
         // This prevents the AI from being too aggressive in confined spaces
         const scaleFactor = Math.max(0.5, arenaSize / 30); // Scale down for smaller arenas
-        
+
         return Math.max(3, Math.floor(baseTurnThreshold * scaleFactor));
     }
 
@@ -252,15 +266,16 @@ class AIController {
         } else {
             // Second priority: pursue the player
             const playerDirection = this.calculatePlayerDirection(ai, player);
-            
+
             // If we can safely turn toward the player, do so
             if (this.canSafelyTurnToward(playerDirection, whiskerDistances, adaptedTurnThreshold)) {
                 newDirection = playerDirection;
             } else if (Math.random() < randomTurnChance) {
                 // Occasional random turn for unpredictability
-                newDirection = Math.random() > 0.5
-                    ? { x: aiDirection.z, z: -aiDirection.x }
-                    : { x: -aiDirection.z, z: aiDirection.x };
+                newDirection =
+                    Math.random() > 0.5
+                        ? { x: aiDirection.z, z: -aiDirection.x }
+                        : { x: -aiDirection.z, z: aiDirection.x };
             }
         }
 
@@ -296,9 +311,10 @@ class AIController {
             }
         } else if (Math.random() < randomTurnChance) {
             // Configurable random turn to make movement less predictable
-            newDirection = Math.random() > 0.5
-                ? { x: aiDirection.z, z: -aiDirection.x }
-                : { x: -aiDirection.z, z: aiDirection.x };
+            newDirection =
+                Math.random() > 0.5
+                    ? { x: aiDirection.z, z: -aiDirection.x }
+                    : { x: -aiDirection.z, z: aiDirection.x };
         }
 
         return { newDirection, newState: 'DEFENSIVE' };
@@ -336,18 +352,20 @@ class AIController {
             this.erraticTurnInterval = this.getRandomTurnInterval();
         } else if (this.erraticTurnCounter >= this.erraticTurnInterval) {
             // Time for an erratic turn - random direction change
-            newDirection = Math.random() > 0.5
-                ? { x: aiDirection.z, z: -aiDirection.x }
-                : { x: -aiDirection.z, z: aiDirection.x };
-            
+            newDirection =
+                Math.random() > 0.5
+                    ? { x: aiDirection.z, z: -aiDirection.x }
+                    : { x: -aiDirection.z, z: aiDirection.x };
+
             // Reset counter and get new random interval
             this.erraticTurnCounter = 0;
             this.erraticTurnInterval = this.getRandomTurnInterval();
         } else if (Math.random() < randomTurnChance) {
             // Additional random turns for extra unpredictability
-            newDirection = Math.random() > 0.5
-                ? { x: aiDirection.z, z: -aiDirection.x }
-                : { x: -aiDirection.z, z: aiDirection.x };
+            newDirection =
+                Math.random() > 0.5
+                    ? { x: aiDirection.z, z: -aiDirection.x }
+                    : { x: -aiDirection.z, z: aiDirection.x };
         }
 
         return { newDirection, newState: 'ERRATIC' };
@@ -382,11 +400,13 @@ class AIController {
         // Determine which whisker corresponds to the target direction
         // This is a simplified check - in a full implementation, we'd need to
         // calculate whisker distances for the target direction
-        
+
         // For now, ensure we have sufficient clearance in all directions
-        return whiskerDistances.forward >= threshold && 
-               whiskerDistances.left >= threshold / 2 && 
-               whiskerDistances.right >= threshold / 2;
+        return (
+            whiskerDistances.forward >= threshold &&
+            whiskerDistances.left >= threshold / 2 &&
+            whiskerDistances.right >= threshold / 2
+        );
     }
 
     /**
@@ -434,7 +454,7 @@ class AICoordinator {
                     entityId: entity.id,
                     newDirection: lastDecision || entity.direction,
                     newState: entity.controller.aiState,
-                    skipped: true
+                    skipped: true,
                 });
                 continue;
             }
@@ -442,12 +462,12 @@ class AICoordinator {
             // Calculate AI decision
             const entityGameState = this.createEntityGameState(entity, gameState);
             const decision = entity.controller.calculateAIDirection(entityGameState, config);
-            
+
             decisions.push({
                 entityId: entity.id,
                 newDirection: decision.newDirection,
                 newState: decision.newState,
-                skipped: false
+                skipped: false,
             });
 
             // Track this decision for conflict detection
@@ -480,7 +500,7 @@ class AICoordinator {
         // Group decisions by direction
         decisions.forEach((decision, index) => {
             if (decision.skipped) return;
-            
+
             const directionKey = this.getDirectionKey(decision.newDirection);
             if (!directionGroups.has(directionKey)) {
                 directionGroups.set(directionKey, []);
@@ -504,8 +524,8 @@ class AICoordinator {
      */
     resolveGroupConflict(group, gameState, config) {
         // Sort by priority: aggressive > defensive > erratic
-        const priorityOrder = { 'aggressive': 3, 'defensive': 2, 'erratic': 1 };
-        
+        const priorityOrder = { aggressive: 3, defensive: 2, erratic: 1 };
+
         group.sort((a, b) => {
             const priorityA = priorityOrder[a.entity.controller.personality] || 0;
             const priorityB = priorityOrder[b.entity.controller.personality] || 0;
@@ -517,12 +537,12 @@ class AICoordinator {
         for (let i = 1; i < group.length; i++) {
             const { decision, entity } = group[i];
             const alternativeDirection = this.findAlternativeDirection(
-                entity, 
-                decision.newDirection, 
-                gameState, 
+                entity,
+                decision.newDirection,
+                gameState,
                 config
             );
-            
+
             decision.newDirection = alternativeDirection;
         }
     }
@@ -537,16 +557,16 @@ class AICoordinator {
      */
     findAlternativeDirection(entity, originalDirection, gameState, config) {
         const currentDirection = entity.direction;
-        
+
         // Generate possible alternative directions (left and right turns)
         const alternatives = [
             { x: currentDirection.z, z: -currentDirection.x }, // Left turn
-            { x: -currentDirection.z, z: currentDirection.x }  // Right turn
+            { x: -currentDirection.z, z: currentDirection.x }, // Right turn
         ];
 
         // Filter out the original direction
-        const validAlternatives = alternatives.filter(alt => 
-            !this.directionsEqual(alt, originalDirection)
+        const validAlternatives = alternatives.filter(
+            (alt) => !this.directionsEqual(alt, originalDirection)
         );
 
         if (validAlternatives.length === 0) {
@@ -588,7 +608,7 @@ class AICoordinator {
             // Keep original playerTrail for whisker detection
             playerTrail: gameState.playerTrail || [],
             // Ensure aiOpponents is available for multi-entity obstacle detection
-            aiOpponents: gameState.aiOpponents || []
+            aiOpponents: gameState.aiOpponents || [],
         };
     }
 
@@ -600,8 +620,8 @@ class AICoordinator {
      */
     getOtherAITrails(currentEntityId, aiOpponents) {
         const otherTrails = [];
-        
-        aiOpponents.forEach(ai => {
+
+        aiOpponents.forEach((ai) => {
             if (ai.id !== currentEntityId && ai.alive && ai.trail) {
                 otherTrails.push(...ai.trail);
             }
@@ -617,7 +637,7 @@ class AICoordinator {
      */
     shouldSkipFrame(entityIndex) {
         if (!this.staggeredTiming) return false;
-        
+
         // Stagger every other frame for different AIs
         return (this.frameOffset + entityIndex) % 2 === 1;
     }
@@ -644,17 +664,17 @@ class AICoordinator {
      */
     updateDecisionHistory(decisions) {
         // Store decisions in recent decisions map
-        decisions.forEach(decision => {
+        decisions.forEach((decision) => {
             this.recentDecisions.set(decision.entityId, decision.newDirection);
         });
 
         // Add to history for analysis
         this.decisionHistory.push({
             frame: Date.now(),
-            decisions: decisions.map(d => ({
+            decisions: decisions.map((d) => ({
                 entityId: d.entityId,
-                direction: this.getDirectionKey(d.newDirection)
-            }))
+                direction: this.getDirectionKey(d.newDirection),
+            })),
         });
 
         // Trim history to max size
@@ -696,7 +716,7 @@ class AICoordinator {
      */
     getCoordinationStats() {
         const recentConflicts = this.decisionHistory.slice(-5).reduce((count, frame) => {
-            const directions = frame.decisions.map(d => d.direction);
+            const directions = frame.decisions.map((d) => d.direction);
             const uniqueDirections = new Set(directions);
             return count + (directions.length - uniqueDirections.size);
         }, 0);
@@ -705,11 +725,9 @@ class AICoordinator {
             recentConflicts,
             historySize: this.decisionHistory.length,
             staggeredTiming: this.staggeredTiming,
-            trackedEntities: this.recentDecisions.size
+            trackedEntities: this.recentDecisions.size,
         };
     }
 }
-
-module.exports = { AIController, AICoordinator };
 
 module.exports = { AIController, AICoordinator };

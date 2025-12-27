@@ -3,6 +3,22 @@
  * Tests end-to-end workflows combining ScoreManager, ScorePersistence, ScoreDisplay, and Game integration
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { Game } = require('@/core/game.js');
 const { ScoreManager } = require('@/systems/scoreManager.js');
 const { ScorePersistence } = require('@/systems/scorePersistence.js');
@@ -12,18 +28,18 @@ const { CollisionDetectionEngine } = require('@/core/collision.js');
 // Mock localStorage for consistent testing
 const mockLocalStorage = {
     store: {},
-    getItem: function(key) {
+    getItem: function (key) {
         return this.store[key] || null;
     },
-    setItem: function(key, value) {
+    setItem: function (key, value) {
         this.store[key] = value;
     },
-    removeItem: function(key) {
+    removeItem: function (key) {
         delete this.store[key];
     },
-    clear: function() {
+    clear: function () {
         this.store = {};
-    }
+    },
 };
 
 // Mock DOM environment for ScoreDisplay
@@ -34,20 +50,20 @@ const mockElement = {
     className: '',
     appendChild: jest.fn(),
     parentNode: {
-        removeChild: jest.fn()
-    }
+        removeChild: jest.fn(),
+    },
 };
 
 const mockDocument = {
     createElement: jest.fn(() => ({ ...mockElement })),
     body: { appendChild: jest.fn() },
     head: { appendChild: jest.fn() },
-    getElementById: jest.fn(() => null)
+    getElementById: jest.fn(() => null),
 };
 
 const mockWindow = {
     innerWidth: 1024,
-    addEventListener: jest.fn()
+    addEventListener: jest.fn(),
 };
 
 // Setup global mocks
@@ -64,19 +80,19 @@ describe('Score Tracking Integration', () => {
     beforeEach(() => {
         // Clear localStorage completely
         mockLocalStorage.clear();
-        
+
         // Reset mocks
         jest.clearAllMocks();
         mockDocument.createElement.mockReturnValue({ ...mockElement });
-        
+
         // Clear any cached high scores by clearing the store completely
         mockLocalStorage.store = {};
-        
+
         // Initialize components
         game = new Game();
         collisionEngine = new CollisionDetectionEngine();
         mockRenderer = {
-            renderer: { domElement: mockElement }
+            renderer: { domElement: mockElement, setClearColor: jest.fn() },
         };
         scoreDisplay = new ScoreDisplay(mockRenderer);
     });
@@ -96,19 +112,19 @@ describe('Score Tracking Integration', () => {
                 aiScore: 0,
                 highScore: 0,
                 isNewHighScore: false,
-                roundsPlayed: 0
+                roundsPlayed: 0,
             });
 
             // Simulate player winning first round
             let collisionResult = { playerCollided: false, aiCollided: true };
             game.handleRoundEnd(collisionResult);
-            
+
             let scoreState = game.scoreManager.getScoreState();
             expect(scoreState.playerScore).toBe(1);
             expect(scoreState.aiScore).toBe(0);
             expect(scoreState.highScore).toBe(1);
             expect(scoreState.isNewHighScore).toBe(true);
-            
+
             // Verify persistence
             expect(ScorePersistence.loadHighScore()).toBe(1);
 
@@ -120,7 +136,7 @@ describe('Score Tracking Integration', () => {
             // Simulate AI winning next round
             collisionResult = { playerCollided: true, aiCollided: false };
             game.handleRoundEnd(collisionResult);
-            
+
             scoreState = game.scoreManager.getScoreState();
             expect(scoreState.playerScore).toBe(1);
             expect(scoreState.aiScore).toBe(1);
@@ -150,7 +166,7 @@ describe('Score Tracking Integration', () => {
                 scoreState.highScore,
                 scoreState.isNewHighScore
             );
-            
+
             expect(scoreDisplay.scoreElements.playerScore.textContent).toBe('Player: 4');
             expect(scoreDisplay.scoreElements.aiScore.textContent).toBe('AI: 1');
             expect(scoreDisplay.scoreElements.highScore.textContent).toBe('High Score: 4');
@@ -162,12 +178,12 @@ describe('Score Tracking Integration', () => {
             // Clear any existing high score and create fresh game
             ScorePersistence.clearHighScore();
             game = new Game();
-            
+
             // Set up initial scores
             game.scoreManager.incrementPlayerScore();
             game.scoreManager.incrementPlayerScore();
             game.scoreManager.incrementAIScore();
-            
+
             const initialHighScore = game.scoreManager.highScore;
             expect(initialHighScore).toBe(2);
 
@@ -195,7 +211,7 @@ describe('Score Tracking Integration', () => {
             // Clear any existing high score and create fresh game
             ScorePersistence.clearHighScore();
             game = new Game();
-            
+
             // First session - player achieves score of 3
             for (let i = 0; i < 3; i++) {
                 game.handleRoundEnd({ playerCollided: false, aiCollided: true });
@@ -210,7 +226,7 @@ describe('Score Tracking Integration', () => {
             // Second session - player achieves lower score
             newGame.handleRoundEnd({ playerCollided: false, aiCollided: true });
             newGame.handleRoundEnd({ playerCollided: false, aiCollided: true });
-            
+
             let scoreState = newGame.scoreManager.getScoreState();
             expect(scoreState.playerScore).toBe(2);
             expect(scoreState.highScore).toBe(3); // High score unchanged
@@ -235,7 +251,7 @@ describe('Score Tracking Integration', () => {
             // Clear any existing high score and create fresh game
             ScorePersistence.clearHighScore();
             game = new Game();
-            
+
             const gameState = {
                 bounds: 30,
                 player: { x: 0, y: 0, z: 0 },
@@ -243,14 +259,14 @@ describe('Score Tracking Integration', () => {
                 ai: { x: 0, y: 0, z: -10 },
                 aiTrail: [],
                 frameCount: 15,
-                isPaused: false
+                isPaused: false,
             };
 
             // Test player boundary collision -> AI wins
             gameState.player.x = 31; // Beyond boundary
             let collisionResult = collisionEngine.checkCollisions(gameState);
             expect(collisionResult.winner).toBe('ai');
-            
+
             game.handleRoundEnd(collisionResult);
             let scoreState = game.scoreManager.getScoreState();
             expect(scoreState.playerScore).toBe(0);
@@ -259,10 +275,10 @@ describe('Score Tracking Integration', () => {
             // Reset positions
             gameState.player.x = 0;
             gameState.ai.x = 31; // AI beyond boundary
-            
+
             collisionResult = collisionEngine.checkCollisions(gameState);
             expect(collisionResult.winner).toBe('player');
-            
+
             game.handleRoundEnd(collisionResult);
             scoreState = game.scoreManager.getScoreState();
             expect(scoreState.playerScore).toBe(1);
@@ -272,10 +288,10 @@ describe('Score Tracking Integration', () => {
             // Test simultaneous collision -> tie (no score change)
             gameState.player.x = 31;
             gameState.ai.x = 31;
-            
+
             collisionResult = collisionEngine.checkCollisions(gameState);
             expect(collisionResult.winner).toBe('tie');
-            
+
             game.handleRoundEnd(collisionResult);
             scoreState = game.scoreManager.getScoreState();
             expect(scoreState.playerScore).toBe(1); // No change
@@ -287,7 +303,7 @@ describe('Score Tracking Integration', () => {
             // Clear any existing high score and create fresh game
             ScorePersistence.clearHighScore();
             game = new Game();
-            
+
             const gameState = {
                 bounds: 30,
                 player: { x: 0, y: 0, z: 0 },
@@ -295,7 +311,7 @@ describe('Score Tracking Integration', () => {
                 ai: { x: 0, y: 0, z: -10 },
                 aiTrail: [{ x: 0, y: 0, z: 0 }], // AI trail at player position
                 frameCount: 15,
-                isPaused: false
+                isPaused: false,
             };
 
             // Player collides with AI trail
@@ -312,7 +328,7 @@ describe('Score Tracking Integration', () => {
             // AI collides with player trail
             gameState.aiTrail = [];
             gameState.playerTrail = [{ x: 0, y: 0, z: -10 }]; // Player trail at AI position
-            
+
             collisionResult = collisionEngine.checkCollisions(gameState);
             expect(collisionResult.playerCollided).toBe(false);
             expect(collisionResult.aiCollided).toBe(true);
@@ -331,7 +347,7 @@ describe('Score Tracking Integration', () => {
             // Clear any existing high score and create fresh game
             ScorePersistence.clearHighScore();
             game = new Game();
-            
+
             // Initial display
             scoreDisplay.updateGameplayScores(0, 0);
             expect(scoreDisplay.scoreElements.playerScore.textContent).toBe('Player: 0');
@@ -340,7 +356,7 @@ describe('Score Tracking Integration', () => {
             // Player scores
             game.handleRoundEnd({ playerCollided: false, aiCollided: true });
             let scoreState = game.scoreManager.getScoreState();
-            
+
             scoreDisplay.updateGameplayScores(scoreState.playerScore, scoreState.aiScore);
             expect(scoreDisplay.scoreElements.playerScore.textContent).toBe('Player: 1');
             expect(scoreDisplay.scoreElements.aiScore.textContent).toBe('AI: 0');
@@ -348,7 +364,7 @@ describe('Score Tracking Integration', () => {
             // AI scores
             game.handleRoundEnd({ playerCollided: true, aiCollided: false });
             scoreState = game.scoreManager.getScoreState();
-            
+
             scoreDisplay.updateGameplayScores(scoreState.playerScore, scoreState.aiScore);
             expect(scoreDisplay.scoreElements.playerScore.textContent).toBe('Player: 1');
             expect(scoreDisplay.scoreElements.aiScore.textContent).toBe('AI: 1');
@@ -360,7 +376,7 @@ describe('Score Tracking Integration', () => {
                 scoreState.highScore,
                 scoreState.isNewHighScore
             );
-            
+
             expect(scoreDisplay.scoreElements.highScore.textContent).toBe('High Score: 1');
             expect(scoreDisplay.scoreElements.newHighScore.style.display).toBe('block');
         });
@@ -370,7 +386,7 @@ describe('Score Tracking Integration', () => {
             for (let i = 1; i <= 5; i++) {
                 game.handleRoundEnd({ playerCollided: false, aiCollided: true });
                 let scoreState = game.scoreManager.getScoreState();
-                
+
                 scoreDisplay.updateGameplayScores(scoreState.playerScore, scoreState.aiScore);
                 expect(scoreDisplay.scoreElements.playerScore.textContent).toBe(`Player: ${i}`);
                 expect(scoreDisplay.scoreElements.aiScore.textContent).toBe('AI: 0');
@@ -389,7 +405,7 @@ describe('Score Tracking Integration', () => {
             // Clear any existing high score and create fresh game
             ScorePersistence.clearHighScore();
             game = new Game();
-            
+
             // Mock localStorage to throw errors
             const originalSetItem = mockLocalStorage.setItem;
             mockLocalStorage.setItem = jest.fn(() => {
@@ -398,11 +414,11 @@ describe('Score Tracking Integration', () => {
 
             // Score updates should still work even if persistence fails
             game.handleRoundEnd({ playerCollided: false, aiCollided: true });
-            
+
             const scoreState = game.scoreManager.getScoreState();
             expect(scoreState.playerScore).toBe(1);
             expect(scoreState.highScore).toBe(1); // High score updated in memory
-            
+
             // Display should still work
             scoreDisplay.updateGameplayScores(scoreState.playerScore, scoreState.aiScore);
             expect(scoreDisplay.scoreElements.playerScore.textContent).toBe('Player: 1');
@@ -413,13 +429,13 @@ describe('Score Tracking Integration', () => {
 
         it('should handle invalid collision results gracefully', () => {
             const initialState = game.scoreManager.getScoreState();
-            
+
             // Test various invalid inputs
             game.handleRoundEnd(null);
             game.handleRoundEnd(undefined);
             game.handleRoundEnd({});
             game.handleRoundEnd({ invalidProperty: true });
-            
+
             // Scores should remain unchanged
             const finalState = game.scoreManager.getScoreState();
             expect(finalState).toEqual(initialState);
@@ -429,19 +445,19 @@ describe('Score Tracking Integration', () => {
             // Clear any existing high score and create fresh game
             ScorePersistence.clearHighScore();
             game = new Game();
-            
+
             // Set up initial state
             game.handleRoundEnd({ playerCollided: false, aiCollided: true });
             const scoreState = game.scoreManager.getScoreState();
-            
+
             // Simulate display failure
             scoreDisplay.destroy();
             scoreDisplay = null;
-            
+
             // Score system should continue working
             game.handleRoundEnd({ playerCollided: false, aiCollided: true });
             const newScoreState = game.scoreManager.getScoreState();
-            
+
             expect(newScoreState.playerScore).toBe(2);
             expect(newScoreState.highScore).toBe(2);
             expect(ScorePersistence.loadHighScore()).toBe(2);
@@ -452,43 +468,43 @@ describe('Score Tracking Integration', () => {
         it('should handle multiple game sessions without memory leaks', () => {
             // Clear any existing high score
             ScorePersistence.clearHighScore();
-            
+
             // Simulate multiple game sessions
             for (let session = 0; session < 10; session++) {
                 const sessionGame = new Game();
                 const sessionDisplay = new ScoreDisplay(mockRenderer);
-                
+
                 // Play some rounds
                 for (let round = 0; round < 5; round++) {
                     sessionGame.handleRoundEnd({ playerCollided: false, aiCollided: true });
                     const state = sessionGame.scoreManager.getScoreState();
                     sessionDisplay.updateGameplayScores(state.playerScore, state.aiScore);
                 }
-                
+
                 // Clean up
                 sessionDisplay.destroy();
             }
-            
+
             // Verify final high score is correct
             expect(ScorePersistence.loadHighScore()).toBe(5);
         });
 
         it('should handle rapid score updates efficiently', () => {
             const startTime = Date.now();
-            
+
             // Perform many rapid updates
             for (let i = 0; i < 100; i++) {
                 game.handleRoundEnd({ playerCollided: false, aiCollided: true });
                 const state = game.scoreManager.getScoreState();
                 scoreDisplay.updateGameplayScores(state.playerScore, state.aiScore);
             }
-            
+
             const endTime = Date.now();
             const duration = endTime - startTime;
-            
+
             // Should complete quickly (less than 100ms for 100 updates)
             expect(duration).toBeLessThan(100);
-            
+
             // Verify final state is correct
             const finalState = game.scoreManager.getScoreState();
             expect(finalState.playerScore).toBe(100);

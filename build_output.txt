@@ -1,0 +1,23 @@
+
+> lightbikes@1.0.0 build
+> vite build
+
+vite v7.2.4 building client environment for production...
+transforming...
+✓ 46 modules transformed.
+✗ Build failed in 924ms
+error during build:
+src/systems/PreferenceStorage.js (1:1): Expression expected
+file: /home/pi/source/LightBikes/src/systems/PreferenceStorage.js:1:1
+
+1:  * PreferenceStorage - Handles persistence of customization preferences
+    ^
+2:     * Uses browser localStorage with graceful error handling and fallback mechanisms
+3:         */
+
+    at getRollupError (file:///home/pi/source/LightBikes/node_modules/rollup/dist/es/shared/parseAst.js:401:41)
+    at ParseError.initialise (file:///home/pi/source/LightBikes/node_modules/rollup/dist/es/shared/node-entry.js:14469:28)
+    at convertNode (file:///home/pi/source/LightBikes/node_modules/rollup/dist/es/shared/node-entry.js:16352:10)
+    at convertProgram (file:///home/pi/source/LightBikes/node_modules/rollup/dist/es/shared/node-entry.js:15592:12)
+    at Module.setSource (file:///home/pi/source/LightBikes/node_modules/rollup/dist/es/shared/node-entry.js:17352:24)
+    at async ModuleLoader.addModuleSource (file:///home/pi/source/LightBikes/node_modules/rollup/dist/es/shared/node-entry.js:21377:13)

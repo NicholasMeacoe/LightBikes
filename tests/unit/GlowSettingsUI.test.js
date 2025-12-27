@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { GlowSettingsUI } = require('@/ui/GlowSettingsUI.js');
 const { GlowSettings } = require('@/systems/GlowSettings.js');
 
@@ -14,12 +30,12 @@ describe('GlowSettingsUI', () => {
             setIntensity: jest.fn(() => true),
             getIntensityConfig: jest.fn(() => ({ emissive: 0.6, bloom: 1.0, label: 'Medium' })),
             getIntensityLabel: jest.fn(() => 'Medium'),
-            resetToDefaults: jest.fn()
+            resetToDefaults: jest.fn(),
         };
 
         // Mock GlowEffectManager
         mockGlowEffectManager = {
-            setIntensity: jest.fn()
+            setIntensity: jest.fn(),
         };
 
         // Mock DOM elements
@@ -29,80 +45,128 @@ describe('GlowSettingsUI', () => {
                 removeEventListener: jest.fn(),
                 classList: { add: jest.fn(), remove: jest.fn() },
                 style: {},
-                title: ''
+                title: '',
             },
             settingsPanel: {
                 style: { display: 'none' },
-                contains: jest.fn(() => false)
+                contains: jest.fn(() => false),
             },
             previewLevel: {
-                style: { width: '', boxShadow: '' }
+                style: { width: '', boxShadow: '' },
             },
             currentIntensityLabel: {
-                textContent: ''
+                textContent: '',
             },
             intensityButtons: [
-                { dataset: { intensity: 'OFF' }, addEventListener: jest.fn(), classList: { add: jest.fn(), remove: jest.fn() } },
-                { dataset: { intensity: 'LOW' }, addEventListener: jest.fn(), classList: { add: jest.fn(), remove: jest.fn() } },
-                { dataset: { intensity: 'MEDIUM' }, addEventListener: jest.fn(), classList: { add: jest.fn(), remove: jest.fn() } },
-                { dataset: { intensity: 'HIGH' }, addEventListener: jest.fn(), classList: { add: jest.fn(), remove: jest.fn() } }
+                {
+                    dataset: { intensity: 'OFF' },
+                    classList: { add: jest.fn(), remove: jest.fn() },
+                    addEventListener: jest.fn(),
+                    removeEventListener: jest.fn(),
+                },
+                {
+                    dataset: { intensity: 'LOW' },
+                    classList: { add: jest.fn(), remove: jest.fn() },
+                    addEventListener: jest.fn(),
+                    removeEventListener: jest.fn(),
+                },
+                {
+                    dataset: { intensity: 'MEDIUM' },
+                    classList: { add: jest.fn(), remove: jest.fn() },
+                    addEventListener: jest.fn(),
+                    removeEventListener: jest.fn(),
+                },
+                {
+                    dataset: { intensity: 'HIGH' },
+                    classList: { add: jest.fn(), remove: jest.fn() },
+                    addEventListener: jest.fn(),
+                    removeEventListener: jest.fn(),
+                },
             ],
             closeButton: { addEventListener: jest.fn() },
-            resetButton: { addEventListener: jest.fn() }
+            resetButton: { addEventListener: jest.fn() },
         };
 
         // Mock document methods
-        global.document = {
-            getElementById: jest.fn((id) => {
-                switch (id) {
-                    case 'glowSettingsButton': return mockDOM.settingsButton;
-                    case 'glowSettingsPanel': return mockDOM.settingsPanel;
-                    case 'glowPreviewLevel': return mockDOM.previewLevel;
-                    case 'currentIntensityLabel': return mockDOM.currentIntensityLabel;
-                    case 'closeGlowSettings': return mockDOM.closeButton;
-                    case 'resetGlowSettings': return mockDOM.resetButton;
-                    default: return null;
-                }
-            }),
-            querySelectorAll: jest.fn(() => mockDOM.intensityButtons),
-            addEventListener: jest.fn()
-        };
+        jest.spyOn(document, 'getElementById').mockImplementation((id) => {
+            switch (id) {
+                case 'glowSettingsButton':
+                    return mockDOM.settingsButton;
+                case 'glowSettingsPanel':
+                    return mockDOM.settingsPanel;
+                case 'glowPreviewLevel':
+                    return mockDOM.previewLevel;
+                case 'currentIntensityLabel':
+                    return mockDOM.currentIntensityLabel;
+                case 'closeGlowSettings':
+                    return mockDOM.closeButton;
+                case 'resetGlowSettings':
+                    return mockDOM.resetButton;
+                default:
+                    return null;
+            }
+        });
+
+        jest.spyOn(document, 'querySelectorAll').mockReturnValue(mockDOM.intensityButtons);
+        jest.spyOn(document, 'addEventListener');
 
         // Mock Array.from for querySelectorAll result
-        global.Array = {
-            ...Array,
-            from: jest.fn((arrayLike) => arrayLike || [])
-        };
+        const originalArrayFrom = Array.from;
+        jest.spyOn(Array, 'from').mockImplementation((arrayLike) => {
+            if (arrayLike === mockDOM.intensityButtons) {
+                return originalArrayFrom(arrayLike);
+            }
+            if (arrayLike && typeof arrayLike[Symbol.iterator] === 'function') {
+                return originalArrayFrom(arrayLike);
+            }
+            return arrayLike || [];
+        });
 
-        global.window = {
-            innerWidth: 1024,
-            innerHeight: 768
-        };
-    }); 
-   describe('constructor and initialization', () => {
+        // Mock window dimensions
+        Object.defineProperty(window, 'innerWidth', {
+            writable: true,
+            configurable: true,
+            value: 1024,
+        });
+        Object.defineProperty(window, 'innerHeight', {
+            writable: true,
+            configurable: true,
+            value: 768,
+        });
+    });
+    describe('constructor and initialization', () => {
         it('should initialize with correct dependencies', () => {
             glowSettingsUI = new GlowSettingsUI(mockGlowSettings, mockGlowEffectManager);
-            
+
             expect(glowSettingsUI.glowSettings).toBe(mockGlowSettings);
             expect(glowSettingsUI.glowEffectManager).toBe(mockGlowEffectManager);
-            expect(glowSettingsUI.isVisible).toBe(false);
+            expect(glowSettingsUI.isVisible()).toBe(false);
         });
 
         it('should set up event listeners on initialization', () => {
             glowSettingsUI = new GlowSettingsUI(mockGlowSettings, mockGlowEffectManager);
-            
-            expect(mockDOM.settingsButton.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
-            expect(mockDOM.closeButton.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
-            expect(mockDOM.resetButton.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
-            
-            mockDOM.intensityButtons.forEach(button => {
+
+            expect(mockDOM.settingsButton.addEventListener).toHaveBeenCalledWith(
+                'click',
+                expect.any(Function)
+            );
+            expect(mockDOM.closeButton.addEventListener).toHaveBeenCalledWith(
+                'click',
+                expect.any(Function)
+            );
+            expect(mockDOM.resetButton.addEventListener).toHaveBeenCalledWith(
+                'click',
+                expect.any(Function)
+            );
+
+            mockDOM.intensityButtons.forEach((button) => {
                 expect(button.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
             });
         });
 
         it('should update UI on initialization', () => {
             glowSettingsUI = new GlowSettingsUI(mockGlowSettings, mockGlowEffectManager);
-            
+
             expect(mockGlowSettings.getIntensity).toHaveBeenCalled();
             expect(mockGlowSettings.getIntensityConfig).toHaveBeenCalled();
         });
@@ -115,29 +179,29 @@ describe('GlowSettingsUI', () => {
 
         it('should show panel when togglePanel is called and panel is hidden', () => {
             glowSettingsUI.showPanel();
-            
+
             expect(mockDOM.settingsPanel.style.display).toBe('block');
-            expect(glowSettingsUI.isVisible).toBe(true);
+            expect(glowSettingsUI.isVisible()).toBe(true);
             expect(mockDOM.settingsButton.classList.add).toHaveBeenCalledWith('active');
         });
 
         it('should hide panel when togglePanel is called and panel is visible', () => {
             glowSettingsUI.showPanel();
             glowSettingsUI.hidePanel();
-            
+
             expect(mockDOM.settingsPanel.style.display).toBe('none');
-            expect(glowSettingsUI.isVisible).toBe(false);
+            expect(glowSettingsUI.isVisible()).toBe(false);
             expect(mockDOM.settingsButton.classList.remove).toHaveBeenCalledWith('active');
         });
 
         it('should toggle panel visibility correctly', () => {
-            expect(glowSettingsUI.isVisible).toBe(false);
-            
+            expect(glowSettingsUI.isVisible()).toBe(false);
+
             glowSettingsUI.togglePanel();
-            expect(glowSettingsUI.isVisible).toBe(true);
-            
+            expect(glowSettingsUI.isVisible()).toBe(true);
+
             glowSettingsUI.togglePanel();
-            expect(glowSettingsUI.isVisible).toBe(false);
+            expect(glowSettingsUI.isVisible()).toBe(false);
         });
     });
 
@@ -148,23 +212,23 @@ describe('GlowSettingsUI', () => {
 
         it('should set intensity and apply to glow effect manager', () => {
             glowSettingsUI.setIntensity('HIGH');
-            
+
             expect(mockGlowSettings.setIntensity).toHaveBeenCalledWith('HIGH');
             expect(mockGlowEffectManager.setIntensity).toHaveBeenCalledWith('HIGH');
         });
 
         it('should not apply intensity if setting fails', () => {
             mockGlowSettings.setIntensity.mockReturnValue(false);
-            
+
             glowSettingsUI.setIntensity('INVALID');
-            
+
             expect(mockGlowSettings.setIntensity).toHaveBeenCalledWith('INVALID');
             expect(mockGlowEffectManager.setIntensity).not.toHaveBeenCalled();
         });
 
         it('should reset settings and apply to glow effect manager', () => {
             glowSettingsUI.resetSettings();
-            
+
             expect(mockGlowSettings.resetToDefaults).toHaveBeenCalled();
             expect(mockGlowEffectManager.setIntensity).toHaveBeenCalledWith('MEDIUM');
         });
@@ -177,12 +241,12 @@ describe('GlowSettingsUI', () => {
 
         it('should update intensity buttons correctly', () => {
             mockGlowSettings.getIntensity.mockReturnValue('HIGH');
-            
+
             glowSettingsUI.updateUI();
-            
+
             // HIGH button should be active
             expect(mockDOM.intensityButtons[3].classList.add).toHaveBeenCalledWith('active');
-            
+
             // Other buttons should not be active
             expect(mockDOM.intensityButtons[0].classList.remove).toHaveBeenCalledWith('active');
             expect(mockDOM.intensityButtons[1].classList.remove).toHaveBeenCalledWith('active');
@@ -192,17 +256,21 @@ describe('GlowSettingsUI', () => {
         it('should update preview for different intensity levels', () => {
             // Test OFF intensity
             mockGlowSettings.getIntensity.mockReturnValue('OFF');
-            mockGlowSettings.getIntensityConfig.mockReturnValue({ emissive: 0, bloom: 0, label: 'Off' });
-            
+            mockGlowSettings.getIntensityConfig.mockReturnValue({
+                emissive: 0,
+                bloom: 0,
+                label: 'Off',
+            });
+
             glowSettingsUI.updatePreview('OFF', { emissive: 0, bloom: 0, label: 'Off' });
-            
+
             expect(mockDOM.currentIntensityLabel.textContent).toBe('Off');
             expect(mockDOM.previewLevel.style.width).toBe('0%');
             expect(mockDOM.previewLevel.style.boxShadow).toBe('none');
-            
+
             // Test HIGH intensity
             glowSettingsUI.updatePreview('HIGH', { emissive: 0.8, bloom: 1.5, label: 'High' });
-            
+
             expect(mockDOM.currentIntensityLabel.textContent).toBe('High');
             expect(mockDOM.previewLevel.style.width).toBe('100%');
             expect(mockDOM.previewLevel.style.boxShadow).toContain('rgba(0, 255, 255');
@@ -213,7 +281,7 @@ describe('GlowSettingsUI', () => {
             glowSettingsUI.updateButtonState('OFF');
             expect(mockDOM.settingsButton.style.opacity).toBe('0.6');
             expect(mockDOM.settingsButton.title).toContain('Currently Off');
-            
+
             // Test enabled state
             mockGlowSettings.getIntensityLabel.mockReturnValue('High');
             glowSettingsUI.updateButtonState('HIGH');
@@ -229,24 +297,24 @@ describe('GlowSettingsUI', () => {
                 right: 500,
                 bottom: 400,
                 width: 300,
-                height: 200
+                height: 200,
             }));
         });
 
         it('should adjust panel position when it exceeds viewport', () => {
-            glowSettingsUI.isVisible = true;
+            glowSettingsUI._isVisible = true;
             global.window.innerWidth = 400; // Panel would exceed right edge
-            
+
             glowSettingsUI.handleResize();
-            
+
             expect(mockDOM.settingsPanel.style.left).toBe('80px'); // 400 - 300 - 20
         });
 
         it('should not adjust position when panel is not visible', () => {
-            glowSettingsUI.isVisible = false;
-            
+            glowSettingsUI._isVisible = false;
+
             glowSettingsUI.handleResize();
-            
+
             expect(mockDOM.settingsPanel.style.left).toBeUndefined();
         });
     });
@@ -258,7 +326,7 @@ describe('GlowSettingsUI', () => {
 
         it('should clean up resources and references', () => {
             glowSettingsUI.destroy();
-            
+
             expect(glowSettingsUI.glowSettings).toBeNull();
             expect(glowSettingsUI.glowEffectManager).toBeNull();
             expect(glowSettingsUI.settingsButton).toBeNull();

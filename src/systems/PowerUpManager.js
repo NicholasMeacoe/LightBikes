@@ -1,7 +1,10 @@
 /**
- * PowerUpManager - Manages power-up spawning, collection, and effects in LightBikes
+ * PowerUpManager - Manages power - up spawning, collection, and effects in LightBikes
  * Integrates with existing game systems following the established architecture patterns
  */
+
+const { Logger } = require('../utils/Logger');
+const logger = new Logger('PowerUpManager');
 
 /**
  * PowerUpObjectPool - Object pooling for efficient memory management
@@ -85,11 +88,11 @@ class SpatialGrid {
      */
     addEntity(entityId, x, z) {
         const cellKey = this.getCellKey(x, z);
-        
+
         if (!this.grid.has(cellKey)) {
             this.grid.set(cellKey, new Set());
         }
-        
+
         this.grid.get(cellKey).add(entityId);
         this.entityPositions.set(entityId, { x, z, cellKey });
     }
@@ -157,60 +160,60 @@ class SpatialGrid {
 const POWER_UP_TYPES = {
     SPEED_BOOST: {
         type: 'speed',
-        appearance: { 
-            shape: 'cube', 
-            color: 0x0066ff, 
+        appearance: {
+            shape: 'cube',
+            color: 0x0066ff,
             glow: true,
-            size: { x: 0.8, y: 0.8, z: 0.8 }
+            size: { x: 0.8, y: 0.8, z: 0.8 },
         },
-        effect: { 
-            multiplier: 2.0, 
-            duration: 3000 // 3 seconds
+        effect: {
+            multiplier: 2.0,
+            duration: 3000, // 3 seconds
         },
-        spawnWeight: 25
+        spawnWeight: 25,
     },
     SHIELD: {
         type: 'shield',
-        appearance: { 
-            shape: 'sphere', 
-            color: 0xffd700, 
+        appearance: {
+            shape: 'sphere',
+            color: 0xffd700,
             glow: true,
-            size: { radius: 0.6 }
+            size: { radius: 0.6 },
         },
-        effect: { 
-            protection: 1, 
-            duration: -1 // Permanent until consumed
+        effect: {
+            protection: 1,
+            duration: -1, // Permanent until consumed
         },
-        spawnWeight: 20
+        spawnWeight: 20,
     },
     TRAIL_ERASER: {
         type: 'eraser',
-        appearance: { 
-            shape: 'diamond', 
-            color: 0x9932cc, 
+        appearance: {
+            shape: 'diamond',
+            color: 0x9932cc,
             glow: true,
-            size: { x: 0.8, y: 0.8, z: 0.8 }
+            size: { x: 0.8, y: 0.8, z: 0.8 },
         },
-        effect: { 
-            segments: 10, 
-            duration: 0 // Instant effect
+        effect: {
+            segments: 10,
+            duration: 0, // Instant effect
         },
-        spawnWeight: 30
+        spawnWeight: 30,
     },
     GHOST_MODE: {
         type: 'ghost',
-        appearance: { 
-            shape: 'cube', 
-            color: 0xffffff, 
+        appearance: {
+            shape: 'cube',
+            color: 0xffffff,
             opacity: 0.7,
-            size: { x: 0.8, y: 0.8, z: 0.8 }
+            size: { x: 0.8, y: 0.8, z: 0.8 },
         },
-        effect: { 
-            phaseThrough: true, 
-            duration: 3000 // 3 seconds
+        effect: {
+            phaseThrough: true,
+            duration: 3000, // 3 seconds
         },
-        spawnWeight: 25
-    }
+        spawnWeight: 25,
+    },
 };
 
 // Spawn system configuration
@@ -221,7 +224,7 @@ const SPAWN_CONFIG = {
     minDistanceFromPlayers: 3,
     minDistanceFromTrails: 1,
     powerUpLifetime: 30000, // 30 seconds auto-removal
-    collectionRadius: 0.5
+    collectionRadius: 0.5,
 };
 
 /**
@@ -242,7 +245,7 @@ class PowerUpEntity {
      * Check if this power-up has expired and should be removed
      */
     isExpired() {
-        return (Date.now() - this.spawnTime) > this.maxLifetime;
+        return Date.now() - this.spawnTime > this.maxLifetime;
     }
 
     /**
@@ -270,7 +273,7 @@ class ActiveEffect {
      */
     isExpired() {
         if (this.duration === -1) return false; // Permanent effect
-        return (Date.now() - this.startTime) > this.duration;
+        return Date.now() - this.startTime > this.duration;
     }
 
     /**
@@ -292,33 +295,35 @@ class PowerUpManager {
         this.renderer = renderer;
         this.collisionDetector = collisionDetector;
         this.audioManager = audioManager;
-        
+
         // Power-up entity management
         this.activePowerUps = new Map(); // id -> PowerUpEntity
         this.nextPowerUpId = 1;
-        
+
         // Effect tracking per player
         this.activeEffects = new Map(); // playerId -> ActiveEffect[]
-        
+
         // Spawn timing and variety cycling
         this.lastSpawnTime = 0;
         this.nextSpawnDelay = this.calculateNextSpawnDelay();
         this.lastSpawnedTypes = []; // Track recent spawns for variety
         this.maxRecentTypes = 2; // Avoid repeating same type too often
-        
+
         // Performance optimizations
         this.objectPool = new PowerUpObjectPool();
         this.spatialGrid = new SpatialGrid(60, 8); // 60x60 arena, 8x8 grid
         this.lastCollectionCheck = 0;
         this.collectionCheckInterval = 16; // ~60fps check rate
-        
+
         // Memory management
         this.cleanupCounter = 0;
         this.cleanupInterval = 300; // Cleanup every 5 seconds at 60fps
-        
+
         // Initialize player effect tracking
         this.activeEffects.set('player', []);
         this.activeEffects.set('ai', []);
+
+        this.enabled = true;
     }
 
     /**
@@ -373,23 +378,23 @@ class PowerUpManager {
      */
     update(deltaTime) {
         const currentTime = Date.now();
-        
+
         // Handle spawning
         this.updateSpawning(currentTime);
-        
+
         // Remove expired power-ups
         this.removeExpiredPowerUps();
-        
+
         // Remove expired effects
         this.removeExpiredEffects();
-        
+
         // Periodic cleanup for memory management
         this.cleanupCounter++;
         if (this.cleanupCounter >= this.cleanupInterval) {
             this.performPeriodicCleanup();
             this.cleanupCounter = 0;
         }
-        
+
         // Update renderer with current power-ups
         this.updateRenderer();
     }
@@ -403,15 +408,15 @@ class PowerUpManager {
             const excess = this.objectPool.pool.length - this.objectPool.maxPoolSize;
             this.objectPool.pool.splice(0, excess);
         }
-        
+
         // Clean up empty spatial grid cells
         for (const [cellKey, cell] of this.spatialGrid.grid) {
             if (cell.size === 0) {
                 this.spatialGrid.grid.delete(cellKey);
             }
         }
-        
-        console.debug('Performed periodic cleanup - object pool size:', this.objectPool.pool.length);
+
+        logger.debug('Performed periodic cleanup - object pool size:', this.objectPool.pool.length);
     }
 
     /**
@@ -422,7 +427,7 @@ class PowerUpManager {
         const timeSinceLastSpawn = currentTime - this.lastSpawnTime;
         const shouldSpawn = timeSinceLastSpawn >= this.nextSpawnDelay;
         const canSpawn = this.activePowerUps.size < SPAWN_CONFIG.maxActivePowerUps;
-        
+
         if (shouldSpawn && canSpawn) {
             this.attemptSpawn();
             this.lastSpawnTime = currentTime;
@@ -436,19 +441,19 @@ class PowerUpManager {
     attemptSpawn() {
         const gameState = this.game.getGameState();
         const maxAttempts = 10; // Prevent infinite loops
-        
+
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
             const position = this.generateRandomPosition(gameState.bounds);
-            
+
             if (this.isValidSpawnPosition(position, gameState)) {
                 const powerUpType = this.selectRandomPowerUpType();
                 this.spawnPowerUp(powerUpType, position);
                 return true;
             }
         }
-        
+
         // If we couldn't find a valid position after max attempts, skip this spawn
-        console.debug('Could not find valid spawn position after', maxAttempts, 'attempts');
+        logger.debug(`Could not find valid spawn position after ${maxAttempts} attempts`);
         return false;
     }
 
@@ -458,11 +463,11 @@ class PowerUpManager {
     generateRandomPosition(bounds) {
         const minPos = -bounds + SPAWN_CONFIG.minDistanceFromBoundary;
         const maxPos = bounds - SPAWN_CONFIG.minDistanceFromBoundary;
-        
+
         return {
             x: minPos + Math.random() * (maxPos - minPos),
             y: 0,
-            z: minPos + Math.random() * (maxPos - minPos)
+            z: minPos + Math.random() * (maxPos - minPos),
         };
     }
 
@@ -473,18 +478,22 @@ class PowerUpManager {
         // Check distance from players
         const playerDistance = this.calculateDistance(position, gameState.player);
         const aiDistance = this.calculateDistance(position, gameState.ai);
-        
-        if (playerDistance < SPAWN_CONFIG.minDistanceFromPlayers || 
-            aiDistance < SPAWN_CONFIG.minDistanceFromPlayers) {
+
+        if (
+            playerDistance < SPAWN_CONFIG.minDistanceFromPlayers ||
+            aiDistance < SPAWN_CONFIG.minDistanceFromPlayers
+        ) {
             return false;
         }
-        
+
         // Check distance from trails
-        if (this.isTooCloseToTrails(position, gameState.playerTrail) ||
-            this.isTooCloseToTrails(position, gameState.aiTrail)) {
+        if (
+            this.isTooCloseToTrails(position, gameState.playerTrail) ||
+            this.isTooCloseToTrails(position, gameState.aiTrail)
+        ) {
             return false;
         }
-        
+
         // Check distance from existing power-ups
         for (const powerUp of this.activePowerUps.values()) {
             const distance = this.calculateDistance(position, powerUp.position);
@@ -492,7 +501,7 @@ class PowerUpManager {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -501,7 +510,7 @@ class PowerUpManager {
      */
     isTooCloseToTrails(position, trail) {
         const minDistance = SPAWN_CONFIG.minDistanceFromTrails;
-        
+
         for (const segment of trail) {
             if (segment && typeof segment.x === 'number' && typeof segment.z === 'number') {
                 const distance = this.calculateDistance(position, segment);
@@ -510,7 +519,7 @@ class PowerUpManager {
                 }
             }
         }
-        
+
         return false;
     }
 
@@ -530,43 +539,43 @@ class PowerUpManager {
      */
     selectRandomPowerUpType() {
         const allTypes = Object.keys(POWER_UP_TYPES);
-        
+
         // Filter out recently spawned types for variety (if we have alternatives)
-        let availableTypes = allTypes.filter(type => !this.lastSpawnedTypes.includes(type));
-        
+        let availableTypes = allTypes.filter((type) => !this.lastSpawnedTypes.includes(type));
+
         // If all types were recently spawned, use all types
         if (availableTypes.length === 0) {
             availableTypes = allTypes;
         }
-        
+
         // Calculate weights for available types
-        const weights = availableTypes.map(type => POWER_UP_TYPES[type].spawnWeight);
+        const weights = availableTypes.map((type) => POWER_UP_TYPES[type].spawnWeight);
         const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-        
+
         let random = Math.random() * totalWeight;
-        
+
         for (let i = 0; i < availableTypes.length; i++) {
             random -= weights[i];
             if (random <= 0) {
                 const selectedType = availableTypes[i];
-                
+
                 // Update recent types tracking for variety cycling
                 this.lastSpawnedTypes.push(selectedType);
                 if (this.lastSpawnedTypes.length > this.maxRecentTypes) {
                     this.lastSpawnedTypes.shift(); // Remove oldest
                 }
-                
+
                 return selectedType;
             }
         }
-        
+
         // Fallback to first available type if something goes wrong
         const fallbackType = availableTypes[0];
         this.lastSpawnedTypes.push(fallbackType);
         if (this.lastSpawnedTypes.length > this.maxRecentTypes) {
             this.lastSpawnedTypes.shift();
         }
-        
+
         return fallbackType;
     }
 
@@ -576,13 +585,13 @@ class PowerUpManager {
     spawnPowerUp(type, position) {
         const id = `powerup_${this.nextPowerUpId++}`;
         const powerUp = this.objectPool.acquire(id, type, position);
-        
+
         this.activePowerUps.set(id, powerUp);
-        
+
         // Add to spatial grid for efficient collision detection
         this.spatialGrid.addEntity(id, position.x, position.z);
-        
-        console.debug(`Spawned ${type} power-up at`, position);
+
+        logger.debug(`Spawned ${type} power-up at`, position);
         return powerUp;
     }
 
@@ -591,26 +600,26 @@ class PowerUpManager {
      */
     removeExpiredPowerUps() {
         const expiredIds = [];
-        
+
         for (const [id, powerUp] of this.activePowerUps) {
             if (powerUp.isExpired()) {
                 expiredIds.push(id);
             }
         }
-        
+
         for (const id of expiredIds) {
             const powerUp = this.activePowerUps.get(id);
             if (powerUp) {
                 // Remove from spatial grid
                 this.spatialGrid.removeEntity(id);
-                
+
                 // Return to object pool for reuse
                 this.objectPool.release(powerUp);
-                
+
                 // Remove from active power-ups
                 this.activePowerUps.delete(id);
-                
-                console.debug(`Removed expired power-up: ${id}`);
+
+                logger.debug(`Removed expired power-up: ${id}`);
             }
         }
     }
@@ -622,20 +631,20 @@ class PowerUpManager {
     removeExpiredEffects() {
         for (const [playerId, effects] of this.activeEffects) {
             const validEffects = [];
-            
+
             for (const effect of effects) {
                 if (effect.isExpired()) {
                     // Handle effect-specific cleanup when expiring
                     this.handleEffectExpiration(playerId, effect);
                 } else if (effect.type === 'SHIELD' && effect.data.consumed) {
                     // Remove consumed shields
-                    console.debug(`Removing consumed shield for ${playerId}`);
+                    logger.debug(`Removing consumed shield for ${playerId}`);
                 } else {
                     // Keep valid, non-expired, non-consumed effects
                     validEffects.push(effect);
                 }
             }
-            
+
             this.activeEffects.set(playerId, validEffects);
         }
     }
@@ -646,18 +655,18 @@ class PowerUpManager {
     handleEffectExpiration(playerId, effect) {
         switch (effect.type) {
             case 'SPEED_BOOST':
-                console.debug(`Speed boost expired for ${playerId}`);
+                logger.debug(`Speed boost expired for ${playerId}`);
                 // Speed will return to normal automatically when effect is removed
                 break;
             case 'GHOST_MODE':
-                console.debug(`Ghost mode expired for ${playerId}`);
+                logger.debug(`Ghost mode expired for ${playerId}`);
                 // Collision detection will return to normal automatically
                 break;
             case 'SHIELD':
-                console.debug(`Shield expired for ${playerId}`);
+                logger.debug(`Shield expired for ${playerId}`);
                 break;
             default:
-                console.debug(`Effect ${effect.type} expired for ${playerId}`);
+                logger.debug(`Effect ${effect.type} expired for ${playerId}`);
         }
     }
 
@@ -669,31 +678,31 @@ class PowerUpManager {
     checkCollections(gameState) {
         const collections = [];
         const currentTime = Date.now();
-        
+
         // Only check collections if game is active (not paused or over)
         if (gameState.isPaused || gameState.gameOver) {
             return collections;
         }
-        
+
         // Throttle collection checks for performance (60fps rate)
         if (currentTime - this.lastCollectionCheck < this.collectionCheckInterval) {
             return collections;
         }
         this.lastCollectionCheck = currentTime;
-        
+
         // Check player collections using spatial partitioning
         const playerCollections = this.checkPlayerCollectionsOptimized('player', gameState.player);
         collections.push(...playerCollections);
-        
+
         // Check AI collections using spatial partitioning
         const aiCollections = this.checkPlayerCollectionsOptimized('ai', gameState.ai);
         collections.push(...aiCollections);
-        
+
         // Process collections immediately
         for (const collection of collections) {
             this.processCollection(collection);
         }
-        
+
         return collections;
     }
 
@@ -703,48 +712,55 @@ class PowerUpManager {
      */
     checkPlayerCollectionsOptimized(playerId, playerPosition) {
         const collections = [];
-        
+
         // Validate player position
-        if (!playerPosition || typeof playerPosition.x !== 'number' || typeof playerPosition.z !== 'number') {
+        if (
+            !playerPosition ||
+            typeof playerPosition.x !== 'number' ||
+            typeof playerPosition.z !== 'number'
+        ) {
             return collections;
         }
-        
+
         // Use spatial grid to get only nearby power-ups
         const nearbyEntityIds = this.spatialGrid.getNearbyEntities(
-            playerPosition.x, 
-            playerPosition.z, 
+            playerPosition.x,
+            playerPosition.z,
             SPAWN_CONFIG.collectionRadius * 2 // Search radius slightly larger than collection radius
         );
-        
+
         for (const powerUpId of nearbyEntityIds) {
             const powerUp = this.activePowerUps.get(powerUpId);
-            
+
             // Skip if power-up doesn't exist or already collected
             if (!powerUp || powerUp.collected) continue;
-            
+
             // Calculate distance using optimized 2D distance (y is always 0 for power-ups)
             const dx = playerPosition.x - powerUp.position.x;
             const dz = playerPosition.z - powerUp.position.z;
             const distanceSquared = dx * dx + dz * dz;
-            const collectionRadiusSquared = SPAWN_CONFIG.collectionRadius * SPAWN_CONFIG.collectionRadius;
-            
+            const collectionRadiusSquared =
+                SPAWN_CONFIG.collectionRadius * SPAWN_CONFIG.collectionRadius;
+
             // Check if within collection radius using squared distance (faster than sqrt)
             if (distanceSquared <= collectionRadiusSquared) {
                 // Mark as collected to prevent duplicate collections
                 powerUp.collected = true;
-                
+
                 collections.push({
                     playerId,
                     powerUpId,
                     powerUpType: powerUp.type,
                     position: { ...powerUp.position },
-                    collectionTime: Date.now()
+                    collectionTime: Date.now(),
                 });
-                
-                console.debug(`Player ${playerId} collected ${powerUp.type} power-up at distance ${Math.sqrt(distanceSquared).toFixed(2)}`);
+
+                logger.debug(
+                    `Player ${playerId} collected ${powerUp.type} power-up at distance ${Math.sqrt(distanceSquared).toFixed(2)}`
+                );
             }
         }
-        
+
         return collections;
     }
 
@@ -754,36 +770,42 @@ class PowerUpManager {
      */
     checkPlayerCollections(playerId, playerPosition) {
         const collections = [];
-        
+
         // Validate player position
-        if (!playerPosition || typeof playerPosition.x !== 'number' || typeof playerPosition.z !== 'number') {
+        if (
+            !playerPosition ||
+            typeof playerPosition.x !== 'number' ||
+            typeof playerPosition.z !== 'number'
+        ) {
             return collections;
         }
-        
+
         for (const [powerUpId, powerUp] of this.activePowerUps) {
             // Skip already collected power-ups (duplicate collection prevention)
             if (powerUp.collected) continue;
-            
+
             // Calculate distance using 3D distance formula
             const distance = this.calculateDistance(playerPosition, powerUp.position);
-            
+
             // Check if within collection radius (0.5 units as per requirements)
             if (distance <= SPAWN_CONFIG.collectionRadius) {
                 // Mark as collected to prevent duplicate collections
                 powerUp.collected = true;
-                
+
                 collections.push({
                     playerId,
                     powerUpId,
                     powerUpType: powerUp.type,
                     position: { ...powerUp.position },
-                    collectionTime: Date.now()
+                    collectionTime: Date.now(),
                 });
-                
-                console.debug(`Player ${playerId} collected ${powerUp.type} power-up at distance ${distance.toFixed(2)}`);
+
+                logger.debug(
+                    `Player ${playerId} collected ${powerUp.type} power-up at distance ${distance.toFixed(2)}`
+                );
             }
         }
-        
+
         return collections;
     }
 
@@ -793,14 +815,14 @@ class PowerUpManager {
      */
     processCollection(collection) {
         const { playerId, powerUpId, powerUpType } = collection;
-        
+
         // Apply the power-up effect to the player
         const effectApplied = this.applyEffect(playerId, powerUpType);
-        
+
         if (effectApplied) {
             // Remove the collected power-up from the arena
             this.removePowerUp(powerUpId);
-            
+
             // Trigger collection feedback (for future audio/visual integration)
             this.triggerCollectionFeedback(collection);
         } else {
@@ -817,21 +839,29 @@ class PowerUpManager {
      * Integration point for audio and visual feedback systems
      */
     triggerCollectionFeedback(collection) {
-        console.debug(`Collection feedback triggered for ${collection.powerUpType} by ${collection.playerId}`);
-        
+        logger.debug(
+            `Collection feedback triggered for ${collection.powerUpType} by ${collection.playerId}`
+        );
+
         // Trigger audio feedback if audio system is available
-        if (this.audioManager && typeof this.audioManager.playPowerUpCollectionSound === 'function') {
+        if (
+            this.audioManager &&
+            typeof this.audioManager.playPowerUpCollectionSound === 'function'
+        ) {
             this.audioManager.playPowerUpCollectionSound();
         }
-        
+
         // Trigger visual feedback if renderer supports it
         if (this.renderer && typeof this.renderer.createCollectionEffect === 'function') {
             this.renderer.createCollectionEffect(collection.position, collection.powerUpType);
         }
-        
+
         // Trigger collection notification if renderer supports it
         if (this.renderer && typeof this.renderer.displayCollectionNotification === 'function') {
-            this.renderer.displayCollectionNotification(collection.powerUpType, collection.position);
+            this.renderer.displayCollectionNotification(
+                collection.powerUpType,
+                collection.position
+            );
         }
     }
 
@@ -842,18 +872,18 @@ class PowerUpManager {
     applyEffect(playerId, powerUpType, effectData = {}) {
         const typeConfig = POWER_UP_TYPES[powerUpType];
         if (!typeConfig) {
-            console.warn(`Unknown power-up type: ${powerUpType}`);
+            logger.warn(`Unknown power-up type: ${powerUpType}`);
             return false;
         }
-        
+
         const currentTime = Date.now();
-        
+
         // Handle effect stacking rules and interactions
         this.handleEffectStacking(playerId, powerUpType);
-        
+
         // Apply type-specific effect logic
         let effectApplied = false;
-        
+
         switch (powerUpType) {
             case 'SPEED_BOOST':
                 effectApplied = this.applySpeedBoostEffect(playerId, currentTime, typeConfig);
@@ -868,14 +898,14 @@ class PowerUpManager {
                 effectApplied = this.applyGhostModeEffect(playerId, currentTime, typeConfig);
                 break;
             default:
-                console.warn(`Unhandled power-up type: ${powerUpType}`);
+                logger.warn(`Unhandled power-up type: ${powerUpType}`);
                 return false;
         }
-        
+
         if (effectApplied) {
-            console.debug(`Applied ${powerUpType} effect to ${playerId}`);
+            logger.debug(`Applied ${powerUpType} effect to ${playerId}`);
         }
-        
+
         return effectApplied;
     }
 
@@ -885,13 +915,13 @@ class PowerUpManager {
      */
     handleEffectStacking(playerId, powerUpType) {
         const playerEffects = this.activeEffects.get(playerId) || [];
-        
+
         // Remove existing effects of the same type for replacement-based stacking
         if (powerUpType === 'SPEED_BOOST' || powerUpType === 'GHOST_MODE') {
-            const filteredEffects = playerEffects.filter(effect => effect.type !== powerUpType);
+            const filteredEffects = playerEffects.filter((effect) => effect.type !== powerUpType);
             this.activeEffects.set(playerId, filteredEffects);
         }
-        
+
         // For SHIELD, allow stacking (multiple shields = multiple protections)
         // For TRAIL_ERASER, instant effect so no stacking concerns
     }
@@ -905,16 +935,16 @@ class PowerUpManager {
             'SPEED_BOOST',
             currentTime,
             typeConfig.effect.duration,
-            { 
+            {
                 multiplier: typeConfig.effect.multiplier,
-                originalSpeed: null // Will be set when effect is activated
+                originalSpeed: null, // Will be set when effect is activated
             }
         );
-        
+
         const playerEffects = this.activeEffects.get(playerId) || [];
         playerEffects.push(effect);
         this.activeEffects.set(playerId, playerEffects);
-        
+
         return true;
     }
 
@@ -927,16 +957,16 @@ class PowerUpManager {
             'SHIELD',
             currentTime,
             typeConfig.effect.duration, // -1 for permanent until consumed
-            { 
+            {
                 protection: typeConfig.effect.protection,
-                consumed: false
+                consumed: false,
             }
         );
-        
+
         const playerEffects = this.activeEffects.get(playerId) || [];
         playerEffects.push(effect);
         this.activeEffects.set(playerId, playerEffects);
-        
+
         return true;
     }
 
@@ -947,25 +977,25 @@ class PowerUpManager {
         // Get the appropriate trail from game state
         const gameState = this.game.getGameState();
         let targetTrail;
-        
+
         if (playerId === 'player') {
             targetTrail = gameState.playerTrail;
         } else if (playerId === 'ai') {
             targetTrail = gameState.aiTrail;
         } else {
-            console.warn(`Unknown player ID for trail eraser: ${playerId}`);
+            logger.warn(`Unknown player ID for trail eraser: ${playerId}`);
             return false;
         }
-        
+
         // Remove last N segments (or all if fewer than N)
         const segmentsToRemove = Math.min(typeConfig.effect.segments, targetTrail.length);
-        
+
         if (segmentsToRemove > 0) {
             // Remove segments from the end of the trail
             targetTrail.splice(-segmentsToRemove, segmentsToRemove);
-            console.debug(`Removed ${segmentsToRemove} trail segments for ${playerId}`);
+            logger.debug(`Removed ${segmentsToRemove} trail segments for ${playerId}`);
         }
-        
+
         // Trail Eraser is an instant effect, no need to track it as an active effect
         return true;
     }
@@ -979,16 +1009,16 @@ class PowerUpManager {
             'GHOST_MODE',
             currentTime,
             typeConfig.effect.duration,
-            { 
+            {
                 phaseThrough: typeConfig.effect.phaseThrough,
-                originalOpacity: null // Will be set when effect is activated
+                originalOpacity: null, // Will be set when effect is activated
             }
         );
-        
+
         const playerEffects = this.activeEffects.get(playerId) || [];
         playerEffects.push(effect);
         this.activeEffects.set(playerId, playerEffects);
-        
+
         return true;
     }
 
@@ -997,9 +1027,7 @@ class PowerUpManager {
      */
     hasActiveEffect(playerId, effectType) {
         const playerEffects = this.activeEffects.get(playerId) || [];
-        return playerEffects.some(effect => 
-            effect.type === effectType && !effect.isExpired()
-        );
+        return playerEffects.some((effect) => effect.type === effectType && !effect.isExpired());
     }
 
     /**
@@ -1007,9 +1035,7 @@ class PowerUpManager {
      */
     getActiveEffectsOfType(playerId, effectType) {
         const playerEffects = this.activeEffects.get(playerId) || [];
-        return playerEffects.filter(effect => 
-            effect.type === effectType && !effect.isExpired()
-        );
+        return playerEffects.filter((effect) => effect.type === effectType && !effect.isExpired());
     }
 
     /**
@@ -1018,19 +1044,19 @@ class PowerUpManager {
      */
     consumeShield(playerId) {
         const playerEffects = this.activeEffects.get(playerId) || [];
-        
+
         // Find the first active shield effect
-        const shieldIndex = playerEffects.findIndex(effect => 
-            effect.type === 'SHIELD' && !effect.isExpired() && !effect.data.consumed
+        const shieldIndex = playerEffects.findIndex(
+            (effect) => effect.type === 'SHIELD' && !effect.isExpired() && !effect.data.consumed
         );
-        
+
         if (shieldIndex !== -1) {
             // Mark shield as consumed
             playerEffects[shieldIndex].data.consumed = true;
-            console.debug(`Shield consumed for ${playerId}`);
+            logger.debug(`Shield consumed for ${playerId}`);
             return true;
         }
-        
+
         return false;
     }
 
@@ -1039,13 +1065,13 @@ class PowerUpManager {
      */
     getSpeedMultiplier(playerId) {
         const speedEffects = this.getActiveEffectsOfType(playerId, 'SPEED_BOOST');
-        
+
         if (speedEffects.length > 0) {
             // Return the multiplier from the most recent speed boost
             const latestEffect = speedEffects[speedEffects.length - 1];
             return latestEffect.data.multiplier;
         }
-        
+
         return 1.0; // Normal speed
     }
 
@@ -1061,7 +1087,7 @@ class PowerUpManager {
      */
     hasShieldProtection(playerId) {
         const shieldEffects = this.getActiveEffectsOfType(playerId, 'SHIELD');
-        return shieldEffects.some(effect => !effect.data.consumed);
+        return shieldEffects.some((effect) => !effect.data.consumed);
     }
 
     /**
@@ -1072,14 +1098,14 @@ class PowerUpManager {
         if (powerUp) {
             // Remove from spatial grid
             this.spatialGrid.removeEntity(powerUpId);
-            
+
             // Return to object pool for reuse
             this.objectPool.release(powerUp);
-            
+
             // Remove from active power-ups
             this.activePowerUps.delete(powerUpId);
-            
-            console.debug(`Removed collected power-up: ${powerUpId}`);
+
+            logger.debug(`Removed collected power-up: ${powerUpId}`);
             return true;
         }
         return false;
@@ -1090,12 +1116,12 @@ class PowerUpManager {
      */
     getPowerUpsForRendering() {
         return Array.from(this.activePowerUps.values())
-            .filter(powerUp => !powerUp.collected)
-            .map(powerUp => ({
+            .filter((powerUp) => !powerUp.collected)
+            .map((powerUp) => ({
                 id: powerUp.id,
                 type: powerUp.type,
                 position: powerUp.position,
-                appearance: powerUp.appearance
+                appearance: powerUp.appearance,
             }));
     }
 
@@ -1138,12 +1164,12 @@ class PowerUpManager {
             activeEffects: Object.fromEntries(
                 Array.from(this.activeEffects.entries()).map(([playerId, effects]) => [
                     playerId,
-                    effects.map(effect => ({
+                    effects.map((effect) => ({
                         type: effect.type,
-                        remaining: effect.getRemainingTime()
-                    }))
+                        remaining: effect.getRemainingTime(),
+                    })),
                 ])
-            )
+            ),
         };
     }
 
@@ -1156,41 +1182,41 @@ class PowerUpManager {
         for (const [id, powerUp] of this.activePowerUps) {
             this.objectPool.release(powerUp);
         }
-        
+
         // Clear all active power-ups
         this.activePowerUps.clear();
-        
+
         // Clear all active effects
         for (const playerId of this.activeEffects.keys()) {
             this.activeEffects.set(playerId, []);
         }
-        
+
         // Clear spatial grid
         this.spatialGrid.clear();
-        
+
         // Clear power-ups from renderer
         if (this.renderer && typeof this.renderer.clearPowerUps === 'function') {
             this.renderer.clearPowerUps();
         }
-        
+
         // Reset spawn timing and variety tracking
         this.lastSpawnTime = 0;
         this.nextSpawnDelay = this.calculateNextSpawnDelay();
         this.nextPowerUpId = 1;
         this.lastSpawnedTypes = []; // Reset variety cycling
-        
+
         // Reset performance optimization counters
         this.lastCollectionCheck = 0;
         this.cleanupCounter = 0;
-        
-        console.debug('PowerUpManager reset completed - all power-ups and effects cleared');
+
+        logger.debug('PowerUpManager reset completed - all power-ups and effects cleared');
     }
 }
 
-module.exports = { 
-    PowerUpManager, 
-    PowerUpEntity, 
-    ActiveEffect, 
-    POWER_UP_TYPES, 
-    SPAWN_CONFIG 
+module.exports = {
+    PowerUpManager,
+    PowerUpEntity,
+    ActiveEffect,
+    POWER_UP_TYPES,
+    SPAWN_CONFIG,
 };

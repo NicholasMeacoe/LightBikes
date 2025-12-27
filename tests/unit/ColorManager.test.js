@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { ColorManager } = require('@/systems/ColorManager.js');
 
 describe('ColorManager', () => {
@@ -23,12 +39,24 @@ describe('ColorManager', () => {
         });
 
         it('should throw error for invalid AI count', () => {
-            expect(() => ColorManager.assignColors(0)).toThrow('AI count must be a number between 1 and 4');
-            expect(() => ColorManager.assignColors(5)).toThrow('AI count must be a number between 1 and 4');
-            expect(() => ColorManager.assignColors(-1)).toThrow('AI count must be a number between 1 and 4');
-            expect(() => ColorManager.assignColors('2')).toThrow('AI count must be a number between 1 and 4');
-            expect(() => ColorManager.assignColors(null)).toThrow('AI count must be a number between 1 and 4');
-            expect(() => ColorManager.assignColors(undefined)).toThrow('AI count must be a number between 1 and 4');
+            expect(() => ColorManager.assignColors(0)).toThrow(
+                'AI count must be a number between 1 and 4'
+            );
+            expect(() => ColorManager.assignColors(5)).toThrow(
+                'AI count must be a number between 1 and 4'
+            );
+            expect(() => ColorManager.assignColors(-1)).toThrow(
+                'AI count must be a number between 1 and 4'
+            );
+            expect(() => ColorManager.assignColors('2')).toThrow(
+                'AI count must be a number between 1 and 4'
+            );
+            expect(() => ColorManager.assignColors(null)).toThrow(
+                'AI count must be a number between 1 and 4'
+            );
+            expect(() => ColorManager.assignColors(undefined)).toThrow(
+                'AI count must be a number between 1 and 4'
+            );
         });
 
         it('should return unique colors with no duplicates', () => {
@@ -58,7 +86,9 @@ describe('ColorManager', () => {
             expect(() => ColorManager.getColorHex('orange')).toThrow('Invalid color name: orange');
             expect(() => ColorManager.getColorHex('')).toThrow('Invalid color name: ');
             expect(() => ColorManager.getColorHex(null)).toThrow('Color name must be a string');
-            expect(() => ColorManager.getColorHex(undefined)).toThrow('Color name must be a string');
+            expect(() => ColorManager.getColorHex(undefined)).toThrow(
+                'Color name must be a string'
+            );
             expect(() => ColorManager.getColorHex(123)).toThrow('Color name must be a string');
         });
     });
@@ -120,10 +150,18 @@ describe('ColorManager', () => {
         });
 
         it('should throw error for invalid inputs', () => {
-            expect(() => ColorManager.resolveColorConflicts('not-array', 2)).toThrow('Requested colors must be an array');
-            expect(() => ColorManager.resolveColorConflicts([], 0)).toThrow('Max count must be a number between 1 and 4');
-            expect(() => ColorManager.resolveColorConflicts([], 5)).toThrow('Max count must be a number between 1 and 4');
-            expect(() => ColorManager.resolveColorConflicts([], 'invalid')).toThrow('Max count must be a number between 1 and 4');
+            expect(() => ColorManager.resolveColorConflicts('not-array', 2)).toThrow(
+                'Requested colors must be an array'
+            );
+            expect(() => ColorManager.resolveColorConflicts([], 0)).toThrow(
+                'Max count must be a number between 1 and 4'
+            );
+            expect(() => ColorManager.resolveColorConflicts([], 5)).toThrow(
+                'Max count must be a number between 1 and 4'
+            );
+            expect(() => ColorManager.resolveColorConflicts([], 'invalid')).toThrow(
+                'Max count must be a number between 1 and 4'
+            );
         });
 
         it('should handle mixed case and invalid entries', () => {
@@ -155,18 +193,28 @@ describe('ColorManager', () => {
         });
 
         it('should throw error for invalid index', () => {
-            expect(() => ColorManager.assignColorByIndex(-1)).toThrow('Index must be a non-negative number');
-            expect(() => ColorManager.assignColorByIndex('0')).toThrow('Index must be a non-negative number');
-            expect(() => ColorManager.assignColorByIndex(null)).toThrow('Index must be a non-negative number');
+            expect(() => ColorManager.assignColorByIndex(-1)).toThrow(
+                'Index must be a non-negative number'
+            );
+            expect(() => ColorManager.assignColorByIndex('0')).toThrow(
+                'Index must be a non-negative number'
+            );
+            expect(() => ColorManager.assignColorByIndex(null)).toThrow(
+                'Index must be a non-negative number'
+            );
         });
 
         it('should throw error for invalid exclude colors', () => {
-            expect(() => ColorManager.assignColorByIndex(0, 'not-array')).toThrow('Exclude colors must be an array');
+            expect(() => ColorManager.assignColorByIndex(0, 'not-array')).toThrow(
+                'Exclude colors must be an array'
+            );
         });
 
         it('should throw error when all colors are excluded', () => {
             const allColors = ['red', 'blue', 'yellow', 'purple'];
-            expect(() => ColorManager.assignColorByIndex(0, allColors)).toThrow('No available colors after exclusions');
+            expect(() => ColorManager.assignColorByIndex(0, allColors)).toThrow(
+                'No available colors after exclusions'
+            );
         });
     });
 
@@ -174,7 +222,7 @@ describe('ColorManager', () => {
         it('should return copy of available colors', () => {
             const colors = ColorManager.getAvailableColors();
             expect(colors).toEqual(['red', 'blue', 'yellow', 'purple']);
-            
+
             // Verify it's a copy, not reference
             colors.push('green');
             expect(ColorManager.getAvailableColors()).toEqual(['red', 'blue', 'yellow', 'purple']);
@@ -185,19 +233,19 @@ describe('ColorManager', () => {
         it('should return copy of color hex map', () => {
             const hexMap = ColorManager.getColorHexMap();
             expect(hexMap).toEqual({
-                'red': 0xff0000,
-                'blue': 0x0000ff,
-                'yellow': 0xffff00,
-                'purple': 0x800080
+                red: 0xff0000,
+                blue: 0x0000ff,
+                yellow: 0xffff00,
+                purple: 0x800080,
             });
-            
+
             // Verify it's a copy, not reference
             hexMap.green = 0x00ff00;
             expect(ColorManager.getColorHexMap()).toEqual({
-                'red': 0xff0000,
-                'blue': 0x0000ff,
-                'yellow': 0xffff00,
-                'purple': 0x800080
+                red: 0xff0000,
+                blue: 0x0000ff,
+                yellow: 0xffff00,
+                purple: 0x800080,
             });
         });
     });
@@ -209,10 +257,10 @@ describe('ColorManager', () => {
 
         it('should have correct color hex mapping', () => {
             expect(ColorManager.COLOR_HEX_MAP).toEqual({
-                'red': 0xff0000,
-                'blue': 0x0000ff,
-                'yellow': 0xffff00,
-                'purple': 0x800080
+                red: 0xff0000,
+                blue: 0x0000ff,
+                yellow: 0xffff00,
+                purple: 0x800080,
             });
         });
     });

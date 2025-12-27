@@ -3,6 +3,22 @@
  * Tests customization system integration with existing game features
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { Game } = require('@/core/game.js');
 const { GameModes } = require('@/systems/GameModes.js');
 const { CustomizationManager } = require('@/systems/CustomizationManager.js');
@@ -17,86 +33,92 @@ global.THREE = {
     Scene: jest.fn(() => ({
         add: jest.fn(),
         remove: jest.fn(),
-        children: []
+        children: [],
     })),
     WebGLRenderer: jest.fn(() => ({
         setSize: jest.fn(),
         setClearColor: jest.fn(),
         render: jest.fn(),
-        domElement: document.createElement('canvas')
+        domElement: document.createElement('canvas'),
     })),
     PerspectiveCamera: jest.fn(() => ({
-        position: { 
-            set: jest.fn(), 
+        position: {
+            set: jest.fn(),
             copy: jest.fn(),
-            clone: jest.fn(() => ({ x: 0, y: 0, z: 0 }))
+            clone: jest.fn(() => ({ x: 0, y: 0, z: 0 })),
         },
         lookAt: jest.fn(),
-        updateProjectionMatrix: jest.fn()
+        updateProjectionMatrix: jest.fn(),
     })),
     BoxGeometry: jest.fn(() => ({})),
     MeshBasicMaterial: jest.fn(() => ({})),
     MeshLambertMaterial: jest.fn(() => ({})),
     Mesh: jest.fn(() => ({
         position: { set: jest.fn(), copy: jest.fn() },
-        material: {}
+        material: {},
     })),
     DirectionalLight: jest.fn(() => ({
-        position: { set: jest.fn() }
+        position: { set: jest.fn() },
     })),
     AmbientLight: jest.fn(() => ({})),
     GridHelper: jest.fn(() => ({})),
-    Color: jest.fn((color) => ({ 
-        getHex: () => typeof color === 'number' ? color : 0x00ff00,
-        setHex: jest.fn()
+    Color: jest.fn((color) => ({
+        getHex: () => (typeof color === 'number' ? color : 0x00ff00),
+        setHex: jest.fn(),
     })),
     Vector3: jest.fn(() => ({
         set: jest.fn(),
         copy: jest.fn(),
         add: jest.fn(),
-        multiplyScalar: jest.fn()
+        multiplyScalar: jest.fn(),
     })),
     SphereGeometry: jest.fn(() => ({})),
     LineBasicMaterial: jest.fn(() => ({})),
     LineSegments: jest.fn(() => ({
         position: { set: jest.fn() },
-        material: {}
+        material: {},
     })),
     BufferGeometry: jest.fn(() => ({
         setAttribute: jest.fn(),
-        setIndex: jest.fn()
+        setIndex: jest.fn(),
     })),
     BufferAttribute: jest.fn(() => ({})),
     Group: jest.fn(() => ({
         add: jest.fn(),
         remove: jest.fn(),
-        children: []
+        children: [],
     })),
     BoxHelper: jest.fn(() => ({
         material: {},
-        visible: true
-    }))
+        visible: true,
+    })),
 };
 
 // Mock ThemeEngine to avoid Three.js issues
-jest.mock('./ThemeEngine.js', () => ({
+jest.mock('../../src/systems/ThemeEngine.js', () => ({
     ThemeEngine: jest.fn().mockImplementation(() => ({
         isValidTheme: jest.fn((themeName) => {
             const validThemes = ['classic-grid', 'neon-city', 'space', 'tron-legacy'];
             return validThemes.includes(themeName);
         }),
         loadTheme: jest.fn(),
-        getAvailableThemes: jest.fn(() => ['classic-grid', 'neon-city', 'space', 'tron-legacy'])
-    }))
+        getAvailableThemes: jest.fn(() => ['classic-grid', 'neon-city', 'space', 'tron-legacy']),
+    })),
 }));
 
 // Mock localStorage
 const mockLocalStorage = {
     data: {},
     getItem: jest.fn((key) => mockLocalStorage.data[key] || null),
-    setItem: jest.fn((key, value) => { mockLocalStorage.data[key] = value; }),
-    removeItem: jest.fn((key) => { delete mockLocalStorage.data[key]; }),
-    clear: jest.fn(() => { mockLocalStorage.data = {}; })
+    setItem: jest.fn((key, value) => {
+        mockLocalStorage.data[key] = value;
+    }),
+    removeItem: jest.fn((key) => {
+        delete mockLocalStorage.data[key];
+    }),
+    clear: jest.fn(() => {
+        mockLocalStorage.data = {};
+    }),
 };
 global.localStorage = mockLocalStorage;
 
@@ -114,17 +136,17 @@ describe('Customization Feature Integration', () => {
         mockRenderingEngine = {
             emissiveMaterialSystem: {
                 updateBikeMaterial: jest.fn(),
-                updateTrailMaterialTemplate: jest.fn()
+                updateTrailMaterialTemplate: jest.fn(),
             },
             trailStyleRenderer: {
                 setTrailStyle: jest.fn(),
                 getTrailStyle: jest.fn(() => 'solid'),
-                applyStyleToSegment: jest.fn()
+                applyStyleToSegment: jest.fn(),
             },
-            scene: {},
-            renderer: {},
+            scene: { traverse: jest.fn() },
+            renderer: { setClearColor: jest.fn() },
             particleSystem: null,
-            glowEffectManager: null
+            glowEffectManager: null,
         };
 
         // Create mock particle system
@@ -133,7 +155,7 @@ describe('Customization Feature Integration', () => {
             createTrailParticles: jest.fn(),
             updateParticles: jest.fn(),
             setParticleColor: jest.fn(),
-            getParticleSettings: jest.fn(() => ({ enabled: true, intensity: 1.0 }))
+            getParticleSettings: jest.fn(() => ({ enabled: true, intensity: 1.0 })),
         };
 
         // Create mock glow effect manager
@@ -142,7 +164,7 @@ describe('Customization Feature Integration', () => {
             applyGlowToTrail: jest.fn(),
             updateGlowIntensity: jest.fn(),
             setGlowColor: jest.fn(),
-            getGlowSettings: jest.fn(() => ({ enabled: true, intensity: 0.8 }))
+            getGlowSettings: jest.fn(() => ({ enabled: true, intensity: 0.8 })),
         };
 
         // Create mock power-up manager
@@ -150,7 +172,7 @@ describe('Customization Feature Integration', () => {
             spawnPowerUp: jest.fn(),
             checkCollisions: jest.fn(() => []),
             getActivePowerUps: jest.fn(() => []),
-            getSpeedMultiplier: jest.fn(() => 1.0)
+            getSpeedMultiplier: jest.fn(() => 1.0),
         };
 
         // Set up rendering engine references
@@ -171,15 +193,20 @@ describe('Customization Feature Integration', () => {
             expect(result).toBe(true);
 
             // Verify trail style is applied
-            expect(mockRenderingEngine.trailStyleRenderer.setTrailStyle)
-                .toHaveBeenCalledWith('player', 'glowing');
+            expect(mockRenderingEngine.trailStyleRenderer.setTrailStyle).toHaveBeenCalledWith(
+                'player',
+                'glowing'
+            );
 
             // Simulate particle system interaction
             const trailSegment = { x: 1, y: 0, z: 1 };
             mockParticleSystem.createTrailParticles(trailSegment, 'glowing');
 
             // Verify particle system can handle the trail style
-            expect(mockParticleSystem.createTrailParticles).toHaveBeenCalledWith(trailSegment, 'glowing');
+            expect(mockParticleSystem.createTrailParticles).toHaveBeenCalledWith(
+                trailSegment,
+                'glowing'
+            );
         });
 
         it('should maintain particle effects when changing trail colors', () => {
@@ -187,14 +214,15 @@ describe('Customization Feature Integration', () => {
             customizationManager.setTrailColor('player', '#FF0000');
 
             // Verify color is applied to emissive material system
-            expect(mockRenderingEngine.emissiveMaterialSystem.updateTrailMaterialTemplate)
-                .toHaveBeenCalledWith('player', 0xFF0000);
+            expect(
+                mockRenderingEngine.emissiveMaterialSystem.updateTrailMaterialTemplate
+            ).toHaveBeenCalledWith('player', 0xff0000);
 
             // Simulate particle color update
-            mockParticleSystem.setParticleColor('player', 0xFF0000);
+            mockParticleSystem.setParticleColor('player', 0xff0000);
 
             // Verify particle system receives color update
-            expect(mockParticleSystem.setParticleColor).toHaveBeenCalledWith('player', 0xFF0000);
+            expect(mockParticleSystem.setParticleColor).toHaveBeenCalledWith('player', 0xff0000);
         });
 
         it('should handle rainbow trail style with particle effects', () => {
@@ -202,17 +230,19 @@ describe('Customization Feature Integration', () => {
             customizationManager.setTrailStyle('player', 'rainbow');
 
             // Verify trail style is applied
-            expect(mockRenderingEngine.trailStyleRenderer.setTrailStyle)
-                .toHaveBeenCalledWith('player', 'rainbow');
+            expect(mockRenderingEngine.trailStyleRenderer.setTrailStyle).toHaveBeenCalledWith(
+                'player',
+                'rainbow'
+            );
 
             // Simulate particle system handling rainbow effect
             const trailSegments = [
                 { x: 0, y: 0, z: 0 },
                 { x: 0.1, y: 0, z: 0 },
-                { x: 0.2, y: 0, z: 0 }
+                { x: 0.2, y: 0, z: 0 },
             ];
 
-            trailSegments.forEach(segment => {
+            trailSegments.forEach((segment) => {
                 mockParticleSystem.createTrailParticles(segment, 'rainbow');
             });
 
@@ -229,7 +259,10 @@ describe('Customization Feature Integration', () => {
 
             // Verify glow system can adapt to theme
             mockGlowEffectManager.updateGlowIntensity('neon-city', 1.2);
-            expect(mockGlowEffectManager.updateGlowIntensity).toHaveBeenCalledWith('neon-city', 1.2);
+            expect(mockGlowEffectManager.updateGlowIntensity).toHaveBeenCalledWith(
+                'neon-city',
+                1.2
+            );
         });
 
         it('should maintain glow effects with custom trail colors', () => {
@@ -238,13 +271,16 @@ describe('Customization Feature Integration', () => {
             customizationManager.setTrailColor('player', '#00FFFF');
 
             // Verify glow system receives color information
-            mockGlowEffectManager.setGlowColor('player', 0x00FFFF);
-            expect(mockGlowEffectManager.setGlowColor).toHaveBeenCalledWith('player', 0x00FFFF);
+            mockGlowEffectManager.setGlowColor('player', 0x00ffff);
+            expect(mockGlowEffectManager.setGlowColor).toHaveBeenCalledWith('player', 0x00ffff);
 
             // Verify glow is applied to trail
             const trailSegment = { x: 1, y: 0, z: 1 };
             mockGlowEffectManager.applyGlowToTrail(trailSegment, 'player');
-            expect(mockGlowEffectManager.applyGlowToTrail).toHaveBeenCalledWith(trailSegment, 'player');
+            expect(mockGlowEffectManager.applyGlowToTrail).toHaveBeenCalledWith(
+                trailSegment,
+                'player'
+            );
         });
 
         it('should handle space theme with reduced glow effects', () => {
@@ -262,7 +298,7 @@ describe('Customization Feature Integration', () => {
             // Set different arena themes
             const themes = ['classic-grid', 'neon-city', 'space', 'tron-legacy'];
 
-            themes.forEach(theme => {
+            themes.forEach((theme) => {
                 customizationManager.setArenaTheme(theme);
 
                 // Simulate power-up spawning
@@ -270,7 +306,10 @@ describe('Customization Feature Integration', () => {
                 mockPowerUpManager.spawnPowerUp('speed', spawnPosition);
 
                 // Verify power-up can spawn regardless of theme
-                expect(mockPowerUpManager.spawnPowerUp).toHaveBeenCalledWith('speed', spawnPosition);
+                expect(mockPowerUpManager.spawnPowerUp).toHaveBeenCalledWith(
+                    'speed',
+                    spawnPosition
+                );
             });
         });
 
@@ -282,7 +321,7 @@ describe('Customization Feature Integration', () => {
             // Simulate power-up collision detection
             const powerUps = [
                 { type: 'speed', position: { x: 1, y: 0, z: 1 } },
-                { type: 'shield', position: { x: 2, y: 0, z: 2 } }
+                { type: 'shield', position: { x: 2, y: 0, z: 2 } },
             ];
 
             mockPowerUpManager.getActivePowerUps.mockReturnValue(powerUps);
@@ -300,7 +339,7 @@ describe('Customization Feature Integration', () => {
             // Test all trail styles
             const trailStyles = ['solid', 'dashed', 'glowing', 'rainbow'];
 
-            trailStyles.forEach(style => {
+            trailStyles.forEach((style) => {
                 customizationManager.setTrailStyle('player', style);
 
                 // Create test game state with collision scenario
@@ -311,11 +350,11 @@ describe('Customization Feature Integration', () => {
                     playerTrail: [
                         { x: 0, y: 0, z: 0 },
                         { x: 0.1, y: 0, z: 0 },
-                        { x: 0.2, y: 0, z: 0 }
+                        { x: 0.2, y: 0, z: 0 },
                     ],
                     ai: { x: 5, y: 0, z: 5 }, // Far away
                     aiTrail: [],
-                    bounds: 30
+                    bounds: 30,
                 };
 
                 // Test collision detection
@@ -345,7 +384,7 @@ describe('Customization Feature Integration', () => {
                 playerTrail: [],
                 ai: { x: 0, y: 0, z: 0 },
                 aiTrail: [],
-                bounds: 30
+                bounds: 30,
             };
 
             const boundaryCollision = collisionEngine.checkCollisions(boundaryGameState, game);
@@ -359,7 +398,7 @@ describe('Customization Feature Integration', () => {
                 playerTrail: [],
                 ai: { x: 5, y: 0, z: 5 },
                 aiTrail: [],
-                bounds: 30
+                bounds: 30,
             };
 
             const safeCollision = collisionEngine.checkCollisions(safeGameState, game);
@@ -369,7 +408,7 @@ describe('Customization Feature Integration', () => {
         it('should handle collision detection with multiple AI opponents', () => {
             // Create game with multiple AI opponents
             const multiAIGame = new Game(GameModes.CLASSIC, { aiCount: 3 });
-            
+
             // Apply customizations
             customizationManager.setBikeColor('player', '#00FF00');
             customizationManager.setTrailStyle('player', 'dashed');
@@ -387,28 +426,34 @@ describe('Customization Feature Integration', () => {
                 aiOpponents: [
                     {
                         id: 'ai_1',
-                        x: 2, y: 0, z: 0,
+                        x: 2,
+                        y: 0,
+                        z: 0,
                         alive: true,
                         trail: [
                             { x: 1, y: 0, z: 0 },
                             { x: 1.1, y: 0, z: 0 },
-                            { x: 1.2, y: 0, z: 0 }
-                        ]
+                            { x: 1.2, y: 0, z: 0 },
+                        ],
                     },
                     {
                         id: 'ai_2',
-                        x: 5, y: 0, z: 5,
+                        x: 5,
+                        y: 0,
+                        z: 5,
                         alive: true,
-                        trail: [{ x: 5, y: 0, z: 5 }]
+                        trail: [{ x: 5, y: 0, z: 5 }],
                     },
                     {
                         id: 'ai_3',
-                        x: -5, y: 0, z: -5,
+                        x: -5,
+                        y: 0,
+                        z: -5,
                         alive: true,
-                        trail: [{ x: -5, y: 0, z: -5 }]
-                    }
+                        trail: [{ x: -5, y: 0, z: -5 }],
+                    },
                 ],
-                bounds: 30
+                bounds: 30,
             };
 
             // Test collision detection with multiple AIs
@@ -446,9 +491,9 @@ describe('Customization Feature Integration', () => {
             const gameState = multiAIGame.getGameState();
 
             // Verify each AI has a distinct color
-            const aiColors = gameState.aiOpponents.map(ai => ai.color);
+            const aiColors = gameState.aiOpponents.map((ai) => ai.color);
             const uniqueColors = [...new Set(aiColors)];
-            
+
             expect(aiColors).toHaveLength(4);
             expect(uniqueColors).toHaveLength(4); // All colors should be unique
 
@@ -457,15 +502,15 @@ describe('Customization Feature Integration', () => {
 
             // Verify player customization doesn't affect AI colors
             const updatedGameState = multiAIGame.getGameState();
-            const updatedAIColors = updatedGameState.aiOpponents.map(ai => ai.color);
-            
+            const updatedAIColors = updatedGameState.aiOpponents.map((ai) => ai.color);
+
             expect(updatedAIColors).toEqual(aiColors); // AI colors should remain unchanged
         });
 
         it('should maintain game information visibility across themes', () => {
             const themes = ['classic-grid', 'neon-city', 'space', 'tron-legacy'];
 
-            themes.forEach(theme => {
+            themes.forEach((theme) => {
                 customizationManager.setArenaTheme(theme);
 
                 // Verify theme is applied

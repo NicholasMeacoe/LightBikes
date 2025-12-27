@@ -1,26 +1,36 @@
+const { createPerformanceNowMock } = require('../utils/testHelpers.js');
+
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { SurvivalTimer } = require('@/ui/SurvivalTimer.js');
-
-// Mock performance.now globally
-const mockPerformanceNow = jest.fn();
-const originalPerformanceNow = global.performance ? global.performance.now : () => Date.now();
-
-// Set up the mock before any tests run
-global.performance = { now: mockPerformanceNow };
 
 describe('SurvivalTimer', () => {
     let timer;
+    let mockPerformanceNow;
 
     beforeEach(() => {
-        // Reset the mock and set default return value
-        mockPerformanceNow.mockReset();
-        mockPerformanceNow.mockReturnValue(0);
-        
+        mockPerformanceNow = createPerformanceNowMock(0);
+        global.performance = { now: mockPerformanceNow };
+
         timer = new SurvivalTimer();
     });
 
-    afterAll(() => {
-        // Restore original performance.now after all tests
-        global.performance = { now: originalPerformanceNow };
+    afterEach(() => {
+        delete global.performance;
     });
 
     describe('constructor', () => {
@@ -35,10 +45,10 @@ describe('SurvivalTimer', () => {
 
     describe('start', () => {
         it('should start the timer', () => {
-            mockPerformanceNow.mockReturnValue(1000);
-            
+            mockPerformanceNow.setTime(1000);
+
             timer.start();
-            
+
             expect(timer.startTime).toBe(1000);
             expect(timer.isRunning).toBe(true);
             expect(timer.isPaused).toBe(false);
@@ -46,108 +56,108 @@ describe('SurvivalTimer', () => {
         });
 
         it('should not restart if already running', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
-            
-            mockPerformanceNow.mockReturnValue(2000);
+
+            mockPerformanceNow.setTime(2000);
             timer.start(); // Second start call
-            
+
             expect(timer.startTime).toBe(1000); // Should not change
         });
     });
 
     describe('pause', () => {
         it('should pause the timer', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
-            
-            mockPerformanceNow.mockReturnValue(2000);
+
+            mockPerformanceNow.setTime(2000);
             timer.pause();
-            
+
             expect(timer.isPaused).toBe(true);
             expect(timer.pausedTime).toBe(2000);
         });
 
         it('should not pause if not running', () => {
             timer.pause();
-            
+
             expect(timer.isPaused).toBe(false);
             expect(timer.pausedTime).toBe(0);
         });
 
         it('should not pause if already paused', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
-            
-            mockPerformanceNow.mockReturnValue(2000);
+
+            mockPerformanceNow.setTime(2000);
             timer.pause();
-            
-            mockPerformanceNow.mockReturnValue(3000);
+
+            mockPerformanceNow.setTime(3000);
             timer.pause(); // Second pause call
-            
+
             expect(timer.pausedTime).toBe(2000); // Should not change
         });
     });
 
     describe('resume', () => {
         it('should resume from pause', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
-            
-            mockPerformanceNow.mockReturnValue(2000);
+
+            mockPerformanceNow.setTime(2000);
             timer.pause();
-            
-            mockPerformanceNow.mockReturnValue(3000);
+
+            mockPerformanceNow.setTime(3000);
             timer.resume();
-            
+
             expect(timer.isPaused).toBe(false);
             expect(timer.pausedTime).toBe(0);
             expect(timer.totalPausedDuration).toBe(1000); // 3000 - 2000
         });
 
         it('should not resume if not paused', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
-            
+
             timer.resume();
-            
+
             expect(timer.totalPausedDuration).toBe(0);
         });
 
         it('should accumulate pause durations', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
-            
+
             // First pause
-            mockPerformanceNow.mockReturnValue(2000);
+            mockPerformanceNow.setTime(2000);
             timer.pause();
-            mockPerformanceNow.mockReturnValue(3000);
+            mockPerformanceNow.setTime(3000);
             timer.resume();
-            
+
             // Second pause
-            mockPerformanceNow.mockReturnValue(4000);
+            mockPerformanceNow.setTime(4000);
             timer.pause();
-            mockPerformanceNow.mockReturnValue(5500);
+            mockPerformanceNow.setTime(5500);
             timer.resume();
-            
+
             expect(timer.totalPausedDuration).toBe(2500); // 1000 + 1500
         });
     });
 
     describe('stop', () => {
         it('should stop the timer', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
-            
+
             timer.stop();
-            
+
             expect(timer.isRunning).toBe(false);
             expect(timer.isPaused).toBe(false);
         });
 
         it('should not affect stopped timer', () => {
             timer.stop();
-            
+
             expect(timer.isRunning).toBe(false);
         });
     });
@@ -158,48 +168,48 @@ describe('SurvivalTimer', () => {
         });
 
         it('should calculate elapsed time correctly', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
-            
-            mockPerformanceNow.mockReturnValue(3000);
-            
+
+            mockPerformanceNow.setTime(3000);
+
             expect(timer.getElapsedTime()).toBe(2000);
         });
 
         it('should exclude paused time', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
-            
-            mockPerformanceNow.mockReturnValue(2000);
+
+            mockPerformanceNow.setTime(2000);
             timer.pause();
-            
-            mockPerformanceNow.mockReturnValue(4000);
+
+            mockPerformanceNow.setTime(4000);
             timer.resume();
-            
-            mockPerformanceNow.mockReturnValue(5000);
-            
+
+            mockPerformanceNow.setTime(5000);
+
             expect(timer.getElapsedTime()).toBe(2000); // 5000 - 1000 - 2000 (pause duration)
         });
 
         it('should handle current pause state', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
-            
-            mockPerformanceNow.mockReturnValue(3000);
+
+            mockPerformanceNow.setTime(3000);
             timer.pause();
-            
-            mockPerformanceNow.mockReturnValue(5000);
-            
+
+            mockPerformanceNow.setTime(5000);
+
             expect(timer.getElapsedTime()).toBe(2000); // Should not include current pause time
         });
 
         it('should never return negative time', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
-            
+
             // Simulate clock going backwards
-            mockPerformanceNow.mockReturnValue(500);
-            
+            mockPerformanceNow.setTime(500);
+
             expect(timer.getElapsedTime()).toBe(0);
         });
     });
@@ -236,23 +246,23 @@ describe('SurvivalTimer', () => {
 
     describe('getCurrentFormattedTime', () => {
         it('should return formatted current time', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
-            
-            mockPerformanceNow.mockReturnValue(2500);
-            
+
+            mockPerformanceNow.setTime(2500);
+
             expect(timer.getCurrentFormattedTime()).toBe('00:01.50');
         });
     });
 
     describe('reset', () => {
         it('should reset timer to initial state', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
             timer.pause();
-            
+
             timer.reset();
-            
+
             expect(timer.startTime).toBeNull();
             expect(timer.pausedTime).toBe(0);
             expect(timer.totalPausedDuration).toBe(0);
@@ -263,42 +273,42 @@ describe('SurvivalTimer', () => {
 
     describe('getState', () => {
         it('should return current timer state', () => {
-            mockPerformanceNow.mockReturnValue(1000);
+            mockPerformanceNow.setTime(1000);
             timer.start();
-            
-            mockPerformanceNow.mockReturnValue(2000);
-            
+
+            mockPerformanceNow.setTime(2000);
+
             const state = timer.getState();
-            
+
             expect(state).toEqual({
                 startTime: 1000,
                 pausedTime: 0,
                 totalPausedDuration: 0,
                 isPaused: false,
                 isRunning: true,
-                elapsedTime: 1000
+                elapsedTime: 1000,
             });
         });
     });
 
     describe('performance.now() integration', () => {
         it('should work with real performance.now()', () => {
-            // Restore real performance.now for this test
-            const realPerformanceNow = originalPerformanceNow;
-            global.performance = { now: realPerformanceNow };
-            
+            // Use a mock that simulates real time progression
+            const realMock = createPerformanceNowMock(0);
+            global.performance = { now: realMock };
+
             const realTimer = new SurvivalTimer();
-            const startTime = performance.now();
-            
+            realMock.setTime(100);
+
             realTimer.start();
-            
-            // Small delay to ensure time passes
-            const endTime = performance.now();
+
+            // Simulate time passing
+            realMock.advance(50);
             const elapsed = realTimer.getElapsedTime();
-            
+
             expect(elapsed).toBeGreaterThanOrEqual(0);
-            expect(elapsed).toBeLessThan(endTime - startTime + 100); // Allow some tolerance
-            
+            expect(elapsed).toBeLessThanOrEqual(50);
+
             // Restore mock for other tests
             global.performance = { now: mockPerformanceNow };
         });

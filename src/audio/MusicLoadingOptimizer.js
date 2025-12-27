@@ -4,6 +4,7 @@
  */
 
 const { MUSIC_SYSTEM_CONFIG } = require('./MusicConfig.js');
+const { logger } = require('../utils/Logger.js');
 
 class MusicLoadingOptimizer {
     constructor(performanceMonitor = null) {
@@ -13,19 +14,19 @@ class MusicLoadingOptimizer {
             effectiveType: 'unknown',
             downlink: 0,
             rtt: 0,
-            saveData: false
+            saveData: false,
         };
         this.deviceCapabilities = {
             memory: 'unknown',
             cores: navigator.hardwareConcurrency || 4,
-            isMobile: this._detectMobile()
+            isMobile: this._detectMobile(),
         };
-        
+
         // Initialize network monitoring
         this._initializeNetworkMonitoring();
         this._detectDeviceCapabilities();
     }
-    
+
     /**
      * Determine optimal loading strategy for given tracks
      * @param {Array} tracks - Array of track configurations
@@ -37,9 +38,9 @@ class MusicLoadingOptimizer {
             priorityTrack = null,
             maxConcurrentLoads = this._getOptimalConcurrency(),
             respectDataSaver = true,
-            minimizeStartupDelay = true
+            minimizeStartupDelay = true,
         } = options;
-        
+
         const strategy = {
             immediate: [], // Load immediately (blocking)
             background: [], // Load in background (non-blocking)
@@ -47,37 +48,37 @@ class MusicLoadingOptimizer {
             deferred: [], // Load after initial game load
             loadingOrder: [],
             estimatedTime: 0,
-            concurrency: maxConcurrentLoads
+            concurrency: maxConcurrentLoads,
         };
-        
+
         // Analyze tracks and categorize
         for (const track of tracks) {
             const category = this._categorizeTrack(track, priorityTrack, respectDataSaver);
             strategy[category].push(track);
         }
-        
+
         // Optimize loading order within categories
         strategy.immediate = this._optimizeLoadingOrder(strategy.immediate, 'immediate');
         strategy.background = this._optimizeLoadingOrder(strategy.background, 'background');
         strategy.onDemand = this._optimizeLoadingOrder(strategy.onDemand, 'onDemand');
         strategy.deferred = this._optimizeLoadingOrder(strategy.deferred, 'deferred');
-        
+
         // Create overall loading order
         strategy.loadingOrder = [
             ...strategy.immediate,
             ...strategy.background.slice(0, maxConcurrentLoads),
-            ...strategy.deferred
+            ...strategy.deferred,
         ];
-        
+
         // Estimate total loading time
         strategy.estimatedTime = this._estimateLoadingTime(strategy);
-        
+
         // Add optimization recommendations
         strategy.recommendations = this._generateLoadingRecommendations(strategy);
-        
+
         return strategy;
     }
-    
+
     /**
      * Implement progressive loading with priority-based scheduling
      * @param {Array} tracks - Tracks to load
@@ -91,29 +92,29 @@ class MusicLoadingOptimizer {
             loaded: [],
             failed: [],
             totalTime: 0,
-            phases: {}
+            phases: {},
         };
-        
+
         const startTime = performance.now();
-        
+
         try {
             // Phase 1: Immediate loading (blocking)
             if (strategy.immediate.length > 0) {
                 const phaseStart = performance.now();
                 const immediateResults = await this._loadTracksSequentially(
-                    strategy.immediate, 
-                    onProgress, 
+                    strategy.immediate,
+                    onProgress,
                     onTrackLoaded
                 );
                 results.phases.immediate = {
                     duration: performance.now() - phaseStart,
                     loaded: immediateResults.loaded,
-                    failed: immediateResults.failed
+                    failed: immediateResults.failed,
                 };
                 results.loaded.push(...immediateResults.loaded);
                 results.failed.push(...immediateResults.failed);
             }
-            
+
             // Phase 2: Background loading (concurrent)
             if (strategy.background.length > 0) {
                 const phaseStart = performance.now();
@@ -123,19 +124,19 @@ class MusicLoadingOptimizer {
                     onProgress,
                     onTrackLoaded
                 );
-                
+
                 // Don't wait for background loading to complete
-                backgroundPromise.then(backgroundResults => {
+                backgroundPromise.then((backgroundResults) => {
                     results.phases.background = {
                         duration: performance.now() - phaseStart,
                         loaded: backgroundResults.loaded,
-                        failed: backgroundResults.failed
+                        failed: backgroundResults.failed,
                     };
                     results.loaded.push(...backgroundResults.loaded);
                     results.failed.push(...backgroundResults.failed);
                 });
             }
-            
+
             // Phase 3: Deferred loading (after initial phases)
             if (strategy.deferred.length > 0) {
                 setTimeout(async () => {
@@ -149,21 +150,20 @@ class MusicLoadingOptimizer {
                     results.phases.deferred = {
                         duration: performance.now() - phaseStart,
                         loaded: deferredResults.loaded,
-                        failed: deferredResults.failed
+                        failed: deferredResults.failed,
                     };
                     results.loaded.push(...deferredResults.loaded);
                     results.failed.push(...deferredResults.failed);
                 }, 2000); // 2 second delay
             }
-            
         } catch (error) {
-            console.error('Progressive loading error:', error);
+            logger.error('Progressive loading error:', { error });
         }
-        
+
         results.totalTime = performance.now() - startTime;
         return results;
     }
-    
+
     /**
      * Adapt loading strategy based on current conditions
      * @param {Object} currentStrategy - Current loading strategy
@@ -172,15 +172,18 @@ class MusicLoadingOptimizer {
     adaptStrategy(currentStrategy) {
         const adaptations = [];
         const newStrategy = { ...currentStrategy };
-        
+
         // Adapt based on network conditions
-        if (this.networkConditions.effectiveType === 'slow-2g' || this.networkConditions.effectiveType === '2g') {
+        if (
+            this.networkConditions.effectiveType === 'slow-2g' ||
+            this.networkConditions.effectiveType === '2g'
+        ) {
             // Move background tracks to on-demand for slow connections
             newStrategy.onDemand.push(...newStrategy.background);
             newStrategy.background = [];
             adaptations.push('Moved background tracks to on-demand due to slow network');
         }
-        
+
         // Adapt based on data saver mode
         if (this.networkConditions.saveData) {
             // Move all non-immediate tracks to on-demand
@@ -189,14 +192,14 @@ class MusicLoadingOptimizer {
             newStrategy.deferred = [];
             adaptations.push('Enabled on-demand loading due to data saver mode');
         }
-        
+
         // Adapt based on memory constraints
         if (this.deviceCapabilities.memory === 'low') {
             // Reduce concurrent loading
             newStrategy.concurrency = Math.max(1, Math.floor(newStrategy.concurrency / 2));
             adaptations.push('Reduced concurrency due to low memory');
         }
-        
+
         // Adapt based on loading history
         const recentFailures = this._getRecentFailures();
         if (recentFailures.length > 2) {
@@ -204,11 +207,11 @@ class MusicLoadingOptimizer {
             newStrategy.concurrency = Math.max(1, newStrategy.concurrency - 1);
             adaptations.push('Reduced concurrency due to recent loading failures');
         }
-        
+
         newStrategy.adaptations = adaptations;
         return newStrategy;
     }
-    
+
     /**
      * Get optimal concurrency based on device and network conditions
      * @returns {number} Optimal number of concurrent loads
@@ -216,31 +219,34 @@ class MusicLoadingOptimizer {
      */
     _getOptimalConcurrency() {
         let concurrency = 3; // Default
-        
+
         // Adjust based on network conditions
         if (this.networkConditions.effectiveType === '4g') {
             concurrency = 4;
         } else if (this.networkConditions.effectiveType === '3g') {
             concurrency = 2;
-        } else if (this.networkConditions.effectiveType === 'slow-2g' || this.networkConditions.effectiveType === '2g') {
+        } else if (
+            this.networkConditions.effectiveType === 'slow-2g' ||
+            this.networkConditions.effectiveType === '2g'
+        ) {
             concurrency = 1;
         }
-        
+
         // Adjust based on device capabilities
         if (this.deviceCapabilities.cores >= 8) {
             concurrency += 1;
         } else if (this.deviceCapabilities.cores <= 2) {
             concurrency = Math.max(1, concurrency - 1);
         }
-        
+
         // Adjust based on memory
         if (this.deviceCapabilities.memory === 'low') {
             concurrency = Math.max(1, Math.floor(concurrency / 2));
         }
-        
+
         return Math.min(concurrency, 6); // Cap at 6 concurrent loads
     }
-    
+
     /**
      * Categorize a track for loading strategy
      * @param {Object} track - Track configuration
@@ -254,31 +260,35 @@ class MusicLoadingOptimizer {
         if (track.id === priorityTrack) {
             return 'immediate';
         }
-        
+
         // Data saver mode - only load on demand
         if (respectDataSaver && this.networkConditions.saveData) {
             return 'onDemand';
         }
-        
+
         // Small tracks can be loaded immediately
-        if (track.estimatedSize && track.estimatedSize < 1024 * 1024) { // < 1MB
+        if (track.estimatedSize && track.estimatedSize < 1024 * 1024) {
+            // < 1MB
             return 'background';
         }
-        
+
         // High-priority tracks based on energy level
         if (track.energyLevel === 'ambient' || track.preload === true) {
             return 'background';
         }
-        
+
         // Slow network - defer non-essential tracks
-        if (this.networkConditions.effectiveType === 'slow-2g' || this.networkConditions.effectiveType === '2g') {
+        if (
+            this.networkConditions.effectiveType === 'slow-2g' ||
+            this.networkConditions.effectiveType === '2g'
+        ) {
             return 'onDemand';
         }
-        
+
         // Default to deferred loading
         return 'deferred';
     }
-    
+
     /**
      * Optimize loading order within a category
      * @param {Array} tracks - Tracks to order
@@ -288,36 +298,36 @@ class MusicLoadingOptimizer {
      */
     _optimizeLoadingOrder(tracks, category) {
         if (tracks.length <= 1) return tracks;
-        
+
         return tracks.sort((a, b) => {
             // Sort by priority factors
             let scoreA = 0;
             let scoreB = 0;
-            
+
             // Prefer smaller files for faster loading
             if (a.estimatedSize && b.estimatedSize) {
                 scoreA += (b.estimatedSize - a.estimatedSize) / 1000; // Smaller is better
             }
-            
+
             // Prefer tracks marked for preload
             if (a.preload) scoreA += 10;
             if (b.preload) scoreB += 10;
-            
+
             // Prefer ambient tracks (likely to be used first)
             if (a.energyLevel === 'ambient') scoreA += 5;
             if (b.energyLevel === 'ambient') scoreB += 5;
-            
+
             // Consider loading history (prefer tracks that loaded successfully before)
             const aHistory = this._getTrackLoadingHistory(a.id);
             const bHistory = this._getTrackLoadingHistory(b.id);
-            
+
             if (aHistory.successRate > bHistory.successRate) scoreA += 3;
             if (bHistory.successRate > aHistory.successRate) scoreB += 3;
-            
+
             return scoreB - scoreA; // Higher score first
         });
     }
-    
+
     /**
      * Load tracks sequentially
      * @param {Array} tracks - Tracks to load
@@ -328,48 +338,47 @@ class MusicLoadingOptimizer {
      */
     async _loadTracksSequentially(tracks, onProgress, onTrackLoaded) {
         const results = { loaded: [], failed: [] };
-        
+
         for (let i = 0; i < tracks.length; i++) {
             const track = tracks[i];
             const startTime = performance.now();
-            
+
             try {
                 // Record loading start
                 if (this.performanceMonitor) {
                     this.performanceMonitor.recordLoadingStart(track.id, track.estimatedSize);
                 }
-                
+
                 // Simulate track loading (actual implementation would load the track)
                 await this._simulateTrackLoading(track);
-                
+
                 const loadTime = performance.now() - startTime;
                 this._recordLoadingResult(track.id, true, loadTime);
-                
+
                 results.loaded.push(track.id);
-                
+
                 if (onTrackLoaded) {
                     onTrackLoaded(track.id, true, loadTime);
                 }
-                
+
                 if (onProgress) {
                     onProgress((i + 1) / tracks.length, track.id);
                 }
-                
             } catch (error) {
                 const loadTime = performance.now() - startTime;
                 this._recordLoadingResult(track.id, false, loadTime, error.message);
-                
+
                 results.failed.push({ trackId: track.id, error: error.message });
-                
+
                 if (onTrackLoaded) {
                     onTrackLoaded(track.id, false, loadTime, error);
                 }
             }
         }
-        
+
         return results;
     }
-    
+
     /**
      * Load tracks concurrently with limited concurrency
      * @param {Array} tracks - Tracks to load
@@ -383,58 +392,57 @@ class MusicLoadingOptimizer {
         const results = { loaded: [], failed: [] };
         const semaphore = new Array(concurrency).fill(null);
         let completed = 0;
-        
+
         const loadTrack = async (track) => {
             const startTime = performance.now();
-            
+
             try {
                 if (this.performanceMonitor) {
                     this.performanceMonitor.recordLoadingStart(track.id, track.estimatedSize);
                 }
-                
+
                 await this._simulateTrackLoading(track);
-                
+
                 const loadTime = performance.now() - startTime;
                 this._recordLoadingResult(track.id, true, loadTime);
-                
+
                 results.loaded.push(track.id);
-                
+
                 if (onTrackLoaded) {
                     onTrackLoaded(track.id, true, loadTime);
                 }
-                
             } catch (error) {
                 const loadTime = performance.now() - startTime;
                 this._recordLoadingResult(track.id, false, loadTime, error.message);
-                
+
                 results.failed.push({ trackId: track.id, error: error.message });
-                
+
                 if (onTrackLoaded) {
                     onTrackLoaded(track.id, false, loadTime, error);
                 }
             }
-            
+
             completed++;
             if (onProgress) {
                 onProgress(completed / tracks.length, track.id);
             }
         };
-        
+
         // Process tracks with concurrency limit
         const promises = [];
         for (let i = 0; i < tracks.length; i += concurrency) {
             const batch = tracks.slice(i, i + concurrency);
-            const batchPromises = batch.map(track => loadTrack(track));
+            const batchPromises = batch.map((track) => loadTrack(track));
             promises.push(...batchPromises);
-            
+
             // Wait for current batch to complete before starting next
             await Promise.allSettled(batchPromises);
         }
-        
+
         await Promise.allSettled(promises);
         return results;
     }
-    
+
     /**
      * Simulate track loading (placeholder for actual loading logic)
      * @param {Object} track - Track to load
@@ -446,11 +454,12 @@ class MusicLoadingOptimizer {
         const baseTime = track.estimatedSize ? (track.estimatedSize / 1024 / 1024) * 1000 : 2000; // 1s per MB
         const networkMultiplier = this._getNetworkSpeedMultiplier();
         const loadTime = baseTime * networkMultiplier;
-        
+
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 // Simulate occasional failures
-                if (Math.random() < 0.05) { // 5% failure rate
+                if (Math.random() < 0.05) {
+                    // 5% failure rate
                     reject(new Error('Simulated loading failure'));
                 } else {
                     resolve();
@@ -458,7 +467,7 @@ class MusicLoadingOptimizer {
             }, loadTime);
         });
     }
-    
+
     /**
      * Get network speed multiplier for loading time estimation
      * @returns {number} Speed multiplier
@@ -466,14 +475,19 @@ class MusicLoadingOptimizer {
      */
     _getNetworkSpeedMultiplier() {
         switch (this.networkConditions.effectiveType) {
-            case '4g': return 0.5;
-            case '3g': return 1.0;
-            case '2g': return 3.0;
-            case 'slow-2g': return 6.0;
-            default: return 1.0;
+            case '4g':
+                return 0.5;
+            case '3g':
+                return 1.0;
+            case '2g':
+                return 3.0;
+            case 'slow-2g':
+                return 6.0;
+            default:
+                return 1.0;
         }
     }
-    
+
     /**
      * Record loading result for history tracking
      * @param {string} trackId - Track identifier
@@ -489,17 +503,17 @@ class MusicLoadingOptimizer {
             loadTime: loadTime,
             error: error,
             timestamp: Date.now(),
-            networkConditions: { ...this.networkConditions }
+            networkConditions: { ...this.networkConditions },
         };
-        
+
         this.loadingHistory.push(result);
-        
+
         // Keep history manageable
         if (this.loadingHistory.length > 100) {
             this.loadingHistory = this.loadingHistory.slice(-50);
         }
     }
-    
+
     /**
      * Get loading history for a specific track
      * @param {string} trackId - Track identifier
@@ -507,32 +521,34 @@ class MusicLoadingOptimizer {
      * @private
      */
     _getTrackLoadingHistory(trackId) {
-        const trackHistory = this.loadingHistory.filter(entry => entry.trackId === trackId);
-        const successCount = trackHistory.filter(entry => entry.success).length;
-        
+        const trackHistory = this.loadingHistory.filter((entry) => entry.trackId === trackId);
+        const successCount = trackHistory.filter((entry) => entry.success).length;
+
         return {
             attempts: trackHistory.length,
             successes: successCount,
             failures: trackHistory.length - successCount,
             successRate: trackHistory.length > 0 ? successCount / trackHistory.length : 0,
-            averageLoadTime: trackHistory.length > 0 
-                ? trackHistory.reduce((sum, entry) => sum + entry.loadTime, 0) / trackHistory.length 
-                : 0
+            averageLoadTime:
+                trackHistory.length > 0
+                    ? trackHistory.reduce((sum, entry) => sum + entry.loadTime, 0) /
+                      trackHistory.length
+                    : 0,
         };
     }
-    
+
     /**
      * Get recent loading failures
      * @returns {Array} Recent failure entries
      * @private
      */
     _getRecentFailures() {
-        const recentTime = Date.now() - (5 * 60 * 1000); // Last 5 minutes
-        return this.loadingHistory.filter(entry => 
-            !entry.success && entry.timestamp > recentTime
+        const recentTime = Date.now() - 5 * 60 * 1000; // Last 5 minutes
+        return this.loadingHistory.filter(
+            (entry) => !entry.success && entry.timestamp > recentTime
         );
     }
-    
+
     /**
      * Estimate total loading time for a strategy
      * @param {Object} strategy - Loading strategy
@@ -541,25 +557,31 @@ class MusicLoadingOptimizer {
      */
     _estimateLoadingTime(strategy) {
         let totalTime = 0;
-        
+
         // Immediate loading (sequential)
         for (const track of strategy.immediate) {
-            const baseTime = track.estimatedSize ? (track.estimatedSize / 1024 / 1024) * 1000 : 2000;
+            const baseTime = track.estimatedSize
+                ? (track.estimatedSize / 1024 / 1024) * 1000
+                : 2000;
             totalTime += baseTime * this._getNetworkSpeedMultiplier();
         }
-        
+
         // Background loading (concurrent)
         if (strategy.background.length > 0) {
-            const maxTrackTime = Math.max(...strategy.background.map(track => {
-                const baseTime = track.estimatedSize ? (track.estimatedSize / 1024 / 1024) * 1000 : 2000;
-                return baseTime * this._getNetworkSpeedMultiplier();
-            }));
+            const maxTrackTime = Math.max(
+                ...strategy.background.map((track) => {
+                    const baseTime = track.estimatedSize
+                        ? (track.estimatedSize / 1024 / 1024) * 1000
+                        : 2000;
+                    return baseTime * this._getNetworkSpeedMultiplier();
+                })
+            );
             totalTime += maxTrackTime; // Concurrent loading time is limited by slowest track
         }
-        
+
         return totalTime;
     }
-    
+
     /**
      * Generate loading recommendations
      * @param {Object} strategy - Loading strategy
@@ -568,60 +590,61 @@ class MusicLoadingOptimizer {
      */
     _generateLoadingRecommendations(strategy) {
         const recommendations = [];
-        
+
         if (strategy.immediate.length > 3) {
             recommendations.push({
                 type: 'performance',
                 message: 'Consider reducing immediate loading tracks to improve startup time',
-                priority: 'medium'
+                priority: 'medium',
             });
         }
-        
+
         if (this.networkConditions.saveData && strategy.background.length > 0) {
             recommendations.push({
                 type: 'data_usage',
                 message: 'Data saver mode detected - consider on-demand loading only',
-                priority: 'high'
+                priority: 'high',
             });
         }
-        
+
         if (strategy.estimatedTime > 10000) {
             recommendations.push({
                 type: 'performance',
                 message: 'Long loading time estimated - consider progressive loading',
-                priority: 'high'
+                priority: 'high',
             });
         }
-        
+
         return recommendations;
     }
-    
+
     /**
      * Initialize network condition monitoring
      * @private
      */
     _initializeNetworkMonitoring() {
         if ('connection' in navigator) {
+            /** @type {any} */
             const connection = navigator.connection;
             this.networkConditions = {
                 effectiveType: connection.effectiveType || 'unknown',
                 downlink: connection.downlink || 0,
                 rtt: connection.rtt || 0,
-                saveData: connection.saveData || false
+                saveData: connection.saveData || false,
             };
-            
+
             // Listen for network changes
             connection.addEventListener('change', () => {
                 this.networkConditions = {
                     effectiveType: connection.effectiveType || 'unknown',
                     downlink: connection.downlink || 0,
                     rtt: connection.rtt || 0,
-                    saveData: connection.saveData || false
+                    saveData: connection.saveData || false,
                 };
             });
         }
     }
-    
+
     /**
      * Detect device capabilities
      * @private
@@ -630,16 +653,18 @@ class MusicLoadingOptimizer {
         // Detect memory level
         if ('memory' in performance) {
             const memInfo = performance.memory;
-            if (memInfo.jsHeapSizeLimit < 1024 * 1024 * 1024) { // < 1GB
+            if (memInfo.jsHeapSizeLimit < 1024 * 1024 * 1024) {
+                // < 1GB
                 this.deviceCapabilities.memory = 'low';
-            } else if (memInfo.jsHeapSizeLimit < 4 * 1024 * 1024 * 1024) { // < 4GB
+            } else if (memInfo.jsHeapSizeLimit < 4 * 1024 * 1024 * 1024) {
+                // < 4GB
                 this.deviceCapabilities.memory = 'medium';
             } else {
                 this.deviceCapabilities.memory = 'high';
             }
         }
     }
-    
+
     /**
      * Detect if device is mobile
      * @returns {boolean} True if mobile device
@@ -648,7 +673,7 @@ class MusicLoadingOptimizer {
     _detectMobile() {
         return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
-    
+
     /**
      * Clean up resources
      */

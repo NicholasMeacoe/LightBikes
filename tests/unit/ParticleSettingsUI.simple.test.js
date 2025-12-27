@@ -3,6 +3,22 @@
  * Tests core functionality without complex DOM mocking
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { ParticleSettingsUI } = require('@/ui/ParticleSettingsUI.js');
 
 // Mock localStorage
@@ -14,7 +30,7 @@ const localStorageMock = {
     }),
     clear: jest.fn(() => {
         localStorageMock.store = {};
-    })
+    }),
 };
 global.localStorage = localStorageMock;
 
@@ -23,7 +39,7 @@ global.document = {
     readyState: 'complete',
     getElementById: jest.fn(() => null), // Return null for all elements
     querySelectorAll: jest.fn(() => []), // Return empty array
-    addEventListener: jest.fn()
+    addEventListener: jest.fn(),
 };
 
 // Mock confirm
@@ -41,7 +57,7 @@ describe('ParticleSettingsUI Core Functionality', () => {
     describe('settings integration', () => {
         it('should get ParticleSystem-compatible settings', () => {
             const settings = particleSettingsUI.getParticleSystemSettings();
-            
+
             expect(settings).toHaveProperty('enabled');
             expect(settings).toHaveProperty('quality');
             expect(settings).toHaveProperty('maxParticles');
@@ -54,7 +70,7 @@ describe('ParticleSettingsUI Core Functionality', () => {
 
         it('should get ParticleSettings instance', () => {
             const particleSettings = particleSettingsUI.getParticleSettings();
-            
+
             expect(particleSettings).toBeDefined();
             expect(typeof particleSettings.getSettings).toBe('function');
             expect(typeof particleSettings.setSetting).toBe('function');
@@ -63,10 +79,10 @@ describe('ParticleSettingsUI Core Functionality', () => {
 
         it('should handle settings changes', () => {
             const particleSettings = particleSettingsUI.getParticleSettings();
-            
+
             // Change a setting
             particleSettings.setEnabled(false);
-            
+
             // Get updated settings
             const settings = particleSettingsUI.getParticleSystemSettings();
             expect(settings.enabled).toBe(false);
@@ -76,10 +92,10 @@ describe('ParticleSettingsUI Core Functionality', () => {
     describe('external listeners', () => {
         it('should add and remove external listeners', () => {
             const listener = jest.fn();
-            
+
             particleSettingsUI.addExternalListener(listener);
             expect(particleSettingsUI.externalListeners).toContain(listener);
-            
+
             particleSettingsUI.removeExternalListener(listener);
             expect(particleSettingsUI.externalListeners).not.toContain(listener);
         });
@@ -87,10 +103,10 @@ describe('ParticleSettingsUI Core Functionality', () => {
         it('should notify external listeners on settings change', () => {
             const listener = jest.fn();
             particleSettingsUI.addExternalListener(listener);
-            
+
             // Trigger a settings change through handleSettingChange
             particleSettingsUI.handleSettingChange('enabled', false);
-            
+
             expect(listener).toHaveBeenCalledWith('enabled', false);
         });
 
@@ -99,14 +115,14 @@ describe('ParticleSettingsUI Core Functionality', () => {
                 throw new Error('Listener error');
             });
             const goodListener = jest.fn();
-            
+
             particleSettingsUI.addExternalListener(errorListener);
             particleSettingsUI.addExternalListener(goodListener);
-            
+
             expect(() => {
                 particleSettingsUI.handleSettingChange('enabled', false);
             }).not.toThrow();
-            
+
             expect(goodListener).toHaveBeenCalled();
         });
     });
@@ -116,17 +132,17 @@ describe('ParticleSettingsUI Core Functionality', () => {
             const mockToggle = {
                 classList: {
                     add: jest.fn(),
-                    remove: jest.fn()
-                }
+                    remove: jest.fn(),
+                },
             };
-            
+
             // Should not throw when element exists
             expect(() => {
                 particleSettingsUI.updateToggle(mockToggle, true);
             }).not.toThrow();
-            
+
             expect(mockToggle.classList.add).toHaveBeenCalledWith('active');
-            
+
             // Should not throw when element is null
             expect(() => {
                 particleSettingsUI.updateToggle(null, true);
@@ -135,12 +151,12 @@ describe('ParticleSettingsUI Core Functionality', () => {
 
         it('should update density display safely', () => {
             const mockElement = { textContent: '100%' };
-            
+
             // Should not throw when element exists
             expect(() => {
                 particleSettingsUI.updateDensityDisplay(1.5);
             }).not.toThrow();
-            
+
             // Test with mock element
             particleSettingsUI.elements.densityValue = mockElement;
             particleSettingsUI.updateDensityDisplay(1.5);
@@ -149,12 +165,12 @@ describe('ParticleSettingsUI Core Functionality', () => {
 
         it('should update max particles display safely', () => {
             const mockElement = { textContent: '200' };
-            
+
             // Should not throw when element exists
             expect(() => {
                 particleSettingsUI.updateMaxParticlesDisplay(300);
             }).not.toThrow();
-            
+
             // Test with mock element
             particleSettingsUI.elements.maxParticlesValue = mockElement;
             particleSettingsUI.updateMaxParticlesDisplay(300);
@@ -164,14 +180,17 @@ describe('ParticleSettingsUI Core Functionality', () => {
         it('should update quality buttons safely', () => {
             const mockButtons = [
                 { dataset: { quality: 'low' }, classList: { add: jest.fn(), remove: jest.fn() } },
-                { dataset: { quality: 'medium' }, classList: { add: jest.fn(), remove: jest.fn() } },
-                { dataset: { quality: 'high' }, classList: { add: jest.fn(), remove: jest.fn() } }
+                {
+                    dataset: { quality: 'medium' },
+                    classList: { add: jest.fn(), remove: jest.fn() },
+                },
+                { dataset: { quality: 'high' }, classList: { add: jest.fn(), remove: jest.fn() } },
             ];
-            
+
             particleSettingsUI.elements.qualityButtons = mockButtons;
-            
+
             particleSettingsUI.updateQualityButtons('medium');
-            
+
             expect(mockButtons[1].classList.add).toHaveBeenCalledWith('active');
             expect(mockButtons[0].classList.remove).toHaveBeenCalledWith('active');
             expect(mockButtons[2].classList.remove).toHaveBeenCalledWith('active');
@@ -181,14 +200,16 @@ describe('ParticleSettingsUI Core Functionality', () => {
     describe('panel visibility', () => {
         it('should track visibility state', () => {
             expect(particleSettingsUI.isVisible).toBe(false);
-            
+
             // Mock the panel element
             particleSettingsUI.elements.settingsPanel = { style: { display: 'none' } };
-            particleSettingsUI.elements.settingsButton = { classList: { add: jest.fn(), remove: jest.fn() } };
-            
+            particleSettingsUI.elements.settingsButton = {
+                classList: { add: jest.fn(), remove: jest.fn() },
+            };
+
             particleSettingsUI.showPanel();
             expect(particleSettingsUI.isVisible).toBe(true);
-            
+
             particleSettingsUI.closePanel();
             expect(particleSettingsUI.isVisible).toBe(false);
         });
@@ -196,13 +217,15 @@ describe('ParticleSettingsUI Core Functionality', () => {
         it('should toggle panel visibility', () => {
             // Mock the panel element
             particleSettingsUI.elements.settingsPanel = { style: { display: 'none' } };
-            particleSettingsUI.elements.settingsButton = { classList: { add: jest.fn(), remove: jest.fn() } };
-            
+            particleSettingsUI.elements.settingsButton = {
+                classList: { add: jest.fn(), remove: jest.fn() },
+            };
+
             expect(particleSettingsUI.isVisible).toBe(false);
-            
+
             particleSettingsUI.togglePanel();
             expect(particleSettingsUI.isVisible).toBe(true);
-            
+
             particleSettingsUI.togglePanel();
             expect(particleSettingsUI.isVisible).toBe(false);
         });
@@ -210,39 +233,39 @@ describe('ParticleSettingsUI Core Functionality', () => {
 
     describe('performance status updates', () => {
         it('should update performance status safely', () => {
-            const mockButton = { 
+            const mockButton = {
                 style: {},
-                title: 'Particle Settings'
+                title: 'Particle Settings',
             };
             particleSettingsUI.elements.settingsButton = mockButton;
-            
+
             const performanceStatus = {
                 degradationLevel: 2,
                 currentFPS: 45,
-                averageFPS: 48
+                averageFPS: 48,
             };
-            
+
             particleSettingsUI.updatePerformanceStatus(performanceStatus);
-            
+
             expect(mockButton.style.borderColor).toBe('#ff8c00');
             expect(mockButton.title).toContain('Performance Mode: Level 2');
         });
 
         it('should reset performance status when no degradation', () => {
-            const mockButton = { 
+            const mockButton = {
                 style: {},
-                title: 'Particle Settings'
+                title: 'Particle Settings',
             };
             particleSettingsUI.elements.settingsButton = mockButton;
-            
+
             const performanceStatus = {
                 degradationLevel: 0,
                 currentFPS: 60,
-                averageFPS: 58
+                averageFPS: 58,
             };
-            
+
             particleSettingsUI.updatePerformanceStatus(performanceStatus);
-            
+
             expect(mockButton.style.borderColor).toBe('white');
             expect(mockButton.title).toBe('Particle Settings');
         });
@@ -251,10 +274,10 @@ describe('ParticleSettingsUI Core Functionality', () => {
     describe('import/export functionality', () => {
         it('should export settings', () => {
             const exported = particleSettingsUI.exportSettings();
-            
+
             expect(typeof exported).toBe('string');
             expect(() => JSON.parse(exported)).not.toThrow();
-            
+
             const parsed = JSON.parse(exported);
             expect(parsed).toHaveProperty('enabled');
             expect(parsed).toHaveProperty('quality');
@@ -263,13 +286,13 @@ describe('ParticleSettingsUI Core Functionality', () => {
         it('should import settings', () => {
             const settingsData = JSON.stringify({
                 enabled: false,
-                quality: 'low'
+                quality: 'low',
             });
-            
+
             const result = particleSettingsUI.importSettings(settingsData);
-            
+
             expect(result).toBe(true);
-            
+
             const settings = particleSettingsUI.getParticleSystemSettings();
             expect(settings.enabled).toBe(false);
             expect(settings.quality).toBe('low');
@@ -277,7 +300,7 @@ describe('ParticleSettingsUI Core Functionality', () => {
 
         it('should handle invalid import data', () => {
             const result = particleSettingsUI.importSettings('invalid json');
-            
+
             expect(result).toBe(false);
         });
     });
@@ -285,24 +308,24 @@ describe('ParticleSettingsUI Core Functionality', () => {
     describe('reset functionality', () => {
         it('should reset settings when confirmed', () => {
             global.confirm.mockReturnValue(true);
-            
+
             const particleSettings = particleSettingsUI.getParticleSettings();
             const resetSpy = jest.spyOn(particleSettings, 'resetToDefaults');
-            
+
             particleSettingsUI.resetSettings();
-            
+
             expect(global.confirm).toHaveBeenCalledWith('Reset all particle settings to defaults?');
             expect(resetSpy).toHaveBeenCalled();
         });
 
         it('should not reset settings when cancelled', () => {
             global.confirm.mockReturnValue(false);
-            
+
             const particleSettings = particleSettingsUI.getParticleSettings();
             const resetSpy = jest.spyOn(particleSettings, 'resetToDefaults');
-            
+
             particleSettingsUI.resetSettings();
-            
+
             expect(resetSpy).not.toHaveBeenCalled();
         });
     });
@@ -311,9 +334,9 @@ describe('ParticleSettingsUI Core Functionality', () => {
         it('should dispose of resources properly', () => {
             const particleSettings = particleSettingsUI.getParticleSettings();
             const removeListenerSpy = jest.spyOn(particleSettings, 'removeChangeListener');
-            
+
             particleSettingsUI.dispose();
-            
+
             expect(removeListenerSpy).toHaveBeenCalled();
             expect(particleSettingsUI.elements).toEqual({});
         });

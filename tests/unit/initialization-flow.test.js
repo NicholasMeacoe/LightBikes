@@ -2,6 +2,22 @@
  * Integration tests for game initialization flow
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 describe('Initialization Flow', () => {
     let mockDocument;
     let mockWindow;
@@ -12,26 +28,26 @@ describe('Initialization Flow', () => {
             readyState: 'complete',
             addEventListener: jest.fn(),
             body: {
-                appendChild: jest.fn()
+                appendChild: jest.fn(),
             },
             createElement: jest.fn(() => ({
                 style: {},
                 classList: { add: jest.fn(), remove: jest.fn() },
-                addEventListener: jest.fn()
+                addEventListener: jest.fn(),
             })),
             head: {
-                appendChild: jest.fn()
+                appendChild: jest.fn(),
             },
             getElementById: jest.fn(),
             querySelector: jest.fn(),
-            querySelectorAll: jest.fn(() => [])
+            querySelectorAll: jest.fn(() => []),
         };
 
         // Mock window
         mockWindow = {
             location: {
-                reload: jest.fn()
-            }
+                reload: jest.fn(),
+            },
         };
 
         global.document = mockDocument;
@@ -45,12 +61,12 @@ describe('Initialization Flow', () => {
     describe('DOM Ready Check', () => {
         it('should wait for DOMContentLoaded if document is loading', () => {
             mockDocument.readyState = 'loading';
-            
+
             // Simulate the DOM ready check logic
             if (mockDocument.readyState === 'loading') {
                 mockDocument.addEventListener('DOMContentLoaded', jest.fn());
             }
-            
+
             expect(mockDocument.addEventListener).toHaveBeenCalledWith(
                 'DOMContentLoaded',
                 expect.any(Function)
@@ -59,29 +75,33 @@ describe('Initialization Flow', () => {
 
         it('should initialize immediately if DOM is interactive', () => {
             mockDocument.readyState = 'interactive';
-            
+
             // Simulate the DOM ready check logic
             const shouldWait = mockDocument.readyState === 'loading';
-            
+
             expect(shouldWait).toBe(false);
         });
 
         it('should initialize immediately if DOM is complete', () => {
             mockDocument.readyState = 'complete';
-            
+
             // Simulate the DOM ready check logic
             const shouldWait = mockDocument.readyState === 'loading';
-            
+
             expect(shouldWait).toBe(false);
         });
     });
 
     describe('Error Type Usage', () => {
-        const { DOMNotReadyError, CanvasCreationError, ModeSelectorError } = require('@/utils/InitializationErrors.js');
+        const {
+            DOMNotReadyError,
+            CanvasCreationError,
+            ModeSelectorError,
+        } = require('@/utils/InitializationErrors.js');
 
         it('should use DOMNotReadyError for DOM timing issues', () => {
             const error = new DOMNotReadyError();
-            
+
             expect(error.name).toBe('DOMNotReadyError');
             expect(error.recoverable).toBe(true);
             expect(error.actionableSteps).toBeDefined();
@@ -89,7 +109,7 @@ describe('Initialization Flow', () => {
 
         it('should use CanvasCreationError for canvas failures', () => {
             const error = new CanvasCreationError('Canvas failed');
-            
+
             expect(error.name).toBe('CanvasCreationError');
             expect(error.recoverable).toBe(false);
             expect(error.actionableSteps).toBeDefined();
@@ -97,7 +117,7 @@ describe('Initialization Flow', () => {
 
         it('should use ModeSelectorError for mode selector failures', () => {
             const error = new ModeSelectorError('Mode selector failed');
-            
+
             expect(error.name).toBe('ModeSelectorError');
             expect(error.recoverable).toBe(true);
             expect(error.actionableSteps).toBeDefined();
@@ -110,7 +130,7 @@ describe('Initialization Flow', () => {
         it('should provide WebGL compatibility messages', () => {
             const strategies = new ErrorRecoveryStrategies();
             const message = strategies.getWebGLCompatibilityMessage();
-            
+
             expect(message).toHaveProperty('browserName');
             expect(message).toHaveProperty('updateLink');
             expect(message).toHaveProperty('message');
@@ -120,9 +140,9 @@ describe('Initialization Flow', () => {
         it('should create fallback mode selector', () => {
             const strategies = new ErrorRecoveryStrategies();
             const callback = jest.fn();
-            
+
             const fallback = strategies.createFallbackModeSelector(callback);
-            
+
             expect(fallback).toBeDefined();
             expect(fallback.id).toBe('fallback-mode-selector');
         });
@@ -130,16 +150,16 @@ describe('Initialization Flow', () => {
         it('should support retry for DOM errors', async () => {
             const strategies = new ErrorRecoveryStrategies();
             const mockCallback = jest.fn().mockResolvedValue(true);
-            
+
             jest.useFakeTimers();
             const recoveryPromise = strategies.recoverFromDOMNotReady(mockCallback);
             jest.advanceTimersByTime(500);
-            
+
             const result = await recoveryPromise;
-            
+
             expect(result).toBe(true);
             expect(mockCallback).toHaveBeenCalled();
-            
+
             jest.useRealTimers();
         });
     });
@@ -154,7 +174,7 @@ describe('Initialization Flow', () => {
         it('should show loading indicator during initialization', () => {
             const indicator = new LoadingIndicator();
             indicator.show('Initializing...');
-            
+
             const element = document.getElementById('loading-indicator');
             expect(element).not.toBeNull();
         });
@@ -162,35 +182,35 @@ describe('Initialization Flow', () => {
         it('should update progress during initialization steps', () => {
             const indicator = new LoadingIndicator();
             indicator.show('Starting...');
-            
+
             indicator.updateProgress('step1', 'Loading step 1...');
             indicator.updateProgress('step2', 'Loading step 2...');
-            
+
             expect(indicator.messageElement.textContent).toBe('Loading step 2...');
         });
 
         it('should hide loading indicator when complete', () => {
             const indicator = new LoadingIndicator();
             indicator.show('Loading...');
-            
+
             jest.useFakeTimers();
             indicator.hide();
-            
+
             expect(indicator.element.style.opacity).toBe('0');
-            
+
             jest.advanceTimersByTime(300);
             expect(indicator.element.style.display).toBe('none');
-            
+
             jest.useRealTimers();
         });
 
         it('should show error display on failure', () => {
             const indicator = new LoadingIndicator();
             indicator.show('Loading...');
-            
+
             const error = new Error('Test error');
             indicator.showError(error, jest.fn());
-            
+
             const errorDisplay = document.querySelector('.error-display');
             expect(errorDisplay).not.toBeNull();
         });
@@ -201,18 +221,18 @@ describe('Initialization Flow', () => {
 
         it('should verify canvas after renderer creation', () => {
             const verifier = new CanvasVerifier();
-            
+
             // Mock renderer
             const mockRenderer = {
-                domElement: document.createElement('canvas')
+                domElement: document.createElement('canvas'),
             };
             document.body.appendChild(mockRenderer.domElement);
-            
+
             const mockScene = {};
             const mockCamera = {};
-            
+
             const result = verifier.verifyAll(mockRenderer, mockScene, mockCamera);
-            
+
             expect(result).toHaveProperty('success');
             expect(result).toHaveProperty('checks');
             expect(result).toHaveProperty('errors');
@@ -231,9 +251,9 @@ describe('Initialization Flow', () => {
                 'controls',
                 'systems',
                 'mode-selector',
-                'start'
+                'start',
             ];
-            
+
             expect(steps.length).toBe(10);
             expect(steps).toContain('canvas');
             expect(steps).toContain('mode-selector');
@@ -241,18 +261,18 @@ describe('Initialization Flow', () => {
 
         it('should have descriptive messages for each step', () => {
             const stepMessages = {
-                'init': 'Initializing error handling...',
-                'compatibility': 'Checking browser compatibility...',
-                'webgl': 'Checking WebGL support...',
-                'game': 'Creating game instance...',
-                'renderer': 'Initializing 3D renderer...',
-                'canvas': 'Verifying canvas...',
-                'controls': 'Setting up controls...',
-                'systems': 'Initializing game systems...',
+                init: 'Initializing error handling...',
+                compatibility: 'Checking browser compatibility...',
+                webgl: 'Checking WebGL support...',
+                game: 'Creating game instance...',
+                renderer: 'Initializing 3D renderer...',
+                canvas: 'Verifying canvas...',
+                controls: 'Setting up controls...',
+                systems: 'Initializing game systems...',
                 'mode-selector': 'Preparing mode selector...',
-                'start': 'Starting game...'
+                start: 'Starting game...',
             };
-            
+
             expect(Object.keys(stepMessages).length).toBe(10);
             expect(stepMessages['canvas']).toBe('Verifying canvas...');
             expect(stepMessages['mode-selector']).toBe('Preparing mode selector...');
@@ -263,7 +283,7 @@ describe('Initialization Flow', () => {
         it('should use custom error types with actionable steps', () => {
             const { CanvasCreationError } = require('@/utils/InitializationErrors.js');
             const error = new CanvasCreationError('WebGL not supported');
-            
+
             expect(error.actionableSteps).toBeDefined();
             expect(Array.isArray(error.actionableSteps)).toBe(true);
             expect(error.actionableSteps.length).toBeGreaterThan(0);
@@ -272,12 +292,12 @@ describe('Initialization Flow', () => {
         it('should provide retry callback for recoverable errors', () => {
             const { LoadingIndicator } = require('@/ui/LoadingIndicator.js');
             const indicator = new LoadingIndicator();
-            
+
             const retryCallback = jest.fn();
             const error = new Error('Test error');
-            
+
             indicator.showError(error, retryCallback);
-            
+
             const retryButton = document.getElementById('error-retry-button');
             expect(retryButton).not.toBeNull();
         });
@@ -286,10 +306,10 @@ describe('Initialization Flow', () => {
             const mockReload = jest.fn();
             delete window.location;
             window.location = { reload: mockReload };
-            
+
             const reloadCallback = () => window.location.reload();
             reloadCallback();
-            
+
             expect(mockReload).toHaveBeenCalled();
         });
     });

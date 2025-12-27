@@ -12,9 +12,22 @@ const mockThreeJS = {
         setSize: jest.fn(),
         setClearColor: jest.fn(),
         render: jest.fn(),
+        getSize: jest.fn(() => ({ width: 800, height: 600, x: 800, y: 600 })),
+        getPixelRatio: jest.fn(() => 1),
+        setPixelRatio: jest.fn(),
+        getContext: jest.fn(),
+        getDrawingBufferSize: jest.fn(() => ({ width: 800, height: 600 })),
+        setDrawingBufferSize: jest.fn(),
+        dispose: jest.fn(),
+        domElement: {
+            width: 800,
+            height: 600,
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
+        },
         info: {
-            render: { calls: 10 },
-            memory: { geometries: 5, textures: 3 },
+            render: { calls: 10, frame: 0, triangles: 0, points: 0, lines: 0 },
+            memory: { geometries: 5, textures: 3, programs: 2 },
         },
     })),
     PerspectiveCamera: jest.fn().mockImplementation(() => ({
@@ -25,6 +38,9 @@ const mockThreeJS = {
     OctahedronGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
     ConeGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
     IcosahedronGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
+    PlaneGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
+    TorusGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
+    CylinderGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
     MeshLambertMaterial: jest.fn().mockImplementation((options) => ({
         color: options.color,
         emissive: options.emissive,
@@ -130,11 +146,98 @@ const mockThreeJS = {
         type: 'LineSegments',
         frustumCulled: false, // Default to false for mocks
     })),
+    EffectComposer: jest.fn().mockImplementation(() => ({
+        addPass: jest.fn(),
+        render: jest.fn(),
+        setSize: jest.fn(),
+        dispose: jest.fn(),
+        passes: [],
+        renderToScreen: false,
+    })),
+    RenderPass: jest.fn().mockImplementation(() => ({
+        render: jest.fn(),
+        setSize: jest.fn(),
+        dispose: jest.fn(),
+    })),
+    UnrealBloomPass: jest.fn().mockImplementation(() => ({
+        strength: 1.0,
+        radius: 0.4,
+        threshold: 0.85,
+        resolution: { x: 800, y: 600 },
+        renderToScreen: false,
+        setSize: jest.fn(),
+        dispose: jest.fn(),
+    })),
+    Vector2: jest.fn().mockImplementation((x, y) => ({ x: x || 0, y: y || 0 })),
+    BoxHelper: jest.fn().mockImplementation(() => ({
+        material: {},
+        dispose: jest.fn(),
+    })),
 };
 
 global.THREE = mockThreeJS;
 global.performance = { now: jest.fn().mockReturnValue(1000) };
 global.requestAnimationFrame = jest.fn((callback) => setTimeout(callback, 16));
+global.setImmediate = (callback, ...args) => setTimeout(callback, 0, ...args);
+
+// Mock HTMLCanvasElement.prototype.getContext
+HTMLCanvasElement.prototype.getContext = jest.fn().mockImplementation((contextId) => {
+    if (contextId === '2d') {
+        return {
+            fillRect: jest.fn(),
+            clearRect: jest.fn(),
+            getImageData: jest.fn(() => ({ data: new Uint8ClampedArray(4) })),
+            putImageData: jest.fn(),
+            createImageData: jest.fn(() => ({ data: new Uint8ClampedArray(4) })),
+            setTransform: jest.fn(),
+            drawImage: jest.fn(),
+            save: jest.fn(),
+            restore: jest.fn(),
+            beginPath: jest.fn(),
+            moveTo: jest.fn(),
+            lineTo: jest.fn(),
+            stroke: jest.fn(),
+            fill: jest.fn(),
+            arc: jest.fn(),
+            createRadialGradient: jest.fn(() => ({
+                addColorStop: jest.fn(),
+            })),
+        };
+    }
+    if (contextId === 'webgl' || contextId === 'experimental-webgl') {
+        return {
+            getExtension: jest.fn(),
+            getParameter: jest.fn(() => 'Mock WebGL'),
+            createShader: jest.fn(),
+            shaderSource: jest.fn(),
+            compileShader: jest.fn(),
+            getShaderParameter: jest.fn(() => true),
+            getShaderInfoLog: jest.fn(() => ''),
+            createProgram: jest.fn(),
+            attachShader: jest.fn(),
+            linkProgram: jest.fn(),
+            getProgramParameter: jest.fn(() => true),
+            getProgramInfoLog: jest.fn(() => ''),
+            useProgram: jest.fn(),
+            getAttribLocation: jest.fn(),
+            getUniformLocation: jest.fn(),
+            enableVertexAttribArray: jest.fn(),
+            vertexAttribPointer: jest.fn(),
+            uniformMatrix4fv: jest.fn(),
+            uniform1f: jest.fn(),
+            uniform3f: jest.fn(),
+            drawArrays: jest.fn(),
+            createBuffer: jest.fn(),
+            bindBuffer: jest.fn(),
+            bufferData: jest.fn(),
+            clearColor: jest.fn(),
+            clear: jest.fn(),
+            viewport: jest.fn(),
+            canvas: { width: 800, height: 600 },
+        };
+    }
+    return null;
+});
 
 // Helper function to create mock DOM elements
 global.createMockDOMElement = (tagName, options = {}) => {
@@ -235,6 +338,11 @@ global.AudioContext = jest.fn().mockImplementation(() => mockAudioContext);
 global.fetch = jest.fn(() =>
     Promise.resolve({
         ok: true,
+        status: 200,
+        statusText: 'OK',
+        headers: {
+            get: jest.fn().mockReturnValue('audio/mpeg'),
+        },
         arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
     })
 );

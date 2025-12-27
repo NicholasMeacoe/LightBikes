@@ -4,6 +4,22 @@
  */
 
 // Mock Three.js for testing environment
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const mockThree = {
     Vector3: class {
         constructor(x = 0, y = 0, z = 0) {
@@ -88,7 +104,7 @@ const mockThree = {
             this.needsUpdate = false;
         }
     },
-    AdditiveBlending: 'additive'
+    AdditiveBlending: 'additive',
 };
 
 // Mock global THREE
@@ -105,7 +121,7 @@ global.document = {
                     if (type === '2d') {
                         return {
                             createRadialGradient: (x0, y0, r0, x1, y1, r1) => ({
-                                addColorStop: (offset, color) => {}
+                                addColorStop: (offset, color) => {},
                             }),
                             fillRect: (x, y, width, height) => {},
                             fillStyle: null,
@@ -113,15 +129,15 @@ global.document = {
                             fill: () => {},
                             beginPath: () => {},
                             arc: () => {},
-                            closePath: () => {}
+                            closePath: () => {},
                         };
                     }
                     return null;
-                }
+                },
             };
         }
         return {};
-    }
+    },
 };
 
 const { ParticleSystem, Particle } = require('@/rendering/ParticleSystem.js');
@@ -226,10 +242,10 @@ describe('Particle', () => {
         it('should return decreasing alpha as particle ages', () => {
             particle.active = true;
             particle.lifetime = 1.0;
-            
+
             particle.age = 0.5;
             expect(particle.getAlpha()).toBe(0.5);
-            
+
             particle.age = 0.8;
             expect(particle.getAlpha()).toBeCloseTo(0.2, 5);
         });
@@ -243,11 +259,11 @@ describe('ParticleSystem', () => {
     beforeEach(() => {
         mockScene = {
             add: jest.fn(),
-            remove: jest.fn()
+            remove: jest.fn(),
         };
         particleSystem = new ParticleSystem(mockScene, {
             maxParticles: 50,
-            enabled: true
+            enabled: true,
         });
     });
 
@@ -261,14 +277,14 @@ describe('ParticleSystem', () => {
         it('should initialize with default settings', () => {
             const defaultSystem = new ParticleSystem(mockScene);
             const settings = defaultSystem.getSettings();
-            
+
             expect(settings.maxParticles).toBe(200);
             expect(settings.enabled).toBe(true);
             expect(settings.quality).toBe('medium');
             expect(settings.effects.trailSparks).toBe(true);
             expect(settings.effects.explosions).toBe(true);
             expect(settings.effects.collections).toBe(true);
-            
+
             defaultSystem.dispose();
         });
 
@@ -296,7 +312,7 @@ describe('ParticleSystem', () => {
     describe('particle pool management', () => {
         it('should acquire particles from pool', () => {
             const particle = particleSystem.acquireParticle();
-            
+
             expect(particle).toBeInstanceOf(Particle);
             expect(particle.active).toBe(true);
             expect(particleSystem.getActiveParticleCount()).toBe(1);
@@ -307,7 +323,7 @@ describe('ParticleSystem', () => {
             for (let i = 0; i < 50; i++) {
                 particleSystem.acquireParticle();
             }
-            
+
             // Try to acquire one more
             const particle = particleSystem.acquireParticle();
             expect(particle).toBeNull();
@@ -316,7 +332,7 @@ describe('ParticleSystem', () => {
         it('should release particles back to pool', () => {
             const particle = particleSystem.acquireParticle();
             particleSystem.releaseParticle(particle);
-            
+
             expect(particle.active).toBe(false);
             expect(particleSystem.getActiveParticleCount()).toBe(0);
         });
@@ -327,36 +343,36 @@ describe('ParticleSystem', () => {
             particleSystem.setEnabled(false);
             const particle = particleSystem.acquireParticle();
             particle.lifetime = 0.1;
-            
+
             particleSystem.update(0.2, { isPaused: false });
-            
+
             expect(particle.active).toBe(true); // Should not be updated
         });
 
         it('should not update when paused', () => {
             const particle = particleSystem.acquireParticle();
             particle.lifetime = 0.1;
-            
+
             particleSystem.update(0.2, { isPaused: true });
-            
+
             expect(particle.active).toBe(true); // Should not be updated
         });
 
         it('should update active particles', () => {
             const particle = particleSystem.acquireParticle();
             particle.velocity.set(1, 0, 0);
-            
+
             particleSystem.update(0.1, { isPaused: false });
-            
+
             expect(particle.position.x).toBe(0.1);
         });
 
         it('should release expired particles', () => {
             const particle = particleSystem.acquireParticle();
             particle.lifetime = 0.1;
-            
+
             particleSystem.update(0.2, { isPaused: false });
-            
+
             expect(particleSystem.getActiveParticleCount()).toBe(0);
         });
     });
@@ -367,9 +383,9 @@ describe('ParticleSystem', () => {
                 const position = { x: 1, y: 0, z: 1 };
                 const velocity = { x: 1, y: 0, z: 0 };
                 const color = 0x00ff00;
-                
+
                 particleSystem.emitTrailSparks(position, velocity, color);
-                
+
                 expect(particleSystem.getActiveParticleCount()).toBeGreaterThan(0);
                 const activeParticles = particleSystem.particlePool.getActiveParticles();
                 const particle = activeParticles[0];
@@ -382,9 +398,13 @@ describe('ParticleSystem', () => {
 
             it('should not create particles when effect is disabled', () => {
                 particleSystem.setEffectEnabled('trailSparks', false);
-                
-                particleSystem.emitTrailSparks({ x: 0, y: 0, z: 0 }, { x: 1, y: 0, z: 0 }, 0x00ff00);
-                
+
+                particleSystem.emitTrailSparks(
+                    { x: 0, y: 0, z: 0 },
+                    { x: 1, y: 0, z: 0 },
+                    0x00ff00
+                );
+
                 expect(particleSystem.getActiveParticleCount()).toBe(0);
             });
 
@@ -392,17 +412,17 @@ describe('ParticleSystem', () => {
                 const position = { x: 0, y: 0, z: 0 };
                 const velocity = { x: 1, y: 0, z: 0 };
                 const color = 0x00ff00;
-                
+
                 // Test low speed
                 particleSystem.emitTrailSparks(position, velocity, color, 0.05);
                 const lowSpeedCount = particleSystem.getActiveParticleCount();
-                
+
                 particleSystem.reset();
-                
+
                 // Test high speed
                 particleSystem.emitTrailSparks(position, velocity, color, 0.3);
                 const highSpeedCount = particleSystem.getActiveParticleCount();
-                
+
                 expect(highSpeedCount).toBeGreaterThanOrEqual(lowSpeedCount);
             });
 
@@ -410,9 +430,9 @@ describe('ParticleSystem', () => {
                 const position = { x: 5, y: 0, z: 5 };
                 const velocity = { x: 1, y: 0, z: 0 };
                 const color = 0x00ff00;
-                
+
                 particleSystem.emitTrailSparks(position, velocity, color, 0.1);
-                
+
                 const activeParticles = particleSystem.particlePool.getActiveParticles();
                 const particle = activeParticles[0];
                 // Particle should be positioned behind the bike (lower x value)
@@ -423,9 +443,9 @@ describe('ParticleSystem', () => {
                 const position = { x: 0, y: 0, z: 0 };
                 const velocity = { x: 1, y: 0, z: 0 };
                 const color = 0x00ff00;
-                
+
                 particleSystem.emitTrailSparks(position, velocity, color, 0.1);
-                
+
                 const activeParticles = particleSystem.particlePool.getActiveParticles();
                 const particle = activeParticles[0];
                 // Size should be around 0.05 units (0.04-0.06 range)
@@ -437,9 +457,9 @@ describe('ParticleSystem', () => {
                 const position = { x: 0, y: 0, z: 0 };
                 const velocity = { x: 1, y: 0, z: 0 }; // Moving right
                 const color = 0x00ff00;
-                
+
                 particleSystem.emitTrailSparks(position, velocity, color, 0.1);
-                
+
                 const activeParticles = particleSystem.particlePool.getActiveParticles();
                 const particle = activeParticles[0];
                 // Particle velocity should have backward bias (negative x component)
@@ -450,9 +470,9 @@ describe('ParticleSystem', () => {
         describe('createExplosion', () => {
             it('should create explosion particles', () => {
                 const position = { x: 0, y: 0, z: 0 };
-                
+
                 particleSystem.createExplosion(position, 1.0);
-                
+
                 expect(particleSystem.getActiveParticleCount()).toBeGreaterThan(0);
                 const activeParticles = particleSystem.particlePool.getActiveParticles();
                 const particle = activeParticles[0];
@@ -466,12 +486,12 @@ describe('ParticleSystem', () => {
             it('should scale particle count with intensity', () => {
                 particleSystem.createExplosion({ x: 0, y: 0, z: 0 }, 0.5);
                 const halfIntensityCount = particleSystem.getActiveParticleCount();
-                
+
                 particleSystem.reset();
-                
+
                 particleSystem.createExplosion({ x: 0, y: 0, z: 0 }, 1.0);
                 const fullIntensityCount = particleSystem.getActiveParticleCount();
-                
+
                 expect(fullIntensityCount).toBeGreaterThan(halfIntensityCount);
             });
         });
@@ -479,9 +499,9 @@ describe('ParticleSystem', () => {
         describe('createCollectionEffect', () => {
             it('should create collection particles with correct color', () => {
                 const position = { x: 0, y: 0, z: 0 };
-                
+
                 particleSystem.createCollectionEffect(position, 'SPEED_BOOST');
-                
+
                 expect(particleSystem.getActiveParticleCount()).toBeGreaterThan(0);
                 const activeParticles = particleSystem.particlePool.getActiveParticles();
                 const particle = activeParticles[0];
@@ -495,13 +515,13 @@ describe('ParticleSystem', () => {
                 particleSystem.createCollectionEffect({ x: 0, y: 0, z: 0 }, 'SPEED_BOOST');
                 const activeParticles1 = particleSystem.particlePool.getActiveParticles();
                 const speedBoostColor = { ...activeParticles1[0].color };
-                
+
                 particleSystem.reset();
-                
+
                 particleSystem.createCollectionEffect({ x: 0, y: 0, z: 0 }, 'SHIELD');
                 const activeParticles2 = particleSystem.particlePool.getActiveParticles();
                 const shieldColor = { ...activeParticles2[0].color };
-                
+
                 // Colors should be different (though we can't easily test exact hex values in this mock)
                 expect(speedBoostColor).not.toEqual(shieldColor);
             });
@@ -512,7 +532,7 @@ describe('ParticleSystem', () => {
         it('should accept valid quality levels', () => {
             particleSystem.setQualityLevel('high');
             expect(particleSystem.getSettings().quality).toBe('high');
-            
+
             particleSystem.setQualityLevel('low');
             expect(particleSystem.getSettings().quality).toBe('low');
         });
@@ -529,16 +549,16 @@ describe('ParticleSystem', () => {
             // Create some active particles
             particleSystem.acquireParticle();
             particleSystem.acquireParticle();
-            
+
             particleSystem.reset();
-            
+
             expect(particleSystem.getActiveParticleCount()).toBe(0);
         });
 
         it('should enable and disable system', () => {
             particleSystem.setEnabled(false);
             expect(particleSystem.getSettings().enabled).toBe(false);
-            
+
             particleSystem.setEnabled(true);
             expect(particleSystem.getSettings().enabled).toBe(true);
         });
@@ -546,7 +566,7 @@ describe('ParticleSystem', () => {
         it('should enable and disable specific effects', () => {
             particleSystem.setEffectEnabled('explosions', false);
             expect(particleSystem.getSettings().effects.explosions).toBe(false);
-            
+
             particleSystem.setEffectEnabled('explosions', true);
             expect(particleSystem.getSettings().effects.explosions).toBe(true);
         });
@@ -555,17 +575,17 @@ describe('ParticleSystem', () => {
     describe('performance monitoring', () => {
         it('should track active particle count', () => {
             expect(particleSystem.getActiveParticleCount()).toBe(0);
-            
+
             particleSystem.acquireParticle();
             expect(particleSystem.getActiveParticleCount()).toBe(1);
-            
+
             particleSystem.acquireParticle();
             expect(particleSystem.getActiveParticleCount()).toBe(2);
         });
 
         it('should provide performance metrics', () => {
             const metrics = particleSystem.getPerformanceMetrics();
-            
+
             expect(metrics).toHaveProperty('currentFPS');
             expect(metrics).toHaveProperty('averageFPS');
             expect(metrics).toHaveProperty('performanceWarnings');
@@ -573,7 +593,7 @@ describe('ParticleSystem', () => {
 
         it('should provide performance status', () => {
             const status = particleSystem.getPerformanceStatus();
-            
+
             expect(status).toHaveProperty('currentFPS');
             expect(status).toHaveProperty('averageFPS');
             expect(status).toHaveProperty('degradationLevel');
@@ -582,7 +602,7 @@ describe('ParticleSystem', () => {
             expect(status).toHaveProperty('activeParticles');
             expect(status).toHaveProperty('maxParticles');
             expect(status).toHaveProperty('effectsEnabled');
-            
+
             expect(status.degradationLevel).toBe(0);
             expect(status.adaptiveQualityEnabled).toBe(true);
             expect(status.currentQuality).toBe('medium');
@@ -590,19 +610,19 @@ describe('ParticleSystem', () => {
 
         it('should enable and disable adaptive quality', () => {
             expect(particleSystem.adaptiveQualityEnabled).toBe(true);
-            
+
             particleSystem.setAdaptiveQuality(false);
             expect(particleSystem.adaptiveQualityEnabled).toBe(false);
-            
+
             particleSystem.setAdaptiveQuality(true);
             expect(particleSystem.adaptiveQualityEnabled).toBe(true);
         });
 
         it('should apply performance degradation', () => {
             const originalMaxParticles = particleSystem.settings.maxParticles;
-            
+
             particleSystem.applyPerformanceDegradation();
-            
+
             expect(particleSystem.degradationLevel).toBe(1);
             expect(particleSystem.settings.maxParticles).toBeLessThan(originalMaxParticles);
         });
@@ -610,11 +630,11 @@ describe('ParticleSystem', () => {
         it('should restore settings after performance recovery', () => {
             const originalMaxParticles = particleSystem.settings.maxParticles;
             const originalQuality = particleSystem.settings.quality;
-            
+
             // Apply degradation
             particleSystem.applyPerformanceDegradation();
             expect(particleSystem.degradationLevel).toBe(1);
-            
+
             // Attempt recovery
             particleSystem.attemptPerformanceRecovery();
             expect(particleSystem.degradationLevel).toBe(0);
@@ -626,7 +646,7 @@ describe('ParticleSystem', () => {
             // Apply degradation twice
             particleSystem.applyPerformanceDegradation();
             particleSystem.applyPerformanceDegradation();
-            
+
             expect(particleSystem.degradationLevel).toBe(2);
             expect(particleSystem.settings.effects.trailSparks).toBe(false);
             expect(particleSystem.settings.quality).toBe('low');
@@ -634,14 +654,16 @@ describe('ParticleSystem', () => {
 
         it('should reduce explosion particles at degradation level 3', () => {
             const originalExplosionParticles = particleSystem.qualityConfigs.low.explosionParticles;
-            
+
             // Apply degradation three times
             particleSystem.applyPerformanceDegradation();
             particleSystem.applyPerformanceDegradation();
             particleSystem.applyPerformanceDegradation();
-            
+
             expect(particleSystem.degradationLevel).toBe(3);
-            expect(particleSystem.qualityConfigs.low.explosionParticles).toBeLessThan(originalExplosionParticles);
+            expect(particleSystem.qualityConfigs.low.explosionParticles).toBeLessThan(
+                originalExplosionParticles
+            );
         });
 
         it('should not exceed maximum degradation level', () => {
@@ -649,7 +671,7 @@ describe('ParticleSystem', () => {
             for (let i = 0; i < 10; i++) {
                 particleSystem.applyPerformanceDegradation();
             }
-            
+
             expect(particleSystem.degradationLevel).toBe(3);
         });
 
@@ -657,12 +679,12 @@ describe('ParticleSystem', () => {
             // Apply some degradation
             particleSystem.applyPerformanceDegradation();
             particleSystem.applyPerformanceDegradation();
-            
+
             expect(particleSystem.degradationLevel).toBe(2);
-            
+
             // Reset system
             particleSystem.reset();
-            
+
             expect(particleSystem.degradationLevel).toBe(0);
             expect(particleSystem.settings.effects.trailSparks).toBe(true);
         });
@@ -671,9 +693,9 @@ describe('ParticleSystem', () => {
     describe('disposal', () => {
         it('should clean up resources', () => {
             const originalParticlePoints = particleSystem.particlePoints;
-            
+
             particleSystem.dispose();
-            
+
             expect(mockScene.remove).toHaveBeenCalledWith(originalParticlePoints);
             expect(particleSystem.particlePoints).toBeNull();
             expect(particleSystem.particleGeometry).toBeNull();

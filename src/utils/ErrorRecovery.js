@@ -2,9 +2,12 @@
  * ErrorRecovery - Error recovery mechanisms for game initialization and runtime
  * Provides retry logic, fallback modes, and graceful degradation
  */
+const { Logger } = require('./Logger');
+
 class ErrorRecovery {
     constructor(errorHandler) {
         this.errorHandler = errorHandler;
+        this.logger = Logger.create('ErrorRecovery');
         this.recoveryStrategies = new Map();
         this.failedComponents = new Set();
         this.fallbackMode = false;
@@ -26,7 +29,7 @@ class ErrorRecovery {
             fallback: strategy.fallback || null,
             critical: strategy.critical !== false,
             maxRetries: strategy.maxRetries || 3,
-            retryCount: 0
+            retryCount: 0,
         });
     }
 
@@ -37,25 +40,25 @@ class ErrorRecovery {
      */
     async initializeWithRecovery(componentName) {
         const strategy = this.recoveryStrategies.get(componentName);
-        
+
         if (!strategy) {
             throw new Error(`No recovery strategy registered for ${componentName}`);
         }
 
         try {
             const component = await strategy.initialize();
-            
+
             // Reset retry count on success
             strategy.retryCount = 0;
             this.failedComponents.delete(componentName);
-            
+
             return component;
         } catch (error) {
-            console.error(`Failed to initialize ${componentName}:`, error);
-            
+            this.logger.error(`Failed to initialize ${componentName}:`, error);
+
             // Track failed component
             this.failedComponents.add(componentName);
-            
+
             // Attempt recovery
             return await this.attemptRecovery(componentName, error, strategy);
         }
@@ -89,31 +92,27 @@ class ErrorRecovery {
 
         // Max retries reached - try fallback
         if (strategy.fallback) {
-            console.warn(`Using fallback for ${componentName}`);
-            
+            this.logger.warn(`Using fallback for ${componentName}`);
+
             try {
                 const fallbackComponent = await strategy.fallback();
                 this.fallbackMode = true;
-                
+
                 this.errorHandler.showWarning(
                     `${componentName} is running in simplified mode due to initialization errors.`,
                     { duration: 8000 }
                 );
-                
+
                 return fallbackComponent;
             } catch (fallbackError) {
-                console.error(`Fallback failed for ${componentName}:`, fallbackError);
+                this.logger.error(`Fallback failed for ${componentName}:`, fallbackError);
             }
         }
 
         // No fallback or fallback failed
         if (strategy.critical) {
             // Critical component - show critical error
-            this.errorHandler.handleInitializationError(
-                error,
-                null,
-                componentName
-            );
+            this.errorHandler.handleInitializationError(error, null, componentName);
             throw error;
         } else {
             // Non-critical component - disable feature
@@ -129,29 +128,28 @@ class ErrorRecovery {
      */
     async retryInitialization(componentName) {
         const strategy = this.recoveryStrategies.get(componentName);
-        
+
         if (!strategy) {
             throw new Error(`No recovery strategy registered for ${componentName}`);
         }
 
         try {
             const component = await strategy.initialize();
-            
+
             // Reset retry count on success
             strategy.retryCount = 0;
             this.failedComponents.delete(componentName);
-            
+
             // Reset error handler retries
             this.errorHandler.resetRetries(componentName);
-            
-            this.errorHandler.showInfo(
-                `${componentName} initialized successfully.`,
-                { duration: 3000 }
-            );
-            
+
+            this.errorHandler.showInfo(`${componentName} initialized successfully.`, {
+                duration: 3000,
+            });
+
             return component;
         } catch (error) {
-            console.error(`Retry failed for ${componentName}:`, error);
+            this.logger.error(`Retry failed for ${componentName}:`, error);
             return await this.attemptRecovery(componentName, error, strategy);
         }
     }
@@ -162,13 +160,13 @@ class ErrorRecovery {
      */
     disableFeature(featureName) {
         this.disabledFeatures.add(featureName);
-        
+
         this.errorHandler.showWarning(
             `${featureName} has been disabled due to errors. The game will continue without this feature.`,
             { duration: 8000 }
         );
-        
-        console.warn(`Feature disabled: ${featureName}`);
+
+        this.logger.warn(`Feature disabled: ${featureName}`);
     }
 
     /**
@@ -186,7 +184,7 @@ class ErrorRecovery {
      */
     enableFeature(featureName) {
         this.disabledFeatures.delete(featureName);
-        console.log(`Feature enabled: ${featureName}`);
+        this.logger.info(`Feature enabled: ${featureName}`);
     }
 
     /**
@@ -219,7 +217,7 @@ class ErrorRecovery {
      * @returns {Promise<void>}
      */
     delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
     /**
@@ -229,27 +227,23 @@ class ErrorRecovery {
      * @returns {boolean} True if fallback successful
      */
     handleRenderingError(error, simplifiedRenderer) {
-        console.error('Rendering error:', error);
-        
+        this.logger.error('Rendering error:', error);
+
         if (simplifiedRenderer) {
             try {
                 simplifiedRenderer();
                 this.fallbackMode = true;
-                
-                this.errorHandler.handleRenderingError(
-                    error,
-                    () => {
-                        simplifiedRenderer();
-                        this.errorHandler.showInfo(
-                            'Switched to simplified graphics mode.',
-                            { duration: 3000 }
-                        );
-                    }
-                );
-                
+
+                this.errorHandler.handleRenderingError(error, () => {
+                    simplifiedRenderer();
+                    this.errorHandler.showInfo('Switched to simplified graphics mode.', {
+                        duration: 3000,
+                    });
+                });
+
                 return true;
             } catch (fallbackError) {
-                console.error('Simplified renderer also failed:', fallbackError);
+                this.logger.error('Simplified renderer also failed:', fallbackError);
                 this.errorHandler.showError(
                     'Unable to initialize graphics. Please reload the page.',
                     { type: 'critical', duration: 0 }
@@ -257,7 +251,7 @@ class ErrorRecovery {
                 return false;
             }
         }
-        
+
         this.errorHandler.handleRenderingError(error, null);
         return false;
     }
@@ -269,24 +263,20 @@ class ErrorRecovery {
      * @param {Function} disableCallback - Function to disable the feature
      */
     handleFeatureRuntimeError(featureName, error, disableCallback) {
-        console.error(`Runtime error in ${featureName}:`, error);
-        
+        this.logger.error(`Runtime error in ${featureName}:`, error);
+
         // Check if feature is already disabled
         if (this.isFeatureDisabled(featureName)) {
             return;
         }
 
         // Show error with option to disable
-        this.errorHandler.handleFeatureError(
-            featureName,
-            error,
-            () => {
-                if (disableCallback) {
-                    disableCallback();
-                }
-                this.disableFeature(featureName);
+        this.errorHandler.handleFeatureError(featureName, error, () => {
+            if (disableCallback) {
+                disableCallback();
             }
-        );
+            this.disableFeature(featureName);
+        });
     }
 
     /**
@@ -309,14 +299,17 @@ class ErrorRecovery {
             try {
                 return fn(...args);
             } catch (error) {
-                console.error(`Error in ${featureName}:`, error);
-                
+                this.logger.error(`Error in ${featureName}:`, error);
+
                 // Use fallback if available
                 if (fallback) {
                     try {
                         return fallback(...args);
                     } catch (fallbackError) {
-                        console.error(`Fallback also failed for ${featureName}:`, fallbackError);
+                        this.logger.error(
+                            `Fallback also failed for ${featureName}:`,
+                            fallbackError
+                        );
                     }
                 }
 
@@ -347,7 +340,7 @@ class ErrorRecovery {
                 }
 
                 updateFn(...args);
-                
+
                 // Reset error count on successful update
                 if (errorCount > 0) {
                     errorCount = 0;
@@ -356,23 +349,21 @@ class ErrorRecovery {
             } catch (error) {
                 const now = Date.now();
                 errorTimestamps.push(now);
-                
+
                 // Remove old timestamps outside the error window
                 errorTimestamps = errorTimestamps.filter(
-                    timestamp => now - timestamp < errorWindow
+                    (timestamp) => now - timestamp < errorWindow
                 );
-                
+
                 errorCount = errorTimestamps.length;
 
-                console.error(`Error in ${componentName} update:`, error);
+                this.logger.error(`Error in ${componentName} update:`, error);
 
                 // Disable feature if too many errors
                 if (errorCount >= maxErrors) {
-                    this.handleFeatureRuntimeError(
-                        componentName,
-                        new Error(`Too many errors (${errorCount} in ${errorWindow}ms)`),
-                        () => this.disableFeature(componentName)
-                    );
+                    const error = new Error(`Too many errors (${errorCount} in ${errorWindow}ms)`);
+                    this.logger.error(`Disabling ${componentName} due to excessive errors:`, error);
+                    this.disableFeature(componentName);
                 }
             }
         };
@@ -385,9 +376,9 @@ class ErrorRecovery {
         this.failedComponents.clear();
         this.disabledFeatures.clear();
         this.fallbackMode = false;
-        
+
         // Reset retry counts
-        this.recoveryStrategies.forEach(strategy => {
+        this.recoveryStrategies.forEach((strategy) => {
             strategy.retryCount = 0;
         });
     }
@@ -401,7 +392,7 @@ class ErrorRecovery {
             fallbackMode: this.fallbackMode,
             failedComponents: this.getFailedComponents(),
             disabledFeatures: this.getDisabledFeatures(),
-            registeredStrategies: Array.from(this.recoveryStrategies.keys())
+            registeredStrategies: Array.from(this.recoveryStrategies.keys()),
         };
     }
 }

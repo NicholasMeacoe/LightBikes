@@ -1,10 +1,10 @@
 /**
  * MotionBlurController - Manages motion blur effects for LightBikes
- * 
+ *
  * This class implements motion blur through Three.js post-processing with performance optimization.
  * It integrates with the existing post-processing pipeline and provides speed-based blur intensity
  * calculation for dynamic visual effects during high-speed gameplay.
- * 
+ *
  * Key Features:
  * - Three.js EffectComposer integration with MotionBlurPass
  * - Speed-based blur intensity calculation
@@ -12,76 +12,79 @@
  * - Automatic performance scaling based on frame rate
  * - WebGL capability detection and fallback handling
  * - Integration with existing renderer pipeline
- * 
+ *
  * Quality Levels:
  * - High: Full resolution, maximum samples, best quality
  * - Medium: 75% resolution, reduced samples, balanced performance
  * - Low: 50% resolution, minimal samples, performance focused
- * 
+ *
  * Usage Example:
  * ```javascript
  * const motionBlur = new MotionBlurController(renderer);
- * 
+ *
  * // Initialize the controller
  * if (motionBlur.initialize()) {
  *     // Update blur based on speed
  *     motionBlur.updateBlurIntensity(2.5);
- *     
+ *
  *     // Render with motion blur
  *     motionBlur.render(scene, camera);
  * }
  * ```
- * 
+ *
  * @class MotionBlurController
  * @author LightBikes Development Team
  * @version 1.0.0
  * @since 2024
  */
+const { createLogger } = require('../utils/Logger.js');
+const logger = createLogger('MotionBlurController');
+
 class MotionBlurController {
     constructor(renderer) {
         this.renderer = renderer;
-        
+
         // Post-processing components
         this.composer = null;
         this.renderPass = null;
         this.motionBlurPass = null;
-        
+
         // State tracking
         this.initialized = false;
         this.enabled = true;
         this.currentQuality = 'medium';
-        
+
         // Motion blur configuration
         this.blurConfig = {
-            intensity: 0.0,        // Current blur intensity (0-1)
-            maxIntensity: 0.8,     // Maximum blur intensity
-            speedThreshold: 1.5,   // Speed threshold for blur activation
-            samples: 32,           // Number of blur samples
-            velocityFactor: 0.5    // Velocity to blur intensity factor
+            intensity: 0.0, // Current blur intensity (0-1)
+            maxIntensity: 0.8, // Maximum blur intensity
+            speedThreshold: 1.5, // Speed threshold for blur activation
+            samples: 32, // Number of blur samples
+            velocityFactor: 0.5, // Velocity to blur intensity factor
         };
-        
+
         // Quality settings for performance scaling
         this.qualitySettings = {
-            high: { 
-                resolution: 1.0, 
-                samples: 32, 
+            high: {
+                resolution: 1.0,
+                samples: 32,
                 velocityFactor: 0.5,
-                maxIntensity: 0.8
+                maxIntensity: 0.8,
             },
-            medium: { 
-                resolution: 0.75, 
-                samples: 16, 
+            medium: {
+                resolution: 0.75,
+                samples: 16,
                 velocityFactor: 0.4,
-                maxIntensity: 0.6
+                maxIntensity: 0.6,
             },
-            low: { 
-                resolution: 0.5, 
-                samples: 8, 
+            low: {
+                resolution: 0.5,
+                samples: 8,
                 velocityFactor: 0.3,
-                maxIntensity: 0.4
-            }
+                maxIntensity: 0.4,
+            },
         };
-        
+
         // Performance monitoring
         this.performanceMetrics = {
             lastFrameTime: 0,
@@ -91,9 +94,9 @@ class MotionBlurController {
             performanceHistory: [],
             maxHistoryLength: 120, // 2 seconds at 60fps
             lastQualityAdjustment: 0,
-            qualityAdjustmentCooldown: 2000 // 2 seconds between adjustments
+            qualityAdjustmentCooldown: 2000, // 2 seconds between adjustments
         };
-        
+
         // WebGL capability detection
         this.capabilities = {
             webglSupported: true,
@@ -103,12 +106,12 @@ class MotionBlurController {
             maxRenderBufferSize: 0,
             floatTextureSupport: false,
             depthTextureSupport: false,
-            devicePixelRatio: window.devicePixelRatio || 1
+            devicePixelRatio: window.devicePixelRatio || 1,
         };
-        
+
         // Speed tracking integration
         this.speedTracker = null; // Will be set by SpeedTracker
-        
+
         // Fallback state
         this.fallbackMode = false;
     }
@@ -116,12 +119,12 @@ class MotionBlurController {
     /**
      * Initialize the motion blur controller
      * Sets up Three.js EffectComposer and MotionBlurPass
-     * @param {CameraEffectsErrorHandler} errorHandler - Error handler for reporting issues
+     * @param {any} errorHandler - Error handler for reporting issues
      * @returns {boolean} Success status
      */
     initialize(errorHandler = null) {
         this.errorHandler = errorHandler;
-        
+
         try {
             // Detect WebGL capabilities
             if (!this.detectWebGLCapabilities()) {
@@ -129,7 +132,7 @@ class MotionBlurController {
                 if (this.errorHandler) {
                     this.errorHandler.handleWebGLError(error, 'WebGL capability detection failed');
                 }
-                console.warn('MotionBlurController: WebGL capabilities insufficient, using fallback');
+                logger.warn('WebGL capabilities insufficient, using fallback');
                 this.fallbackMode = true;
                 return true; // Still return true for graceful degradation
             }
@@ -138,9 +141,12 @@ class MotionBlurController {
             if (!this.checkPostProcessingSupport()) {
                 const error = new Error('Post-processing classes not available');
                 if (this.errorHandler) {
-                    this.errorHandler.handlePostProcessingError(error, 'Post-processing support check failed');
+                    this.errorHandler.handlePostProcessingError(
+                        error,
+                        'Post-processing support check failed'
+                    );
                 }
-                console.warn('MotionBlurController: Post-processing not supported, using fallback');
+                logger.warn('Post-processing not supported, using fallback');
                 this.fallbackMode = true;
                 return true;
             }
@@ -163,7 +169,7 @@ class MotionBlurController {
                 if (this.errorHandler) {
                     this.errorHandler.handlePostProcessingError(error, 'Motion blur pass creation');
                 }
-                console.warn('MotionBlurController: Motion blur pass creation failed, using fallback');
+                logger.warn('Motion blur pass creation failed, using fallback');
                 this.fallbackMode = true;
                 return true;
             }
@@ -172,16 +178,18 @@ class MotionBlurController {
             this.setQuality(this.currentQuality);
 
             this.initialized = true;
-            console.log('MotionBlurController: Successfully initialized with motion blur effects');
+            logger.info('Successfully initialized with motion blur effects');
             return true;
-
         } catch (error) {
-            console.error('MotionBlurController: Failed to initialize:', error);
-            
+            logger.error('Failed to initialize', error);
+
             if (this.errorHandler) {
-                this.errorHandler.handlePostProcessingError(error, 'MotionBlurController initialization');
+                this.errorHandler.handlePostProcessingError(
+                    error,
+                    'MotionBlurController initialization'
+                );
             }
-            
+
             this.fallbackMode = true;
             this.initialized = false;
             return false;
@@ -196,57 +204,70 @@ class MotionBlurController {
         try {
             const canvas = document.createElement('canvas');
             const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            
+
             if (!gl) {
                 this.capabilities.webglSupported = false;
-                console.warn('MotionBlurController: WebGL not supported');
+                logger.warn('WebGL not supported');
                 return false;
             }
 
             // Get basic capabilities
-            this.capabilities.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-            this.capabilities.maxRenderBufferSize = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
+            /** @type {any} */
+            const glAny = gl;
+            this.capabilities.maxTextureSize = glAny.getParameter(glAny.MAX_TEXTURE_SIZE);
+            this.capabilities.maxRenderBufferSize = glAny.getParameter(glAny.MAX_RENDERBUFFER_SIZE);
 
             // Check for required extensions
-            const floatTextureExt = gl.getExtension('OES_texture_float') || gl.getExtension('OES_texture_half_float');
-            const depthTextureExt = gl.getExtension('WEBGL_depth_texture');
-            
+            const floatTextureExt =
+                glAny.getExtension('OES_texture_float') ||
+                glAny.getExtension('OES_texture_half_float');
+            const depthTextureExt = glAny.getExtension('WEBGL_depth_texture');
+
             this.capabilities.floatTextureSupport = !!floatTextureExt;
             this.capabilities.depthTextureSupport = !!depthTextureExt;
 
             // Log extension availability
             if (!floatTextureExt) {
-                console.warn('MotionBlurController: Float texture extension not available, using fallback');
+                logger.warn('Float texture extension not available, using fallback');
+                this.capabilities.floatTextureSupport = false;
             }
             if (!depthTextureExt) {
-                console.warn('MotionBlurController: Depth texture extension not available');
+                logger.warn('Depth texture extension not available');
+                this.capabilities.depthTextureSupport = false;
             }
 
             // Check minimum requirements
-            if (this.capabilities.maxTextureSize < 1024) {
-                console.warn('MotionBlurController: Insufficient texture size support');
+            if (this.capabilities.maxTextureSize < 2048) {
+                logger.warn('Insufficient texture size support');
+                this.capabilities.webglSupported = false;
                 return false;
             }
 
             // Detect mobile devices for performance adjustments
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                navigator.userAgent
+            );
             if (isMobile) {
-                console.log('MotionBlurController: Mobile device detected, adjusting performance settings');
-                // Automatically set lower quality on mobile
-                this.currentQuality = 'low';
+                logger.info('Mobile device detected, adjusting performance settings');
+                this.capabilities.isMobile = true;
+                this.setQuality('low');
                 this.performanceMetrics.autoScalingEnabled = true;
             }
 
             // Check for high DPI displays
-            if (this.capabilities.devicePixelRatio > 1.5) {
-                console.log(`MotionBlurController: High DPI display detected (${this.capabilities.devicePixelRatio}x)`);
+            if (this.capabilities.devicePixelRatio > 2) {
+                logger.info(`High DPI display detected (${this.capabilities.devicePixelRatio}x)`);
+                // Cap pixel ratio for performance
+                this.capabilities.devicePixelRatio = Math.min(
+                    this.capabilities.devicePixelRatio,
+                    2
+                );
             }
 
             this.capabilities.webglSupported = true;
             return true;
-
         } catch (error) {
-            console.error('MotionBlurController: WebGL capability detection failed:', error);
+            logger.error('WebGL capability detection failed', error);
             this.capabilities.webglSupported = false;
             return false;
         }
@@ -266,7 +287,7 @@ class MotionBlurController {
 
             // Check for shader pass (needed for custom motion blur)
             if (!THREE.ShaderPass) {
-                console.warn('MotionBlurController: ShaderPass not available');
+                logger.warn('ShaderPass not available');
                 this.capabilities.motionBlurSupported = false;
                 return false;
             }
@@ -274,9 +295,8 @@ class MotionBlurController {
             this.capabilities.postProcessingSupported = true;
             this.capabilities.motionBlurSupported = true;
             return true;
-
         } catch (error) {
-            console.error('MotionBlurController: Post-processing support check failed:', error);
+            logger.error('Post-processing support check failed', error);
             this.capabilities.postProcessingSupported = false;
             return false;
         }
@@ -292,12 +312,12 @@ class MotionBlurController {
             // Custom motion blur shader
             const motionBlurShader = {
                 uniforms: {
-                    'tDiffuse': { value: null },
-                    'velocityFactor': { value: this.blurConfig.velocityFactor },
-                    'intensity': { value: this.blurConfig.intensity },
-                    'samples': { value: this.blurConfig.samples }
+                    tDiffuse: { value: null },
+                    velocityFactor: { value: this.blurConfig.velocityFactor },
+                    intensity: { value: this.blurConfig.intensity },
+                    samples: { value: this.blurConfig.samples },
                 },
-                
+
                 vertexShader: `
                     varying vec2 vUv;
                     void main() {
@@ -305,7 +325,7 @@ class MotionBlurController {
                         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                     }
                 `,
-                
+
                 fragmentShader: `
                     uniform sampler2D tDiffuse;
                     uniform float velocityFactor;
@@ -339,15 +359,14 @@ class MotionBlurController {
                         
                         gl_FragColor = color;
                     }
-                `
+                `,
             };
 
             // Create shader pass with custom motion blur shader
             const motionBlurPass = new THREE.ShaderPass(motionBlurShader);
             return motionBlurPass;
-
         } catch (error) {
-            console.error('MotionBlurController: Failed to create motion blur pass:', error);
+            logger.error('Failed to create motion blur pass', error);
             return null;
         }
     }
@@ -371,7 +390,8 @@ class MotionBlurController {
 
             // Smooth intensity transitions
             const smoothingFactor = 0.1;
-            this.blurConfig.intensity = this.blurConfig.intensity + 
+            this.blurConfig.intensity =
+                this.blurConfig.intensity +
                 (targetIntensity - this.blurConfig.intensity) * smoothingFactor;
 
             // Update shader uniforms if available
@@ -382,11 +402,12 @@ class MotionBlurController {
 
             // Debug logging (will be removed in production)
             if (this.blurConfig.intensity > 0.01) {
-                console.debug(`MotionBlurController: Speed: ${speed.toFixed(2)}, Intensity: ${this.blurConfig.intensity.toFixed(3)}`);
+                logger.debug(
+                    `Speed: ${speed.toFixed(2)}, Intensity: ${this.blurConfig.intensity.toFixed(3)}`
+                );
             }
-
         } catch (error) {
-            console.error('MotionBlurController: Error updating blur intensity:', error);
+            logger.error('Error updating blur intensity', error);
         }
     }
 
@@ -396,7 +417,7 @@ class MotionBlurController {
      */
     setQuality(quality) {
         if (!this.qualitySettings[quality]) {
-            console.warn(`MotionBlurController: Invalid quality level: ${quality}`);
+            logger.warn(`Invalid quality level: ${quality}`);
             return;
         }
 
@@ -413,17 +434,39 @@ class MotionBlurController {
             const size = this.renderer.getSize(new THREE.Vector2());
             const newWidth = Math.floor(size.x * settings.resolution);
             const newHeight = Math.floor(size.y * settings.resolution);
-            
-            this.composer.setSize(newWidth, newHeight);
+
+            this.resizeComposer(newWidth, newHeight);
 
             // Update shader uniforms
             if (this.motionBlurPass.uniforms) {
                 this.motionBlurPass.uniforms.samples.value = settings.samples;
                 this.motionBlurPass.uniforms.velocityFactor.value = settings.velocityFactor;
             }
-            
-            console.log(`MotionBlurController: Quality set to ${quality} (${newWidth}x${newHeight})`);
+
+            logger.info(`Quality set to ${quality} (${newWidth}x${newHeight})`);
         }
+    }
+
+    /**
+     * Helper to resize the composer and renderer
+     * @param {number} width - New width
+     * @param {number} height - New height
+     */
+    resizeComposer(width, height) {
+        if (this.composer) {
+            this.composer.setSize(width, height);
+            // If the renderer's size is also managed by the composer, it might not need explicit resizing here.
+            // However, if the renderer is used for other things, it might need to be resized separately.
+            // For now, assume composer handles the render target size.
+        }
+    }
+
+    /**
+     * Get the current quality level
+     * @returns {string} Quality level ('low', 'medium', 'high', 'minimal')
+     */
+    getCurrentQuality() {
+        return this.currentQuality;
     }
 
     /**
@@ -432,7 +475,7 @@ class MotionBlurController {
      */
     setEnabled(enabled) {
         this.enabled = Boolean(enabled);
-        
+
         if (!this.enabled) {
             // Reset blur intensity when disabled
             this.blurConfig.intensity = 0.0;
@@ -440,8 +483,8 @@ class MotionBlurController {
                 this.motionBlurPass.uniforms.intensity.value = 0.0;
             }
         }
-        
-        console.log(`MotionBlurController: ${this.enabled ? 'Enabled' : 'Disabled'}`);
+
+        logger.info(`${this.enabled ? 'Enabled' : 'Disabled'}`);
     }
 
     /**
@@ -473,18 +516,17 @@ class MotionBlurController {
             if (this.performanceMetrics.autoScalingEnabled) {
                 this.autoScaleQuality();
             }
-
         } catch (error) {
-            console.error('MotionBlurController: Error during render:', error);
-            
+            logger.error('Error during render', error);
+
             // Report error to error handler
             if (this.errorHandler) {
                 this.errorHandler.handlePostProcessingError(error, 'Motion blur render');
             }
-            
+
             // Fallback to standard rendering on error
             this.renderer.render(scene, camera);
-            
+
             // Enter fallback mode after render errors
             this.fallbackMode = true;
         }
@@ -494,28 +536,32 @@ class MotionBlurController {
      * Update performance metrics for automatic quality scaling
      */
     updatePerformanceMetrics() {
-        const currentTime = Date.now();
-        
+        const currentTime = performance.now();
+        // logger.debug('updatePerformanceMetrics: currentTime =', currentTime, 'lastFrameTime =', this.performanceMetrics.lastFrameTime);
+
         if (this.performanceMetrics.lastFrameTime > 0) {
             const frameTime = currentTime - this.performanceMetrics.lastFrameTime;
-            
+
             // Update running average (exponential moving average)
-            this.performanceMetrics.averageFrameTime = 
-                (this.performanceMetrics.averageFrameTime * 0.9) + (frameTime * 0.1);
-            
+            this.performanceMetrics.averageFrameTime =
+                this.performanceMetrics.averageFrameTime * 0.9 + frameTime * 0.1;
+
             // Add to performance history for trend analysis
             this.performanceMetrics.performanceHistory.push({
                 frameTime: frameTime,
                 timestamp: currentTime,
-                fps: 1000 / frameTime
+                fps: 1000 / frameTime,
             });
-            
+
             // Limit history size
-            if (this.performanceMetrics.performanceHistory.length > this.performanceMetrics.maxHistoryLength) {
+            if (
+                this.performanceMetrics.performanceHistory.length >
+                this.performanceMetrics.maxHistoryLength
+            ) {
                 this.performanceMetrics.performanceHistory.shift();
             }
         }
-        
+
         this.performanceMetrics.lastFrameTime = currentTime;
         this.performanceMetrics.frameCount++;
     }
@@ -524,12 +570,20 @@ class MotionBlurController {
      * Automatically scale quality based on performance
      */
     autoScaleQuality() {
-        const currentTime = Date.now();
+        // Don't auto-scale if disabled
+        if (!this.performanceMetrics.autoScalingEnabled) {
+            return;
+        }
+
+        const currentTime = performance.now();
         const currentFPS = 1000 / this.performanceMetrics.averageFrameTime;
-        
+
         // Only adjust quality after sufficient samples and cooldown period
-        if (this.performanceMetrics.frameCount < 60 || 
-            currentTime - this.performanceMetrics.lastQualityAdjustment < this.performanceMetrics.qualityAdjustmentCooldown) {
+        if (
+            this.performanceMetrics.frameCount < 60 ||
+            currentTime - this.performanceMetrics.lastQualityAdjustment <
+                this.performanceMetrics.qualityAdjustmentCooldown
+        ) {
             return;
         }
 
@@ -539,9 +593,10 @@ class MotionBlurController {
             return;
         }
 
-        const averageRecentFPS = recentHistory.reduce((sum, entry) => sum + entry.fps, 0) / recentHistory.length;
-        const minRecentFPS = Math.min(...recentHistory.map(entry => entry.fps));
-        const maxRecentFPS = Math.max(...recentHistory.map(entry => entry.fps));
+        const averageRecentFPS =
+            recentHistory.reduce((sum, entry) => sum + entry.fps, 0) / recentHistory.length;
+        const minRecentFPS = Math.min(...recentHistory.map((entry) => entry.fps));
+        const maxRecentFPS = Math.max(...recentHistory.map((entry) => entry.fps));
         const fpsVariability = maxRecentFPS - minRecentFPS;
 
         // Performance thresholds with hysteresis to prevent oscillation
@@ -553,9 +608,13 @@ class MotionBlurController {
 
         // Determine appropriate quality level based on performance and stability
         let targetQuality = this.currentQuality;
-        
+
         // Aggressive downscaling for critical performance
-        if (minRecentFPS < criticalFPSThreshold) {
+        if (averageRecentFPS < 20) {
+            logger.warn('Performance critically low, disabling motion blur');
+            this.setEnabled(false);
+            return;
+        } else if (minRecentFPS < criticalFPSThreshold) {
             targetQuality = 'low';
         }
         // Downscale if average FPS is low or highly variable
@@ -570,16 +629,21 @@ class MotionBlurController {
         else if (minRecentFPS > highFPSThreshold && fpsVariability < 10) {
             if (this.currentQuality === 'low' && averageRecentFPS > mediumFPSThreshold) {
                 targetQuality = 'medium';
-            } else if (this.currentQuality === 'medium' && averageRecentFPS > excellentFPSThreshold) {
+            } else if (
+                this.currentQuality === 'medium' &&
+                averageRecentFPS > excellentFPSThreshold
+            ) {
                 targetQuality = 'high';
             }
         }
 
         // Apply quality change if needed
         if (targetQuality !== this.currentQuality) {
-            console.log(`MotionBlurController: Auto-scaling quality from ${this.currentQuality} to ${targetQuality}`);
-            console.log(`  Performance: Avg FPS: ${averageRecentFPS.toFixed(1)}, Min: ${minRecentFPS.toFixed(1)}, Variability: ${fpsVariability.toFixed(1)}`);
-            
+            logger.info(`Auto-scaling quality from ${this.currentQuality} to ${targetQuality}`);
+            logger.debug(
+                `Performance: Avg FPS: ${averageRecentFPS.toFixed(1)}, Min: ${minRecentFPS.toFixed(1)}, Variability: ${fpsVariability.toFixed(1)}`
+            );
+
             this.setQuality(targetQuality);
             this.performanceMetrics.lastQualityAdjustment = currentTime;
         }
@@ -601,14 +665,12 @@ class MotionBlurController {
                 const settings = this.qualitySettings[this.currentQuality];
                 const newWidth = Math.floor(width * settings.resolution);
                 const newHeight = Math.floor(height * settings.resolution);
-                
-                this.composer.setSize(newWidth, newHeight);
-                
-                console.log(`MotionBlurController: Resized to ${width}x${height}, blur: ${newWidth}x${newHeight}`);
-            }
 
+                this.resizeComposer(newWidth, newHeight);
+                logger.debug(`Resized to ${width}x${height}, blur: ${newWidth}x${newHeight}`);
+            }
         } catch (error) {
-            console.error('MotionBlurController: Error during resize:', error);
+            logger.error('Error during resize', error);
         }
     }
 
@@ -618,7 +680,7 @@ class MotionBlurController {
      */
     setSpeedTracker(speedTracker) {
         this.speedTracker = speedTracker;
-        console.log('MotionBlurController: Speed tracker integrated');
+        logger.info('Speed tracker integrated');
     }
 
     /**
@@ -643,10 +705,12 @@ class MotionBlurController {
      */
     getPerformanceMetrics() {
         const recentHistory = this.performanceMetrics.performanceHistory.slice(-30);
-        const averageRecentFPS = recentHistory.length > 0 ? 
-            recentHistory.reduce((sum, entry) => sum + entry.fps, 0) / recentHistory.length : 0;
-        const minRecentFPS = recentHistory.length > 0 ? 
-            Math.min(...recentHistory.map(entry => entry.fps)) : 0;
+        const averageRecentFPS =
+            recentHistory.length > 0
+                ? recentHistory.reduce((sum, entry) => sum + entry.fps, 0) / recentHistory.length
+                : 0;
+        const minRecentFPS =
+            recentHistory.length > 0 ? Math.min(...recentHistory.map((entry) => entry.fps)) : 0;
 
         return {
             ...this.performanceMetrics,
@@ -654,8 +718,10 @@ class MotionBlurController {
             averageRecentFPS: averageRecentFPS,
             minRecentFPS: minRecentFPS,
             isPerformanceGood: this.performanceMetrics.averageFrameTime < 20, // 50+ FPS
-            isPerformanceStable: recentHistory.length > 0 ? 
-                (Math.max(...recentHistory.map(entry => entry.fps)) - minRecentFPS) < 15 : true
+            isPerformanceStable:
+                recentHistory.length > 0
+                    ? Math.max(...recentHistory.map((entry) => entry.fps)) - minRecentFPS < 15
+                    : true,
         };
     }
 
@@ -665,7 +731,9 @@ class MotionBlurController {
      */
     setAutoScalingEnabled(enabled) {
         this.performanceMetrics.autoScalingEnabled = Boolean(enabled);
-        console.log(`MotionBlurController: Auto-scaling ${this.performanceMetrics.autoScalingEnabled ? 'enabled' : 'disabled'}`);
+        logger.info(
+            `Auto-scaling ${this.performanceMetrics.autoScalingEnabled ? 'enabled' : 'disabled'}`
+        );
     }
 
     /**
@@ -673,9 +741,9 @@ class MotionBlurController {
      * @param {string} quality - Quality level to force
      */
     forceQuality(quality) {
-        this.setAutoScalingEnabled(false);
         this.setQuality(quality);
-        console.log(`MotionBlurController: Forced quality to ${quality}, auto-scaling disabled`);
+        this.setAutoScalingEnabled(false);
+        logger.info(`Forced quality to ${quality}, auto-scaling disabled`);
     }
 
     /**
@@ -687,7 +755,7 @@ class MotionBlurController {
         this.performanceMetrics.lastFrameTime = 0;
         this.performanceMetrics.averageFrameTime = 16.67;
         this.performanceMetrics.lastQualityAdjustment = 0;
-        console.log('MotionBlurController: Performance metrics reset');
+        logger.debug('Performance metrics reset');
     }
 
     /**
@@ -699,20 +767,20 @@ class MotionBlurController {
         if (history.length === 0) {
             return {
                 available: false,
-                message: 'Insufficient performance data'
+                message: 'Insufficient performance data',
             };
         }
 
         const recentHistory = history.slice(-60); // Last 60 frames (1 second at 60fps)
-        const fps = recentHistory.map(entry => entry.fps);
-        
+        const fps = recentHistory.map((entry) => entry.fps);
+
         const avgFPS = fps.reduce((sum, f) => sum + f, 0) / fps.length;
         const minFPS = Math.min(...fps);
         const maxFPS = Math.max(...fps);
         const medianFPS = fps.sort((a, b) => a - b)[Math.floor(fps.length / 2)];
-        
+
         // Calculate frame time percentiles
-        const frameTimes = recentHistory.map(entry => entry.frameTime).sort((a, b) => a - b);
+        const frameTimes = recentHistory.map((entry) => entry.frameTime).sort((a, b) => a - b);
         const p95FrameTime = frameTimes[Math.floor(frameTimes.length * 0.95)];
         const p99FrameTime = frameTimes[Math.floor(frameTimes.length * 0.99)];
 
@@ -724,19 +792,20 @@ class MotionBlurController {
                 minimum: minFPS,
                 maximum: maxFPS,
                 median: medianFPS,
-                variability: maxFPS - minFPS
+                variability: maxFPS - minFPS,
             },
             frameTime: {
                 average: 1000 / avgFPS,
                 p95: p95FrameTime,
-                p99: p99FrameTime
+                p99: p99FrameTime,
             },
             performance: {
                 isGood: avgFPS > 50,
-                isStable: (maxFPS - minFPS) < 15,
-                recommendedQuality: this.getRecommendedQuality(avgFPS, minFPS, maxFPS - minFPS)
+                isStable: maxFPS - minFPS < 15,
+                recommendedQuality: this.getRecommendedQuality(avgFPS, minFPS, maxFPS - minFPS),
             },
-            capabilities: this.capabilities
+            recommendation: this.getRecommendedQuality(avgFPS, minFPS, maxFPS - minFPS),
+            capabilities: this.capabilities,
         };
     }
 
@@ -771,7 +840,7 @@ class MotionBlurController {
             quality: this.currentQuality,
             blurIntensity: this.blurConfig.intensity,
             capabilities: { ...this.capabilities },
-            performanceMetrics: this.getPerformanceMetrics()
+            performanceMetrics: this.getPerformanceMetrics(),
         };
     }
 
@@ -788,8 +857,8 @@ class MotionBlurController {
         if (this.motionBlurPass && this.motionBlurPass.uniforms) {
             this.motionBlurPass.uniforms.intensity.value = 0.0;
         }
-        
-        console.debug('MotionBlurController: Paused');
+
+        logger.debug('Paused');
     }
 
     /**
@@ -801,9 +870,9 @@ class MotionBlurController {
         }
 
         // Reset timing to prevent large delta time jumps
-        this.performanceMetrics.lastFrameTime = Date.now();
-        
-        console.debug('MotionBlurController: Resumed');
+        this.performanceMetrics.lastFrameTime = performance.now();
+
+        logger.debug('Resumed');
     }
 
     /**
@@ -813,12 +882,12 @@ class MotionBlurController {
         try {
             if (this.composer) {
                 // Dispose of all passes
-                this.composer.passes.forEach(pass => {
+                this.composer.passes.forEach((pass) => {
                     if (pass.dispose) {
                         pass.dispose();
                     }
                 });
-                
+
                 // Dispose of composer
                 this.composer.dispose();
                 this.composer = null;
@@ -828,11 +897,10 @@ class MotionBlurController {
             this.motionBlurPass = null;
             this.speedTracker = null;
             this.initialized = false;
-            
-            console.log('MotionBlurController: Resources disposed');
 
+            logger.info('Resources disposed');
         } catch (error) {
-            console.error('MotionBlurController: Error during disposal:', error);
+            logger.error('Error during disposal', error);
         }
     }
 }

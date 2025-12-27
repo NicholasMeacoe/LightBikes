@@ -3,6 +3,22 @@
  * Verifies track selection and metadata management functionality
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { MusicTrackSelector } = require('@/audio/MusicTrackSelector.js');
 
 // Mock dependencies
@@ -15,7 +31,7 @@ jest.mock('@/audio/MusicConfig.js', () => ({
             description: 'Calm atmospheric music',
             url: 'sounds/music/ambient-space.mp3',
             loop: true,
-            preload: true
+            preload: true,
         },
         'cyber-pulse': {
             id: 'cyber-pulse',
@@ -24,7 +40,7 @@ jest.mock('@/audio/MusicConfig.js', () => ({
             description: 'Electronic beats',
             url: 'sounds/music/cyber-pulse.mp3',
             loop: true,
-            preload: true
+            preload: true,
         },
         'neon-rush': {
             id: 'neon-rush',
@@ -33,35 +49,41 @@ jest.mock('@/audio/MusicConfig.js', () => ({
             description: 'High-energy music',
             url: 'sounds/music/neon-rush.mp3',
             loop: true,
-            preload: true
+            preload: true,
         },
-        'none': {
+        none: {
             id: 'none',
             name: 'No Music',
             energyLevel: null,
             description: 'Disable background music',
             url: null,
             loop: false,
-            preload: false
-        }
+            preload: false,
+        },
     },
     ENERGY_LEVELS: {
         AMBIENT: 'ambient',
         UPBEAT: 'upbeat',
-        INTENSE: 'intense'
+        INTENSE: 'intense',
     },
     MusicConfigUtils: {
-        isValidTrackId: jest.fn((id) => ['ambient-space', 'cyber-pulse', 'neon-rush', 'none'].includes(id)),
+        isValidTrackId: jest.fn((id) =>
+            ['ambient-space', 'cyber-pulse', 'neon-rush', 'none'].includes(id)
+        ),
         getTrackConfig: jest.fn((id) => {
             const tracks = {
-                'ambient-space': { id: 'ambient-space', name: 'Ambient Space', energyLevel: 'ambient' },
+                'ambient-space': {
+                    id: 'ambient-space',
+                    name: 'Ambient Space',
+                    energyLevel: 'ambient',
+                },
                 'cyber-pulse': { id: 'cyber-pulse', name: 'Cyber Pulse', energyLevel: 'upbeat' },
                 'neon-rush': { id: 'neon-rush', name: 'Neon Rush', energyLevel: 'intense' },
-                'none': { id: 'none', name: 'No Music', energyLevel: null }
+                none: { id: 'none', name: 'No Music', energyLevel: null },
             };
             return tracks[id] || null;
-        })
-    }
+        }),
+    },
 }));
 
 describe('MusicTrackSelector', () => {
@@ -72,7 +94,9 @@ describe('MusicTrackSelector', () => {
     beforeEach(() => {
         // Mock track manager
         mockTrackManager = {
-            hasTrack: jest.fn((id) => ['ambient-space', 'cyber-pulse', 'neon-rush', 'none'].includes(id)),
+            hasTrack: jest.fn((id) =>
+                ['ambient-space', 'cyber-pulse', 'neon-rush', 'none'].includes(id)
+            ),
             isTrackLoaded: jest.fn(() => false),
             isTrackLoading: jest.fn(() => false),
             hasTrackError: jest.fn(() => false),
@@ -86,15 +110,15 @@ describe('MusicTrackSelector', () => {
                 hasError: () => false,
                 getError: () => null,
                 getLoadingState: () => 'not_loaded',
-                getMetadata: () => ({ id, name: `Track ${id}` })
-            }))
+                getMetadata: () => ({ id, name: `Track ${id}` }),
+            })),
         };
 
         // Mock settings
         mockSettings = {
             getSelectedTrack: jest.fn(() => 'ambient-space'),
             setSelectedTrack: jest.fn(),
-            save: jest.fn(() => Promise.resolve())
+            save: jest.fn(() => Promise.resolve()),
         };
 
         trackSelector = new MusicTrackSelector(mockTrackManager, mockSettings);
@@ -105,7 +129,7 @@ describe('MusicTrackSelector', () => {
             expect(mockSettings.getSelectedTrack).toHaveBeenCalled();
             expect(trackSelector.getCurrentTrack()).toMatchObject({
                 id: 'ambient-space',
-                isSelected: true
+                isSelected: true,
             });
         });
 
@@ -128,7 +152,7 @@ describe('MusicTrackSelector', () => {
                 id: 'ambient-space',
                 name: 'Ambient Space',
                 energyLevel: 'ambient',
-                isSelected: true
+                isSelected: true,
             });
         });
 
@@ -301,7 +325,7 @@ describe('MusicTrackSelector', () => {
                 energyLevel: 'ambient',
                 isSelected: true,
                 isLoaded: false,
-                hasError: false
+                hasError: false,
             });
         });
 

@@ -3,6 +3,22 @@
  * Validates UI rendering, positioning, and score presentation functionality
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { ScoreDisplay } = require('@/ui/scoreDisplay.js');
 
 // Mock DOM environment
@@ -12,24 +28,24 @@ const mockElement = {
     id: '',
     appendChild: jest.fn(),
     parentNode: {
-        removeChild: jest.fn()
-    }
+        removeChild: jest.fn(),
+    },
 };
 
 const mockDocument = {
     createElement: jest.fn(() => ({ ...mockElement })),
     body: {
-        appendChild: jest.fn()
+        appendChild: jest.fn(),
     },
     head: {
-        appendChild: jest.fn()
+        appendChild: jest.fn(),
     },
-    getElementById: jest.fn(() => null)
+    getElementById: jest.fn(() => null),
 };
 
 const mockWindow = {
     innerWidth: 1024,
-    addEventListener: jest.fn()
+    addEventListener: jest.fn(),
 };
 
 // Setup global mocks
@@ -50,8 +66,9 @@ describe('ScoreDisplay', () => {
         // Mock renderer
         mockRenderer = {
             renderer: {
-                domElement: mockElement
-            }
+                domElement: mockElement,
+                setClearColor: jest.fn(),
+            },
         };
 
         scoreDisplay = new ScoreDisplay(mockRenderer);
@@ -84,7 +101,7 @@ describe('ScoreDisplay', () => {
     describe('createScoreElements', () => {
         it('should create all required score UI elements', () => {
             const newScoreDisplay = new ScoreDisplay(mockRenderer);
-            
+
             expect(newScoreDisplay.scoreElements.playerScore).toBeDefined();
             expect(newScoreDisplay.scoreElements.aiScore).toBeDefined();
             expect(newScoreDisplay.scoreElements.highScore).toBeDefined();
@@ -143,9 +160,9 @@ describe('ScoreDisplay', () => {
         it('should reinitialize if not initialized', () => {
             scoreDisplay.isInitialized = false;
             const createSpy = jest.spyOn(scoreDisplay, 'createScoreElements');
-            
+
             scoreDisplay.updateGameplayScores(1, 1);
-            
+
             expect(createSpy).toHaveBeenCalled();
             expect(scoreDisplay.isInitialized).toBe(true);
         });
@@ -184,9 +201,9 @@ describe('ScoreDisplay', () => {
         it('should reinitialize if not initialized', () => {
             scoreDisplay.isInitialized = false;
             const createSpy = jest.spyOn(scoreDisplay, 'createScoreElements');
-            
+
             scoreDisplay.showGameOverScores(3, 2, 5, false);
-            
+
             expect(createSpy).toHaveBeenCalled();
             expect(scoreDisplay.isInitialized).toBe(true);
         });
@@ -204,13 +221,13 @@ describe('ScoreDisplay', () => {
 
         it('should handle uninitialized state gracefully', () => {
             scoreDisplay.isInitialized = false;
-            
+
             expect(() => scoreDisplay.hideScores()).not.toThrow();
         });
 
         it('should handle missing elements gracefully', () => {
             scoreDisplay.scoreElements.playerScore = null;
-            
+
             expect(() => scoreDisplay.hideScores()).not.toThrow();
         });
     });
@@ -218,7 +235,7 @@ describe('ScoreDisplay', () => {
     describe('positionScoreElements', () => {
         it('should adjust positioning for desktop screens', () => {
             mockWindow.innerWidth = 1024;
-            
+
             scoreDisplay.positionScoreElements();
 
             // With CSS-based positioning, check that elements maintain their classes
@@ -231,9 +248,9 @@ describe('ScoreDisplay', () => {
             // Mock window.innerWidth for mobile
             Object.defineProperty(global.window, 'innerWidth', {
                 writable: true,
-                value: 600
+                value: 600,
             });
-            
+
             scoreDisplay.positionScoreElements();
 
             // With CSS-based positioning, check that elements maintain their classes
@@ -244,7 +261,7 @@ describe('ScoreDisplay', () => {
 
         it('should handle uninitialized state gracefully', () => {
             scoreDisplay.isInitialized = false;
-            
+
             expect(() => scoreDisplay.positionScoreElements()).not.toThrow();
         });
     });
@@ -253,7 +270,7 @@ describe('ScoreDisplay', () => {
         it('should remove all score elements from DOM', () => {
             scoreDisplay.destroy();
 
-            Object.values(scoreDisplay.scoreElements).forEach(element => {
+            Object.values(scoreDisplay.scoreElements).forEach((element) => {
                 if (element && element.parentNode) {
                     expect(element.parentNode.removeChild).toHaveBeenCalledWith(element);
                 }
@@ -275,7 +292,7 @@ describe('ScoreDisplay', () => {
 
         it('should handle missing elements gracefully', () => {
             scoreDisplay.scoreElements.playerScore = null;
-            
+
             expect(() => scoreDisplay.destroy()).not.toThrow();
         });
     });

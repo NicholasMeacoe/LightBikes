@@ -5,6 +5,7 @@
 
 const { MusicTrack } = require('./MusicTrack.js');
 const { MUSIC_TRACKS, MUSIC_SYSTEM_CONFIG, ERROR_TYPES } = require('./MusicConfig.js');
+const { logger } = require('../utils/Logger.js');
 
 class MusicTrackManager {
     constructor(audioContext) {
@@ -13,11 +14,11 @@ class MusicTrackManager {
         this.preloadPromises = new Map();
         this.loadingQueue = [];
         this.isPreloading = false;
-        
+
         // Initialize tracks from configuration
         this._initializeTracks();
     }
-    
+
     /**
      * Initialize all tracks from configuration
      * @private
@@ -29,7 +30,7 @@ class MusicTrackManager {
             this.tracks.set(trackId, track);
         }
     }
-    
+
     /**
      * Get a track by ID
      * @param {string} trackId - Track identifier
@@ -38,7 +39,7 @@ class MusicTrackManager {
     getTrack(trackId) {
         return this.tracks.get(trackId) || null;
     }
-    
+
     /**
      * Get all available tracks
      * @returns {MusicTrack[]} Array of all track instances
@@ -46,18 +47,16 @@ class MusicTrackManager {
     getAllTracks() {
         return Array.from(this.tracks.values());
     }
-    
+
     /**
      * Get tracks by energy level
      * @param {string} energyLevel - Energy level to filter by
      * @returns {MusicTrack[]} Array of tracks matching the energy level
      */
     getTracksByEnergyLevel(energyLevel) {
-        return this.getAllTracks().filter(track => 
-            track.getEnergyLevel() === energyLevel
-        );
+        return this.getAllTracks().filter((track) => track.getEnergyLevel() === energyLevel);
     }
-    
+
     /**
      * Get all track IDs
      * @returns {string[]} Array of track identifiers
@@ -65,7 +64,7 @@ class MusicTrackManager {
     getTrackIds() {
         return Array.from(this.tracks.keys());
     }
-    
+
     /**
      * Check if a track exists
      * @param {string} trackId - Track identifier
@@ -74,7 +73,7 @@ class MusicTrackManager {
     hasTrack(trackId) {
         return this.tracks.has(trackId);
     }
-    
+
     /**
      * Load a specific track
      * @param {string} trackId - Track identifier
@@ -85,19 +84,19 @@ class MusicTrackManager {
         if (!track) {
             throw new Error(`Track not found: ${trackId}`);
         }
-        
+
         try {
             await track.load();
         } catch (error) {
-            console.warn(`Failed to load track ${trackId}:`, error.message);
+            logger.warn(`Failed to load track ${trackId}:`, { error: error.message });
             throw error;
         }
     }
-    
+
     /**
      * Preload selected tracks during game initialization with performance monitoring
      * @param {string[]} trackIds - Array of track IDs to preload (optional, defaults to all preload-enabled tracks)
-     * @param {MusicPerformanceMonitor} performanceMonitor - Performance monitor instance (optional)
+     * @param {any} performanceMonitor - Performance monitor instance (optional)
      * @returns {Promise<Object>} Resolves with preload results
      */
     async preloadTracks(trackIds = null, performanceMonitor = null) {
@@ -105,17 +104,17 @@ class MusicTrackManager {
             // Return existing preload promises if already in progress
             return Promise.allSettled(Array.from(this.preloadPromises.values()));
         }
-        
+
         this.isPreloading = true;
         const startTime = performance.now();
-        
+
         try {
             // Determine which tracks to preload
             const tracksToPreload = trackIds || this._getPreloadableTracks();
-            
+
             // Clear any existing preload promises
             this.preloadPromises.clear();
-            
+
             // Start preloading all tracks concurrently with performance monitoring
             for (const trackId of tracksToPreload) {
                 const track = this.getTrack(trackId);
@@ -124,22 +123,27 @@ class MusicTrackManager {
                     if (performanceMonitor) {
                         performanceMonitor.recordLoadingStart(trackId);
                     }
-                    
-                    const preloadPromise = this._preloadTrackWithFallback(track, performanceMonitor);
+
+                    const preloadPromise = this._preloadTrackWithFallback(
+                        track,
+                        performanceMonitor
+                    );
                     this.preloadPromises.set(trackId, preloadPromise);
                 }
             }
-            
+
             // Wait for all preload attempts to complete
             const results = await Promise.allSettled(Array.from(this.preloadPromises.values()));
-            
+
             // Analyze results
-            const successful = results.filter(result => result.status === 'fulfilled').length;
-            const failed = results.filter(result => result.status === 'rejected').length;
+            const successful = results.filter((result) => result.status === 'fulfilled').length;
+            const failed = results.filter((result) => result.status === 'rejected').length;
             const totalTime = performance.now() - startTime;
-            
-            console.log(`Music preloading completed in ${Math.round(totalTime)}ms: ${successful} successful, ${failed} failed`);
-            
+
+            logger.info(
+                `Music preloading completed in ${Math.round(totalTime)}ms: ${successful} successful, ${failed} failed`
+            );
+
             return {
                 successful,
                 failed,
@@ -149,43 +153,48 @@ class MusicTrackManager {
                 results: results.map((result, index) => ({
                     trackId: tracksToPreload[index],
                     status: result.status,
-                    error: result.status === 'rejected' ? result.reason : null
-                }))
+                    error: result.status === 'rejected' ? result.reason : null,
+                })),
             };
-            
         } finally {
             this.isPreloading = false;
         }
     }
-    
+
     /**
      * Preload a single track with graceful fallback and performance monitoring
      * @param {MusicTrack} track - Track to preload
-     * @param {MusicPerformanceMonitor} performanceMonitor - Performance monitor instance (optional)
+     * @param {any} performanceMonitor - Performance monitor instance (optional)
      * @returns {Promise<void>} Resolves when preload completes or fails gracefully
      * @private
      */
     async _preloadTrackWithFallback(track, performanceMonitor = null) {
         try {
             await track.preload();
-            
+
             // Record successful loading
             if (performanceMonitor) {
-                performanceMonitor.recordLoadingComplete(track.getId(), true, track.getAudioBuffer());
+                performanceMonitor.recordLoadingComplete(
+                    track.getId(),
+                    true,
+                    track.getAudioBuffer()
+                );
             }
-            
-            console.log(`Successfully preloaded track: ${track.getId()}`);
+
+            logger.info(`Successfully preloaded track: ${track.getId()}`);
         } catch (error) {
             // Record failed loading
             if (performanceMonitor) {
                 performanceMonitor.recordLoadingComplete(track.getId(), false);
             }
-            
-            console.warn(`Failed to preload track ${track.getId()}, will load on demand:`, error.message);
+
+            logger.warn(`Failed to preload track ${track.getId()}, will load on demand:`, {
+                error: error.message,
+            });
             // Don't throw - allow graceful fallback to on-demand loading
         }
     }
-    
+
     /**
      * Get list of tracks that should be preloaded
      * @returns {string[]} Array of track IDs to preload
@@ -193,10 +202,10 @@ class MusicTrackManager {
      */
     _getPreloadableTracks() {
         return this.getAllTracks()
-            .filter(track => track.metadata.preload)
-            .map(track => track.getId());
+            .filter((track) => track.metadata.preload)
+            .map((track) => track.getId());
     }
-    
+
     /**
      * Check if a track is loaded and ready for playback
      * @param {string} trackId - Track identifier
@@ -206,7 +215,7 @@ class MusicTrackManager {
         const track = this.getTrack(trackId);
         return track ? track.isLoaded() : false;
     }
-    
+
     /**
      * Check if a track is currently loading
      * @param {string} trackId - Track identifier
@@ -216,7 +225,7 @@ class MusicTrackManager {
         const track = this.getTrack(trackId);
         return track ? track.isLoading() : false;
     }
-    
+
     /**
      * Check if a track has an error
      * @param {string} trackId - Track identifier
@@ -226,7 +235,7 @@ class MusicTrackManager {
         const track = this.getTrack(trackId);
         return track ? track.hasError() : false;
     }
-    
+
     /**
      * Get loading status for all tracks
      * @returns {Object} Object mapping track IDs to their loading states
@@ -239,18 +248,18 @@ class MusicTrackManager {
                 loaded: track.isLoaded(),
                 loading: track.isLoading(),
                 error: track.hasError(),
-                errorMessage: track.getError()
+                errorMessage: track.getError(),
             };
         }
         return status;
     }
-    
+
     /**
      * Get track metadata for UI display
      * @returns {Object[]} Array of track metadata objects
      */
     getTrackMetadata() {
-        return this.getAllTracks().map(track => ({
+        return this.getAllTracks().map((track) => ({
             id: track.getId(),
             name: track.getName(),
             energyLevel: track.getEnergyLevel(),
@@ -258,10 +267,10 @@ class MusicTrackManager {
             loaded: track.isLoaded(),
             loading: track.isLoading(),
             error: track.hasError(),
-            description: track.metadata.description || ''
+            description: track.metadata.description || '',
         }));
     }
-    
+
     /**
      * Ensure a track is loaded before use
      * @param {string} trackId - Track identifier
@@ -272,12 +281,12 @@ class MusicTrackManager {
         if (!track) {
             throw new Error(`Track not found: ${trackId}`);
         }
-        
+
         // Handle "none" track (no loading required)
         if (trackId === 'none') {
             return track;
         }
-        
+
         // Load track if not already loaded
         if (!track.isLoaded() && !track.isLoading()) {
             await track.load();
@@ -285,14 +294,14 @@ class MusicTrackManager {
             // Wait for existing load to complete
             await track.load();
         }
-        
+
         if (track.hasError()) {
             throw new Error(`Track ${trackId} failed to load: ${track.getError()}`);
         }
-        
+
         return track;
     }
-    
+
     /**
      * Retry loading failed tracks
      * @param {string[]} trackIds - Specific track IDs to retry (optional, defaults to all failed tracks)
@@ -300,53 +309,55 @@ class MusicTrackManager {
      */
     async retryFailedTracks(trackIds = null) {
         const tracksToRetry = trackIds || this._getFailedTracks();
-        
+
         if (tracksToRetry.length === 0) {
             return { successful: 0, failed: 0, total: 0, results: [] };
         }
-        
-        console.log(`Retrying ${tracksToRetry.length} failed tracks...`);
-        
+
+        logger.info(`Retrying ${tracksToRetry.length} failed tracks...`);
+
         const retryPromises = tracksToRetry.map(async (trackId) => {
             const track = this.getTrack(trackId);
             if (!track) {
                 throw new Error(`Track not found: ${trackId}`);
             }
-            
+
             try {
                 // Reset track state before retry
                 track.cleanup();
                 track.setAudioContext(this.audioContext);
-                
+
                 await track.load();
                 return { trackId, status: 'fulfilled', error: null };
             } catch (error) {
                 return { trackId, status: 'rejected', error: error.message };
             }
         });
-        
+
         const results = await Promise.allSettled(retryPromises);
-        const successful = results.filter(result => 
-            result.status === 'fulfilled' && result.value.status === 'fulfilled'
+        const successful = results.filter(
+            (result) => result.status === 'fulfilled' && result.value.status === 'fulfilled'
         ).length;
         const failed = results.length - successful;
-        
-        console.log(`Track retry completed: ${successful} successful, ${failed} failed`);
-        
+
+        logger.info(`Track retry completed: ${successful} successful, ${failed} failed`);
+
         return {
             successful,
             failed,
             total: results.length,
-            results: results.map(result => 
-                result.status === 'fulfilled' ? result.value : {
-                    trackId: 'unknown',
-                    status: 'rejected',
-                    error: result.reason
-                }
-            )
+            results: results.map((result) =>
+                result.status === 'fulfilled'
+                    ? result.value
+                    : {
+                          trackId: 'unknown',
+                          status: 'rejected',
+                          error: result.reason,
+                      }
+            ),
         };
     }
-    
+
     /**
      * Get list of tracks that failed to load
      * @returns {string[]} Array of track IDs that have errors
@@ -354,10 +365,10 @@ class MusicTrackManager {
      */
     _getFailedTracks() {
         return this.getAllTracks()
-            .filter(track => track.hasError())
-            .map(track => track.getId());
+            .filter((track) => track.hasError())
+            .map((track) => track.getId());
     }
-    
+
     /**
      * Clean up all track resources
      */
@@ -369,7 +380,7 @@ class MusicTrackManager {
         this.loadingQueue = [];
         this.isPreloading = false;
     }
-    
+
     /**
      * Update audio context for all tracks
      * @param {AudioContext} audioContext - New audio context

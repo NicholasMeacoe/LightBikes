@@ -1,3 +1,4 @@
+// @ts-nocheck - Multi argument changePlayerDirection() overrides base single argument version
 const { Game } = require('../core/game.js');
 const { PlayerEntity } = require('./PlayerEntity.js');
 const { GameModes } = require('../systems/GameModes.js');
@@ -15,40 +16,40 @@ class MultiplayerGame extends Game {
     constructor(config = {}) {
         // Initialize parent with local multiplayer mode
         super(GameModes.CLASSIC, config);
-        
+
         // Override game mode to indicate multiplayer
         this.gameMode = 'local-multiplayer';
-        
+
         // Set up control schemes after parent constructor
         this.controlSchemes = {
             player1: {
                 up: 'ArrowUp',
-                down: 'ArrowDown', 
+                down: 'ArrowDown',
                 left: 'ArrowLeft',
-                right: 'ArrowRight'
+                right: 'ArrowRight',
             },
             player2: {
                 up: 'KeyW',
                 down: 'KeyS',
-                left: 'KeyA', 
-                right: 'KeyD'
-            }
+                left: 'KeyA',
+                right: 'KeyD',
+            },
         };
-        
+
         // Local scoring system
         this.localScoring = new LocalScoring();
-        
+
         // Player entities (will be initialized in initializeMultiplayer)
         this.player1 = null;
         this.player2 = null;
-        
+
         // Track last round winner for UI display
         this.lastRoundWinner = null;
-        
+
         // Initialize multiplayer-specific state after everything is set up
         this.initializeMultiplayer();
     }
-    
+
     /**
      * Initialize multiplayer-specific components
      */
@@ -56,15 +57,15 @@ class MultiplayerGame extends Game {
         // Create player entities with distinct starting positions
         const startPos1 = { x: -10, y: 0, z: 0 };
         const startPos2 = { x: 10, y: 0, z: 0 };
-        
+
         this.player1 = new PlayerEntity('P1', 'green', startPos1, this.controlSchemes.player1);
         this.player2 = new PlayerEntity('P2', 'blue', startPos2, this.controlSchemes.player2);
-        
+
         // Set initial directions (facing each other)
         this.player1.direction = { x: 1, y: 0, z: 0 }; // Right
         this.player2.direction = { x: -1, y: 0, z: 0 }; // Left
     }
-    
+
     /**
      * Override parent init method for multiplayer setup
      */
@@ -74,17 +75,17 @@ class MultiplayerGame extends Game {
         this.frameCount = 0;
         this.isPaused = false;
         this.gameStarted = false;
-        
+
         // Only initialize multiplayer if control schemes are set up
         if (this.controlSchemes) {
             // Reset multiplayer players
             if (this.player1 && this.player2) {
                 const startPos1 = { x: -10, y: 0, z: 0 };
                 const startPos2 = { x: 10, y: 0, z: 0 };
-                
+
                 this.player1.reset(startPos1);
                 this.player2.reset(startPos2);
-                
+
                 // Set facing directions
                 this.player1.direction = { x: 1, y: 0, z: 0 };
                 this.player2.direction = { x: -1, y: 0, z: 0 };
@@ -92,7 +93,7 @@ class MultiplayerGame extends Game {
                 this.initializeMultiplayer();
             }
         }
-        
+
         // Clear legacy single-player properties
         this.player = null;
         this.playerDirection = null;
@@ -101,12 +102,12 @@ class MultiplayerGame extends Game {
         this.aiDirection = null;
         this.aiTrail = [];
         this.aiOpponents = [];
-        
+
         // Reset camera effects on game restart
         if (this.cameraEffectsManager && this.cameraEffectsManager.isEnabled()) {
             this.cameraEffectsManager.reset();
         }
-        
+
         // Initialize mode-specific components (inherited from parent)
         if (this.gameMode === GameModes.TIME_TRIAL && this.survivalTimer) {
             this.survivalTimer.reset();
@@ -115,17 +116,17 @@ class MultiplayerGame extends Game {
             this.arenaShrinker.reset();
         }
     }
-    
+
     /**
      * Override parent update method for dual player management
      */
     update() {
         if (this.gameOver || this.isPaused) return;
-        
+
         // Mark game as started on first update
         if (!this.gameStarted) {
             this.gameStarted = true;
-            
+
             // Start timers for time-based modes (inherited behavior)
             if (this.gameMode === GameModes.TIME_TRIAL && this.survivalTimer) {
                 this.survivalTimer.start();
@@ -139,34 +140,36 @@ class MultiplayerGame extends Game {
                 }
             }
         }
-        
+
         this.frameCount++;
-        
+
         // Update arena shrinker if in shrink mode
         if (this.gameMode === GameModes.ARENA_SHRINK && this.arenaShrinker) {
             this.arenaShrinker.update(Date.now());
         }
-        
+
         // Get speed multipliers from power-up system if available
-        const player1SpeedMultiplier = this.powerUpManager ? 
-            this.powerUpManager.getSpeedMultiplier('player1') : 1.0;
-        const player2SpeedMultiplier = this.powerUpManager ? 
-            this.powerUpManager.getSpeedMultiplier('player2') : 1.0;
-        
+        const player1SpeedMultiplier = this.powerUpManager
+            ? this.powerUpManager.getSpeedMultiplier('player1')
+            : 1.0;
+        const player2SpeedMultiplier = this.powerUpManager
+            ? this.powerUpManager.getSpeedMultiplier('player2')
+            : 1.0;
+
         // Update both players
         if (this.player1 && this.player1.isAlive) {
             this.player1.update(this.gameSpeed, player1SpeedMultiplier);
-            
+
             // Trigger speed change event for camera effects
             if (this.cameraEffectsManager) {
                 const currentSpeed = this.player1.getEffectiveSpeed();
                 this.cameraEffectsManager.onSpeedChange(this.player1.getPosition(), currentSpeed);
             }
         }
-        
+
         if (this.player2 && this.player2.isAlive) {
             this.player2.update(this.gameSpeed, player2SpeedMultiplier);
-            
+
             // Trigger speed change event for camera effects
             if (this.cameraEffectsManager) {
                 const currentSpeed = this.player2.getEffectiveSpeed();
@@ -174,7 +177,7 @@ class MultiplayerGame extends Game {
             }
         }
     }
-    
+
     /**
      * Get current direction for a specific player
      * @param {string} playerId - 'P1' or 'P2'
@@ -191,15 +194,16 @@ class MultiplayerGame extends Game {
      * @param {string} key - Key pressed
      * @returns {boolean} True if direction was changed
      */
-    changePlayerDirection(playerId, key) {
+    changePlayerDirection(playerId, key, ...args) {
         const player = playerId === 'P1' ? this.player1 : this.player2;
         if (!player || !player.canChangeDirection()) {
             return false;
         }
-        
-        const controlScheme = playerId === 'P1' ? this.controlSchemes.player1 : this.controlSchemes.player2;
+
+        const controlScheme =
+            playerId === 'P1' ? this.controlSchemes.player1 : this.controlSchemes.player2;
         let newDirection = null;
-        
+
         // Map key to direction based on control scheme
         if (key === controlScheme.up) {
             newDirection = { x: 0, y: 0, z: -1 };
@@ -210,14 +214,14 @@ class MultiplayerGame extends Game {
         } else if (key === controlScheme.right) {
             newDirection = { x: 1, y: 0, z: 0 };
         }
-        
+
         if (newDirection) {
             return player.changeDirection(newDirection);
         }
-        
+
         return false;
     }
-    
+
     /**
      * Override parent getGameState for multiplayer state
      * @returns {Object} Multiplayer game state
@@ -232,9 +236,9 @@ class MultiplayerGame extends Game {
             gameSpeed: this.gameSpeed,
             gameMode: this.gameMode,
             localScoring: this.localScoring.getScoreDetails(),
-            ...this.scoreManager.getScoreState()
+            ...this.scoreManager.getScoreState(),
         };
-        
+
         // Add player states
         if (this.player1) {
             baseState.player1 = this.player1.getState();
@@ -242,12 +246,12 @@ class MultiplayerGame extends Game {
         if (this.player2) {
             baseState.player2 = this.player2.getState();
         }
-        
+
         // Add players array for compatibility with existing systems
         baseState.players = [];
         if (this.player1) baseState.players.push(this.player1.getState());
         if (this.player2) baseState.players.push(this.player2.getState());
-        
+
         // Clear legacy single-player properties
         baseState.player = null;
         baseState.playerDirection = null;
@@ -256,32 +260,35 @@ class MultiplayerGame extends Game {
         baseState.aiDirection = null;
         baseState.aiTrail = [];
         baseState.aiOpponents = [];
-        
+
         // Include dynamic boundaries for Arena Shrink mode
         if (this.gameMode === GameModes.ARENA_SHRINK && this.arenaShrinker) {
             baseState.dynamicBounds = this.arenaShrinker.getCurrentBounds();
             baseState.arenaState = this.arenaShrinker.getArenaState(Date.now());
         }
-        
+
         // Include timer state for time-based modes
-        if ((this.gameMode === GameModes.TIME_TRIAL || this.gameMode === GameModes.ARENA_SHRINK) && this.survivalTimer) {
+        if (
+            (this.gameMode === GameModes.TIME_TRIAL || this.gameMode === GameModes.ARENA_SHRINK) &&
+            this.survivalTimer
+        ) {
             baseState.survivalTime = this.survivalTimer.getElapsedTime();
             baseState.formattedSurvivalTime = this.survivalTimer.getCurrentFormattedTime();
             baseState.timerRunning = this.survivalTimer.isRunning;
         }
-        
+
         return baseState;
     }
-    
+
     /**
      * Handle round end based on collision results
      * @param {Object} collisionResult - Collision detection result
      */
     handleRoundEnd(collisionResult) {
         if (!collisionResult) return;
-        
+
         const { player1Collided, player2Collided } = collisionResult;
-        
+
         // Stop timers for time-based modes
         if (this.gameMode === GameModes.TIME_TRIAL) {
             this.stopSurvivalTimer();
@@ -292,7 +299,7 @@ class MultiplayerGame extends Game {
                 this.arenaShrinker.stopSurvivalTracking(Date.now());
             }
         }
-        
+
         // Determine round winner
         let roundWinner = null;
         if (player1Collided && !player2Collided) {
@@ -300,7 +307,7 @@ class MultiplayerGame extends Game {
             this.localScoring.incrementScore('P2');
             roundWinner = 'P2';
         } else if (player2Collided && !player1Collided) {
-            // Player 1 wins  
+            // Player 1 wins
             this.localScoring.incrementScore('P1');
             roundWinner = 'P1';
         } else {
@@ -308,13 +315,13 @@ class MultiplayerGame extends Game {
             this.localScoring.handleTieGame();
             roundWinner = null;
         }
-        
+
         this.localScoring.nextRound();
-        
+
         // Store round winner for UI display
         this.lastRoundWinner = roundWinner;
     }
-    
+
     /**
      * Restart game (reset round but keep scores)
      */
@@ -323,7 +330,7 @@ class MultiplayerGame extends Game {
         this.lastRoundWinner = null;
         this.init();
     }
-    
+
     /**
      * Reset all scores and restart
      */
@@ -333,7 +340,7 @@ class MultiplayerGame extends Game {
         this.lastRoundWinner = null;
         this.init();
     }
-    
+
     /**
      * Get last round winner
      * @returns {string|null} Last round winner ID or null
@@ -341,7 +348,7 @@ class MultiplayerGame extends Game {
     getLastRoundWinner() {
         return this.lastRoundWinner;
     }
-    
+
     /**
      * Get local scoring state
      * @returns {Object} Local scoring information
@@ -349,7 +356,7 @@ class MultiplayerGame extends Game {
     getLocalScoring() {
         return this.localScoring.getScoreDetails();
     }
-    
+
     /**
      * Get alive players
      * @returns {Array} Array of alive player entities
@@ -364,17 +371,16 @@ class MultiplayerGame extends Game {
         }
         return alivePlayers;
     }
-    
+
     /**
      * Check if game should end (when any player crashes)
      * @returns {boolean} True if game should end
      */
     shouldEndGame() {
         // Game ends when either player crashes
-        return (this.player1 && !this.player1.isAlive) || 
-               (this.player2 && !this.player2.isAlive);
+        return (this.player1 && !this.player1.isAlive) || (this.player2 && !this.player2.isAlive);
     }
-    
+
     /**
      * Get winner of current round
      * @returns {string|null} Winner ID ('P1', 'P2') or null for tie
@@ -382,7 +388,7 @@ class MultiplayerGame extends Game {
     getRoundWinner() {
         const player1Alive = this.player1 && this.player1.isAlive;
         const player2Alive = this.player2 && this.player2.isAlive;
-        
+
         if (player1Alive && !player2Alive) {
             return 'P1';
         } else if (player2Alive && !player1Alive) {
@@ -390,7 +396,7 @@ class MultiplayerGame extends Game {
         }
         return null; // Tie or both alive
     }
-    
+
     /**
      * Get overall winner based on total wins
      * @returns {string|null} Overall winner ID or null for tie
@@ -398,7 +404,7 @@ class MultiplayerGame extends Game {
     getOverallWinner() {
         return this.localScoring.getLeader();
     }
-    
+
     /**
      * Check if this is a multiplayer game
      * @returns {boolean} Always true for MultiplayerGame
@@ -406,7 +412,7 @@ class MultiplayerGame extends Game {
     isMultiplayer() {
         return true;
     }
-    
+
     /**
      * Get player by ID
      * @param {string} playerId - Player ID ('P1' or 'P2')
@@ -417,7 +423,7 @@ class MultiplayerGame extends Game {
         if (playerId === 'P2') return this.player2;
         return null;
     }
-    
+
     /**
      * Get both players
      * @returns {Array} Array of player entities

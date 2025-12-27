@@ -1,11 +1,22 @@
-
-
 const { ScoreManager } = require('../systems/scoreManager.js');
 const { GameModes } = require('../systems/GameModes.js');
 const { SurvivalTimer } = require('../ui/SurvivalTimer.js');
 const { ArenaShrinker } = require('../systems/ArenaShrinker.js');
+const { AIController } = require('./AIController.js');
 
+/**
+ * Game - Core game logic and state management
+ *
+ * Orchestrates the game loop, player movement, collision detection,
+ * and integration with other systems like AI, scoring, and effects.
+ */
 class Game {
+    /**
+     * Create a new Game instance
+     * @param {string} [mode=GameModes.CLASSIC] - Game mode
+     * @param {Object} [config={}] - Game configuration
+     * @param {number} [config.aiCount=1] - Number of AI opponents (1-4)
+     */
     constructor(mode = GameModes.CLASSIC, config = {}) {
         this.bounds = 30;
         this.isPaused = false;
@@ -14,15 +25,17 @@ class Game {
         this.powerUpManager = null; // Will be set by orchestrator
         this.cameraEffectsManager = null; // Will be set by orchestrator
         this.gameMode = mode;
-        
+
         // Game configuration system for AI count selection (2-4 opponents)
         this.gameConfig = {
             aiCount: this.validateAICount(config.aiCount || 1), // Default to 1 for backward compatibility
             maxEntities: 5, // player + 4 AIs
             personalities: ['aggressive', 'defensive', 'erratic'],
-            colors: ['red', 'blue', 'yellow', 'purple']
+            colors: ['red', 'blue', 'yellow', 'purple'],
         };
-        
+
+        this.aiController = new AIController(this.gameConfig, this.bounds);
+
         // Initialize mode-specific components
         if (this.gameMode === GameModes.TIME_TRIAL) {
             this.survivalTimer = new SurvivalTimer();
@@ -34,10 +47,14 @@ class Game {
             this.survivalTimer = null;
             this.arenaShrinker = null;
         }
-        
+
         this.init();
     }
 
+    /**
+     * Set the game speed
+     * @param {number} speed - Game speed multiplier (must be > 0)
+     */
     setGameSpeed(speed) {
         if (typeof speed === 'number' && speed > 0) {
             this.gameSpeed = speed;
@@ -57,129 +74,16 @@ class Game {
     }
 
     /**
-     * Initialize AI opponents based on game configuration
-     */
-    initializeAIOpponents() {
-        this.aiOpponents = [];
-        
-        for (let i = 0; i < this.gameConfig.aiCount; i++) {
-            const startingPosition = this.calculateStartingPosition(i);
-            const personality = this.assignPersonality(i);
-            const color = this.assignColor(i);
-            
-            const aiOpponent = {
-                id: `ai_${i + 1}`,
-                x: startingPosition.x,
-                y: startingPosition.y,
-                z: startingPosition.z,
-                direction: startingPosition.direction,
-                trail: [],
-                personality: personality,
-                color: color,
-                alive: true,
-                previousPosition: { ...startingPosition }
-            };
-            
-            this.aiOpponents.push(aiOpponent);
-        }
-    }
-
-    /**
-     * Calculate starting position for AI opponent based on index
-     * @param {number} index - AI opponent index
-     * @returns {Object} Starting position with direction
-     */
-    calculateStartingPosition(index) {
-        const arenaSize = this.bounds;
-        const perimeter = arenaSize - 1;
-        
-        // For single AI, use legacy position for backward compatibility
-        if (this.gameConfig.aiCount === 1) {
-            return {
-                x: 0,
-                y: 0,
-                z: -10,
-                direction: { x: 1, y: 0, z: 0 }
-            };
-        }
-        
-        // Distribute AIs evenly around arena perimeter
-        const angle = (index / this.gameConfig.aiCount) * 2 * Math.PI;
-        const x = Math.round((arenaSize/2) + (perimeter/2) * Math.cos(angle));
-        const z = Math.round((arenaSize/2) + (perimeter/2) * Math.sin(angle));
-        
-        // Calculate initial direction based on angle (pointing toward center)
-        const directionAngle = angle + Math.PI; // Point toward center
-        const direction = {
-            x: Math.round(Math.cos(directionAngle)),
-            y: 0,
-            z: Math.round(Math.sin(directionAngle))
-        };
-        
-        // Ensure direction is normalized to valid game directions
-        if (Math.abs(direction.x) > Math.abs(direction.z)) {
-            direction.x = direction.x > 0 ? 1 : -1;
-            direction.z = 0;
-        } else {
-            direction.x = 0;
-            direction.z = direction.z > 0 ? 1 : -1;
-        }
-        
-        return { x, y: 0, z, direction };
-    }
-
-    /**
-     * Assign personality to AI opponent based on index
-     * @param {number} index - AI opponent index
-     * @returns {string} AI personality
-     */
-    assignPersonality(index) {
-        const personalities = this.gameConfig.personalities;
-        return personalities[index % personalities.length];
-    }
-
-    /**
-     * Assign color to AI opponent based on index
-     * @param {number} index - AI opponent index
-     * @returns {string} AI color
-     */
-    assignColor(index) {
-        const colors = this.gameConfig.colors;
-        return colors[index % colors.length];
-    }
-
-    /**
      * Add AI opponent to the game
      * @param {Object} aiConfig - AI configuration
      * @returns {boolean} Success status
      */
     addAI(aiConfig = {}) {
-        if (this.aiOpponents.length >= 4) {
-            return false; // Maximum 4 AI opponents
+        const success = this.aiController.addAI(aiConfig);
+        if (success) {
+            this.gameConfig.aiCount = this.aiController.getOpponents().length;
         }
-        
-        const index = this.aiOpponents.length;
-        const startingPosition = this.calculateStartingPosition(index);
-        const personality = aiConfig.personality || this.assignPersonality(index);
-        const color = aiConfig.color || this.assignColor(index);
-        
-        const aiOpponent = {
-            id: aiConfig.id || `ai_${index + 1}`,
-            x: aiConfig.x || startingPosition.x,
-            y: aiConfig.y || startingPosition.y,
-            z: aiConfig.z || startingPosition.z,
-            direction: aiConfig.direction || startingPosition.direction,
-            trail: [],
-            personality: personality,
-            color: color,
-            alive: true,
-            previousPosition: { x: aiConfig.x || startingPosition.x, y: aiConfig.y || startingPosition.y, z: aiConfig.z || startingPosition.z }
-        };
-        
-        this.aiOpponents.push(aiOpponent);
-        this.gameConfig.aiCount = this.aiOpponents.length;
-        
-        return true;
+        return success;
     }
 
     /**
@@ -188,15 +92,11 @@ class Game {
      * @returns {boolean} Success status
      */
     removeAI(aiId) {
-        const index = this.aiOpponents.findIndex(ai => ai.id === aiId);
-        if (index === -1) {
-            return false; // AI not found
+        const success = this.aiController.removeAI(aiId);
+        if (success) {
+            this.gameConfig.aiCount = this.aiController.getOpponents().length;
         }
-        
-        this.aiOpponents.splice(index, 1);
-        this.gameConfig.aiCount = this.aiOpponents.length;
-        
-        return true;
+        return success;
     }
 
     /**
@@ -205,7 +105,7 @@ class Game {
      */
     getAliveEntities() {
         const entities = [];
-        
+
         // Add player if alive (not crashed)
         if (!this.gameOver) {
             entities.push({
@@ -216,28 +116,14 @@ class Game {
                 z: this.player.z,
                 direction: this.playerDirection,
                 trail: this.playerTrail,
-                alive: true
+                alive: true,
             });
         }
-        
+
         // Add alive AI opponents
-        this.aiOpponents.forEach(ai => {
-            if (ai.alive) {
-                entities.push({
-                    id: ai.id,
-                    type: 'ai',
-                    x: ai.x,
-                    y: ai.y,
-                    z: ai.z,
-                    direction: ai.direction,
-                    trail: ai.trail,
-                    personality: ai.personality,
-                    color: ai.color,
-                    alive: ai.alive
-                });
-            }
-        });
-        
+        const aiEntities = this.aiController.getAliveEntities();
+        entities.push(...aiEntities);
+
         return entities;
     }
 
@@ -256,7 +142,7 @@ class Game {
                 maxX: halfSize,
                 minZ: -halfSize,
                 maxZ: halfSize,
-                size: this.bounds
+                size: this.bounds,
             };
         }
     }
@@ -305,6 +191,10 @@ class Game {
         return false;
     }
 
+    /**
+     * Get the current state of the game
+     * @returns {Object} Game state object containing player, AI, score, and config data
+     */
     getGameState() {
         const baseState = {
             bounds: this.bounds,
@@ -318,7 +208,7 @@ class Game {
             gameSpeed: this.gameSpeed,
             gameMode: this.gameMode,
             gameConfig: this.gameConfig,
-            ...this.scoreManager.getScoreState()
+            ...this.scoreManager.getScoreState(),
         };
 
         // Include AI state - return aiOpponents array for multi-AI support
@@ -326,7 +216,8 @@ class Game {
             baseState.aiOpponents = this.aiOpponents;
             // Maintain backward compatibility with single AI properties
             baseState.ai = this.aiOpponents.length > 0 ? this.aiOpponents[0] : null;
-            baseState.aiDirection = this.aiOpponents.length > 0 ? this.aiOpponents[0].direction : null;
+            baseState.aiDirection =
+                this.aiOpponents.length > 0 ? this.aiOpponents[0].direction : null;
             baseState.aiTrail = this.aiOpponents.length > 0 ? this.aiOpponents[0].trail : [];
         } else {
             // Explicitly set AI to null in Time Trial mode
@@ -365,6 +256,10 @@ class Game {
         return baseState;
     }
 
+    /**
+     * Initialize or reset game state
+     * Resets player, AI, and game metrics to starting values
+     */
     init() {
         this.gameOver = false;
         this.frameCount = 0;
@@ -377,13 +272,14 @@ class Game {
         this.playerPreviousPosition = { x: 0, y: 0, z: 0 };
         this.previousPlayerSpeed = this.gameSpeed; // Reset speed tracking
 
-        // Initialize aiOpponents array instead of single ai property
+        // Initialize aiOpponents array via AIController
         this.aiOpponents = [];
 
         // Initialize AI in Classic and Arena Shrink modes
         if (this.gameMode === GameModes.CLASSIC || this.gameMode === GameModes.ARENA_SHRINK) {
-            this.initializeAIOpponents();
-            
+            this.aiController.initialize();
+            this.aiOpponents = this.aiController.getOpponents();
+
             // Maintain backward compatibility properties for existing code
             if (this.aiOpponents.length > 0) {
                 this.ai = this.aiOpponents[0];
@@ -420,13 +316,17 @@ class Game {
         }
     }
 
+    /**
+     * Update game state for the current frame
+     * Handles movement, trails, and game logic
+     */
     update() {
         if (this.gameOver || this.isPaused) return;
 
         // Mark game as started on first update
         if (!this.gameStarted) {
             this.gameStarted = true;
-            
+
             // Start survival timer in Time Trial mode
             if (this.gameMode === GameModes.TIME_TRIAL && this.survivalTimer) {
                 this.survivalTimer.start();
@@ -451,7 +351,9 @@ class Game {
         }
 
         // Get speed multipliers from power-up system if available
-        const playerSpeedMultiplier = this.powerUpManager ? this.powerUpManager.getSpeedMultiplier('player') : 1.0;
+        const playerSpeedMultiplier = this.powerUpManager
+            ? this.powerUpManager.getSpeedMultiplier('player')
+            : 1.0;
         const currentPlayerSpeed = this.gameSpeed * playerSpeedMultiplier;
 
         // Track previous speed for camera effects
@@ -464,10 +366,13 @@ class Game {
         this.player.z += this.playerDirection.z * currentPlayerSpeed;
 
         // Trigger speed change event for camera effects if speed changed significantly
-        if (this.cameraEffectsManager && Math.abs(currentPlayerSpeed - this.previousPlayerSpeed) > 0.01) {
+        if (
+            this.cameraEffectsManager &&
+            Math.abs(currentPlayerSpeed - this.previousPlayerSpeed) > 0.01
+        ) {
             this.cameraEffectsManager.onSpeedChange(this.player, currentPlayerSpeed);
         }
-        
+
         // Update previous speed for next frame
         this.previousPlayerSpeed = currentPlayerSpeed;
 
@@ -475,19 +380,11 @@ class Game {
         this.playerTrail.push({ ...this.player });
 
         // Update AI opponents in Classic and Arena Shrink modes
-        if ((this.gameMode === GameModes.CLASSIC || this.gameMode === GameModes.ARENA_SHRINK) && this.aiOpponents.length > 0) {
-            this.aiOpponents.forEach(aiOpponent => {
-                if (aiOpponent.alive) {
-                    const aiSpeedMultiplier = this.powerUpManager ? this.powerUpManager.getSpeedMultiplier('ai') : 1.0;
-                    
-                    // Move AI with speed boost integration
-                    aiOpponent.x += aiOpponent.direction.x * this.gameSpeed * aiSpeedMultiplier;
-                    aiOpponent.z += aiOpponent.direction.z * this.gameSpeed * aiSpeedMultiplier;
-
-                    // Create AI Trail
-                    aiOpponent.trail.push({ x: aiOpponent.x, y: aiOpponent.y, z: aiOpponent.z });
-                }
-            });
+        if (
+            (this.gameMode === GameModes.CLASSIC || this.gameMode === GameModes.ARENA_SHRINK) &&
+            this.aiOpponents.length > 0
+        ) {
+            this.aiController.update(this.gameSpeed);
 
             // Maintain backward compatibility - update legacy properties with first AI
             if (this.aiOpponents.length > 0) {
@@ -498,14 +395,19 @@ class Game {
         }
     }
 
+    /**
+     * Change player direction based on input
+     * @param {string} key - Key code (ArrowUp, ArrowDown, ArrowLeft, ArrowRight)
+     * @returns {boolean} True if direction changed, false otherwise
+     */
     changePlayerDirection(key) {
         if (!key || typeof key !== 'string') {
             return; // Handle invalid input gracefully
         }
-        
+
         let directionChanged = false;
         const previousDirection = { ...this.playerDirection };
-        
+
         switch (key) {
             case 'ArrowUp':
                 if (this.playerDirection.z === 0) {
@@ -535,29 +437,33 @@ class Game {
                 // Handle unknown keys gracefully by doing nothing
                 break;
         }
-        
+
         // Return whether direction actually changed for audio trigger
         return directionChanged;
     }
 
+    /**
+     * Pause the game
+     * @returns {boolean} True if paused successfully, false if game over
+     */
     pause() {
         // Prevent pause during game over conditions
         if (this.gameOver) {
             return false;
         }
-        
+
         // Handle multiple pause attempts gracefully
         if (this.isPaused) {
             return true; // Already paused, return success
         }
-        
+
         this.isPaused = true;
-        
+
         // Pause camera effects
         if (this.cameraEffectsManager && this.cameraEffectsManager.isEnabled()) {
             this.cameraEffectsManager.pause();
         }
-        
+
         // Pause survival timer in Time Trial mode
         if (this.gameMode === GameModes.TIME_TRIAL && this.survivalTimer) {
             this.survivalTimer.pause();
@@ -570,28 +476,32 @@ class Game {
             }
             // Note: ArenaShrinker pausing is handled by the game loop not calling update()
         }
-        
+
         return true;
     }
 
+    /**
+     * Resume the game from paused state
+     * @returns {boolean} True if resumed successfully, false if not paused or game over
+     */
     resume() {
         // Validate resume operation - only resume if currently paused
         if (!this.isPaused) {
             return false; // Not paused, cannot resume
         }
-        
+
         // Prevent resume during game over conditions
         if (this.gameOver) {
             return false;
         }
-        
+
         this.isPaused = false;
-        
+
         // Resume camera effects
         if (this.cameraEffectsManager && this.cameraEffectsManager.isEnabled()) {
             this.cameraEffectsManager.resume();
         }
-        
+
         // Resume survival timer in Time Trial mode
         if (this.gameMode === GameModes.TIME_TRIAL && this.survivalTimer) {
             this.survivalTimer.resume();
@@ -604,16 +514,20 @@ class Game {
             }
             // Note: ArenaShrinker resuming is handled by the game loop calling update() again
         }
-        
+
         return true;
     }
 
+    /**
+     * Toggle pause state
+     * @returns {boolean} True if state changed successfully
+     */
     togglePause() {
         // Prevent toggle during game over conditions
         if (this.gameOver) {
             return false;
         }
-        
+
         if (this.isPaused) {
             return this.resume();
         } else {
@@ -630,9 +544,9 @@ class Game {
      */
     handleRoundEnd(collisionResult) {
         if (!collisionResult) return;
-        
+
         const { playerCollided, aiCollided } = collisionResult;
-        
+
         // Stop survival timer in Time Trial mode when game ends
         if (this.gameMode === GameModes.TIME_TRIAL) {
             this.stopSurvivalTimer();
@@ -646,7 +560,7 @@ class Game {
                 this.arenaShrinker.stopSurvivalTracking(Date.now());
             }
         }
-        
+
         // Determine winner and update scores (only relevant for Classic mode)
         if (this.gameMode === GameModes.CLASSIC) {
             if (playerCollided && !aiCollided) {
@@ -660,6 +574,10 @@ class Game {
         }
     }
 
+    /**
+     * Restart the game
+     * Resets scores and re-initializes game state
+     */
     restart() {
         this.scoreManager.resetCurrentScores();
         this.init();
@@ -670,7 +588,10 @@ class Game {
      * Called after countdown completion
      */
     startSurvivalTimer() {
-        if ((this.gameMode === GameModes.TIME_TRIAL || this.gameMode === GameModes.ARENA_SHRINK) && this.survivalTimer) {
+        if (
+            (this.gameMode === GameModes.TIME_TRIAL || this.gameMode === GameModes.ARENA_SHRINK) &&
+            this.survivalTimer
+        ) {
             this.survivalTimer.start();
         }
     }
@@ -680,7 +601,10 @@ class Game {
      * Called when game ends
      */
     stopSurvivalTimer() {
-        if ((this.gameMode === GameModes.TIME_TRIAL || this.gameMode === GameModes.ARENA_SHRINK) && this.survivalTimer) {
+        if (
+            (this.gameMode === GameModes.TIME_TRIAL || this.gameMode === GameModes.ARENA_SHRINK) &&
+            this.survivalTimer
+        ) {
             this.survivalTimer.stop();
         }
     }
@@ -690,7 +614,10 @@ class Game {
      * @returns {number} Survival time in milliseconds, or 0 if not in Time Trial or Arena Shrink mode
      */
     getSurvivalTime() {
-        if ((this.gameMode === GameModes.TIME_TRIAL || this.gameMode === GameModes.ARENA_SHRINK) && this.survivalTimer) {
+        if (
+            (this.gameMode === GameModes.TIME_TRIAL || this.gameMode === GameModes.ARENA_SHRINK) &&
+            this.survivalTimer
+        ) {
             return this.survivalTimer.getElapsedTime();
         }
         return 0;
@@ -701,10 +628,13 @@ class Game {
      * @returns {string} Formatted time string (MM:SS.SS)
      */
     getFormattedSurvivalTime() {
-        if ((this.gameMode === GameModes.TIME_TRIAL || this.gameMode === GameModes.ARENA_SHRINK) && this.survivalTimer) {
+        if (
+            (this.gameMode === GameModes.TIME_TRIAL || this.gameMode === GameModes.ARENA_SHRINK) &&
+            this.survivalTimer
+        ) {
             return this.survivalTimer.getCurrentFormattedTime();
         }
-        return "00:00.00";
+        return '00:00.00';
     }
 
     /**
@@ -739,7 +669,7 @@ class Game {
     setGameMode(mode) {
         if (this.gameMode !== mode) {
             this.gameMode = mode;
-            
+
             // Initialize or cleanup components based on mode
             if (mode === GameModes.TIME_TRIAL) {
                 if (!this.survivalTimer) {
@@ -758,7 +688,7 @@ class Game {
                 this.survivalTimer = null;
                 this.arenaShrinker = null;
             }
-            
+
             // Reinitialize game state for new mode
             this.init();
         }
@@ -770,6 +700,9 @@ class Game {
      */
     setPowerUpManager(powerUpManager) {
         this.powerUpManager = powerUpManager;
+        if (this.aiController) {
+            this.aiController.setPowerUpManager(powerUpManager);
+        }
     }
 
     /**

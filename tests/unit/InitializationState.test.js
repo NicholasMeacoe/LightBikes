@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { InitializationState } = require('@/utils/InitializationState.js');
 
 describe('InitializationState', () => {
@@ -6,6 +22,7 @@ describe('InitializationState', () => {
 
     beforeEach(() => {
         state = new InitializationState();
+        state.debug = true; // Enable logging for tests
         mockPerformanceNow = jest.spyOn(performance, 'now');
         mockPerformanceNow.mockReturnValue(1000);
     });
@@ -46,63 +63,51 @@ describe('InitializationState', () => {
     describe('start', () => {
         it('should set startTime', () => {
             state.start();
-            
+
             expect(state.startTime).toBe(1000);
         });
 
         it('should log start message', () => {
-            const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-            
             state.start();
-            
-            expect(consoleSpy).toHaveBeenCalledWith(
+
+            expect(mockLogger.info).toHaveBeenCalledWith(
                 '[InitializationState] Initialization started'
             );
-            
-            consoleSpy.mockRestore();
         });
     });
 
     describe('completeStep', () => {
         it('should mark step as complete', () => {
             state.completeStep('domReady');
-            
+
             expect(state.steps.domReady).toBe(true);
         });
 
         it('should update currentStep', () => {
             state.completeStep('domReady');
-            
+
             expect(state.currentStep).toBe('domReady');
         });
 
         it('should log step completion', () => {
-            const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-            
             state.completeStep('domReady');
-            
-            expect(consoleSpy).toHaveBeenCalledWith(
+
+            expect(mockLogger.info).toHaveBeenCalledWith(
                 '[InitializationState] Step completed: domReady'
             );
-            
-            consoleSpy.mockRestore();
         });
 
         it('should warn for unknown step', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-            
             state.completeStep('unknownStep');
-            
-            expect(consoleSpy).toHaveBeenCalledWith(
+
+            expect(mockLogger.warn).toHaveBeenCalledWith(
                 'Unknown initialization step: unknownStep'
             );
-            
-            consoleSpy.mockRestore();
         });
 
         it('should not update currentStep for unknown step', () => {
             state.completeStep('unknownStep');
-            
+
             expect(state.currentStep).toBeNull();
         });
     });
@@ -111,9 +116,9 @@ describe('InitializationState', () => {
         it('should add error to errors array', () => {
             const error = new Error('Test error');
             state.start();
-            
+
             state.recordError('domReady', error);
-            
+
             expect(state.errors.length).toBe(1);
         });
 
@@ -121,13 +126,13 @@ describe('InitializationState', () => {
             const error = new Error('Test error');
             error.name = 'TestError';
             state.start();
-            
+
             state.recordError('domReady', error);
-            
+
             expect(state.errors[0]).toMatchObject({
                 step: 'domReady',
                 error: 'Test error',
-                name: 'TestError'
+                name: 'TestError',
             });
         });
 
@@ -135,18 +140,18 @@ describe('InitializationState', () => {
             const error = new Error('Test error');
             error.recoverable = true;
             state.start();
-            
+
             state.recordError('domReady', error);
-            
+
             expect(state.errors[0].recoverable).toBe(true);
         });
 
         it('should default recoverable to false', () => {
             const error = new Error('Test error');
             state.start();
-            
+
             state.recordError('domReady', error);
-            
+
             expect(state.errors[0].recoverable).toBe(false);
         });
 
@@ -154,24 +159,21 @@ describe('InitializationState', () => {
             const error = new Error('Test error');
             state.start();
             mockPerformanceNow.mockReturnValue(1500);
-            
+
             state.recordError('domReady', error);
-            
+
             expect(state.errors[0].timestamp).toBe(500);
         });
 
         it('should log error', () => {
-            const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
             const error = new Error('Test error');
             state.start();
-            
+
             state.recordError('domReady', error);
-            
-            expect(consoleSpy).toHaveBeenCalledWith(
+
+            expect(mockLogger.info).toHaveBeenCalledWith(
                 '[InitializationState] Error in domReady: Test error'
             );
-            
-            consoleSpy.mockRestore();
         });
     });
 
@@ -179,32 +181,29 @@ describe('InitializationState', () => {
         it('should set endTime', () => {
             state.start();
             mockPerformanceNow.mockReturnValue(2000);
-            
+
             state.complete();
-            
+
             expect(state.endTime).toBe(2000);
         });
 
         it('should mark gameStarted as true', () => {
             state.start();
-            
+
             state.complete();
-            
+
             expect(state.steps.gameStarted).toBe(true);
         });
 
         it('should log completion with duration', () => {
-            const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
             state.start();
             mockPerformanceNow.mockReturnValue(2000);
-            
+
             state.complete();
-            
-            expect(consoleSpy).toHaveBeenCalledWith(
+
+            expect(mockLogger.info).toHaveBeenCalledWith(
                 '[InitializationState] Initialization completed in 1000ms'
             );
-            
-            consoleSpy.mockRestore();
         });
     });
 
@@ -216,7 +215,7 @@ describe('InitializationState', () => {
         it('should calculate duration from start to now', () => {
             state.start();
             mockPerformanceNow.mockReturnValue(1500);
-            
+
             expect(state.getDuration()).toBe(500);
         });
 
@@ -224,14 +223,14 @@ describe('InitializationState', () => {
             state.start();
             mockPerformanceNow.mockReturnValue(2000);
             state.complete();
-            
+
             expect(state.getDuration()).toBe(1000);
         });
 
         it('should round duration', () => {
             state.start();
             mockPerformanceNow.mockReturnValue(1500.7);
-            
+
             expect(state.getDuration()).toBe(501);
         });
     });
@@ -243,7 +242,7 @@ describe('InitializationState', () => {
 
         it('should return true for complete step', () => {
             state.completeStep('domReady');
-            
+
             expect(state.isStepComplete('domReady')).toBe(true);
         });
     });
@@ -256,7 +255,7 @@ describe('InitializationState', () => {
         it('should return completed steps', () => {
             state.completeStep('domReady');
             state.completeStep('errorHandlingInit');
-            
+
             const completed = state.getCompletedSteps();
             expect(completed).toContain('domReady');
             expect(completed).toContain('errorHandlingInit');
@@ -267,14 +266,14 @@ describe('InitializationState', () => {
     describe('getIncompleteSteps', () => {
         it('should return all steps initially', () => {
             const incomplete = state.getIncompleteSteps();
-            
+
             expect(incomplete.length).toBe(11);
         });
 
         it('should exclude completed steps', () => {
             state.completeStep('domReady');
             state.completeStep('errorHandlingInit');
-            
+
             const incomplete = state.getIncompleteSteps();
             expect(incomplete).not.toContain('domReady');
             expect(incomplete).not.toContain('errorHandlingInit');
@@ -286,9 +285,9 @@ describe('InitializationState', () => {
         it('should return state summary', () => {
             state.start();
             state.completeStep('domReady');
-            
+
             const summary = state.getState();
-            
+
             expect(summary).toHaveProperty('steps');
             expect(summary).toHaveProperty('currentStep');
             expect(summary).toHaveProperty('errors');
@@ -300,7 +299,7 @@ describe('InitializationState', () => {
 
         it('should include current step', () => {
             state.completeStep('domReady');
-            
+
             const summary = state.getState();
             expect(summary.currentStep).toBe('domReady');
         });
@@ -308,7 +307,7 @@ describe('InitializationState', () => {
         it('should include completed count', () => {
             state.completeStep('domReady');
             state.completeStep('errorHandlingInit');
-            
+
             const summary = state.getState();
             expect(summary.completedCount).toBe(2);
         });
@@ -321,9 +320,9 @@ describe('InitializationState', () => {
         it('should indicate completion status', () => {
             const summary1 = state.getState();
             expect(summary1.isComplete).toBe(false);
-            
+
             state.complete();
-            
+
             const summary2 = state.getState();
             expect(summary2.isComplete).toBe(true);
         });
@@ -332,7 +331,7 @@ describe('InitializationState', () => {
     describe('getRecoveryRecommendation', () => {
         it('should not recommend recovery if no errors', () => {
             const recommendation = state.getRecoveryRecommendation();
-            
+
             expect(recommendation.shouldRecover).toBe(false);
             expect(recommendation.reason).toBe('No errors recorded');
         });
@@ -341,9 +340,9 @@ describe('InitializationState', () => {
             const error = new Error('Fatal error');
             error.recoverable = false;
             state.recordError('webglCheck', error);
-            
+
             const recommendation = state.getRecoveryRecommendation();
-            
+
             expect(recommendation.shouldRecover).toBe(false);
             expect(recommendation.reason).toBe('Error is not recoverable');
         });
@@ -352,9 +351,9 @@ describe('InitializationState', () => {
             const error = new Error('DOM error');
             error.recoverable = true;
             state.recordError('domReady', error);
-            
+
             const recommendation = state.getRecoveryRecommendation();
-            
+
             expect(recommendation.shouldRecover).toBe(true);
             expect(recommendation.strategy).toBe('retry');
             expect(recommendation.step).toBe('domReady');
@@ -364,9 +363,9 @@ describe('InitializationState', () => {
             const error = new Error('Mode selector error');
             error.recoverable = true;
             state.recordError('modeSelectorReady', error);
-            
+
             const recommendation = state.getRecoveryRecommendation();
-            
+
             expect(recommendation.shouldRecover).toBe(true);
             expect(recommendation.strategy).toBe('fallback');
             expect(recommendation.step).toBe('modeSelectorReady');
@@ -376,9 +375,9 @@ describe('InitializationState', () => {
             const error = new Error('Recoverable error');
             error.recoverable = true;
             state.recordError('systemsInit', error);
-            
+
             const recommendation = state.getRecoveryRecommendation();
-            
+
             expect(recommendation.shouldRecover).toBe(true);
             expect(recommendation.strategy).toBe('retry');
         });
@@ -388,9 +387,9 @@ describe('InitializationState', () => {
         it('should reset all steps to incomplete', () => {
             state.completeStep('domReady');
             state.completeStep('errorHandlingInit');
-            
+
             state.reset();
-            
+
             expect(state.steps.domReady).toBe(false);
             expect(state.steps.errorHandlingInit).toBe(false);
         });
@@ -398,40 +397,36 @@ describe('InitializationState', () => {
         it('should clear errors array', () => {
             const error = new Error('Test error');
             state.recordError('domReady', error);
-            
+
             state.reset();
-            
+
             expect(state.errors).toEqual([]);
         });
 
         it('should reset timestamps', () => {
             state.start();
             state.complete();
-            
+
             state.reset();
-            
+
             expect(state.startTime).toBeNull();
             expect(state.endTime).toBeNull();
         });
 
         it('should reset currentStep', () => {
             state.completeStep('domReady');
-            
+
             state.reset();
-            
+
             expect(state.currentStep).toBeNull();
         });
 
         it('should log reset', () => {
-            const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-            
             state.reset();
-            
-            expect(consoleSpy).toHaveBeenCalledWith(
+
+            expect(mockLogger.info).toHaveBeenCalledWith(
                 '[InitializationState] State reset for retry'
             );
-            
-            consoleSpy.mockRestore();
         });
     });
 
@@ -449,7 +444,7 @@ describe('InitializationState', () => {
             state.completeStep('systemsInit');
             state.completeStep('modeSelectorReady');
             state.complete();
-            
+
             const summary = state.getState();
             expect(summary.isComplete).toBe(true);
             expect(summary.completedCount).toBe(11);
@@ -458,11 +453,11 @@ describe('InitializationState', () => {
         it('should track errors during initialization', () => {
             state.start();
             state.completeStep('domReady');
-            
+
             const error = new Error('Test error');
             error.recoverable = true;
             state.recordError('webglCheck', error);
-            
+
             const summary = state.getState();
             expect(summary.errors.length).toBe(1);
             expect(summary.completedCount).toBe(1);

@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { GameRoom } = require('../../server/GameRoom.js');
 const { AntiCheatValidator } = require('../../server/AntiCheatValidator.js');
 const { ClientPrediction } = require('@/multiplayer/ClientPrediction.js');
@@ -9,11 +25,27 @@ describe('Online Multiplayer Component Integration', () => {
 
         beforeEach(() => {
             mockIo = { to: jest.fn().mockReturnThis(), emit: jest.fn() };
-            mockSocket1 = { id: 'socket1', join: jest.fn(), leave: jest.fn(), on: jest.fn(), emit: jest.fn() };
-            mockSocket2 = { id: 'socket2', join: jest.fn(), leave: jest.fn(), on: jest.fn(), emit: jest.fn() };
+            mockSocket1 = {
+                id: 'socket1',
+                join: jest.fn(),
+                leave: jest.fn(),
+                on: jest.fn(),
+                emit: jest.fn(),
+            };
+            mockSocket2 = {
+                id: 'socket2',
+                join: jest.fn(),
+                leave: jest.fn(),
+                on: jest.fn(),
+                emit: jest.fn(),
+            };
         });
 
         it('should handle complete multiplayer game flow', () => {
+            // Mock Date.now() to control time flow
+            let mockTime = 1000000;
+            const dateSpy = jest.spyOn(Date, 'now').mockImplementation(() => mockTime);
+
             const room = new GameRoom('ROOM01', { maxPlayers: 2, gameMode: 'classic' }, mockIo);
 
             room.addPlayer(mockSocket1, { name: 'Player1', isHost: true });
@@ -28,10 +60,15 @@ describe('Online Multiplayer Component Integration', () => {
             expect(room.gameState).toBeDefined();
 
             room.status = 'playing';
+            room.lastUpdateTime = mockTime; // Sync update time
+
             for (let i = 0; i < 10; i++) {
+                mockTime += 16; // Advance 16ms per frame (~60fps)
                 room.updateGameState();
             }
             expect(room.frameNumber).toBe(10);
+
+            dateSpy.mockRestore();
         });
     });
 
@@ -40,7 +77,13 @@ describe('Online Multiplayer Component Integration', () => {
 
         beforeEach(() => {
             mockIo = { to: jest.fn().mockReturnThis(), emit: jest.fn() };
-            mockSocket = { id: 'socket1', join: jest.fn(), leave: jest.fn(), on: jest.fn(), emit: jest.fn() };
+            mockSocket = {
+                id: 'socket1',
+                join: jest.fn(),
+                leave: jest.fn(),
+                on: jest.fn(),
+                emit: jest.fn(),
+            };
 
             room = new GameRoom('ROOM01', { maxPlayers: 2 }, mockIo);
             room.addPlayer(mockSocket, { name: 'Player1', isHost: true });
@@ -51,7 +94,11 @@ describe('Online Multiplayer Component Integration', () => {
 
         it('should validate movements', () => {
             const player = room.gameState.players[mockSocket.id];
-            const newPos = { x: player.position.x + 0.1, y: player.position.y, z: player.position.z };
+            const newPos = {
+                x: player.position.x + 0.1,
+                y: player.position.y,
+                z: player.position.z,
+            };
 
             const result = validator.validatePosition(mockSocket.id, newPos, Date.now());
             expect(result.valid).toBe(true);
@@ -59,7 +106,11 @@ describe('Online Multiplayer Component Integration', () => {
 
         it('should detect teleportation', () => {
             const player = room.gameState.players[mockSocket.id];
-            const teleportPos = { x: player.position.x + 10, y: player.position.y, z: player.position.z + 10 };
+            const teleportPos = {
+                x: player.position.x + 10,
+                y: player.position.y,
+                z: player.position.z + 10,
+            };
 
             const result = validator.validatePosition(mockSocket.id, teleportPos, Date.now());
             expect(result.valid).toBe(false);
@@ -72,16 +123,20 @@ describe('Online Multiplayer Component Integration', () => {
 
         beforeEach(() => {
             mockGameInstance = {
-                player: { position: { x: 0, y: 0, z: 0 }, direction: { x: 1, y: 0, z: 0 }, trail: [] },
+                player: {
+                    position: { x: 0, y: 0, z: 0 },
+                    direction: { x: 1, y: 0, z: 0 },
+                    trail: [],
+                },
                 frameCount: 0,
                 // Add getGameState mock
                 getGameState: jest.fn().mockReturnValue({
                     player: { x: 0, y: 0, z: 0 },
                     playerDirection: { x: 1, y: 0, z: 0 },
                     playerTrail: [],
-                    frameCount: 0
+                    frameCount: 0,
                 }),
-                changePlayerDirection: jest.fn().mockReturnValue(true)
+                changePlayerDirection: jest.fn().mockReturnValue(true),
             };
             clientPrediction = new ClientPrediction(mockGameInstance);
         });
@@ -94,13 +149,13 @@ describe('Online Multiplayer Component Integration', () => {
 
             const serverState = {
                 players: {
-                    'p1': {
+                    p1: {
                         position: { x: 0.5, y: 0, z: 0 },
                         direction: { x: 1, y: 0, z: 0 },
-                        trail: []
-                    }
+                        trail: [],
+                    },
                 },
-                timestamp: Date.now()
+                timestamp: Date.now(),
             };
             clientPrediction.reconcileWithServer(serverState, serverState.timestamp);
             // Note: reconcileWithServer updates gameInstance directly, but our mock is simple.
@@ -123,7 +178,7 @@ describe('Online Multiplayer Component Integration', () => {
                 direction: { x: 1, y: 0, z: 0 },
                 isAlive: true,
                 id: 'p1',
-                name: 'Player 1'
+                name: 'Player 1',
             };
 
             const state2 = {
@@ -131,7 +186,7 @@ describe('Online Multiplayer Component Integration', () => {
                 direction: { x: 1, y: 0, z: 0 },
                 isAlive: true,
                 id: 'p1',
-                name: 'Player 1'
+                name: 'Player 1',
             };
 
             // Use correct API: addStateToBuffer(playerId, state, timestamp)
@@ -140,7 +195,7 @@ describe('Online Multiplayer Component Integration', () => {
 
             // Use correct API: getInterpolatedState(playerId, renderTime)
             // We want to interpolate halfway (50ms after start)
-            // Since interpolationDelay is 100ms by default (high quality), 
+            // Since interpolationDelay is 100ms by default (high quality),
             // we need to request a time that puts us between the two states AFTER delay adjustment.
             // interpolationTime = renderTime - delay
             // We want interpolationTime = timestamp + 50

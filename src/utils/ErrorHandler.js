@@ -2,6 +2,8 @@
  * ErrorHandler - Comprehensive error display and recovery system
  * Provides user-friendly error messages and recovery mechanisms
  */
+const { logger } = require('./Logger.js');
+
 class ErrorHandler {
     constructor() {
         this.errorContainer = null;
@@ -17,7 +19,7 @@ class ErrorHandler {
      */
     init() {
         if (this.initialized) return;
-        
+
         this.createErrorContainer();
         this.addStyles();
         this.initialized = true;
@@ -211,7 +213,7 @@ class ErrorHandler {
      * @param {string} options.id - Unique error ID for deduplication
      * @returns {string} Error ID
      */
-    showError(message, options = {}) {
+    showError(message, options = /** @type {any} */ ({})) {
         if (!this.initialized) {
             this.init();
         }
@@ -221,7 +223,7 @@ class ErrorHandler {
             title = this.getDefaultTitle(type),
             duration = type === 'critical' ? 0 : 5000,
             actions = [],
-            id = `error-${this.errorCount++}`
+            id = `error-${this.errorCount++}`,
         } = options;
 
         // Prevent duplicate errors
@@ -247,7 +249,7 @@ class ErrorHandler {
         // Add action buttons
         if (actions.length > 0) {
             const actionsContainer = errorElement.querySelector('.error-actions');
-            actions.forEach(action => {
+            actions.forEach((action) => {
                 const button = document.createElement('button');
                 button.className = `error-action-btn ${action.primary ? 'primary' : ''}`;
                 button.textContent = action.label;
@@ -262,6 +264,7 @@ class ErrorHandler {
         }
 
         // Add close button handler
+        /** @type {HTMLElement} */
         const closeButton = errorElement.querySelector('.error-close');
         closeButton.onclick = () => this.dismissError(id);
 
@@ -275,7 +278,14 @@ class ErrorHandler {
         }
 
         // Log to console
-        console.error(`[${type.toUpperCase()}] ${title}: ${message}`);
+        const logMsg = `[${type.toUpperCase()}] ${title}: ${message}`;
+        if (type === 'info') {
+            logger.info(logMsg);
+        } else if (type === 'warning') {
+            logger.warn(logMsg);
+        } else {
+            logger.error(logMsg);
+        }
 
         return id;
     }
@@ -314,7 +324,7 @@ class ErrorHandler {
             error: 'Error',
             warning: 'Warning',
             info: 'Information',
-            critical: 'Critical Error'
+            critical: 'Critical Error',
         };
         return titles[type] || 'Error';
     }
@@ -342,7 +352,7 @@ class ErrorHandler {
         const attempts = this.retryAttempts.get(errorId) || 0;
 
         const actions = [];
-        
+
         // Add retry button if under max retries
         if (attempts < this.maxRetries && retryCallback) {
             actions.push({
@@ -351,26 +361,23 @@ class ErrorHandler {
                     this.retryAttempts.set(errorId, attempts + 1);
                     retryCallback();
                 },
-                primary: true
+                primary: true,
             });
         }
 
         // Add reload button
         actions.push({
             label: 'Reload Page',
-            callback: () => window.location.reload()
+            callback: () => window.location.reload(),
         });
 
-        return this.showError(
-            `Failed to initialize ${componentName}: ${error.message}`,
-            {
-                type: attempts >= this.maxRetries ? 'critical' : 'error',
-                title: `${componentName} Initialization Failed`,
-                duration: 0,
-                actions,
-                id: errorId
-            }
-        );
+        return this.showError(`Failed to initialize ${componentName}: ${error.message}`, {
+            type: attempts >= this.maxRetries ? 'critical' : 'error',
+            title: `${componentName} Initialization Failed`,
+            duration: 0,
+            actions,
+            id: errorId,
+        });
     }
 
     /**
@@ -388,10 +395,10 @@ class ErrorHandler {
                 actions: [
                     {
                         label: 'Learn More',
-                        callback: () => window.open('https://get.webgl.org/', '_blank')
-                    }
+                        callback: () => window.open('https://get.webgl.org/', '_blank'),
+                    },
                 ],
-                id: 'webgl-error'
+                id: 'webgl-error',
             }
         );
     }
@@ -404,12 +411,12 @@ class ErrorHandler {
      */
     handleRenderingError(error, fallbackCallback) {
         const actions = [];
-        
+
         if (fallbackCallback) {
             actions.push({
                 label: 'Use Simple Graphics',
                 callback: fallbackCallback,
-                primary: true
+                primary: true,
             });
         }
 
@@ -420,7 +427,7 @@ class ErrorHandler {
                 title: 'Rendering Error',
                 duration: 0,
                 actions,
-                id: 'rendering-error'
+                id: 'rendering-error',
             }
         );
     }
@@ -434,12 +441,12 @@ class ErrorHandler {
      */
     handleFeatureError(featureName, error, disableCallback) {
         const actions = [];
-        
+
         if (disableCallback) {
             actions.push({
                 label: 'Disable Feature',
                 callback: disableCallback,
-                primary: true
+                primary: true,
             });
         }
 
@@ -450,7 +457,7 @@ class ErrorHandler {
                 title: `${featureName} Error`,
                 duration: 8000,
                 actions,
-                id: `feature-${featureName}`
+                id: `feature-${featureName}`,
             }
         );
     }
@@ -465,7 +472,7 @@ class ErrorHandler {
         return this.showError(message, {
             ...options,
             type: 'warning',
-            duration: options.duration || 5000
+            duration: options.duration || 5000,
         });
     }
 
@@ -479,7 +486,7 @@ class ErrorHandler {
         return this.showError(message, {
             ...options,
             type: 'info',
-            duration: options.duration || 4000
+            duration: options.duration || 4000,
         });
     }
 

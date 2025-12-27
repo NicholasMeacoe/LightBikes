@@ -1,4 +1,5 @@
 const { DualControlScheme } = require('./DualControlScheme.js');
+const { logger } = require('./Logger.js');
 
 class PlayerController {
     constructor(game) {
@@ -17,7 +18,7 @@ class PlayerController {
                 const pauseResult = this.game.togglePause();
                 if (!pauseResult) {
                     // Pause operation failed (e.g., during game over), but handle gracefully
-                    console.debug('Pause operation not available in current game state');
+                    logger.debug('Pause operation not available in current game state');
                 }
                 return;
             }
@@ -145,7 +146,7 @@ class PlayerController {
                     // Handle resume operation result gracefully
                     const resumeResult = this.game.resume();
                     if (!resumeResult) {
-                        console.debug('Resume operation not available in current game state');
+                        logger.debug('Resume operation not available in current game state');
                     }
                 });
 
@@ -155,14 +156,12 @@ class PlayerController {
                     // Handle resume operation result gracefully
                     const resumeResult = this.game.resume();
                     if (!resumeResult) {
-                        console.debug('Resume operation not available in current game state');
+                        logger.debug('Resume operation not available in current game state');
                     }
                 });
             }
         }, 0);
     }
-
-
 }
 
 module.exports = { PlayerController };

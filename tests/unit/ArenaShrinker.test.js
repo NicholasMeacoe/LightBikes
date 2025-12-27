@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { ArenaShrinker } = require('@/systems/ArenaShrinker.js');
 
 describe('ArenaShrinker', () => {
@@ -127,7 +143,7 @@ describe('ArenaShrinker', () => {
                 maxX: 15,
                 minZ: -15,
                 maxZ: 15,
-                size: 30
+                size: 30,
             });
         });
 
@@ -138,7 +154,7 @@ describe('ArenaShrinker', () => {
                 maxX: 14,
                 minZ: -14,
                 maxZ: 14,
-                size: 28
+                size: 28,
             });
         });
 
@@ -152,7 +168,7 @@ describe('ArenaShrinker', () => {
                 maxX: 14,
                 minZ: -14,
                 maxZ: 14,
-                size: 28
+                size: 28,
             });
         });
 
@@ -377,7 +393,7 @@ describe('ArenaShrinker', () => {
 
         it('should provide shrink timestamps at specific events', () => {
             const shrinkTimes = [];
-            
+
             // Execute multiple shrinks and record times
             for (let i = 0; i < 3; i++) {
                 mockCurrentTime += 5000;
@@ -534,12 +550,12 @@ describe('ArenaShrinker', () => {
             // Test multiple cycles for timing consistency
             for (let cycle = 0; cycle < 3; cycle++) {
                 const cycleStart = mockCurrentTime;
-                
+
                 // Warning should activate at exactly 3 seconds
                 mockCurrentTime = cycleStart + 3000;
                 arenaShrinker.update(mockCurrentTime);
                 expect(arenaShrinker.isWarningActive()).toBe(true);
-                
+
                 // Shrink should occur at exactly 5 seconds
                 mockCurrentTime = cycleStart + 5000;
                 arenaShrinker.update(mockCurrentTime);
@@ -556,28 +572,28 @@ describe('ArenaShrinker', () => {
             const rapidShrinker = new ArenaShrinker();
             const testStartTime = 2000;
             rapidShrinker.initialize(testStartTime);
-            
+
             const shrinkCallback = jest.fn();
             rapidShrinker.setOnShrink(shrinkCallback);
 
             // Test that multiple rapid updates at the same time don't cause multiple shrinks
             let currentTime = testStartTime + 5000; // At shrink time
-            
+
             // Call update multiple times at the exact same timestamp
             for (let i = 0; i < 10; i++) {
                 rapidShrinker.update(currentTime);
             }
-            
+
             // Should only shrink once despite multiple updates
             expect(rapidShrinker.getShrinkCount()).toBe(1);
             expect(shrinkCallback).toHaveBeenCalledTimes(1);
-            
+
             // Test second shrink
             currentTime += 5000; // 10 seconds total
             for (let i = 0; i < 10; i++) {
                 rapidShrinker.update(currentTime);
             }
-            
+
             expect(rapidShrinker.getShrinkCount()).toBe(2);
             expect(shrinkCallback).toHaveBeenCalledTimes(2);
         });
@@ -589,11 +605,11 @@ describe('ArenaShrinker', () => {
             // Irregular update pattern
             mockCurrentTime += 1000; // 1s
             arenaShrinker.update(mockCurrentTime);
-            
+
             mockCurrentTime += 3500; // 4.5s total
             arenaShrinker.update(mockCurrentTime);
             expect(arenaShrinker.isWarningActive()).toBe(true);
-            
+
             mockCurrentTime += 600; // 5.1s total
             arenaShrinker.update(mockCurrentTime);
             expect(arenaShrinker.getShrinkCount()).toBe(1);

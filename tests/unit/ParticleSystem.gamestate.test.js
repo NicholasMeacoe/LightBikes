@@ -3,10 +3,29 @@
  * Tests pause/resume, game restart, and game over handling
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { ParticleSystem } = require('@/rendering/ParticleSystem.js');
 
 // Mock Three.js
 global.THREE = {
+    MeshBasicMaterial: jest.fn().mockImplementation(() => ({})),
+    MeshLambertMaterial: jest.fn().mockImplementation(() => ({})),
+    SphereGeometry: jest.fn().mockImplementation(() => ({})),
     BufferGeometry: class {
         constructor() {
             this.attributes = {};
@@ -90,7 +109,7 @@ global.THREE = {
     ClampToEdgeWrapping: 'clamp',
     LinearFilter: 'linear',
     RGBAFormat: 'rgba',
-    DoubleSide: 'double'
+    DoubleSide: 'double',
 };
 
 describe('ParticleSystem Game State Management', () => {
@@ -100,12 +119,12 @@ describe('ParticleSystem Game State Management', () => {
     beforeEach(() => {
         mockScene = {
             add: jest.fn(),
-            remove: jest.fn()
+            remove: jest.fn(),
         };
-        
+
         particleSystem = new ParticleSystem(mockScene, {
             maxParticles: 50,
-            enabled: true
+            enabled: true,
         });
     });
 
@@ -120,7 +139,7 @@ describe('ParticleSystem Game State Management', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 10,
-                gameOver: false
+                gameOver: false,
             };
 
             // First update - not paused
@@ -138,7 +157,7 @@ describe('ParticleSystem Game State Management', () => {
             const gameState = {
                 isPaused: true,
                 frameCount: 10,
-                gameOver: false
+                gameOver: false,
             };
 
             // Start paused
@@ -156,13 +175,13 @@ describe('ParticleSystem Game State Management', () => {
             const gameState = {
                 isPaused: true,
                 frameCount: 10,
-                gameOver: false
+                gameOver: false,
             };
 
             particleSystem.update(0.016, gameState);
 
             const initialParticleCount = particleSystem.getActiveParticleCount();
-            
+
             // Try to emit trail sparks while paused
             particleSystem.emitTrailSparks(
                 { x: 0, y: 0, z: 0 },
@@ -181,7 +200,7 @@ describe('ParticleSystem Game State Management', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 10,
-                gameOver: false
+                gameOver: false,
             };
 
             // First update with frame count 10
@@ -212,7 +231,7 @@ describe('ParticleSystem Game State Management', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 10,
-                gameOver: false
+                gameOver: false,
             };
 
             // First update to establish the frame count
@@ -237,7 +256,7 @@ describe('ParticleSystem Game State Management', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 10,
-                gameOver: false
+                gameOver: false,
             };
 
             // First update - game running
@@ -255,7 +274,7 @@ describe('ParticleSystem Game State Management', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 10,
-                gameOver: false
+                gameOver: false,
             };
 
             // Create some particles before game over
@@ -288,7 +307,7 @@ describe('ParticleSystem Game State Management', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 10,
-                gameOver: true
+                gameOver: true,
             };
 
             // Handle game over
@@ -311,7 +330,7 @@ describe('ParticleSystem Game State Management', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 10,
-                gameOver: false
+                gameOver: false,
             };
 
             particleSystem.update(0.016, gameState);
@@ -334,7 +353,7 @@ describe('ParticleSystem Game State Management', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 10,
-                gameOver: false
+                gameOver: false,
             };
 
             particleSystem.update(0.016, gameState);
@@ -357,7 +376,7 @@ describe('ParticleSystem Game State Management', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 10,
-                gameOver: false
+                gameOver: false,
             };
 
             particleSystem.update(0.016, gameState);
@@ -380,7 +399,7 @@ describe('ParticleSystem Game State Management', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 10,
-                gameOver: false
+                gameOver: false,
             };
 
             particleSystem.update(0.016, gameState);
@@ -417,7 +436,7 @@ describe('ParticleSystem Game State Management', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 1,
-                gameOver: false
+                gameOver: false,
             };
 
             // Start game

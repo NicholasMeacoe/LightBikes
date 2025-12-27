@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { LeaderboardUI } = require('@/ui/LeaderboardUI.js');
 const { LeaderboardSystem } = require('@/systems/LeaderboardSystem.js');
 
@@ -14,11 +30,11 @@ Object.defineProperty(document, 'createElement', {
             parentNode: null,
             addEventListener: jest.fn(),
             removeEventListener: jest.fn(),
-            appendChild: jest.fn(function(child) {
+            appendChild: jest.fn(function (child) {
                 child.parentNode = this;
                 this.children.push(child);
             }),
-            removeChild: jest.fn(function(child) {
+            removeChild: jest.fn(function (child) {
                 const index = this.children.indexOf(child);
                 if (index > -1) {
                     this.children.splice(index, 1);
@@ -27,25 +43,25 @@ Object.defineProperty(document, 'createElement', {
             }),
             setAttribute: jest.fn(),
             getAttribute: jest.fn(),
-            click: jest.fn()
+            click: jest.fn(),
         };
         return element;
     }),
-    writable: true
+    writable: true,
 });
 
 Object.defineProperty(document, 'body', {
     value: {
         appendChild: jest.fn(),
         removeChild: jest.fn(),
-        children: []
+        children: [],
     },
-    writable: true
+    writable: true,
 });
 
 Object.defineProperty(document, 'getElementById', {
     value: jest.fn(),
-    writable: true
+    writable: true,
 });
 
 describe('LeaderboardUI', () => {
@@ -69,12 +85,12 @@ describe('LeaderboardUI', () => {
             }),
             removeItem: jest.fn((key) => {
                 delete mockLocalStorage.data[key];
-            })
+            }),
         };
 
         Object.defineProperty(window, 'localStorage', {
             value: mockLocalStorage,
-            writable: true
+            writable: true,
         });
 
         leaderboardSystem = new LeaderboardSystem();
@@ -95,10 +111,10 @@ describe('LeaderboardUI', () => {
         it('should setup event listeners', () => {
             // Mock document.addEventListener
             document.addEventListener = jest.fn();
-            
+
             // Create new instance to trigger event listener setup
             const newUI = new LeaderboardUI(leaderboardSystem);
-            
+
             // Verify that addEventListener was called on document
             expect(document.addEventListener).toHaveBeenCalled();
         });
@@ -201,7 +217,7 @@ describe('LeaderboardUI', () => {
             const score = {
                 timeMs: 30000,
                 timestamp: Date.now(),
-                formattedTime: '00:30.00'
+                formattedTime: '00:30.00',
             };
 
             const item = leaderboardUI.createScoreItem(score, 1);
@@ -214,7 +230,7 @@ describe('LeaderboardUI', () => {
             const score = {
                 timeMs: 30000,
                 timestamp: Date.now(),
-                formattedTime: '00:30.00'
+                formattedTime: '00:30.00',
             };
 
             const item1 = leaderboardUI.createScoreItem(score, 1);
@@ -230,7 +246,7 @@ describe('LeaderboardUI', () => {
             const stats = {
                 totalScores: 5,
                 bestTime: '00:30.00',
-                averageTime: '01:00.00'
+                averageTime: '01:00.00',
             };
 
             const section = leaderboardUI.createStatsSection(stats);
@@ -272,9 +288,9 @@ describe('LeaderboardUI', () => {
         it('should format recent dates correctly', () => {
             const now = new Date();
             const today = now.getTime();
-            const yesterday = today - (24 * 60 * 60 * 1000);
-            const threeDaysAgo = today - (3 * 24 * 60 * 60 * 1000);
-            const weekAgo = today - (8 * 24 * 60 * 60 * 1000);
+            const yesterday = today - 24 * 60 * 60 * 1000;
+            const threeDaysAgo = today - 3 * 24 * 60 * 60 * 1000;
+            const weekAgo = today - 8 * 24 * 60 * 60 * 1000;
 
             expect(leaderboardUI.formatDate(today)).toBe('Today');
             expect(leaderboardUI.formatDate(yesterday)).toBe('Yesterday');
@@ -311,7 +327,7 @@ describe('LeaderboardUI', () => {
     describe('toggleLeaderboardButton', () => {
         it('should show button in Time Trial mode', () => {
             const mockButton = {
-                style: { display: 'none' }
+                style: { display: 'none' },
             };
             document.getElementById.mockReturnValue(mockButton);
 
@@ -322,7 +338,7 @@ describe('LeaderboardUI', () => {
 
         it('should hide button in Classic mode', () => {
             const mockButton = {
-                style: { display: 'flex' }
+                style: { display: 'flex' },
             };
             document.getElementById.mockReturnValue(mockButton);
 
@@ -343,7 +359,7 @@ describe('LeaderboardUI', () => {
     describe('destroy', () => {
         it('should remove overlay from DOM', () => {
             const mockParent = {
-                removeChild: jest.fn()
+                removeChild: jest.fn(),
             };
             leaderboardUI.overlay.parentNode = mockParent;
 
@@ -355,8 +371,8 @@ describe('LeaderboardUI', () => {
         it('should remove leaderboard button from DOM', () => {
             const mockButton = {
                 parentNode: {
-                    removeChild: jest.fn()
-                }
+                    removeChild: jest.fn(),
+                },
             };
             document.getElementById.mockReturnValue(mockButton);
 

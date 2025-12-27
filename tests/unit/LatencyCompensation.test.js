@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { LatencyCompensation } = require('@/multiplayer/LatencyCompensation.js');
 
 describe('LatencyCompensation', () => {
@@ -6,7 +22,7 @@ describe('LatencyCompensation', () => {
 
     beforeEach(() => {
         mockNetworkManager = {
-            getPing: jest.fn(() => 50)
+            getPing: jest.fn(() => 50),
         };
 
         latencyComp = new LatencyCompensation(mockNetworkManager);
@@ -31,7 +47,7 @@ describe('LatencyCompensation', () => {
             const state = {
                 position: { x: 1, y: 0, z: 1 },
                 direction: { x: 1, y: 0, z: 0 },
-                isAlive: true
+                isAlive: true,
             };
 
             latencyComp.addStateToBuffer('player1', state, Date.now());
@@ -60,13 +76,16 @@ describe('LatencyCompensation', () => {
 
         it('should limit buffer size', () => {
             for (let i = 0; i < 15; i++) {
-                latencyComp.addStateToBuffer('player1', 
-                    { position: { x: i, y: 0, z: 0 } }, 
+                latencyComp.addStateToBuffer(
+                    'player1',
+                    { position: { x: i, y: 0, z: 0 } },
                     Date.now() + i
                 );
             }
 
-            expect(latencyComp.getBufferSize('player1')).toBeLessThanOrEqual(latencyComp.maxBufferSize);
+            expect(latencyComp.getBufferSize('player1')).toBeLessThanOrEqual(
+                latencyComp.maxBufferSize
+            );
         });
     });
 
@@ -86,15 +105,15 @@ describe('LatencyCompensation', () => {
 
         it('should interpolate between two states', () => {
             const time = Date.now();
-            const state1 = { 
+            const state1 = {
                 position: { x: 0, y: 0, z: 0 },
                 direction: { x: 1, y: 0, z: 0 },
-                isAlive: true
+                isAlive: true,
             };
-            const state2 = { 
+            const state2 = {
                 position: { x: 10, y: 0, z: 0 },
                 direction: { x: 1, y: 0, z: 0 },
-                isAlive: true
+                isAlive: true,
             };
 
             latencyComp.addStateToBuffer('player1', state1, time);
@@ -243,8 +262,9 @@ describe('LatencyCompensation', () => {
         it('should trim buffers when reducing size', () => {
             // Add many states
             for (let i = 0; i < 10; i++) {
-                latencyComp.addStateToBuffer('player1', 
-                    { position: { x: i, y: 0, z: 0 } }, 
+                latencyComp.addStateToBuffer(
+                    'player1',
+                    { position: { x: i, y: 0, z: 0 } },
                     Date.now() + i
                 );
             }

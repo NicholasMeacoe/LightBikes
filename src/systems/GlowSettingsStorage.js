@@ -1,11 +1,11 @@
 /**
  * GlowSettingsStorage - Advanced storage utilities with comprehensive error recovery
- * 
+ *
  * This class provides enterprise-grade localStorage handling for glow settings
  * with comprehensive error recovery, data validation, backup systems, and
  * migration support. It ensures settings persistence even in challenging
  * environments with storage limitations or corruption.
- * 
+ *
  * Key Features:
  * - Dual-layer storage system (primary + backup)
  * - Comprehensive error recovery with automatic fallback
@@ -14,60 +14,64 @@
  * - Storage availability detection and graceful degradation
  * - Import/export functionality for settings transfer
  * - Storage usage monitoring and optimization
- * 
+ *
  * Storage Architecture:
  * - Primary storage: Main settings location
  * - Backup storage: Automatic backup of last known good state
  * - Recovery chain: Primary → Backup → Defaults
  * - Validation at every step to ensure data integrity
- * 
+ *
  * Error Recovery Strategy:
  * 1. Attempt to load from primary storage
  * 2. If corrupted, attempt backup recovery
  * 3. If backup fails, use default settings
  * 4. Create new backup from successful load
  * 5. Restore primary from backup if needed
- * 
+ *
  * Migration System:
  * - Version tracking in stored settings
  * - Automatic migration on version mismatch
  * - Backward compatibility preservation
  * - Migration logging for debugging
- * 
+ *
  * Usage Example:
  * ```javascript
  * const storage = new GlowSettingsStorage('lightbikes_glow_settings');
- * 
+ *
  * // Load settings with full error recovery
  * const settings = storage.loadSettings();
  * if (settings) {
- *     console.log('Settings loaded successfully');
+ *     // Log success
  * } else {
- *     console.log('Using default settings');
+ *     // Use default settings
  * }
- * 
+ *
  * // Save settings with backup creation
  * const success = storage.saveSettings({
  *     intensity: 'HIGH',
  *     version: 1
  * });
- * 
+ *
  * // Get storage information
  * const info = storage.getStorageInfo();
- * console.log(`Storage usage: ${info.totalSize} bytes`);
- * 
+ * // info.totalSize contains usage in bytes
+ *
  * // Export settings for backup
  * const exported = storage.exportSettings();
- * 
+ *
  * // Import settings from backup
  * storage.importSettings(exported);
  * ```
- * 
+ *
  * @class GlowSettingsStorage
  * @author LightBikes Development Team
  * @version 1.0.0
  * @since 2024
  */
+
+const { Logger } = require('../utils/Logger');
+const logger = new Logger('GlowSettingsStorage');
+
 class GlowSettingsStorage {
     constructor(storageKey = 'lightbikes_glow_settings') {
         this.storageKey = storageKey;
@@ -86,7 +90,7 @@ class GlowSettingsStorage {
             localStorage.removeItem(testKey);
             return true;
         } catch (error) {
-            console.warn('localStorage is not available:', error.message);
+            logger.warn('localStorage is not available:', error.message);
             return false;
         }
     }
@@ -110,7 +114,7 @@ class GlowSettingsStorage {
             }
 
             // If primary fails, try backup
-            console.warn('Primary settings corrupted, attempting backup recovery');
+            logger.warn('Primary settings corrupted, attempting backup recovery');
             const backupData = this.loadFromKey(this.backupKey);
             if (backupData) {
                 // Restore backup to primary
@@ -120,7 +124,7 @@ class GlowSettingsStorage {
 
             return null;
         } catch (error) {
-            console.error('Failed to load glow settings:', error);
+            logger.error('Failed to load glow settings:', error);
             return null;
         }
     }
@@ -138,7 +142,7 @@ class GlowSettingsStorage {
             }
 
             const parsed = JSON.parse(stored);
-            
+
             // Basic validation
             if (!parsed || typeof parsed !== 'object') {
                 throw new Error('Invalid settings format');
@@ -146,7 +150,7 @@ class GlowSettingsStorage {
 
             return parsed;
         } catch (error) {
-            console.warn(`Failed to load from key ${key}:`, error.message);
+            logger.warn(`Failed to load from key ${key}:`, error.message);
             return null;
         }
     }
@@ -158,13 +162,13 @@ class GlowSettingsStorage {
      */
     saveSettings(settings) {
         if (!this.isStorageAvailable) {
-            console.warn('Cannot save settings: localStorage not available');
+            logger.warn('Cannot save settings: localStorage not available');
             return false;
         }
 
         try {
             const serialized = JSON.stringify(settings);
-            
+
             // Validate serialized data
             if (!serialized || serialized === '{}') {
                 throw new Error('Settings serialization failed');
@@ -172,10 +176,10 @@ class GlowSettingsStorage {
 
             // Create backup before saving new data
             this.createBackupFromCurrent();
-            
+
             // Save new settings
             localStorage.setItem(this.storageKey, serialized);
-            
+
             // Verify save was successful
             const verification = localStorage.getItem(this.storageKey);
             if (verification !== serialized) {
@@ -184,8 +188,8 @@ class GlowSettingsStorage {
 
             return true;
         } catch (error) {
-            console.error('Failed to save glow settings:', error);
-            
+            logger.error('Failed to save glow settings:', error);
+
             // Attempt to restore from backup if save failed
             this.restoreFromBackup();
             return false;
@@ -202,7 +206,7 @@ class GlowSettingsStorage {
                 localStorage.setItem(this.backupKey, current);
             }
         } catch (error) {
-            console.warn('Failed to create settings backup:', error.message);
+            logger.warn('Failed to create settings backup:', error.message);
         }
     }
 
@@ -215,7 +219,7 @@ class GlowSettingsStorage {
             const serialized = JSON.stringify(data);
             localStorage.setItem(this.backupKey, serialized);
         } catch (error) {
-            console.warn('Failed to create data backup:', error.message);
+            logger.warn('Failed to create data backup:', error.message);
         }
     }
 
@@ -228,11 +232,11 @@ class GlowSettingsStorage {
             const backup = localStorage.getItem(this.backupKey);
             if (backup) {
                 localStorage.setItem(this.storageKey, backup);
-                console.info('Settings restored from backup');
+                logger.info('Settings restored from backup');
                 return true;
             }
         } catch (error) {
-            console.error('Failed to restore from backup:', error);
+            logger.error('Failed to restore from backup:', error);
         }
         return false;
     }
@@ -245,7 +249,7 @@ class GlowSettingsStorage {
             localStorage.removeItem(this.storageKey);
             localStorage.removeItem(this.backupKey);
         } catch (error) {
-            console.error('Failed to clear settings:', error);
+            logger.error('Failed to clear settings:', error);
         }
     }
 
@@ -261,13 +265,13 @@ class GlowSettingsStorage {
         try {
             const primary = localStorage.getItem(this.storageKey);
             const backup = localStorage.getItem(this.backupKey);
-            
+
             return {
                 available: true,
                 primarySize: primary ? primary.length : 0,
                 backupSize: backup ? backup.length : 0,
                 hasBackup: !!backup,
-                totalSize: (primary ? primary.length : 0) + (backup ? backup.length : 0)
+                totalSize: (primary ? primary.length : 0) + (backup ? backup.length : 0),
             };
         } catch (error) {
             return { available: false, error: error.message };
@@ -286,7 +290,7 @@ class GlowSettingsStorage {
 
         // Check for required properties and valid values
         const validIntensities = ['OFF', 'LOW', 'MEDIUM', 'HIGH'];
-        
+
         if (settings.intensity && !validIntensities.includes(settings.intensity)) {
             return false;
         }
@@ -306,24 +310,26 @@ class GlowSettingsStorage {
     migrateSettings(settings) {
         const migrated = { ...settings };
         const currentVersion = 1;
-        
+
         const settingsVersion = settings.version || 0;
-        
+
         if (settingsVersion < currentVersion) {
             // Apply migrations
             if (settingsVersion < 1) {
                 // Migration to version 1
                 migrated.version = 1;
-                
+
                 // Add any new default properties for v1
                 if (!migrated.intensity) {
                     migrated.intensity = 'MEDIUM';
                 }
             }
-            
-            console.info(`Migrated glow settings from version ${settingsVersion} to ${currentVersion}`);
+
+            logger.info(
+                `Migrated glow settings from version ${settingsVersion} to ${currentVersion}`
+            );
         }
-        
+
         return migrated;
     }
 
@@ -337,7 +343,7 @@ class GlowSettingsStorage {
             try {
                 return JSON.stringify(settings, null, 2);
             } catch (error) {
-                console.error('Failed to export settings:', error);
+                logger.error('Failed to export settings:', error);
             }
         }
         return null;
@@ -351,15 +357,15 @@ class GlowSettingsStorage {
     importSettings(serializedSettings) {
         try {
             const settings = JSON.parse(serializedSettings);
-            
+
             if (!this.validateSettings(settings)) {
                 throw new Error('Invalid settings format');
             }
-            
+
             const migrated = this.migrateSettings(settings);
             return this.saveSettings(migrated);
         } catch (error) {
-            console.error('Failed to import settings:', error);
+            logger.error('Failed to import settings:', error);
             return false;
         }
     }

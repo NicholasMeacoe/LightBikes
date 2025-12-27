@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { Game } = require('@/core/game.js');
 const { GameModes } = require('@/systems/GameModes.js');
 const { SurvivalTimer } = require('@/ui/SurvivalTimer.js');
@@ -5,11 +21,11 @@ const { ModeSelector } = require('@/ui/ModeSelector.js');
 const { TimerDisplay } = require('@/ui/TimerDisplay.js');
 
 // Mock ScorePersistence to ensure consistent test behavior
-jest.mock('./scorePersistence.js', () => ({
+jest.mock('../../src/systems/scorePersistence.js', () => ({
     ScorePersistence: {
         loadHighScore: jest.fn(() => 0),
-        saveHighScore: jest.fn(() => true)
-    }
+        saveHighScore: jest.fn(() => true),
+    },
 }));
 
 describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
@@ -79,7 +95,7 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
                     error.name = 'QuotaExceededError';
                     throw error;
                 }),
-                removeItem: jest.fn()
+                removeItem: jest.fn(),
             };
 
             expect(() => {
@@ -97,7 +113,7 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
                 }),
                 body: { appendChild: jest.fn() },
                 head: { appendChild: jest.fn() },
-                getElementById: jest.fn(() => null)
+                getElementById: jest.fn(() => null),
             };
 
             expect(() => {
@@ -112,8 +128,9 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
         it('should handle touch events properly', () => {
             // Mock mobile environment
             global.navigator = {
-                userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15',
-                maxTouchPoints: 5
+                userAgent:
+                    'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15',
+                maxTouchPoints: 5,
             };
 
             // Mock touch event handling
@@ -122,14 +139,14 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
                 removeEventListener: jest.fn(),
                 style: {},
                 classList: { add: jest.fn(), remove: jest.fn() },
-                remove: jest.fn()
+                remove: jest.fn(),
             };
 
             global.document = {
                 createElement: jest.fn(() => mockElement),
                 body: { appendChild: jest.fn() },
                 head: { appendChild: jest.fn() },
-                getElementById: jest.fn(() => null)
+                getElementById: jest.fn(() => null),
             };
 
             expect(() => {
@@ -146,7 +163,7 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
                 innerHeight: 667,
                 devicePixelRatio: 2,
                 addEventListener: jest.fn(),
-                removeEventListener: jest.fn()
+                removeEventListener: jest.fn(),
             };
 
             const mockElement = {
@@ -157,15 +174,15 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
                     width: 375,
                     height: 200,
                     top: 0,
-                    left: 0
-                }))
+                    left: 0,
+                })),
             };
 
             global.document = {
                 createElement: jest.fn(() => mockElement),
                 body: { appendChild: jest.fn() },
                 head: { appendChild: jest.fn() },
-                getElementById: jest.fn(() => null)
+                getElementById: jest.fn(() => null),
             };
 
             expect(() => {
@@ -182,21 +199,24 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
             process.memoryUsage = jest.fn(() => ({
                 heapUsed: 50 * 1024 * 1024, // 50MB
                 heapTotal: 100 * 1024 * 1024, // 100MB
-                external: 10 * 1024 * 1024 // 10MB
+                external: 10 * 1024 * 1024, // 10MB
             }));
 
             const game = new Game(GameModes.TIME_TRIAL);
-            
+
+            const trailLengths = [];
             // Simulate extended gameplay on mobile
             for (let i = 0; i < 1000; i++) {
                 game.update();
-                
+
                 // Periodically check memory usage doesn't grow excessively
                 if (i % 100 === 0) {
                     const state = game.getGameState();
-                    expect(state.playerTrail.length).toBeLessThan(5000); // Smaller limit for mobile
+                    trailLengths.push(state.playerTrail.length);
                 }
             }
+
+            trailLengths.forEach((len) => expect(len).toBeLessThan(5000)); // Smaller limit for mobile
 
             // Restore
             process.memoryUsage = originalMemoryUsage;
@@ -211,22 +231,22 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
                 now: jest.fn(() => {
                     mockTime += Math.random() * 50 + 10; // Irregular timing 10-60ms
                     return mockTime;
-                })
+                }),
             };
 
             const timer = new SurvivalTimer();
             timer.start();
 
             const startTime = Date.now();
-            
+
             // Perform many operations
             for (let i = 0; i < 1000; i++) {
                 timer.getElapsedTime();
                 timer.getCurrentFormattedTime();
             }
-            
+
             const endTime = Date.now();
-            
+
             // Should complete within reasonable time even on slower devices
             expect(endTime - startTime).toBeLessThan(500);
         });
@@ -236,26 +256,26 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
             global.window = {
                 devicePixelRatio: 3,
                 innerWidth: 1125, // iPhone X resolution
-                innerHeight: 2436
+                innerHeight: 2436,
             };
 
             const mockElement = {
                 style: {},
                 classList: { add: jest.fn(), remove: jest.fn() },
-                remove: jest.fn()
+                remove: jest.fn(),
             };
 
             global.document = {
                 createElement: jest.fn(() => mockElement),
                 body: { appendChild: jest.fn() },
                 head: { appendChild: jest.fn() },
-                getElementById: jest.fn(() => null)
+                getElementById: jest.fn(() => null),
             };
 
             expect(() => {
                 const timerDisplay = new TimerDisplay();
                 timerDisplay.show();
-                
+
                 // Verify high DPI handling
                 expect(mockElement.style).toBeDefined();
             }).not.toThrow();
@@ -267,33 +287,31 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
                 matchMedia: jest.fn(() => ({
                     matches: true, // prefers-reduced-motion: reduce
                     addEventListener: jest.fn(),
-                    removeEventListener: jest.fn()
-                }))
+                    removeEventListener: jest.fn(),
+                })),
             };
 
             const mockElement = {
                 style: {},
                 classList: { add: jest.fn(), remove: jest.fn() },
                 remove: jest.fn(),
-                animate: jest.fn()
+                animate: jest.fn(),
             };
 
             global.document = {
                 createElement: jest.fn(() => mockElement),
                 body: { appendChild: jest.fn() },
                 head: { appendChild: jest.fn() },
-                getElementById: jest.fn(() => null)
+                getElementById: jest.fn(() => null),
             };
 
+            const timerDisplay = new TimerDisplay();
             expect(() => {
-                const timerDisplay = new TimerDisplay();
                 timerDisplay.show();
-                
-                // Should respect reduced motion preferences
-                if (mockElement.animate) {
-                    expect(mockElement.animate).not.toHaveBeenCalled();
-                }
             }).not.toThrow();
+
+            // Should respect reduced motion preferences
+            expect(mockElement.animate).not.toHaveBeenCalled();
         });
     });
 
@@ -302,8 +320,8 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
             // Mock WebGL unavailable scenario
             global.HTMLCanvasElement = {
                 prototype: {
-                    getContext: jest.fn(() => null) // WebGL not available
-                }
+                    getContext: jest.fn(() => null), // WebGL not available
+                },
             };
 
             // Should not break Time Trial functionality
@@ -319,7 +337,7 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
             const precisionTests = [
                 { precision: 1, name: 'millisecond precision' },
                 { precision: 0.1, name: 'sub-millisecond precision' },
-                { precision: 16.67, name: 'frame-based precision' }
+                { precision: 16.67, name: 'frame-based precision' },
             ];
 
             precisionTests.forEach(({ precision, name }) => {
@@ -328,7 +346,7 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
                     now: jest.fn(() => {
                         mockTime += precision;
                         return mockTime;
-                    })
+                    }),
                 };
 
                 const timer = new SurvivalTimer();
@@ -351,31 +369,31 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
                 supports: jest.fn((property, value) => {
                     // Simulate different browser capabilities
                     const supportedFeatures = {
-                        'display': 'flex',
-                        'transform': 'translateZ(0)',
-                        'backdrop-filter': 'blur(10px)'
+                        display: 'flex',
+                        transform: 'translateZ(0)',
+                        'backdrop-filter': 'blur(10px)',
                     };
                     return supportedFeatures[property] === value;
-                })
+                }),
             };
 
             const mockElement = {
                 style: {},
                 classList: { add: jest.fn(), remove: jest.fn() },
-                remove: jest.fn()
+                remove: jest.fn(),
             };
 
             global.document = {
                 createElement: jest.fn(() => mockElement),
                 body: { appendChild: jest.fn() },
                 head: { appendChild: jest.fn() },
-                getElementById: jest.fn(() => null)
+                getElementById: jest.fn(() => null),
             };
 
             expect(() => {
                 const timerDisplay = new TimerDisplay();
                 timerDisplay.show();
-                
+
                 // Should adapt to available CSS features
                 expect(mockElement.style).toBeDefined();
             }).not.toThrow();
@@ -388,19 +406,19 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
             global.navigator = {
                 onLine: false,
                 connection: {
-                    effectiveType: 'none'
-                }
+                    effectiveType: 'none',
+                },
             };
 
             // Time Trial should work offline (no network dependencies)
             expect(() => {
                 const game = new Game(GameModes.TIME_TRIAL);
                 game.update();
-                
+
                 const timer = new SurvivalTimer();
                 timer.start();
                 timer.getElapsedTime();
-                
+
                 const mockGameInstance = new Game(GameModes.CLASSIC);
                 const modeSelector = new ModeSelector(mockGameInstance);
                 modeSelector.selectMode(GameModes.TIME_TRIAL);
@@ -413,20 +431,20 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
                 connection: {
                     effectiveType: '2g',
                     downlink: 0.25,
-                    rtt: 2000
-                }
+                    rtt: 2000,
+                },
             };
 
             // Should not affect Time Trial performance (no network operations)
             const startTime = Date.now();
-            
+
             const game = new Game(GameModes.TIME_TRIAL);
             for (let i = 0; i < 100; i++) {
                 game.update();
             }
-            
+
             const endTime = Date.now();
-            
+
             // Should complete quickly regardless of network speed
             expect(endTime - startTime).toBeLessThan(200);
         });
@@ -439,27 +457,27 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
                 matchMedia: jest.fn((query) => ({
                     matches: query.includes('dark'),
                     addEventListener: jest.fn(),
-                    removeEventListener: jest.fn()
-                }))
+                    removeEventListener: jest.fn(),
+                })),
             };
 
             const mockElement = {
                 style: {},
                 classList: { add: jest.fn(), remove: jest.fn() },
-                remove: jest.fn()
+                remove: jest.fn(),
             };
 
             global.document = {
                 createElement: jest.fn(() => mockElement),
                 body: { appendChild: jest.fn() },
                 head: { appendChild: jest.fn() },
-                getElementById: jest.fn(() => null)
+                getElementById: jest.fn(() => null),
             };
 
             expect(() => {
                 const timerDisplay = new TimerDisplay();
                 timerDisplay.show();
-                
+
                 // Should work with color scheme preferences without throwing
                 expect(timerDisplay).toBeDefined();
             }).not.toThrow();
@@ -472,21 +490,21 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
                 style: {},
                 classList: { add: jest.fn(), remove: jest.fn() },
                 remove: jest.fn(),
-                textContent: ''
+                textContent: '',
             };
 
             global.document = {
                 createElement: jest.fn(() => mockElement),
                 body: { appendChild: jest.fn() },
                 head: { appendChild: jest.fn() },
-                getElementById: jest.fn(() => null)
+                getElementById: jest.fn(() => null),
             };
 
             expect(() => {
                 const timerDisplay = new TimerDisplay();
                 timerDisplay.show();
                 timerDisplay.update({ survivalTime: 30000, formattedSurvivalTime: '00:30.00' });
-                
+
                 // Should work with screen readers without throwing
                 expect(timerDisplay).toBeDefined();
             }).not.toThrow();
@@ -504,7 +522,7 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
                         return NaN; // Simulate timer glitch
                     }
                     return callCount * 16.67;
-                })
+                }),
             };
 
             const timer = new SurvivalTimer();
@@ -521,11 +539,11 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
         it('should handle component initialization failures', () => {
             // Mock component that fails to initialize
             const originalTimerDisplay = TimerDisplay;
-            
+
             expect(() => {
                 const game = new Game(GameModes.TIME_TRIAL);
                 game.update();
-                
+
                 // Game should continue working even if UI components fail
                 expect(game.getSurvivalTime()).toBeGreaterThanOrEqual(0);
             }).not.toThrow();
@@ -537,11 +555,11 @@ describe('Time Trial Cross-Browser and Mobile Compatibility Tests', () => {
             global.gc = jest.fn();
 
             const game = new Game(GameModes.TIME_TRIAL);
-            
+
             // Run game under memory pressure
             for (let i = 0; i < 1000; i++) {
                 game.update();
-                
+
                 // Simulate periodic garbage collection
                 if (i % 100 === 0 && global.gc) {
                     global.gc();

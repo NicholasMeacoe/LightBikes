@@ -3,10 +3,29 @@
  * Tests particle culling, LOD system, batch operations, and memory monitoring
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { ParticleSystem } = require('@/rendering/ParticleSystem.js');
 
 // Mock THREE.js objects for testing
 global.THREE = {
+    MeshBasicMaterial: jest.fn().mockImplementation(() => ({})),
+    MeshLambertMaterial: jest.fn().mockImplementation(() => ({})),
+    SphereGeometry: jest.fn().mockImplementation(() => ({})),
     Vector3: class {
         constructor(x = 0, y = 0, z = 0) {
             this.x = x;
@@ -123,7 +142,7 @@ global.THREE = {
     DoubleSide: 'double',
     ClampToEdgeWrapping: 'clamp',
     LinearFilter: 'linear',
-    RGBAFormat: 'rgba'
+    RGBAFormat: 'rgba',
 };
 
 describe('ParticleSystem Performance Optimizations', () => {
@@ -135,14 +154,14 @@ describe('ParticleSystem Performance Optimizations', () => {
         // Mock scene
         mockScene = {
             add: jest.fn(),
-            remove: jest.fn()
+            remove: jest.fn(),
         };
 
         // Mock camera
         mockCamera = {
             position: new THREE.Vector3(0, 10, 0),
             projectionMatrix: new THREE.Matrix4(),
-            matrixWorldInverse: new THREE.Matrix4()
+            matrixWorldInverse: new THREE.Matrix4(),
         };
 
         // Mock canvas context for texture creation
@@ -152,17 +171,17 @@ describe('ParticleSystem Performance Optimizations', () => {
                 height: 128,
                 getContext: jest.fn(() => ({
                     createRadialGradient: jest.fn(() => ({
-                        addColorStop: jest.fn()
+                        addColorStop: jest.fn(),
                     })),
                     clearRect: jest.fn(),
-                    fillRect: jest.fn()
-                }))
-            }))
+                    fillRect: jest.fn(),
+                })),
+            })),
         };
 
         particleSystem = new ParticleSystem(mockScene, {
             maxParticles: 100,
-            quality: 'medium'
+            quality: 'medium',
         });
     });
 
@@ -185,7 +204,7 @@ describe('ParticleSystem Performance Optimizations', () => {
             particleSystem.cullOffScreenParticles(mockCamera);
 
             const activeParticles = particleSystem.particlePool.getActiveParticles();
-            const culledCount = activeParticles.filter(p => p.culled).length;
+            const culledCount = activeParticles.filter((p) => p.culled).length;
 
             expect(culledCount).toBeGreaterThan(0);
         });
@@ -201,7 +220,7 @@ describe('ParticleSystem Performance Optimizations', () => {
             particleSystem.cullOffScreenParticles(mockCamera);
 
             const activeParticles = particleSystem.particlePool.getActiveParticles();
-            const visibleCount = activeParticles.filter(p => !p.culled).length;
+            const visibleCount = activeParticles.filter((p) => !p.culled).length;
 
             expect(visibleCount).toBeGreaterThan(0);
         });
@@ -210,7 +229,7 @@ describe('ParticleSystem Performance Optimizations', () => {
     describe('Level of Detail System', () => {
         test('should apply different LOD levels based on distance', () => {
             // Create particles at different distances
-            particleSystem.emitTrailSparks({ x: 5, y: 0, z: 5 }, { x: 1, z: 0 }, 0xff0000, 1.0);   // Close
+            particleSystem.emitTrailSparks({ x: 5, y: 0, z: 5 }, { x: 1, z: 0 }, 0xff0000, 1.0); // Close
             particleSystem.emitTrailSparks({ x: 25, y: 0, z: 25 }, { x: 1, z: 0 }, 0xff0000, 1.0); // Medium
             particleSystem.emitTrailSparks({ x: 45, y: 0, z: 45 }, { x: 1, z: 0 }, 0xff0000, 1.0); // Far
 
@@ -221,11 +240,13 @@ describe('ParticleSystem Performance Optimizations', () => {
             particleSystem.applyLevelOfDetail(mockCamera);
 
             const activeParticles = particleSystem.particlePool.getActiveParticles();
-            const lodLevels = activeParticles.map(p => p.lodLevel);
+            const lodLevels = activeParticles.map((p) => p.lodLevel);
 
             // Should have at least some LOD levels applied
             expect(lodLevels.length).toBeGreaterThan(0);
-            expect(lodLevels.some(level => ['high', 'medium', 'low', 'culled'].includes(level))).toBe(true);
+            expect(
+                lodLevels.some((level) => ['high', 'medium', 'low', 'culled'].includes(level))
+            ).toBe(true);
         });
 
         test('should reduce particle size for distant particles', () => {
@@ -299,7 +320,7 @@ describe('ParticleSystem Performance Optimizations', () => {
                 total: 150 * 1024 * 1024, // 150MB - above critical threshold
                 bufferArrays: { total: 50 * 1024 * 1024 },
                 particlePool: { estimatedSize: 50 * 1024 * 1024 },
-                textures: { particleTexture: 50 * 1024 * 1024 }
+                textures: { particleTexture: 50 * 1024 * 1024 },
             });
 
             particleSystem.monitorMemoryUsage();
@@ -393,34 +414,24 @@ describe('ParticleSystem Performance Optimizations', () => {
 
     describe('Error Handling', () => {
         test('should handle culling errors gracefully', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-
             // Mock camera to cause error
             const badCamera = null;
 
             expect(() => {
                 particleSystem.cullOffScreenParticles(badCamera);
             }).not.toThrow();
-
-            consoleSpy.mockRestore();
         });
 
         test('should handle LOD errors gracefully', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-
             // Mock camera to cause error
             const badCamera = { position: null };
 
             expect(() => {
                 particleSystem.applyLevelOfDetail(badCamera);
             }).not.toThrow();
-
-            consoleSpy.mockRestore();
         });
 
         test('should handle memory monitoring errors gracefully', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-
             // Mock getMemoryUsage to throw error
             jest.spyOn(particleSystem, 'getMemoryUsage').mockImplementation(() => {
                 throw new Error('Memory calculation error');
@@ -429,8 +440,6 @@ describe('ParticleSystem Performance Optimizations', () => {
             expect(() => {
                 particleSystem.monitorMemoryUsage();
             }).not.toThrow();
-
-            consoleSpy.mockRestore();
         });
     });
 });

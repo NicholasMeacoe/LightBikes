@@ -3,6 +3,22 @@
  * Tests the complete integration between UI, settings manager, and camera effects
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { CameraEffectsUI } = require('@/effects/CameraEffectsUI.js');
 const { EffectsConfigManager } = require('@/systems/EffectsConfigManager.js');
 
@@ -10,21 +26,21 @@ const { EffectsConfigManager } = require('@/systems/EffectsConfigManager.js');
 global.document = {
     getElementById: jest.fn(() => null),
     querySelectorAll: jest.fn(() => []),
-    addEventListener: jest.fn()
+    addEventListener: jest.fn(),
 };
 
 global.window = {
     matchMedia: jest.fn(() => ({
         matches: false,
-        addListener: jest.fn()
-    }))
+        addListener: jest.fn(),
+    })),
 };
 
 global.localStorage = {
     getItem: jest.fn(() => null),
     setItem: jest.fn(),
     removeItem: jest.fn(),
-    clear: jest.fn()
+    clear: jest.fn(),
 };
 
 describe('Camera Effects UI Integration', () => {
@@ -33,7 +49,7 @@ describe('Camera Effects UI Integration', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        
+
         // Create UI instance (will create its own config manager)
         cameraEffectsUI = new CameraEffectsUI();
         configManager = cameraEffectsUI.getConfigManager();
@@ -53,7 +69,7 @@ describe('Camera Effects UI Integration', () => {
 
         it('should load default settings correctly', () => {
             const settings = configManager.getSettings();
-            
+
             expect(settings).toHaveProperty('shakeEnabled');
             expect(settings).toHaveProperty('shakeIntensity');
             expect(settings).toHaveProperty('motionBlurEnabled');
@@ -101,7 +117,7 @@ describe('Camera Effects UI Integration', () => {
 
             // Reset to defaults
             cameraEffectsUI.resetSettings();
-            
+
             const settings = configManager.getSettings();
             expect(settings.shakeIntensity).toBe(1.0); // Default
             expect(settings.motionBlurQuality).toBe('medium'); // Default
@@ -123,8 +139,8 @@ describe('Camera Effects UI Integration', () => {
 
         it('should validate motion blur quality options', () => {
             const validQualities = ['low', 'medium', 'high'];
-            
-            validQualities.forEach(quality => {
+
+            validQualities.forEach((quality) => {
                 expect(() => cameraEffectsUI.updateMotionBlurQuality(quality)).not.toThrow();
                 expect(configManager.getSettings().motionBlurQuality).toBe(quality);
             });
@@ -157,7 +173,7 @@ describe('Camera Effects UI Integration', () => {
             // Change some settings
             cameraEffectsUI.updateShakeIntensity(1.8);
             cameraEffectsUI.updateMotionBlurQuality('high');
-            
+
             // Export settings
             const exported = configManager.exportSettings();
             expect(exported).toBeTruthy();
@@ -170,7 +186,7 @@ describe('Camera Effects UI Integration', () => {
             // Import settings back
             const importResult = configManager.importSettings(exported);
             expect(importResult).toBe(true);
-            
+
             const settings = configManager.getSettings();
             expect(settings.shakeIntensity).toBe(1.8);
             expect(settings.motionBlurQuality).toBe('high');

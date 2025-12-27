@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { ErrorHandler } = require('@/utils/ErrorHandler.js');
 
 describe('ErrorHandler', () => {
@@ -84,8 +100,8 @@ describe('ErrorHandler', () => {
             errorHandler.showError('Test error', {
                 actions: [
                     { label: 'Action 1', callback: jest.fn() },
-                    { label: 'Action 2', callback: jest.fn(), primary: true }
-                ]
+                    { label: 'Action 2', callback: jest.fn(), primary: true },
+                ],
             });
             const actionButtons = document.querySelectorAll('.error-action-btn');
             expect(actionButtons.length).toBe(2);
@@ -178,8 +194,9 @@ describe('ErrorHandler', () => {
             expect(errorElement.textContent).toContain('TestComponent');
             expect(errorElement.textContent).toContain('Init failed');
 
-            const retryButton = Array.from(document.querySelectorAll('.error-action-btn'))
-                .find(btn => btn.textContent.includes('Retry'));
+            const retryButton = Array.from(document.querySelectorAll('.error-action-btn')).find(
+                (btn) => btn.textContent.includes('Retry')
+            );
             expect(retryButton).toBeTruthy();
         });
 
@@ -190,8 +207,9 @@ describe('ErrorHandler', () => {
             errorHandler.handleInitializationError(error, retryCallback, 'TestComponent');
             expect(errorHandler.getRetryAttempts('TestComponent')).toBe(0);
 
-            const retryButton = Array.from(document.querySelectorAll('.error-action-btn'))
-                .find(btn => btn.textContent.includes('Retry'));
+            const retryButton = Array.from(document.querySelectorAll('.error-action-btn')).find(
+                (btn) => btn.textContent.includes('Retry')
+            );
             retryButton.click();
 
             expect(errorHandler.getRetryAttempts('TestComponent')).toBe(1);
@@ -215,8 +233,9 @@ describe('ErrorHandler', () => {
             const error = new Error('Init failed');
             errorHandler.handleInitializationError(error, null, 'TestComponent');
 
-            const reloadButton = Array.from(document.querySelectorAll('.error-action-btn'))
-                .find(btn => btn.textContent.includes('Reload'));
+            const reloadButton = Array.from(document.querySelectorAll('.error-action-btn')).find(
+                (btn) => btn.textContent.includes('Reload')
+            );
             expect(reloadButton).toBeTruthy();
         });
     });
@@ -236,8 +255,9 @@ describe('ErrorHandler', () => {
             const error = new Error('WebGL not supported');
             errorHandler.handleWebGLError(error);
 
-            const learnMoreButton = Array.from(document.querySelectorAll('.error-action-btn'))
-                .find(btn => btn.textContent.includes('Learn More'));
+            const learnMoreButton = Array.from(document.querySelectorAll('.error-action-btn')).find(
+                (btn) => btn.textContent.includes('Learn More')
+            );
             expect(learnMoreButton).toBeTruthy();
         });
     });
@@ -253,8 +273,9 @@ describe('ErrorHandler', () => {
             expect(errorElement).toBeTruthy();
             expect(errorElement.textContent).toContain('Rendering error');
 
-            const fallbackButton = Array.from(document.querySelectorAll('.error-action-btn'))
-                .find(btn => btn.textContent.includes('Simple Graphics'));
+            const fallbackButton = Array.from(document.querySelectorAll('.error-action-btn')).find(
+                (btn) => btn.textContent.includes('Simple Graphics')
+            );
             expect(fallbackButton).toBeTruthy();
         });
 
@@ -264,8 +285,9 @@ describe('ErrorHandler', () => {
 
             errorHandler.handleRenderingError(error, fallbackCallback);
 
-            const fallbackButton = Array.from(document.querySelectorAll('.error-action-btn'))
-                .find(btn => btn.textContent.includes('Simple Graphics'));
+            const fallbackButton = Array.from(document.querySelectorAll('.error-action-btn')).find(
+                (btn) => btn.textContent.includes('Simple Graphics')
+            );
             fallbackButton.click();
 
             expect(fallbackCallback).toHaveBeenCalled();
@@ -291,8 +313,9 @@ describe('ErrorHandler', () => {
 
             errorHandler.handleFeatureError('TestFeature', error, disableCallback);
 
-            const disableButton = Array.from(document.querySelectorAll('.error-action-btn'))
-                .find(btn => btn.textContent.includes('Disable'));
+            const disableButton = Array.from(document.querySelectorAll('.error-action-btn')).find(
+                (btn) => btn.textContent.includes('Disable')
+            );
             expect(disableButton).toBeTruthy();
         });
 
@@ -302,8 +325,9 @@ describe('ErrorHandler', () => {
 
             errorHandler.handleFeatureError('TestFeature', error, disableCallback);
 
-            const disableButton = Array.from(document.querySelectorAll('.error-action-btn'))
-                .find(btn => btn.textContent.includes('Disable'));
+            const disableButton = Array.from(document.querySelectorAll('.error-action-btn')).find(
+                (btn) => btn.textContent.includes('Disable')
+            );
             disableButton.click();
 
             expect(disableCallback).toHaveBeenCalled();
@@ -359,7 +383,7 @@ describe('ErrorHandler', () => {
             const callback = jest.fn();
             const errorId = errorHandler.showError('Test error', {
                 duration: 0,
-                actions: [{ label: 'Test Action', callback }]
+                actions: [{ label: 'Test Action', callback }],
             });
 
             const actionButton = document.querySelector('.error-action-btn');

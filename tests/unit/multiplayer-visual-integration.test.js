@@ -4,28 +4,44 @@
  */
 
 // Mock Three.js
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const mockScene = {
     add: jest.fn(),
     remove: jest.fn(),
-    children: []
+    children: [],
 };
 
 const mockCamera = {
-    position: { 
-        x: 0, 
-        y: 0, 
+    position: {
+        x: 0,
+        y: 0,
         z: 0,
         set: jest.fn(),
-        clone: jest.fn(() => ({ x: 0, y: 0, z: 0 }))
+        clone: jest.fn(() => ({ x: 0, y: 0, z: 0 })),
     },
-    lookAt: jest.fn()
+    lookAt: jest.fn(),
 };
 
 const mockRenderer = {
     setSize: jest.fn(),
     setClearColor: jest.fn(),
     render: jest.fn(),
-    domElement: document.createElement('canvas')
+    domElement: document.createElement('canvas'),
 };
 
 const mockMesh = {
@@ -33,17 +49,17 @@ const mockMesh = {
     visible: true,
     geometry: { dispose: jest.fn() },
     material: { dispose: jest.fn() },
-    parent: mockScene
+    parent: mockScene,
 };
 
 const mockGeometry = {
-    dispose: jest.fn()
+    dispose: jest.fn(),
 };
 
 const mockMaterial = {
     dispose: jest.fn(),
     color: { setHex: jest.fn() },
-    opacity: 1.0
+    opacity: 1.0,
 };
 
 // Mock Three.js classes
@@ -66,61 +82,61 @@ global.THREE = {
         ...mockMesh,
         setMatrixAt: jest.fn(),
         instanceMatrix: { needsUpdate: false },
-        count: 0
+        count: 0,
     })),
     Matrix4: jest.fn(() => ({
         makeScale: jest.fn(),
         compose: jest.fn(),
-        setMatrixAt: jest.fn()
+        setMatrixAt: jest.fn(),
     })),
     Quaternion: jest.fn(() => ({
-        setFromEuler: jest.fn()
+        setFromEuler: jest.fn(),
     })),
-    Euler: jest.fn()
+    Euler: jest.fn(),
 };
 
 // Mock DOM and window
 document.body.appendChild = jest.fn();
 global.window = {
     innerWidth: 1024,
-    innerHeight: 768
+    innerHeight: 768,
 };
 
 // Mock dependencies
-jest.mock('./ThemeEngine.js', () => ({
+jest.mock('../../src/systems/ThemeEngine.js', () => ({
     ThemeEngine: jest.fn(() => ({
         loadTheme: jest.fn(),
-        getCurrentTheme: jest.fn(() => 'classic-grid')
-    }))
+        getCurrentTheme: jest.fn(() => 'classic-grid'),
+    })),
 }));
 
-jest.mock('./EmissiveMaterialSystem.js', () => ({
+jest.mock('../../src/rendering/EmissiveMaterialSystem.js', () => ({
     EmissiveMaterialSystem: jest.fn(() => ({
         createBikeMaterial: jest.fn(() => mockMaterial),
         updatePulseAnimation: jest.fn(),
         pausePulse: jest.fn(),
         resumePulse: jest.fn(),
-        disposeMaterial: jest.fn()
-    }))
+        disposeMaterial: jest.fn(),
+    })),
 }));
 
-jest.mock('./TrailStyleRenderer.js', () => ({
+jest.mock('../../src/rendering/TrailStyleRenderer.js', () => ({
     TrailStyleRenderer: jest.fn(() => ({
         createStyledTrailSegment: jest.fn(() => mockMesh),
         updateTrailEffects: jest.fn(),
-        clearAllTrails: jest.fn()
-    }))
+        clearAllTrails: jest.fn(),
+    })),
 }));
 
-jest.mock('./GameModes.js', () => ({
+jest.mock('../../src/systems/GameModes.js', () => ({
     GameModes: {
         CLASSIC: 'classic',
         TIME_TRIAL: 'time-trial',
-        ARENA_SHRINK: 'arena-shrink'
-    }
+        ARENA_SHRINK: 'arena-shrink',
+    },
 }));
 
-jest.mock('./game.js', () => ({
+jest.mock('../../src/core/game.js', () => ({
     Game: jest.fn(() => ({
         bounds: { minX: -15, maxX: 15, minZ: -15, maxZ: 15 },
         gameSpeed: 0.1,
@@ -130,9 +146,9 @@ jest.mock('./game.js', () => ({
         gameOver: false,
         scoreManager: {
             getScoreState: jest.fn(() => ({})),
-            resetCurrentScores: jest.fn()
-        }
-    }))
+            resetCurrentScores: jest.fn(),
+        },
+    })),
 }));
 
 const { RenderingEngine } = require('@/rendering/renderer.js');
@@ -159,15 +175,15 @@ describe('Multiplayer Visual Integration', () => {
                     x: -10,
                     z: 0,
                     isAlive: true,
-                    trail: [{ x: -10, y: 0, z: 0 }]
+                    trail: [{ x: -10, y: 0, z: 0 }],
                 },
                 player2: {
                     id: 'P2',
                     x: 10,
                     z: 0,
                     isAlive: true,
-                    trail: [{ x: 10, y: 0, z: 0 }]
-                }
+                    trail: [{ x: 10, y: 0, z: 0 }],
+                },
             };
 
             // Should not throw errors when rendering
@@ -190,15 +206,15 @@ describe('Multiplayer Visual Integration', () => {
                 player1: {
                     x: -20,
                     z: 0,
-                    isAlive: true
+                    isAlive: true,
                 },
                 player2: {
                     x: 20,
                     z: 0,
-                    isAlive: true
-                }
+                    isAlive: true,
+                },
             };
-            
+
             // Should not throw errors when updating camera
             expect(() => {
                 renderer.updateCameraForPlayers(gameState);
@@ -213,15 +229,15 @@ describe('Multiplayer Visual Integration', () => {
                 player1: {
                     id: 'P1',
                     isAlive: true,
-                    trail: [{ x: -10, y: 0, z: 0 }]
+                    trail: [{ x: -10, y: 0, z: 0 }],
                 },
                 player2: {
                     id: 'P2',
                     isAlive: true,
-                    trail: [{ x: 10, y: 0, z: 0 }]
-                }
+                    trail: [{ x: 10, y: 0, z: 0 }],
+                },
             };
-            
+
             // Should not throw errors when updating trails
             expect(() => {
                 renderer.updatePlayerTrails(gameState);
@@ -242,17 +258,17 @@ describe('Multiplayer Visual Integration', () => {
                     x: -10,
                     z: 0,
                     isAlive: false, // Crashed
-                    trail: []
+                    trail: [],
                 },
                 player2: {
                     id: 'P2',
                     x: 10,
                     z: 0,
                     isAlive: true,
-                    trail: []
-                }
+                    trail: [],
+                },
             };
-            
+
             // Should not throw errors when rendering crashed player
             expect(() => {
                 renderer.draw(gameState);
@@ -266,10 +282,10 @@ describe('Multiplayer Visual Integration', () => {
                     x: -10,
                     z: 0,
                     isAlive: true,
-                    trail: []
-                }
+                    trail: [],
+                },
             };
-            
+
             // Set up game state
             renderer.updatePlayerEntities(gameState);
 
@@ -286,7 +302,7 @@ describe('Multiplayer Visual Integration', () => {
                 player: { x: 0, z: 0 },
                 playerTrail: [{ x: 0, y: 0, z: 0 }],
                 isPaused: false,
-                frameCount: 10
+                frameCount: 10,
             };
 
             // Should not throw errors

@@ -3,23 +3,26 @@
  * Handles shake intensity settings with proportional scaling and immediate application
  */
 
+const { Logger } = require('../utils/Logger');
+const logger = Logger.create('IntensityConfigManager');
+
 class IntensityConfigManager {
     constructor() {
         this.intensityLevels = {
-            'off': 0.0,
-            'low': 0.3,
-            'medium': 1.0,
-            'high': 2.0
+            off: 0.0,
+            low: 0.3,
+            medium: 1.0,
+            high: 2.0,
         };
-        
+
         this.currentIntensityLevel = 'medium';
         this.customIntensityValue = null;
         this.changeListeners = [];
-        
+
         // Effect type multipliers for different shake types
         this.effectMultipliers = {
-            collision: 1.0,      // Base multiplier for collision shakes
-            nearMiss: 0.2        // Near-miss shakes are 20% of collision intensity
+            collision: 1.0, // Base multiplier for collision shakes
+            nearMiss: 0.2, // Near-miss shakes are 20% of collision intensity
         };
     }
 
@@ -30,22 +33,24 @@ class IntensityConfigManager {
      */
     setIntensityLevel(level) {
         if (!this.intensityLevels.hasOwnProperty(level)) {
-            console.warn(`Invalid intensity level: ${level}. Valid levels:`, Object.keys(this.intensityLevels));
+            logger.warn(
+                `Invalid intensity level: ${level}. Valid levels: ${Object.keys(this.intensityLevels).join(', ')}`
+            );
             return false;
         }
-        
+
         const previousLevel = this.currentIntensityLevel;
         const previousValue = this.getEffectiveIntensity();
-        
+
         this.currentIntensityLevel = level;
         this.customIntensityValue = null; // Clear custom value when using preset
-        
+
         const newValue = this.getEffectiveIntensity();
-        
+
         if (previousLevel !== level || previousValue !== newValue) {
             this.notifyListeners(level, newValue, previousLevel, previousValue);
         }
-        
+
         return true;
     }
 
@@ -56,20 +61,20 @@ class IntensityConfigManager {
      */
     setCustomIntensity(intensity) {
         const numericIntensity = Number(intensity);
-        
+
         if (isNaN(numericIntensity) || numericIntensity < 0.0 || numericIntensity > 2.0) {
-            console.warn(`Invalid custom intensity: ${intensity}. Must be between 0.0 and 2.0`);
+            logger.warn(`Invalid custom intensity: ${intensity}. Must be between 0.0 and 2.0`);
             return false;
         }
-        
+
         const previousLevel = this.currentIntensityLevel;
         const previousValue = this.getEffectiveIntensity();
-        
+
         this.customIntensityValue = numericIntensity;
         this.currentIntensityLevel = 'custom';
-        
+
         this.notifyListeners('custom', numericIntensity, previousLevel, previousValue);
-        
+
         return true;
     }
 
@@ -89,8 +94,9 @@ class IntensityConfigManager {
         if (this.currentIntensityLevel === 'custom' && this.customIntensityValue !== null) {
             return this.customIntensityValue;
         }
-        
-        return this.intensityLevels[this.currentIntensityLevel] || this.intensityLevels.medium;
+
+        const value = this.intensityLevels[this.currentIntensityLevel];
+        return value !== undefined ? value : this.intensityLevels.medium;
     }
 
     /**
@@ -101,7 +107,7 @@ class IntensityConfigManager {
     getIntensityForEffect(effectType) {
         const baseIntensity = this.getEffectiveIntensity();
         const multiplier = this.effectMultipliers[effectType] || 1.0;
-        
+
         return baseIntensity * multiplier;
     }
 
@@ -132,7 +138,7 @@ class IntensityConfigManager {
             availableLevels: this.getAvailableLevels(),
             isCustom: this.currentIntensityLevel === 'custom',
             customValue: this.customIntensityValue,
-            isDisabled: this.isEffectsDisabled()
+            isDisabled: this.isEffectsDisabled(),
         };
     }
 
@@ -146,28 +152,28 @@ class IntensityConfigManager {
         if (!shakeParams || typeof shakeParams !== 'object') {
             return shakeParams;
         }
-        
+
         const intensityMultiplier = this.getIntensityForEffect(effectType);
         const scaledParams = { ...shakeParams };
-        
+
         // Scale intensity-related parameters
         if ('intensity' in scaledParams) {
             scaledParams.intensity = scaledParams.intensity * intensityMultiplier;
         }
-        
+
         if ('amplitude' in scaledParams) {
             scaledParams.amplitude = scaledParams.amplitude * intensityMultiplier;
         }
-        
+
         if ('magnitude' in scaledParams) {
             scaledParams.magnitude = scaledParams.magnitude * intensityMultiplier;
         }
-        
+
         // Duration might be slightly affected by intensity for very low values
         if ('duration' in scaledParams && intensityMultiplier < 0.1) {
             scaledParams.duration = scaledParams.duration * Math.max(0.5, intensityMultiplier * 2);
         }
-        
+
         return scaledParams;
     }
 
@@ -218,11 +224,11 @@ class IntensityConfigManager {
      * @param {number} previousValue - Previous intensity value
      */
     notifyListeners(newLevel, newValue, previousLevel, previousValue) {
-        this.changeListeners.forEach(listener => {
+        this.changeListeners.forEach((listener) => {
             try {
                 listener(newLevel, newValue, previousLevel, previousValue);
             } catch (error) {
-                console.error('Error in intensity change listener:', error);
+                logger.error('Error in intensity change listener:', error);
             }
         });
     }
@@ -235,7 +241,7 @@ class IntensityConfigManager {
         return {
             intensityLevel: this.currentIntensityLevel,
             customIntensityValue: this.customIntensityValue,
-            effectMultipliers: this.effectMultipliers
+            effectMultipliers: this.effectMultipliers,
         };
     }
 
@@ -248,15 +254,15 @@ class IntensityConfigManager {
         if (!settings || typeof settings !== 'object') {
             return false;
         }
-        
+
         let applied = false;
-        
+
         // Load effect multipliers
         if (settings.effectMultipliers && typeof settings.effectMultipliers === 'object') {
             this.setEffectMultipliers(settings.effectMultipliers);
             applied = true;
         }
-        
+
         // Load custom intensity value first
         if (settings.customIntensityValue !== null && settings.customIntensityValue !== undefined) {
             const customValue = Number(settings.customIntensityValue);
@@ -265,7 +271,7 @@ class IntensityConfigManager {
                 applied = true;
             }
         }
-        
+
         // Load intensity level
         if (settings.intensityLevel) {
             if (settings.intensityLevel === 'custom' && this.customIntensityValue !== null) {
@@ -276,7 +282,7 @@ class IntensityConfigManager {
                 applied = true;
             }
         }
-        
+
         return applied;
     }
 
@@ -287,7 +293,7 @@ class IntensityConfigManager {
     getIntensityDescription() {
         const level = this.getIntensityLevel();
         const value = this.getEffectiveIntensity();
-        
+
         if (level === 'off') {
             return 'Camera effects disabled';
         } else if (level === 'custom') {

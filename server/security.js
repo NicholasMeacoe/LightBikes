@@ -21,12 +21,11 @@ const logger = winston.createLogger({
 
 // Also log to console in development
 if (process.env.NODE_ENV !== 'production') {
-    logger.add(new winston.transports.Console({
-        format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.simple()
-        ),
-    }));
+    logger.add(
+        new winston.transports.Console({
+            format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
+        })
+    );
 }
 
 /**
@@ -35,22 +34,22 @@ if (process.env.NODE_ENV !== 'production') {
 const socketRateLimiter = {
     maxConnectionsPerMinute: 10,
     connections: new Map(),
-    
+
     checkLimit(ip) {
         const now = Date.now();
         const record = this.connections.get(ip) || { count: 0, resetTime: now + 60000 };
-        
+
         if (now > record.resetTime) {
             record.count = 0;
             record.resetTime = now + 60000;
         }
-        
+
         record.count++;
         this.connections.set(ip, record);
-        
+
         return record.count <= this.maxConnectionsPerMinute;
     },
-    
+
     cleanup() {
         const now = Date.now();
         for (const [ip, record] of this.connections.entries()) {
@@ -58,7 +57,7 @@ const socketRateLimiter = {
                 this.connections.delete(ip);
             }
         }
-    }
+    },
 };
 
 // Cleanup old rate limit records every minute
@@ -67,7 +66,9 @@ setInterval(() => socketRateLimiter.cleanup(), 60000);
 /**
  * HTTP rate limiter for REST endpoints
  */
-const httpRateLimiter = rateLimit({
+/** @type {any} */
+const rateLimitFn = rateLimit;
+const httpRateLimiter = rateLimitFn({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
     message: 'Too many requests from this IP, please try again later.',
@@ -78,11 +79,18 @@ const httpRateLimiter = rateLimit({
 /**
  * Security headers configuration
  */
-const securityHeaders = helmet({
+/** @type {any} */
+const helmetFn = helmet;
+const securityHeaders = helmetFn({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net'],
+            scriptSrc: [
+                "'self'",
+                "'unsafe-inline'",
+                'https://cdnjs.cloudflare.com',
+                'https://cdn.jsdelivr.net',
+            ],
             styleSrc: ["'self'", "'unsafe-inline'"],
             imgSrc: ["'self'", 'data:', 'https:'],
             connectSrc: ["'self'", 'ws:', 'wss:'],
@@ -96,26 +104,27 @@ const securityHeaders = helmet({
  */
 const validation = {
     isValidPlayerName(name) {
-        return typeof name === 'string' && 
-               name.length >= 2 && 
-               name.length <= 20 && 
-               /^[a-zA-Z0-9_-]+$/.test(name);
+        return (
+            typeof name === 'string' &&
+            name.length >= 2 &&
+            name.length <= 20 &&
+            /^[a-zA-Z0-9_-]+$/.test(name)
+        );
     },
-    
+
     isValidRoomCode(code) {
-        return typeof code === 'string' && 
-               /^[A-Z0-9]{6}$/.test(code);
+        return typeof code === 'string' && /^[A-Z0-9]{6}$/.test(code);
     },
-    
+
     isValidGameMode(mode) {
         const validModes = ['classic', 'elimination', 'survival', 'team'];
         return validModes.includes(mode);
     },
-    
+
     sanitizeInput(input) {
         if (typeof input !== 'string') return input;
         return input.trim().slice(0, 1000); // Limit length
-    }
+    },
 };
 
 module.exports = {

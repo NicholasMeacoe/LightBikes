@@ -3,6 +3,22 @@
  * Tests all requirements from tasks.md
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { DifficultyManager, DIFFICULTY_CONFIGS } = require('@/systems/difficulty.js');
 
 describe('Task 4: Difficulty Level Selector Functionality', () => {
@@ -15,31 +31,37 @@ describe('Task 4: Difficulty Level Selector Functionality', () => {
         // Mock game instance
         mockGame = {
             setGameSpeed: jest.fn(),
-            gameSpeed: 0.1
+            gameSpeed: 0.1,
         };
 
         // Mock AI controller
         mockAIController = {
-            difficultyConfig: null
+            difficultyConfig: null,
         };
 
         // Mock localStorage
-        localStorageMock = {
-            store: {},
-            getItem: jest.fn((key) => localStorageMock.store[key] || null),
-            setItem: jest.fn((key, value) => {
-                localStorageMock.store[key] = value;
-            }),
-            removeItem: jest.fn((key) => {
-                delete localStorageMock.store[key];
-            }),
-            clear: jest.fn(() => {
-                localStorageMock.store = {};
-            })
-        };
+        const store = {};
+        jest.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => store[key] || null);
+        jest.spyOn(Storage.prototype, 'setItem').mockImplementation((key, value) => {
+            store[key] = value;
+        });
+        jest.spyOn(Storage.prototype, 'removeItem').mockImplementation((key) => {
+            delete store[key];
+        });
+        jest.spyOn(Storage.prototype, 'clear').mockImplementation(() => {
+            Object.keys(store).forEach((k) => delete store[k]);
+        });
 
-        global.localStorage = localStorageMock;
-        global.Storage = function() {};
+        // Ensure window.localStorage is available for the manager
+        if (typeof window === 'undefined') {
+            global.window = {};
+        }
+        if (!window.localStorage) {
+            Object.defineProperty(window, 'localStorage', {
+                value: localStorage,
+                writable: true,
+            });
+        }
 
         // Create difficulty manager
         difficultyManager = new DifficultyManager(mockGame, mockAIController);
@@ -53,9 +75,18 @@ describe('Task 4: Difficulty Level Selector Functionality', () => {
         it('should query all .difficulty-btn elements', () => {
             // Simulate DOM query
             const mockButtons = [
-                { getAttribute: jest.fn(() => 'easy'), classList: { add: jest.fn(), remove: jest.fn() } },
-                { getAttribute: jest.fn(() => 'medium'), classList: { add: jest.fn(), remove: jest.fn() } },
-                { getAttribute: jest.fn(() => 'hard'), classList: { add: jest.fn(), remove: jest.fn() } }
+                {
+                    getAttribute: jest.fn(() => 'easy'),
+                    classList: { add: jest.fn(), remove: jest.fn() },
+                },
+                {
+                    getAttribute: jest.fn(() => 'medium'),
+                    classList: { add: jest.fn(), remove: jest.fn() },
+                },
+                {
+                    getAttribute: jest.fn(() => 'hard'),
+                    classList: { add: jest.fn(), remove: jest.fn() },
+                },
             ];
 
             // Verify we can query buttons (simulated)
@@ -71,7 +102,7 @@ describe('Task 4: Difficulty Level Selector Functionality', () => {
                 getAttribute: jest.fn((attr) => {
                     if (attr === 'data-level') return 'easy';
                     return null;
-                })
+                }),
             };
 
             const level = mockButton.getAttribute('data-level');
@@ -118,8 +149,8 @@ describe('Task 4: Difficulty Level Selector Functionality', () => {
         it('should persist selection to localStorage', () => {
             difficultyManager.setDifficulty('hard');
 
-            expect(localStorageMock.setItem).toHaveBeenCalled();
-            const savedData = JSON.parse(localStorageMock.store['lightbikes_difficulty']);
+            expect(Storage.prototype.setItem).toHaveBeenCalled();
+            const savedData = JSON.parse(localStorage.getItem('lightbikes_difficulty'));
             expect(savedData.selectedDifficulty).toBe('hard');
         });
 
@@ -140,22 +171,31 @@ describe('Task 4: Difficulty Level Selector Functionality', () => {
             const mockButtons = [
                 { classList: { add: jest.fn(), remove: jest.fn() } },
                 { classList: { add: jest.fn(), remove: jest.fn() } },
-                { classList: { add: jest.fn(), remove: jest.fn() } }
+                { classList: { add: jest.fn(), remove: jest.fn() } },
             ];
 
             // Simulate updateDifficultyUI logic
-            mockButtons.forEach(btn => btn.classList.remove('active'));
+            mockButtons.forEach((btn) => btn.classList.remove('active'));
 
-            mockButtons.forEach(btn => {
+            mockButtons.forEach((btn) => {
                 expect(btn.classList.remove).toHaveBeenCalledWith('active');
             });
         });
 
         it('should add active class to clicked button', () => {
             const mockButtons = [
-                { getAttribute: jest.fn(() => 'easy'), classList: { add: jest.fn(), remove: jest.fn() } },
-                { getAttribute: jest.fn(() => 'medium'), classList: { add: jest.fn(), remove: jest.fn() } },
-                { getAttribute: jest.fn(() => 'hard'), classList: { add: jest.fn(), remove: jest.fn() } }
+                {
+                    getAttribute: jest.fn(() => 'easy'),
+                    classList: { add: jest.fn(), remove: jest.fn() },
+                },
+                {
+                    getAttribute: jest.fn(() => 'medium'),
+                    classList: { add: jest.fn(), remove: jest.fn() },
+                },
+                {
+                    getAttribute: jest.fn(() => 'hard'),
+                    classList: { add: jest.fn(), remove: jest.fn() },
+                },
             ];
 
             // Simulate clicking the hard button
@@ -163,7 +203,7 @@ describe('Task 4: Difficulty Level Selector Functionality', () => {
             const selectedLevel = 'hard';
 
             // Remove active from all
-            mockButtons.forEach(btn => btn.classList.remove('active'));
+            mockButtons.forEach((btn) => btn.classList.remove('active'));
 
             // Add active to clicked
             if (clickedButton.getAttribute('data-level') === selectedLevel) {
@@ -173,7 +213,7 @@ describe('Task 4: Difficulty Level Selector Functionality', () => {
             expect(clickedButton.classList.add).toHaveBeenCalledWith('active');
         });
 
-        it('should ensure visual feedback appears within 100ms', (done) => {
+        it('should ensure visual feedback appears within 100ms', () => {
             const startTime = Date.now();
 
             // Simulate instant UI update
@@ -183,7 +223,6 @@ describe('Task 4: Difficulty Level Selector Functionality', () => {
             const duration = endTime - startTime;
 
             expect(duration).toBeLessThan(100);
-            done();
         });
     });
 
@@ -210,33 +249,32 @@ describe('Task 4: Difficulty Level Selector Functionality', () => {
 
         it('should satisfy Requirement 3.4: Persist difficulty across restarts', () => {
             difficultyManager.setDifficulty('hard');
-            
+
             // Create new manager instance (simulating restart)
             const newManager = new DifficultyManager(mockGame, mockAIController);
-            
+
             expect(newManager.getCurrentDifficulty()).toBe('hard');
         });
 
         it('should satisfy Requirement 3.5: Support Easy, Medium, and Hard levels', () => {
             const difficulties = ['easy', 'medium', 'hard'];
-            
-            difficulties.forEach(level => {
+
+            difficulties.forEach((level) => {
                 difficultyManager.setDifficulty(level);
                 expect(difficultyManager.getCurrentDifficulty()).toBe(level);
                 expect(DIFFICULTY_CONFIGS[level]).toBeDefined();
             });
         });
 
-        it('should satisfy Requirement 6.1: Provide visual feedback within 100ms', (done) => {
+        it('should satisfy Requirement 6.1: Provide visual feedback within 100ms', () => {
             const startTime = performance.now();
-            
+
             difficultyManager.setDifficulty('easy');
-            
+
             const endTime = performance.now();
             const duration = endTime - startTime;
-            
+
             expect(duration).toBeLessThan(100);
-            done();
         });
 
         it('should satisfy Requirement 6.2: Extract difficulty from data attribute', () => {
@@ -245,22 +283,22 @@ describe('Task 4: Difficulty Level Selector Functionality', () => {
                 getAttribute: jest.fn((attr) => {
                     if (attr === 'data-level') return 'hard';
                     return null;
-                })
+                }),
             };
 
             const level = mockButton.getAttribute('data-level');
             expect(level).toBe('hard');
-            
+
             difficultyManager.setDifficulty(level);
             expect(difficultyManager.getCurrentDifficulty()).toBe('hard');
         });
 
         it('should satisfy Requirement 6.3: Visual feedback within 100ms', () => {
             const startTime = Date.now();
-            
+
             // Simulate UI update
             difficultyManager.setDifficulty('medium');
-            
+
             const endTime = Date.now();
             expect(endTime - startTime).toBeLessThan(100);
         });
@@ -270,24 +308,24 @@ describe('Task 4: Difficulty Level Selector Functionality', () => {
         it('should handle complete click-to-apply workflow', () => {
             // Simulate user clicking easy button
             const selectedLevel = 'easy';
-            
+
             // 1. Extract level from data attribute
             expect(selectedLevel).toBe('easy');
-            
+
             // 2. Update difficulty manager
             difficultyManager.setDifficulty(selectedLevel);
-            
+
             // 3. Verify difficulty changed
             expect(difficultyManager.getCurrentDifficulty()).toBe('easy');
-            
+
             // 4. Verify AI settings applied
             expect(mockAIController.difficultyConfig).toEqual(DIFFICULTY_CONFIGS.easy);
-            
+
             // 5. Verify game speed applied
             expect(mockGame.setGameSpeed).toHaveBeenCalledWith(0.08);
-            
+
             // 6. Verify persistence
-            const savedData = JSON.parse(localStorageMock.store['lightbikes_difficulty']);
+            const savedData = JSON.parse(localStorage.getItem('lightbikes_difficulty'));
             expect(savedData.selectedDifficulty).toBe('easy');
         });
 
@@ -295,7 +333,7 @@ describe('Task 4: Difficulty Level Selector Functionality', () => {
             difficultyManager.setDifficulty('easy');
             difficultyManager.setDifficulty('hard');
             difficultyManager.setDifficulty('medium');
-            
+
             expect(difficultyManager.getCurrentDifficulty()).toBe('medium');
             expect(mockAIController.difficultyConfig).toEqual(DIFFICULTY_CONFIGS.medium);
         });
@@ -303,14 +341,14 @@ describe('Task 4: Difficulty Level Selector Functionality', () => {
         it('should maintain state consistency across operations', () => {
             // Set difficulty
             difficultyManager.setDifficulty('hard');
-            
+
             // Verify all systems updated
             expect(difficultyManager.getCurrentDifficulty()).toBe('hard');
             expect(mockAIController.difficultyConfig.turnThreshold).toBe(8);
             expect(mockGame.setGameSpeed).toHaveBeenCalledWith(0.12);
-            
+
             // Verify persistence
-            const savedData = JSON.parse(localStorageMock.store['lightbikes_difficulty']);
+            const savedData = JSON.parse(localStorage.getItem('lightbikes_difficulty'));
             expect(savedData.selectedDifficulty).toBe('hard');
         });
     });

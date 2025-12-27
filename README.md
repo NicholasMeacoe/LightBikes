@@ -114,6 +114,15 @@ LightBikes/
 
 ## 🛠️ Development
 
+### Pre-Commit Hooks
+
+This project uses **Husky** and **lint-staged** to automatically check code quality before commits:
+
+- ✅ **ESLint** - Lints and auto-fixes JavaScript
+- ✅ **Prettier** - Formats code consistently
+
+Hooks run automatically on `git commit`. See [Pre-Commit Hooks Documentation](docs/PRE_COMMIT_HOOKS.md) for details.
+
 ### Code Quality
 
 ```bash
@@ -141,10 +150,14 @@ GEMINI_API_KEY=your_api_key_here
 # Server configuration
 PORT=3000
 NODE_ENV=development
-LOG_LEVEL=info
+
+# Logging configuration
+LOG_LEVEL=debug  # Options: error, warn, info, debug
 ```
 
 **Important**: Never commit `.env` files to version control.
+
+**Logging**: The application uses Winston for structured logging. Logs are written to `logs/combined.log` and `logs/error.log`. In development, logs also appear in console. Set `LOG_LEVEL=info` for production.
 
 ## 🏗️ Architecture
 
@@ -185,10 +198,10 @@ See `server/SECURITY.md` for details.
 
 - **Unit Tests**: Core game logic, systems, and utilities
 - **Integration Tests**: Full game flow and multiplayer
-- **Coverage Target**: > 80%
+- **Coverage**: ~80% (Statements: 79.2%, Branches: 70.47%, Functions: 81.66%)
 - **CI/CD**: Automated testing on every push
 
-Current status: 70/138 test suites passing (50.7%)
+**Current Status:** ✅ **3,804/3,804 tests passing (100% pass rate)**
 
 ## 🚢 Deployment
 
@@ -250,10 +263,10 @@ docker run -p 3000:3000 lightbikes
 
 ## 🐛 Known Issues
 
+- main.js refactoring in progress (3,293 lines → target < 500 lines) - See [Refactoring Plan](MAIN_JS_REFACTORING_PLAN.md)
 - Mobile touch controls need calibration improvements
 - Performance issues on older hardware (< 4GB RAM)
 - Trail rendering can be GPU-intensive
-- Some tests still failing (being addressed)
 
 ## 🤝 Contributing
 

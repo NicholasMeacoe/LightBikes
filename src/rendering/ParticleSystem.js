@@ -4,6 +4,7 @@
  * Integrates with existing Three.js rendering pipeline and game loop
  */
 
+const { logger } = require('../utils/Logger.js');
 const { ParticlePool } = require('./ParticlePool.js');
 const { Particle } = require('./Particle.js');
 const { PerformanceMonitor } = require('../utils/PerformanceMonitor.js');
@@ -29,9 +30,9 @@ class ParticleSystem {
                 effects: {
                     trailSparks: settings.effects?.trailSparks !== false,
                     explosions: settings.effects?.explosions !== false,
-                    collections: settings.effects?.collections !== false
+                    collections: settings.effects?.collections !== false,
                 },
-                adaptiveQuality: settings.adaptiveQuality !== false
+                adaptiveQuality: settings.adaptiveQuality !== false,
             };
 
             // Error handling state
@@ -44,7 +45,7 @@ class ParticleSystem {
             try {
                 this.particlePool = new ParticlePool(this.settings.maxParticles);
             } catch (poolError) {
-                console.error('ParticleSystem: Failed to initialize particle pool:', poolError);
+                logger.error('ParticleSystem: Failed to initialize particle pool:', poolError);
                 throw new Error('Failed to initialize particle pool: ' + poolError.message);
             }
 
@@ -58,35 +59,40 @@ class ParticleSystem {
                 this.performanceMonitor = new PerformanceMonitor();
                 this.performanceMonitor.frameRateThreshold = 50; // FPS threshold for degradation
             } catch (monitorError) {
-                console.warn('ParticleSystem: Failed to initialize performance monitor:', monitorError);
+                logger.warn(
+                    'ParticleSystem: Failed to initialize performance monitor:',
+                    monitorError
+                );
                 this.performanceMonitor = null;
                 this.settings.adaptiveQuality = false; // Disable adaptive quality if monitor fails
             }
 
-            this.adaptiveQualityEnabled = this.settings.adaptiveQuality && this.performanceMonitor;
+            this.adaptiveQualityEnabled = !!(
+                this.settings.adaptiveQuality && this.performanceMonitor
+            );
             this.originalQuality = this.settings.quality;
             this.originalMaxParticles = this.settings.maxParticles;
-            
+
             // Quality level configurations
             this.qualityConfigs = {
                 high: {
                     maxParticles: 200,
                     trailSparkMultiplier: 2.5,
                     explosionParticles: 30,
-                    collectionParticles: 20
+                    collectionParticles: 20,
                 },
                 medium: {
                     maxParticles: 150,
                     trailSparkMultiplier: 1.5,
                     explosionParticles: 25,
-                    collectionParticles: 15
+                    collectionParticles: 15,
                 },
                 low: {
                     maxParticles: 100,
                     trailSparkMultiplier: 1.0,
                     explosionParticles: 20,
-                    collectionParticles: 10
-                }
+                    collectionParticles: 10,
+                },
             };
 
             // Degradation state tracking
@@ -100,7 +106,7 @@ class ParticleSystem {
             try {
                 this.initializeRendering();
             } catch (renderError) {
-                console.error('ParticleSystem: Failed to initialize rendering:', renderError);
+                logger.error('ParticleSystem: Failed to initialize rendering:', renderError);
                 this.settings.enabled = false; // Disable system if rendering fails
                 throw new Error('Failed to initialize particle rendering: ' + renderError.message);
             }
@@ -122,22 +128,19 @@ class ParticleSystem {
             this.lastMemoryCheck = Date.now();
             this.memoryCheckInterval = 5000; // Check memory every 5 seconds
 
-            console.log('ParticleSystem: Initialized successfully');
-
+            logger.info('ParticleSystem: Initialized successfully');
         } catch (error) {
-            console.error('ParticleSystem: Critical initialization error:', error);
-            
+            logger.error('ParticleSystem: Critical initialization error:', error);
+
             // Set system to safe disabled state
             this.settings = { enabled: false };
             this.errorCount = 1;
             this.recordError('initialization', error);
-            
+
             // Re-throw to notify caller of initialization failure
             throw error;
         }
     }
-
-
 
     /**
      * Initialize Three.js rendering components
@@ -146,7 +149,7 @@ class ParticleSystem {
         try {
             // Create BufferGeometry for efficient particle rendering
             this.particleGeometry = new THREE.BufferGeometry();
-            
+
             // Pre-allocate arrays for maximum particles
             const positions = new Float32Array(this.settings.maxParticles * 3);
             const colors = new Float32Array(this.settings.maxParticles * 3);
@@ -155,12 +158,15 @@ class ParticleSystem {
 
             // Set buffer attributes with error handling
             try {
-                this.particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                this.particleGeometry.setAttribute(
+                    'position',
+                    new THREE.BufferAttribute(positions, 3)
+                );
                 this.particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
                 this.particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
                 this.particleGeometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
             } catch (attributeError) {
-                console.error('ParticleSystem: Failed to set buffer attributes:', attributeError);
+                logger.error('ParticleSystem: Failed to set buffer attributes:', attributeError);
                 throw new Error('Failed to create buffer attributes: ' + attributeError.message);
             }
 
@@ -169,7 +175,10 @@ class ParticleSystem {
             try {
                 particleTexture = this.createParticleTexture();
             } catch (textureError) {
-                console.warn('ParticleSystem: Failed to create particle texture, using fallback:', textureError);
+                logger.warn(
+                    'ParticleSystem: Failed to create particle texture, using fallback:',
+                    textureError
+                );
                 particleTexture = { needsUpdate: true }; // Fallback texture
             }
 
@@ -178,7 +187,7 @@ class ParticleSystem {
                 this.particleMaterial = new THREE.ShaderMaterial({
                     uniforms: {
                         pointTexture: { value: particleTexture },
-                        time: { value: 0.0 }
+                        time: { value: 0.0 },
                     },
                     vertexShader: `
                         attribute float size;
@@ -236,38 +245,40 @@ class ParticleSystem {
                     depthWrite: false,
                     transparent: true,
                     vertexColors: true,
-                    side: THREE.DoubleSide
+                    side: THREE.DoubleSide,
                 });
             } catch (materialError) {
-                console.error('ParticleSystem: Failed to create shader material:', materialError);
+                logger.error('ParticleSystem: Failed to create shader material:', materialError);
                 throw new Error('Failed to create particle material: ' + materialError.message);
             }
 
             // Create Points object with proper rendering settings
             try {
-                this.particlePoints = new THREE.Points(this.particleGeometry, this.particleMaterial);
-                
+                this.particlePoints = new THREE.Points(
+                    this.particleGeometry,
+                    this.particleMaterial
+                );
+
                 // Set rendering order to ensure particles render after solid objects but before UI
                 this.particlePoints.renderOrder = 100;
-                
+
                 // Enable frustum culling for better performance
                 this.particlePoints.frustumCulled = true;
-                
+
                 // Add to scene
                 this.scene.add(this.particlePoints);
             } catch (pointsError) {
-                console.error('ParticleSystem: Failed to create Points object:', pointsError);
+                logger.error('ParticleSystem: Failed to create Points object:', pointsError);
                 throw new Error('Failed to create particle points: ' + pointsError.message);
             }
 
-            console.log('ParticleSystem: Rendering initialized successfully');
-
+            logger.info('ParticleSystem: Rendering initialized successfully');
         } catch (error) {
-            console.error('ParticleSystem: Failed to initialize rendering:', error);
-            
+            logger.error('ParticleSystem: Failed to initialize rendering:', error);
+
             // Clean up any partially created objects
             this.cleanupRenderingResources();
-            
+
             throw error;
         }
     }
@@ -281,27 +292,34 @@ class ParticleSystem {
             const canvas = document.createElement('canvas');
             canvas.width = 128;
             canvas.height = 128;
-            
+
             let context;
             try {
                 context = canvas.getContext('2d');
             } catch (contextError) {
                 // Fallback for test environment where canvas context is not available
-                console.warn('Canvas context not available, using fallback texture');
+                logger.warn('Canvas context not available, using fallback texture');
                 return { needsUpdate: true };
             }
-            
+
             if (!context) {
                 // Fallback for test environment - return mock texture
                 return { needsUpdate: true };
             }
-            
+
             const centerX = 64;
             const centerY = 64;
             const radius = 64;
-            
+
             // Create high-quality radial gradient for smooth particle appearance
-            const gradient = context.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+            const gradient = context.createRadialGradient(
+                centerX,
+                centerY,
+                0,
+                centerX,
+                centerY,
+                radius
+            );
             gradient.addColorStop(0, 'rgba(255,255,255,1.0)');
             gradient.addColorStop(0.1, 'rgba(255,255,255,0.9)');
             gradient.addColorStop(0.3, 'rgba(255,255,255,0.7)');
@@ -309,13 +327,14 @@ class ParticleSystem {
             gradient.addColorStop(0.7, 'rgba(255,255,255,0.2)');
             gradient.addColorStop(0.9, 'rgba(255,255,255,0.05)');
             gradient.addColorStop(1.0, 'rgba(255,255,255,0)');
-            
+
             // Clear canvas and draw gradient
             context.clearRect(0, 0, 128, 128);
             context.fillStyle = gradient;
             context.fillRect(0, 0, 128, 128);
-            
+
             // Create Three.js texture with proper settings
+            /** @type {any} */
             const texture = new THREE.Texture(canvas);
             texture.needsUpdate = true;
             texture.wrapS = THREE.ClampToEdgeWrapping;
@@ -324,10 +343,10 @@ class ParticleSystem {
             texture.magFilter = THREE.LinearFilter;
             texture.format = THREE.RGBAFormat;
             texture.generateMipmaps = false;
-            
+
             return texture;
         } catch (error) {
-            console.warn('Failed to create particle texture, using fallback:', error);
+            logger.warn('Failed to create particle texture, using fallback:', error);
             // Fallback for test environment - return mock texture
             return { needsUpdate: true };
         }
@@ -394,30 +413,33 @@ class ParticleSystem {
 
             this.frameCount++;
             const currentTime = Date.now();
-            
+
             // Update performance monitoring with error handling
             try {
                 this.performanceMonitor.update();
             } catch (performanceError) {
-                console.warn('ParticleSystem: Performance monitoring error:', performanceError);
+                logger.warn('ParticleSystem: Performance monitoring error:', performanceError);
                 this.handlePerformanceMonitoringError(performanceError);
             }
-            
+
             // Check for performance degradation and apply adaptive quality
             if (this.adaptiveQualityEnabled) {
                 try {
                     this.checkPerformanceDegradation(currentTime);
                 } catch (degradationError) {
-                    console.warn('ParticleSystem: Performance degradation check error:', degradationError);
+                    logger.warn(
+                        'ParticleSystem: Performance degradation check error:',
+                        degradationError
+                    );
                     this.handlePerformanceDegradationError(degradationError);
                 }
             }
-            
+
             // Update all active particles with error handling
             try {
                 this.particlePool.updateParticles(deltaTime);
             } catch (poolError) {
-                console.warn('ParticleSystem: Particle pool update error:', poolError);
+                logger.warn('ParticleSystem: Particle pool update error:', poolError);
                 this.handleParticlePoolError(poolError);
             }
 
@@ -425,17 +447,17 @@ class ParticleSystem {
             try {
                 this.updateRenderingBuffers();
             } catch (renderError) {
-                console.warn('ParticleSystem: Rendering buffer update error:', renderError);
+                logger.warn('ParticleSystem: Rendering buffer update error:', renderError);
                 this.handleRenderingError(renderError);
             }
-            
+
             // Update shader uniforms with error handling
             try {
                 if (this.particleMaterial && this.particleMaterial.uniforms) {
                     this.particleMaterial.uniforms.time.value = currentTime * 0.001; // Convert to seconds
                 }
             } catch (shaderError) {
-                console.warn('ParticleSystem: Shader uniform update error:', shaderError);
+                logger.warn('ParticleSystem: Shader uniform update error:', shaderError);
                 this.handleShaderError(shaderError);
             }
 
@@ -445,14 +467,13 @@ class ParticleSystem {
                     this.monitorMemoryUsage();
                     this.lastMemoryCheck = currentTime;
                 } catch (memoryError) {
-                    console.warn('ParticleSystem: Memory monitoring error:', memoryError);
+                    logger.warn('ParticleSystem: Memory monitoring error:', memoryError);
                 }
             }
-            
+
             this.lastUpdateTime = currentTime;
-            
         } catch (error) {
-            console.error('ParticleSystem: Critical update error:', error);
+            logger.error('ParticleSystem: Critical update error:', error);
             this.handleCriticalError(error, 'update');
         }
     }
@@ -463,7 +484,7 @@ class ParticleSystem {
     updateRenderingBuffers() {
         try {
             if (!this.particleGeometry || !this.particleGeometry.attributes) {
-                console.warn('ParticleSystem: Geometry not available for buffer update');
+                logger.warn('ParticleSystem: Geometry not available for buffer update');
                 return;
             }
 
@@ -474,15 +495,14 @@ class ParticleSystem {
 
             // Validate arrays exist
             if (!positions || !colors || !sizes || !alphas) {
-                console.warn('ParticleSystem: Buffer arrays not available');
+                logger.warn('ParticleSystem: Buffer arrays not available');
                 return;
             }
 
             // Use batch update operations for better performance
             this.batchUpdateBuffers(positions, colors, sizes, alphas);
-
         } catch (error) {
-            console.error('ParticleSystem: Critical error in updateRenderingBuffers:', error);
+            logger.error('ParticleSystem: Critical error in updateRenderingBuffers:', error);
             throw error; // Re-throw to be handled by caller
         }
     }
@@ -507,21 +527,25 @@ class ParticleSystem {
             try {
                 activeParticles = this.particlePool.getActiveParticles();
             } catch (poolError) {
-                console.warn('ParticleSystem: Failed to get active particles:', poolError);
+                logger.warn('ParticleSystem: Failed to get active particles:', poolError);
                 return;
             }
 
             // Filter out culled particles for rendering optimization
-            const visibleParticles = activeParticles.filter(particle => 
-                particle && particle.active && !particle.culled
+            const visibleParticles = activeParticles.filter(
+                (particle) => particle && particle.active && !particle.culled
             );
 
             let renderIndex = 0;
 
             // Batch process visible particles
-            for (let i = 0; i < visibleParticles.length && renderIndex < this.settings.maxParticles; i++) {
+            for (
+                let i = 0;
+                i < visibleParticles.length && renderIndex < this.settings.maxParticles;
+                i++
+            ) {
                 const particle = visibleParticles[i];
-                
+
                 if (!particle || !particle.position || !particle.color) {
                     continue; // Skip invalid particles
                 }
@@ -558,7 +582,7 @@ class ParticleSystem {
 
                     renderIndex++;
                 } catch (particleError) {
-                    console.warn(`ParticleSystem: Error processing particle ${i}:`, particleError);
+                    logger.warn(`ParticleSystem: Error processing particle ${i}:`, particleError);
                     continue; // Skip this particle and continue with others
                 }
             }
@@ -567,10 +591,13 @@ class ParticleSystem {
             this.batchMarkAttributesForUpdate(renderIndex);
 
             // Update performance metrics
-            this.updatePerformanceMetrics(activeParticles.length, visibleParticles.length, renderIndex);
-
+            this.updatePerformanceMetrics(
+                activeParticles.length,
+                visibleParticles.length,
+                renderIndex
+            );
         } catch (error) {
-            console.error('ParticleSystem: Critical error in batchUpdateBuffers:', error);
+            logger.error('ParticleSystem: Critical error in batchUpdateBuffers:', error);
             throw error;
         }
     }
@@ -590,9 +617,8 @@ class ParticleSystem {
 
             // Update draw range to only render visible particles
             this.particleGeometry.setDrawRange(0, renderCount);
-
         } catch (updateError) {
-            console.warn('ParticleSystem: Failed to mark attributes for update:', updateError);
+            logger.warn('ParticleSystem: Failed to mark attributes for update:', updateError);
             throw updateError;
         }
     }
@@ -612,7 +638,8 @@ class ParticleSystem {
         this.performanceMetrics.visibleParticles = visibleParticles;
         this.performanceMetrics.renderedParticles = renderedParticles;
         this.performanceMetrics.culledParticles = totalParticles - visibleParticles;
-        this.performanceMetrics.cullRatio = totalParticles > 0 ? (this.performanceMetrics.culledParticles / totalParticles) : 0;
+        this.performanceMetrics.cullRatio =
+            totalParticles > 0 ? this.performanceMetrics.culledParticles / totalParticles : 0;
         this.performanceMetrics.lastUpdateTime = Date.now();
     }
 
@@ -637,7 +664,7 @@ class ParticleSystem {
             // Movement-based emission control - only emit if entity is actually moving
             const velocityMagnitude = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
             const movementThreshold = 0.01; // Minimum movement to emit particles
-            
+
             if (velocityMagnitude < movementThreshold) {
                 // Entity is not moving enough to emit trail sparks
                 return;
@@ -646,14 +673,14 @@ class ParticleSystem {
             // Calculate speed-proportional emission rate based on actual movement
             const speedFactor = Math.max(0.1, Math.min(3.0, velocityMagnitude / 0.1)); // Normalize to game speed
             const baseEmissionRate = speedFactor * 0.8; // Higher speed = more particles
-            
+
             // Quality-based particle count with speed proportionality
             const config = this.qualityConfigs[this.settings.quality] || this.qualityConfigs.medium;
             let particleCount = Math.floor(baseEmissionRate * config.trailSparkMultiplier);
-            
+
             // Ensure minimum emission for visual feedback when moving
             particleCount = Math.max(1, Math.min(4, particleCount));
-            
+
             for (let i = 0; i < particleCount; i++) {
                 try {
                     const particle = this.acquireParticle();
@@ -663,7 +690,7 @@ class ParticleSystem {
                     particle.type = 'trail';
                     particle.active = true;
                     particle.age = 0;
-                    
+
                     // Position particles at rear of bike with slight randomization
                     const rearOffset = 0.3; // Distance behind bike center
                     particle.position.set(
@@ -671,38 +698,39 @@ class ParticleSystem {
                         position.y + Math.random() * 0.08, // Slight vertical spread
                         position.z - velocity.z * rearOffset + (Math.random() - 0.5) * 0.15
                     );
-                    
+
                     // Velocity with backward bias and speed proportionality
                     const backwardBias = Math.max(0.3, velocityMagnitude * 0.5);
-                    
+
                     particle.velocity.set(
                         (Math.random() - 0.5) * 0.4 - velocity.x * backwardBias,
                         Math.random() * 0.25 + 0.05, // Slight upward motion
                         (Math.random() - 0.5) * 0.4 - velocity.z * backwardBias
                     );
-                    
+
                     // Light gravity and air resistance
                     particle.acceleration.set(0, -0.15, 0);
-                    
+
                     // Enhanced color matching with trail colors
                     particle.color.setHex(color);
-                    
+
                     // Particle size as specified in requirements (0.05 units base)
                     particle.size = 0.04 + Math.random() * 0.02; // 0.04-0.06 units (centered on 0.05)
                     particle.originalSize = particle.size; // Store original size for LOD calculations
-                    
+
                     // Lifetime as specified in requirements (0.5-1.0 seconds)
                     particle.lifetime = 0.5 + Math.random() * 0.5;
-                    
                 } catch (particleError) {
-                    console.warn('ParticleSystem: Error creating trail spark particle:', particleError);
+                    logger.warn(
+                        'ParticleSystem: Error creating trail spark particle:',
+                        particleError
+                    );
                     // Continue with next particle instead of failing completely
                     continue;
                 }
             }
-            
         } catch (error) {
-            console.error('ParticleSystem: Critical error in emitTrailSparks:', error);
+            logger.error('ParticleSystem: Critical error in emitTrailSparks:', error);
             this.handleCriticalError(error, 'emitTrailSparks');
         }
     }
@@ -744,15 +772,15 @@ class ParticleSystem {
                     const angle = Math.random() * Math.PI * 2;
                     const elevation = (Math.random() - 0.5) * Math.PI * 0.5;
                     const speed = 2.0 + Math.random() * 2.0; // 2.0-4.0 units/second
-                    
+
                     particle.velocity.set(
                         Math.cos(angle) * Math.cos(elevation) * speed,
                         Math.sin(elevation) * speed * 0.5,
                         Math.sin(angle) * Math.cos(elevation) * speed
                     );
-                    
+
                     particle.acceleration.set(0, -0.5, 0); // Gravity
-                    
+
                     // Orange/red color scheme
                     const colorVariation = Math.random();
                     if (colorVariation < 0.4) {
@@ -762,20 +790,21 @@ class ParticleSystem {
                     } else {
                         particle.color.setHex(0xff8800); // Light orange
                     }
-                    
+
                     particle.size = 0.1 + Math.random() * 0.1; // 0.1-0.2 units
                     particle.originalSize = particle.size; // Store original size for LOD calculations
                     particle.lifetime = 1.5 + Math.random() * 0.5; // 1.5-2.0 seconds
-                    
                 } catch (particleError) {
-                    console.warn('ParticleSystem: Error creating explosion particle:', particleError);
+                    logger.warn(
+                        'ParticleSystem: Error creating explosion particle:',
+                        particleError
+                    );
                     // Continue with next particle instead of failing completely
                     continue;
                 }
             }
-            
         } catch (error) {
-            console.error('ParticleSystem: Critical error in createExplosion:', error);
+            logger.error('ParticleSystem: Critical error in createExplosion:', error);
             this.handleCriticalError(error, 'createExplosion');
         }
     }
@@ -836,28 +865,29 @@ class ParticleSystem {
                     const angle = Math.random() * Math.PI * 2;
                     const upwardBias = 0.7; // 70% upward velocity
                     const speed = 1.0 + Math.random() * 1.5; // 1.0-2.5 units/second
-                    
+
                     particle.velocity.set(
                         Math.cos(angle) * speed * (1 - upwardBias),
                         speed * upwardBias + Math.random() * 0.5,
                         Math.sin(angle) * speed * (1 - upwardBias)
                     );
-                    
+
                     particle.acceleration.set(0, -0.3, 0); // Light gravity
                     particle.color.setHex(color);
                     particle.size = 0.05 + Math.random() * 0.05; // 0.05-0.1 units
                     particle.originalSize = particle.size; // Store original size for LOD calculations
                     particle.lifetime = 1.0; // 1.0 second
-                    
                 } catch (particleError) {
-                    console.warn('ParticleSystem: Error creating collection particle:', particleError);
+                    logger.warn(
+                        'ParticleSystem: Error creating collection particle:',
+                        particleError
+                    );
                     // Continue with next particle instead of failing completely
                     continue;
                 }
             }
-            
         } catch (error) {
-            console.error('ParticleSystem: Critical error in createCollectionEffect:', error);
+            logger.error('ParticleSystem: Critical error in createCollectionEffect:', error);
             this.handleCriticalError(error, 'createCollectionEffect');
         }
     }
@@ -871,10 +901,10 @@ class ParticleSystem {
         if (currentTime - this.lastDegradationCheck < this.degradationCheckInterval) {
             return;
         }
-        
+
         this.lastDegradationCheck = currentTime;
         const metrics = this.performanceMonitor.getPerformanceMetrics();
-        
+
         // Check if performance is below threshold
         if (metrics.averageFPS < this.performanceMonitor.frameRateThreshold) {
             // Performance is poor, apply degradation
@@ -898,28 +928,30 @@ class ParticleSystem {
         if (this.degradationLevel >= 3) {
             return; // Already at maximum degradation
         }
-        
+
         this.degradationLevel++;
-        console.warn(`ParticleSystem: Applying performance degradation level ${this.degradationLevel}`);
-        
+        logger.warn(
+            `ParticleSystem: Applying performance degradation level ${this.degradationLevel}`
+        );
+
         switch (this.degradationLevel) {
             case 1:
                 // Level 1: Reduce particle density by 25%
                 this.reduceParticleDensity(0.75);
                 break;
-                
+
             case 2:
                 // Level 2: Disable trail sparks, keep explosions and collections
                 this.settings.effects.trailSparks = false;
                 this.setQualityLevel('low');
-                console.log('ParticleSystem: Disabled trail sparks for performance');
+                logger.info('ParticleSystem: Disabled trail sparks for performance');
                 break;
-                
+
             case 3:
                 // Level 3: Reduce explosion particle count by 50%
                 this.qualityConfigs.low.explosionParticles = 10;
                 this.qualityConfigs.low.collectionParticles = 5;
-                console.log('ParticleSystem: Reduced explosion and collection particles');
+                logger.info('ParticleSystem: Reduced explosion and collection particles');
                 break;
         }
     }
@@ -931,20 +963,22 @@ class ParticleSystem {
     reduceParticleDensity(factor) {
         const newMaxParticles = Math.floor(this.originalMaxParticles * factor);
         this.settings.maxParticles = Math.max(25, newMaxParticles); // Minimum 25 particles for testing
-        
+
         // Update particle pool max particles
         if (this.particlePool) {
             this.particlePool.maxParticles = this.settings.maxParticles;
         }
-        
+
         // Update quality configs proportionally
-        Object.keys(this.qualityConfigs).forEach(quality => {
+        Object.keys(this.qualityConfigs).forEach((quality) => {
             this.qualityConfigs[quality].maxParticles = Math.floor(
                 this.qualityConfigs[quality].maxParticles * factor
             );
         });
-        
-        console.log(`ParticleSystem: Reduced particle density to ${this.settings.maxParticles} particles`);
+
+        logger.info(
+            `ParticleSystem: Reduced particle density to ${this.settings.maxParticles} particles`
+        );
     }
 
     /**
@@ -954,9 +988,11 @@ class ParticleSystem {
         if (this.degradationLevel === 0) {
             return; // No degradation to recover from
         }
-        
-        console.log(`ParticleSystem: Attempting performance recovery from level ${this.degradationLevel}`);
-        
+
+        logger.info(
+            `ParticleSystem: Attempting performance recovery from level ${this.degradationLevel}`
+        );
+
         // Gradually restore settings
         switch (this.degradationLevel) {
             case 3:
@@ -964,19 +1000,19 @@ class ParticleSystem {
                 this.qualityConfigs.low.explosionParticles = 20;
                 this.qualityConfigs.low.collectionParticles = 10;
                 break;
-                
+
             case 2:
                 // Re-enable trail sparks and restore quality
                 this.settings.effects.trailSparks = true;
                 this.setQualityLevel(this.originalQuality);
                 break;
-                
+
             case 1:
                 // Restore original particle density
                 this.restoreOriginalSettings();
                 break;
         }
-        
+
         this.degradationLevel--;
         this.lastGoodPerformanceTime = Date.now(); // Reset recovery timer
     }
@@ -990,30 +1026,30 @@ class ParticleSystem {
         this.settings.effects.trailSparks = true;
         this.settings.effects.explosions = true;
         this.settings.effects.collections = true;
-        
+
         // Restore original quality configs
         this.qualityConfigs = {
             high: {
                 maxParticles: 200,
                 trailSparkMultiplier: 2.5,
                 explosionParticles: 30,
-                collectionParticles: 20
+                collectionParticles: 20,
             },
             medium: {
                 maxParticles: 150,
                 trailSparkMultiplier: 1.5,
                 explosionParticles: 25,
-                collectionParticles: 15
+                collectionParticles: 15,
             },
             low: {
                 maxParticles: 100,
                 trailSparkMultiplier: 1.0,
                 explosionParticles: 20,
-                collectionParticles: 10
-            }
+                collectionParticles: 10,
+            },
         };
-        
-        console.log('ParticleSystem: Restored original settings');
+
+        logger.info('ParticleSystem: Restored original settings');
     }
 
     /**
@@ -1023,7 +1059,7 @@ class ParticleSystem {
     setQualityLevel(level) {
         if (['low', 'medium', 'high'].includes(level)) {
             this.settings.quality = level;
-            
+
             // Update max particles based on quality config
             const config = this.qualityConfigs[level];
             if (config && this.degradationLevel === 0) {
@@ -1038,7 +1074,7 @@ class ParticleSystem {
      */
     setAdaptiveQuality(enabled) {
         this.adaptiveQualityEnabled = enabled;
-        
+
         if (!enabled) {
             // Restore original settings when disabling adaptive quality
             this.restoreOriginalSettings();
@@ -1079,7 +1115,7 @@ class ParticleSystem {
             maxParticles: this.settings.maxParticles,
             originalMaxParticles: this.originalMaxParticles,
             effectsEnabled: { ...this.settings.effects },
-            performanceWarnings: metrics.performanceWarnings.length
+            performanceWarnings: metrics.performanceWarnings.length,
         };
     }
 
@@ -1090,12 +1126,12 @@ class ParticleSystem {
     handlePause() {
         this.isPaused = true;
         this.pauseStartTime = Date.now();
-        
+
         // Stop emitting new particles by temporarily disabling trail sparks
         this.wasTrailSparksEnabled = this.settings.effects.trailSparks;
         this.settings.effects.trailSparks = false;
-        
-        console.log('ParticleSystem: Paused - stopped new particle emission');
+
+        logger.info('ParticleSystem: Paused - stopped new particle emission');
     }
 
     /**
@@ -1104,17 +1140,17 @@ class ParticleSystem {
      */
     handleResume() {
         this.isPaused = false;
-        
+
         // Restore trail sparks emission if it was enabled before pause
         if (this.wasTrailSparksEnabled !== undefined) {
             this.settings.effects.trailSparks = this.wasTrailSparksEnabled;
             this.wasTrailSparksEnabled = undefined;
         }
-        
+
         // Update last update time to prevent large delta time jumps
         this.lastUpdateTime = Date.now();
-        
-        console.log('ParticleSystem: Resumed - restored particle emission');
+
+        logger.info('ParticleSystem: Resumed - restored particle emission');
     }
 
     /**
@@ -1124,15 +1160,15 @@ class ParticleSystem {
     handleGameRestart() {
         // Clear all existing particles
         this.particlePool.releaseAll();
-        
+
         // Reset performance monitoring
         this.performanceMonitor.reset();
-        
+
         // Reset degradation state
         this.degradationLevel = 0;
         this.lastGoodPerformanceTime = Date.now();
         this.lastDegradationCheck = Date.now();
-        
+
         // Restore original settings
         this.restoreOriginalSettings();
 
@@ -1141,8 +1177,8 @@ class ParticleSystem {
         this.lastUpdateTime = Date.now();
         this.gameOverHandled = false;
         this.isPaused = false;
-        
-        console.log('ParticleSystem: Game restarted - cleared all particles and reset state');
+
+        logger.info('ParticleSystem: Game restarted - cleared all particles and reset state');
     }
 
     /**
@@ -1151,12 +1187,14 @@ class ParticleSystem {
      */
     handleGameOver() {
         this.gameOverHandled = true;
-        
+
         // Stop emitting new trail sparks during game over
         this.wasTrailSparksEnabledGameOver = this.settings.effects.trailSparks;
         this.settings.effects.trailSparks = false;
-        
-        console.log('ParticleSystem: Game over - stopped new trail spark emission, allowing existing particles to fade');
+
+        logger.info(
+            'ParticleSystem: Game over - stopped new trail spark emission, allowing existing particles to fade'
+        );
     }
 
     /**
@@ -1165,7 +1203,9 @@ class ParticleSystem {
     pause() {
         // This method is called externally, but actual pause handling is done in update()
         // based on gameState.isPaused to ensure consistency
-        console.log('ParticleSystem: External pause called - will pause on next update with gameState.isPaused = true');
+        logger.info(
+            'ParticleSystem: External pause called - will pause on next update with gameState.isPaused = true'
+        );
     }
 
     /**
@@ -1174,7 +1214,9 @@ class ParticleSystem {
     resume() {
         // This method is called externally, but actual resume handling is done in update()
         // based on gameState.isPaused to ensure consistency
-        console.log('ParticleSystem: External resume called - will resume on next update with gameState.isPaused = false');
+        logger.info(
+            'ParticleSystem: External resume called - will resume on next update with gameState.isPaused = false'
+        );
     }
 
     /**
@@ -1186,12 +1228,12 @@ class ParticleSystem {
 
         // Reset performance monitoring
         this.performanceMonitor.reset();
-        
+
         // Reset degradation state
         this.degradationLevel = 0;
         this.lastGoodPerformanceTime = Date.now();
         this.lastDegradationCheck = Date.now();
-        
+
         // Restore original settings
         this.restoreOriginalSettings();
 
@@ -1202,12 +1244,12 @@ class ParticleSystem {
         this.isPaused = false;
         this.gameOverHandled = false;
         this.pauseStartTime = 0;
-        
+
         // Clear any stored state from pause/game over
         this.wasTrailSparksEnabled = undefined;
         this.wasTrailSparksEnabledGameOver = undefined;
-        
-        console.log('ParticleSystem: Reset complete - all particles cleared and state restored');
+
+        logger.info('ParticleSystem: Reset complete - all particles cleared and state restored');
     }
 
     /**
@@ -1216,7 +1258,7 @@ class ParticleSystem {
      */
     setEnabled(enabled) {
         this.settings.enabled = enabled;
-        
+
         if (!enabled) {
             // Clear all particles when disabled
             this.reset();
@@ -1252,22 +1294,22 @@ class ParticleSystem {
             if (this.particleMaterial && this.particleMaterial.uniforms.pointTexture) {
                 this.particleMaterial.uniforms.pointTexture.value = this.createParticleTexture();
             }
-            
+
             // Mark geometry attributes for re-upload
             if (this.particleGeometry) {
-                Object.values(this.particleGeometry.attributes).forEach(attribute => {
+                Object.values(this.particleGeometry.attributes).forEach((attribute) => {
                     attribute.needsUpdate = true;
                 });
             }
-            
+
             // Mark material for recompilation
             if (this.particleMaterial) {
                 this.particleMaterial.needsUpdate = true;
             }
-            
-            console.log('ParticleSystem: WebGL context restored successfully');
+
+            logger.info('ParticleSystem: WebGL context restored successfully');
         } catch (error) {
-            console.error('ParticleSystem: Failed to restore WebGL context:', error);
+            logger.error('ParticleSystem: Failed to restore WebGL context:', error);
         }
     }
 
@@ -1282,7 +1324,9 @@ class ParticleSystem {
         return {
             activeParticles: this.getActiveParticleCount(),
             maxParticles: this.settings.maxParticles,
-            geometryVertices: this.particleGeometry ? this.particleGeometry.attributes.position.count : 0,
+            geometryVertices: this.particleGeometry
+                ? this.particleGeometry.attributes.position.count
+                : 0,
             drawCalls: this.particlePoints && this.particlePoints.visible ? 1 : 0,
             memoryUsage: memoryUsage,
             performance: {
@@ -1291,8 +1335,8 @@ class ParticleSystem {
                 renderedParticles: performanceMetrics.renderedParticles || 0,
                 culledParticles: performanceMetrics.culledParticles || 0,
                 cullRatio: performanceMetrics.cullRatio || 0,
-                lodDistribution: this.getLODDistribution()
-            }
+                lodDistribution: this.getLODDistribution(),
+            },
         };
     }
 
@@ -1307,32 +1351,34 @@ class ParticleSystem {
                 colors: 0,
                 sizes: 0,
                 alphas: 0,
-                total: 0
+                total: 0,
             },
             particlePool: {
                 totalParticles: 0,
                 activeParticles: 0,
                 inactiveParticles: 0,
-                estimatedSize: 0
+                estimatedSize: 0,
             },
             textures: {
-                particleTexture: 0
+                particleTexture: 0,
             },
-            total: 0
+            total: 0,
         };
 
         try {
             // Calculate buffer array memory usage
             if (this.particleGeometry && this.particleGeometry.attributes) {
                 const attrs = this.particleGeometry.attributes;
-                memoryUsage.bufferArrays.positions = attrs.position ? attrs.position.array.byteLength : 0;
+                memoryUsage.bufferArrays.positions = attrs.position
+                    ? attrs.position.array.byteLength
+                    : 0;
                 memoryUsage.bufferArrays.colors = attrs.color ? attrs.color.array.byteLength : 0;
                 memoryUsage.bufferArrays.sizes = attrs.size ? attrs.size.array.byteLength : 0;
                 memoryUsage.bufferArrays.alphas = attrs.alpha ? attrs.alpha.array.byteLength : 0;
-                memoryUsage.bufferArrays.total = 
-                    memoryUsage.bufferArrays.positions + 
-                    memoryUsage.bufferArrays.colors + 
-                    memoryUsage.bufferArrays.sizes + 
+                memoryUsage.bufferArrays.total =
+                    memoryUsage.bufferArrays.positions +
+                    memoryUsage.bufferArrays.colors +
+                    memoryUsage.bufferArrays.sizes +
                     memoryUsage.bufferArrays.alphas;
             }
 
@@ -1353,13 +1399,12 @@ class ParticleSystem {
             }
 
             // Calculate total memory usage
-            memoryUsage.total = 
-                memoryUsage.bufferArrays.total + 
-                memoryUsage.particlePool.estimatedSize + 
+            memoryUsage.total =
+                memoryUsage.bufferArrays.total +
+                memoryUsage.particlePool.estimatedSize +
                 memoryUsage.textures.particleTexture;
-
         } catch (error) {
-            console.warn('ParticleSystem: Error calculating memory usage:', error);
+            logger.warn('ParticleSystem: Error calculating memory usage:', error);
         }
 
         return memoryUsage;
@@ -1374,7 +1419,7 @@ class ParticleSystem {
             high: 0,
             medium: 0,
             low: 0,
-            culled: 0
+            culled: 0,
         };
 
         try {
@@ -1382,12 +1427,13 @@ class ParticleSystem {
                 const activeParticles = this.particlePool.getActiveParticles();
                 for (const particle of activeParticles) {
                     if (particle.lodLevel) {
-                        distribution[particle.lodLevel] = (distribution[particle.lodLevel] || 0) + 1;
+                        distribution[particle.lodLevel] =
+                            (distribution[particle.lodLevel] || 0) + 1;
                     }
                 }
             }
         } catch (error) {
-            console.warn('ParticleSystem: Error calculating LOD distribution:', error);
+            logger.warn('ParticleSystem: Error calculating LOD distribution:', error);
         }
 
         return distribution;
@@ -1399,7 +1445,7 @@ class ParticleSystem {
      */
     performMemoryCleanup(aggressive = false) {
         try {
-            console.log('ParticleSystem: Performing memory cleanup...');
+            logger.info('ParticleSystem: Performing memory cleanup...');
 
             // Release all inactive particles if aggressive cleanup
             if (aggressive && this.particlePool) {
@@ -1417,10 +1463,9 @@ class ParticleSystem {
                 window.gc();
             }
 
-            console.log('ParticleSystem: Memory cleanup completed');
-
+            logger.info('ParticleSystem: Memory cleanup completed');
         } catch (error) {
-            console.error('ParticleSystem: Error during memory cleanup:', error);
+            logger.error('ParticleSystem: Error during memory cleanup:', error);
         }
     }
 
@@ -1439,8 +1484,8 @@ class ParticleSystem {
             const oversizeThreshold = currentMaxParticles * 1.5; // 50% larger than needed
 
             if (positionCount > oversizeThreshold) {
-                console.log('ParticleSystem: Resizing oversized buffer arrays');
-                
+                logger.info('ParticleSystem: Resizing oversized buffer arrays');
+
                 // Recreate buffer arrays with appropriate size
                 const positions = new Float32Array(currentMaxParticles * 3);
                 const colors = new Float32Array(currentMaxParticles * 3);
@@ -1448,14 +1493,16 @@ class ParticleSystem {
                 const alphas = new Float32Array(currentMaxParticles);
 
                 // Update buffer attributes
-                this.particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                this.particleGeometry.setAttribute(
+                    'position',
+                    new THREE.BufferAttribute(positions, 3)
+                );
                 this.particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
                 this.particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
                 this.particleGeometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
             }
-
         } catch (error) {
-            console.warn('ParticleSystem: Error cleaning up buffer arrays:', error);
+            logger.warn('ParticleSystem: Error cleaning up buffer arrays:', error);
         }
     }
 
@@ -1467,16 +1514,16 @@ class ParticleSystem {
             // Check if texture needs recreation (e.g., if it's corrupted or oversized)
             if (this.particleMaterial && this.particleMaterial.uniforms.pointTexture) {
                 const texture = this.particleMaterial.uniforms.pointTexture.value;
-                
+
                 // If texture is invalid or corrupted, recreate it
                 if (!texture || !texture.image) {
-                    console.log('ParticleSystem: Recreating corrupted particle texture');
-                    this.particleMaterial.uniforms.pointTexture.value = this.createParticleTexture();
+                    logger.info('ParticleSystem: Recreating corrupted particle texture');
+                    this.particleMaterial.uniforms.pointTexture.value =
+                        this.createParticleTexture();
                 }
             }
-
         } catch (error) {
-            console.warn('ParticleSystem: Error cleaning up texture resources:', error);
+            logger.warn('ParticleSystem: Error cleaning up texture resources:', error);
         }
     }
 
@@ -1493,14 +1540,13 @@ class ParticleSystem {
             const criticalThreshold = 100; // 100MB
 
             if (totalMemoryMB > criticalThreshold) {
-                console.warn(`ParticleSystem: Critical memory usage: ${totalMemoryMB.toFixed(2)}MB`);
+                logger.warn(`ParticleSystem: Critical memory usage: ${totalMemoryMB.toFixed(2)}MB`);
                 this.performMemoryCleanup(true); // Aggressive cleanup
-                
+
                 // Apply emergency memory reduction
                 this.applyEmergencyMemoryReduction();
-                
             } else if (totalMemoryMB > warningThreshold) {
-                console.warn(`ParticleSystem: High memory usage: ${totalMemoryMB.toFixed(2)}MB`);
+                logger.warn(`ParticleSystem: High memory usage: ${totalMemoryMB.toFixed(2)}MB`);
                 this.performMemoryCleanup(false); // Normal cleanup
             }
 
@@ -1510,10 +1556,9 @@ class ParticleSystem {
             }
             this.memoryMetrics.currentUsageMB = totalMemoryMB;
             this.memoryMetrics.lastCheckTime = Date.now();
-            this.memoryMetrics.cleanupCount = (this.memoryMetrics.cleanupCount || 0);
-
+            this.memoryMetrics.cleanupCount = this.memoryMetrics.cleanupCount || 0;
         } catch (error) {
-            console.warn('ParticleSystem: Error monitoring memory usage:', error);
+            logger.warn('ParticleSystem: Error monitoring memory usage:', error);
         }
     }
 
@@ -1521,7 +1566,7 @@ class ParticleSystem {
      * Apply emergency memory reduction measures
      */
     applyEmergencyMemoryReduction() {
-        console.log('ParticleSystem: Applying emergency memory reduction');
+        logger.info('ParticleSystem: Applying emergency memory reduction');
 
         try {
             // Drastically reduce max particles
@@ -1545,10 +1590,11 @@ class ParticleSystem {
             // Recreate buffer arrays with smaller size
             this.cleanupBufferArrays();
 
-            console.log(`ParticleSystem: Emergency memory reduction applied - max particles: ${emergencyMaxParticles}`);
-
+            logger.info(
+                `ParticleSystem: Emergency memory reduction applied - max particles: ${emergencyMaxParticles}`
+            );
         } catch (error) {
-            console.error('ParticleSystem: Error applying emergency memory reduction:', error);
+            logger.error('ParticleSystem: Error applying emergency memory reduction:', error);
         }
     }
 
@@ -1561,15 +1607,18 @@ class ParticleSystem {
 
         // Update frustum culling
         this.particlePoints.frustumCulled = true;
-        
+
         // Update bounding sphere for proper culling
         if (this.particleGeometry.boundingSphere) {
-            this.particleGeometry.boundingSphere.radius = Math.max(10, this.getActiveParticleCount() * 0.1);
+            this.particleGeometry.boundingSphere.radius = Math.max(
+                10,
+                this.getActiveParticleCount() * 0.1
+            );
         }
 
         // Perform particle culling for off-screen particles
         this.cullOffScreenParticles(camera);
-        
+
         // Apply level-of-detail based on distance
         this.applyLevelOfDetail(camera);
     }
@@ -1584,7 +1633,10 @@ class ParticleSystem {
         try {
             // Create frustum from camera
             const frustum = new THREE.Frustum();
-            const matrix = new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+            const matrix = new THREE.Matrix4().multiplyMatrices(
+                camera.projectionMatrix,
+                camera.matrixWorldInverse
+            );
             frustum.setFromProjectionMatrix(matrix);
 
             const activeParticles = this.particlePool.getActiveParticles();
@@ -1596,7 +1648,7 @@ class ParticleSystem {
 
                 // Create a small sphere around the particle for testing
                 const sphere = new THREE.Sphere(particle.position, particle.size || 0.1);
-                
+
                 // If particle is outside frustum, mark for culling
                 if (!frustum.intersectsSphere(sphere)) {
                     // Don't immediately cull, just mark as invisible
@@ -1607,10 +1659,9 @@ class ParticleSystem {
             }
 
             // Update culled particle count for performance monitoring
-            this.culledParticleCount = activeParticles.filter(p => p.culled).length;
-
+            this.culledParticleCount = activeParticles.filter((p) => p.culled).length;
         } catch (error) {
-            console.warn('ParticleSystem: Error during particle culling:', error);
+            logger.warn('ParticleSystem: Error during particle culling:', error);
         }
     }
 
@@ -1627,9 +1678,9 @@ class ParticleSystem {
 
             // Define LOD distance thresholds
             const lodThresholds = {
-                high: 15,    // Full detail within 15 units
-                medium: 30,  // Reduced detail 15-30 units
-                low: 50      // Minimal detail 30-50 units
+                high: 15, // Full detail within 15 units
+                medium: 30, // Reduced detail 15-30 units
+                low: 50, // Minimal detail 30-50 units
                 // Beyond 50 units: particles are culled
             };
 
@@ -1661,9 +1712,8 @@ class ParticleSystem {
                     particle.size = particle.originalSize || particle.size;
                 }
             }
-
         } catch (error) {
-            console.warn('ParticleSystem: Error during LOD application:', error);
+            logger.warn('ParticleSystem: Error during LOD application:', error);
         }
     }
 
@@ -1675,15 +1725,15 @@ class ParticleSystem {
      */
     validateUpdateParameters(deltaTime, gameState) {
         if (typeof deltaTime !== 'number' || isNaN(deltaTime) || deltaTime < 0) {
-            console.warn('ParticleSystem: Invalid deltaTime:', deltaTime);
+            logger.warn('ParticleSystem: Invalid deltaTime:', deltaTime);
             return false;
         }
-        
+
         if (!gameState || typeof gameState !== 'object') {
-            console.warn('ParticleSystem: Invalid gameState:', gameState);
+            logger.warn('ParticleSystem: Invalid gameState:', gameState);
             return false;
         }
-        
+
         return true;
     }
 
@@ -1695,23 +1745,32 @@ class ParticleSystem {
      * @returns {boolean} True if parameters are valid
      */
     validateEmissionParameters(position, velocity, color) {
-        if (!position || typeof position !== 'object' || 
-            typeof position.x !== 'number' || typeof position.y !== 'number' || typeof position.z !== 'number') {
-            console.warn('ParticleSystem: Invalid position:', position);
+        if (
+            !position ||
+            typeof position !== 'object' ||
+            typeof position.x !== 'number' ||
+            typeof position.y !== 'number' ||
+            typeof position.z !== 'number'
+        ) {
+            logger.warn('ParticleSystem: Invalid position:', position);
             return false;
         }
-        
-        if (!velocity || typeof velocity !== 'object' || 
-            typeof velocity.x !== 'number' || typeof velocity.z !== 'number') {
-            console.warn('ParticleSystem: Invalid velocity:', velocity);
+
+        if (
+            !velocity ||
+            typeof velocity !== 'object' ||
+            typeof velocity.x !== 'number' ||
+            typeof velocity.z !== 'number'
+        ) {
+            logger.warn('ParticleSystem: Invalid velocity:', velocity);
             return false;
         }
-        
+
         if (typeof color !== 'number' || isNaN(color)) {
-            console.warn('ParticleSystem: Invalid color:', color);
+            logger.warn('ParticleSystem: Invalid color:', color);
             return false;
         }
-        
+
         return true;
     }
 
@@ -1722,17 +1781,22 @@ class ParticleSystem {
      * @returns {boolean} True if parameters are valid
      */
     validateExplosionParameters(position, intensity) {
-        if (!position || typeof position !== 'object' || 
-            typeof position.x !== 'number' || typeof position.y !== 'number' || typeof position.z !== 'number') {
-            console.warn('ParticleSystem: Invalid explosion position:', position);
+        if (
+            !position ||
+            typeof position !== 'object' ||
+            typeof position.x !== 'number' ||
+            typeof position.y !== 'number' ||
+            typeof position.z !== 'number'
+        ) {
+            logger.warn('ParticleSystem: Invalid explosion position:', position);
             return false;
         }
-        
+
         if (typeof intensity !== 'number' || isNaN(intensity) || intensity < 0 || intensity > 1) {
-            console.warn('ParticleSystem: Invalid explosion intensity:', intensity);
+            logger.warn('ParticleSystem: Invalid explosion intensity:', intensity);
             return false;
         }
-        
+
         return true;
     }
 
@@ -1743,17 +1807,22 @@ class ParticleSystem {
      * @returns {boolean} True if parameters are valid
      */
     validateCollectionParameters(position, powerUpType) {
-        if (!position || typeof position !== 'object' || 
-            typeof position.x !== 'number' || typeof position.y !== 'number' || typeof position.z !== 'number') {
-            console.warn('ParticleSystem: Invalid collection position:', position);
+        if (
+            !position ||
+            typeof position !== 'object' ||
+            typeof position.x !== 'number' ||
+            typeof position.y !== 'number' ||
+            typeof position.z !== 'number'
+        ) {
+            logger.warn('ParticleSystem: Invalid collection position:', position);
             return false;
         }
-        
+
         if (typeof powerUpType !== 'string') {
-            console.warn('ParticleSystem: Invalid powerUpType:', powerUpType);
+            logger.warn('ParticleSystem: Invalid powerUpType:', powerUpType);
             return false;
         }
-        
+
         return true;
     }
 
@@ -1762,14 +1831,14 @@ class ParticleSystem {
      * @param {Error} error - Performance monitoring error
      */
     handlePerformanceMonitoringError(error) {
-        console.warn('ParticleSystem: Performance monitoring disabled due to error:', error.message);
-        
+        logger.warn('ParticleSystem: Performance monitoring disabled due to error:', error.message);
+
         // Disable performance monitoring to prevent further errors
         this.adaptiveQualityEnabled = false;
-        
+
         // Apply conservative quality settings
         this.setQualityLevel('low');
-        
+
         // Record error for debugging
         this.recordError('performance_monitoring', error);
     }
@@ -1779,11 +1848,11 @@ class ParticleSystem {
      * @param {Error} error - Performance degradation error
      */
     handlePerformanceDegradationError(error) {
-        console.warn('ParticleSystem: Performance degradation check failed:', error.message);
-        
+        logger.warn('ParticleSystem: Performance degradation check failed:', error.message);
+
         // Apply emergency performance reduction
         this.applyEmergencyPerformanceReduction();
-        
+
         // Record error for debugging
         this.recordError('performance_degradation', error);
     }
@@ -1793,17 +1862,17 @@ class ParticleSystem {
      * @param {Error} error - Particle pool error
      */
     handleParticlePoolError(error) {
-        console.warn('ParticleSystem: Particle pool error, attempting recovery:', error.message);
-        
+        logger.warn('ParticleSystem: Particle pool error, attempting recovery:', error.message);
+
         try {
             // Attempt to recover by releasing all particles and reinitializing
             this.particlePool.releaseAll();
-            console.log('ParticleSystem: Particle pool recovered by releasing all particles');
+            logger.info('ParticleSystem: Particle pool recovered by releasing all particles');
         } catch (recoveryError) {
-            console.error('ParticleSystem: Failed to recover particle pool:', recoveryError);
+            logger.error('ParticleSystem: Failed to recover particle pool:', recoveryError);
             this.initiateSystemReset('particle_pool_failure');
         }
-        
+
         // Record error for debugging
         this.recordError('particle_pool', error);
     }
@@ -1813,17 +1882,17 @@ class ParticleSystem {
      * @param {Error} error - Rendering error
      */
     handleRenderingError(error) {
-        console.warn('ParticleSystem: Rendering error, attempting recovery:', error.message);
-        
+        logger.warn('ParticleSystem: Rendering error, attempting recovery:', error.message);
+
         try {
             // Attempt to recover by reinitializing rendering buffers
             this.reinitializeRenderingBuffers();
-            console.log('ParticleSystem: Rendering recovered by reinitializing buffers');
+            logger.info('ParticleSystem: Rendering recovered by reinitializing buffers');
         } catch (recoveryError) {
-            console.error('ParticleSystem: Failed to recover rendering:', recoveryError);
+            logger.error('ParticleSystem: Failed to recover rendering:', recoveryError);
             this.initiateSystemReset('rendering_failure');
         }
-        
+
         // Record error for debugging
         this.recordError('rendering', error);
     }
@@ -1833,11 +1902,11 @@ class ParticleSystem {
      * @param {Error} error - Shader error
      */
     handleShaderError(error) {
-        console.warn('ParticleSystem: Shader error, disabling shader updates:', error.message);
-        
+        logger.warn('ParticleSystem: Shader error, disabling shader updates:', error.message);
+
         // Disable shader uniform updates to prevent further errors
         this.shaderUpdatesEnabled = false;
-        
+
         // Record error for debugging
         this.recordError('shader', error);
     }
@@ -1848,17 +1917,17 @@ class ParticleSystem {
      * @param {string} context - Context where error occurred
      */
     handleCriticalError(error, context) {
-        console.error(`ParticleSystem: Critical error in ${context}:`, error);
-        
+        logger.error(`ParticleSystem: Critical error in ${context}:`, error);
+
         // Record critical error
         this.recordError('critical', error, context);
-        
+
         // Increment error count
         this.errorCount = (this.errorCount || 0) + 1;
-        
+
         // If too many critical errors, initiate system reset
         if (this.errorCount >= 3) {
-            console.error('ParticleSystem: Too many critical errors, initiating system reset');
+            logger.error('ParticleSystem: Too many critical errors, initiating system reset');
             this.initiateSystemReset('critical_error_threshold');
         } else {
             // Apply graceful fallback
@@ -1870,18 +1939,18 @@ class ParticleSystem {
      * Apply emergency performance reduction
      */
     applyEmergencyPerformanceReduction() {
-        console.log('ParticleSystem: Applying emergency performance reduction');
-        
+        logger.info('ParticleSystem: Applying emergency performance reduction');
+
         // Disable all effects except essential ones
         this.settings.effects.trailSparks = false;
         this.settings.effects.collections = false;
-        
+
         // Set to lowest quality
         this.setQualityLevel('low');
-        
+
         // Reduce max particles drastically
         this.settings.maxParticles = Math.max(25, Math.floor(this.originalMaxParticles * 0.25));
-        
+
         // Update particle pool
         if (this.particlePool) {
             this.particlePool.maxParticles = this.settings.maxParticles;
@@ -1893,7 +1962,7 @@ class ParticleSystem {
      */
     reinitializeRenderingBuffers() {
         if (!this.particleGeometry) return;
-        
+
         // Recreate buffer attributes
         const positions = new Float32Array(this.settings.maxParticles * 3);
         const colors = new Float32Array(this.settings.maxParticles * 3);
@@ -1905,8 +1974,8 @@ class ParticleSystem {
         this.particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
         this.particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
         this.particleGeometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
-        
-        console.log('ParticleSystem: Rendering buffers reinitialized');
+
+        logger.info('ParticleSystem: Rendering buffers reinitialized');
     }
 
     /**
@@ -1914,29 +1983,29 @@ class ParticleSystem {
      * @param {string} context - Context where error occurred
      */
     applyGracefulFallback(context) {
-        console.log(`ParticleSystem: Applying graceful fallback for ${context}`);
-        
+        logger.info(`ParticleSystem: Applying graceful fallback for ${context}`);
+
         switch (context) {
             case 'update':
                 // Disable automatic updates, require manual calls
                 this.autoUpdateEnabled = false;
                 break;
-                
+
             case 'emitTrailSparks':
                 // Disable trail sparks
                 this.settings.effects.trailSparks = false;
                 break;
-                
+
             case 'createExplosion':
                 // Disable explosions
                 this.settings.effects.explosions = false;
                 break;
-                
+
             case 'createCollectionEffect':
                 // Disable collection effects
                 this.settings.effects.collections = false;
                 break;
-                
+
             default:
                 // General fallback - reduce quality
                 this.setQualityLevel('low');
@@ -1949,17 +2018,17 @@ class ParticleSystem {
      * @param {string} reason - Reason for system reset
      */
     initiateSystemReset(reason) {
-        console.warn(`ParticleSystem: Initiating system reset due to: ${reason}`);
-        
+        logger.warn(`ParticleSystem: Initiating system reset due to: ${reason}`);
+
         try {
             // Clear all particles
             if (this.particlePool) {
                 this.particlePool.releaseAll();
             }
-            
+
             // Reset error count
             this.errorCount = 0;
-            
+
             // Reset to safe defaults
             this.settings.enabled = true;
             this.settings.quality = 'low';
@@ -1967,31 +2036,30 @@ class ParticleSystem {
             this.settings.effects = {
                 trailSparks: false,
                 explosions: true, // Keep explosions for collision feedback
-                collections: false
+                collections: false,
             };
-            
+
             // Reinitialize critical components
             if (this.scene) {
                 this.initializeRendering();
             }
-            
+
             // Reset performance monitoring
             if (this.performanceMonitor) {
                 this.performanceMonitor.reset();
             }
-            
+
             // Re-enable adaptive quality with conservative settings
             this.adaptiveQualityEnabled = true;
             this.degradationLevel = 0;
-            
-            console.log('ParticleSystem: System reset completed successfully');
-            
-        } catch (resetError) {
-            console.error('ParticleSystem: Failed to reset system:', resetError);
-            
+
+            logger.info('ParticleSystem: System reset completed successfully');
+        } catch (error) {
+            logger.error('ParticleSystem: Failed to reset system:', error);
+
             // Last resort - disable particle system entirely
             this.settings.enabled = false;
-            console.error('ParticleSystem: Disabled particle system as last resort');
+            logger.error('ParticleSystem: Disabled particle system as last resort');
         }
     }
 
@@ -2005,17 +2073,17 @@ class ParticleSystem {
         if (!this.errorHistory) {
             this.errorHistory = [];
         }
-        
+
         const errorRecord = {
             timestamp: Date.now(),
             type: type,
             message: error.message,
             stack: error.stack,
-            context: context
+            context: context,
         };
-        
+
         this.errorHistory.push(errorRecord);
-        
+
         // Keep only last 10 errors to prevent memory issues
         if (this.errorHistory.length > 10) {
             this.errorHistory.shift();
@@ -2045,7 +2113,7 @@ class ParticleSystem {
             shaderUpdatesEnabled: this.shaderUpdatesEnabled !== false,
             activeParticles: this.getActiveParticleCount(),
             maxParticles: this.settings.maxParticles,
-            effectsEnabled: { ...this.settings.effects }
+            effectsEnabled: { ...this.settings.effects },
         };
     }
 
@@ -2058,7 +2126,7 @@ class ParticleSystem {
                 this.scene.remove(this.particlePoints);
             }
         } catch (error) {
-            console.warn('ParticleSystem: Error removing particle points from scene:', error);
+            logger.warn('ParticleSystem: Error removing particle points from scene:', error);
         }
 
         try {
@@ -2066,7 +2134,7 @@ class ParticleSystem {
                 this.particleGeometry.dispose();
             }
         } catch (error) {
-            console.warn('ParticleSystem: Error disposing particle geometry:', error);
+            logger.warn('ParticleSystem: Error disposing particle geometry:', error);
         }
 
         try {
@@ -2080,7 +2148,7 @@ class ParticleSystem {
                 this.particleMaterial.dispose();
             }
         } catch (error) {
-            console.warn('ParticleSystem: Error disposing particle material:', error);
+            logger.warn('ParticleSystem: Error disposing particle material:', error);
         }
 
         // Clear references
@@ -2088,7 +2156,7 @@ class ParticleSystem {
         this.particleGeometry = null;
         this.particleMaterial = null;
 
-        console.log('ParticleSystem: Rendering resources cleaned up');
+        logger.info('ParticleSystem: Rendering resources cleaned up');
     }
 
     /**
@@ -2119,12 +2187,12 @@ class ParticleSystem {
         if (this.particlePool) {
             this.particlePool.dispose();
         }
-        
+
         // Clean up performance monitor
         if (this.performanceMonitor) {
             this.performanceMonitor.reset();
         }
-        
+
         // Clear references
         this.particlePoints = null;
         this.particleGeometry = null;

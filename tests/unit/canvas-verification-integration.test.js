@@ -3,6 +3,22 @@
  * Tests that CanvasVerifier is properly integrated into the game initialization
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { CanvasVerifier } = require('@/utils/CanvasVerifier.js');
 
 describe('Canvas Verification Integration', () => {
@@ -25,26 +41,26 @@ describe('Canvas Verification Integration', () => {
         // Mock WebGL context
         const mockContext = {
             getError: jest.fn(() => 0), // NO_ERROR
-            NO_ERROR: 0
+            NO_ERROR: 0,
         };
 
         // Mock renderer
         mockRenderer = {
             domElement: mockCanvas,
             getContext: jest.fn(() => mockContext),
-            render: jest.fn()
+            render: jest.fn(),
         };
 
         // Mock scene
         mockScene = {
-            add: jest.fn()
+            add: jest.fn(),
         };
 
         // Mock camera
         mockCamera = {
             position: { z: 5 },
             aspect: 1.33,
-            updateProjectionMatrix: jest.fn()
+            updateProjectionMatrix: jest.fn(),
         };
     });
 
@@ -74,8 +90,6 @@ describe('Canvas Verification Integration', () => {
         });
 
         it('should log verification results for debugging', () => {
-            const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-
             const verificationResult = canvasVerifier.verifyAll(
                 mockRenderer,
                 mockScene,
@@ -83,18 +97,18 @@ describe('Canvas Verification Integration', () => {
             );
 
             // Simulate the logging that happens in initializeGame
-            console.log('Canvas verification results:', {
+            mockLogger.info('Canvas verification results:', {
                 success: verificationResult.success,
                 checks: {
                     created: verificationResult.checks.created.success,
                     visible: verificationResult.checks.visible.success,
                     size: verificationResult.checks.size.success,
-                    render: verificationResult.checks.render.success
+                    render: verificationResult.checks.render.success,
                 },
-                errors: verificationResult.errors
+                errors: verificationResult.errors,
             });
 
-            expect(consoleSpy).toHaveBeenCalledWith(
+            expect(mockLogger.info).toHaveBeenCalledWith(
                 'Canvas verification results:',
                 expect.objectContaining({
                     success: true,
@@ -102,13 +116,11 @@ describe('Canvas Verification Integration', () => {
                         created: true,
                         visible: true,
                         size: true,
-                        render: true
+                        render: true,
                     }),
-                    errors: []
+                    errors: [],
                 })
             );
-
-            consoleSpy.mockRestore();
         });
 
         it('should throw descriptive error when verification fails', () => {
@@ -118,24 +130,21 @@ describe('Canvas Verification Integration', () => {
                 domElement: badCanvas,
                 getContext: jest.fn(() => ({
                     getError: jest.fn(() => 0),
-                    NO_ERROR: 0
+                    NO_ERROR: 0,
                 })),
-                render: jest.fn()
+                render: jest.fn(),
             };
 
-            const verificationResult = canvasVerifier.verifyAll(
-                badRenderer,
-                mockScene,
-                mockCamera
-            );
+            const verificationResult = canvasVerifier.verifyAll(badRenderer, mockScene, mockCamera);
 
             // Verify it failed
             expect(verificationResult.success).toBe(false);
             expect(verificationResult.errors.length).toBeGreaterThan(0);
 
             // Simulate the error handling in initializeGame
-            const errorMessage = 'Canvas verification failed:\n' + 
-                verificationResult.errors.map(err => `  - ${err}`).join('\n');
+            const errorMessage =
+                'Canvas verification failed:\n' +
+                verificationResult.errors.map((err) => `  - ${err}`).join('\n');
 
             expect(errorMessage).toContain('Canvas verification failed:');
             expect(errorMessage).toContain('Canvas element is not attached to the DOM');
@@ -165,11 +174,7 @@ describe('Canvas Verification Integration', () => {
         });
 
         it('should verify test frame can be rendered', () => {
-            const renderCheck = canvasVerifier.renderTestFrame(
-                mockRenderer,
-                mockScene,
-                mockCamera
-            );
+            const renderCheck = canvasVerifier.renderTestFrame(mockRenderer, mockScene, mockCamera);
 
             expect(renderCheck.success).toBe(true);
             expect(renderCheck.errors).toHaveLength(0);
@@ -183,13 +188,15 @@ describe('Canvas Verification Integration', () => {
             const detachedRenderer = {
                 domElement: detachedCanvas,
                 getContext: jest.fn(),
-                render: jest.fn()
+                render: jest.fn(),
             };
 
             const result = canvasVerifier.verifyAll(detachedRenderer, mockScene, mockCamera);
 
             expect(result.success).toBe(false);
-            expect(result.errors).toContain('Canvas element is not attached to the DOM (no parentNode)');
+            expect(result.errors).toContain(
+                'Canvas element is not attached to the DOM (no parentNode)'
+            );
         });
 
         it('should fail verification when canvas is hidden', () => {
@@ -198,7 +205,7 @@ describe('Canvas Verification Integration', () => {
             const result = canvasVerifier.verifyAll(mockRenderer, mockScene, mockCamera);
 
             expect(result.success).toBe(false);
-            expect(result.errors.some(err => err.includes('display style is "none"'))).toBe(true);
+            expect(result.errors.some((err) => err.includes('display style is "none"'))).toBe(true);
         });
 
         it('should fail verification when canvas has zero dimensions', () => {
@@ -208,14 +215,14 @@ describe('Canvas Verification Integration', () => {
             const result = canvasVerifier.verifyAll(mockRenderer, mockScene, mockCamera);
 
             expect(result.success).toBe(false);
-            expect(result.errors.some(err => err.includes('width is 0'))).toBe(true);
-            expect(result.errors.some(err => err.includes('height is 0'))).toBe(true);
+            expect(result.errors.some((err) => err.includes('width is 0'))).toBe(true);
+            expect(result.errors.some((err) => err.includes('height is 0'))).toBe(true);
         });
 
         it('should fail verification when WebGL render fails', () => {
             const errorContext = {
                 getError: jest.fn(() => 1234), // Some WebGL error code
-                NO_ERROR: 0
+                NO_ERROR: 0,
             };
 
             mockRenderer.getContext = jest.fn(() => errorContext);
@@ -223,7 +230,7 @@ describe('Canvas Verification Integration', () => {
             const result = canvasVerifier.verifyAll(mockRenderer, mockScene, mockCamera);
 
             expect(result.success).toBe(false);
-            expect(result.errors.some(err => err.includes('WebGL error'))).toBe(true);
+            expect(result.errors.some((err) => err.includes('WebGL error'))).toBe(true);
         });
     });
 
@@ -254,11 +261,7 @@ describe('Canvas Verification Integration', () => {
         });
 
         it('should satisfy requirement 1.4: Scene renders at least one frame', () => {
-            const renderCheck = canvasVerifier.renderTestFrame(
-                mockRenderer,
-                mockScene,
-                mockCamera
-            );
+            const renderCheck = canvasVerifier.renderTestFrame(mockRenderer, mockScene, mockCamera);
 
             // Requirement 1.4: Scene SHALL render at least one frame
             expect(renderCheck.success).toBe(true);
@@ -269,7 +272,7 @@ describe('Canvas Verification Integration', () => {
             const badRenderer = {
                 domElement: null,
                 getContext: jest.fn(),
-                render: jest.fn()
+                render: jest.fn(),
             };
 
             const result = canvasVerifier.verifyAll(badRenderer, mockScene, mockCamera);

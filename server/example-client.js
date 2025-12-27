@@ -6,18 +6,20 @@
 const io = require('socket.io-client');
 
 // Connect to server
-const socket = io('http://localhost:3000');
+/** @type {any} */
+const ioClient = io;
+const socket = ioClient('http://localhost:3000');
 
 // Connection events
 socket.on('connect', () => {
     console.log('Connected to server:', socket.id);
-    
+
     // Example: Create a room
     socket.emit('createRoom', {
         maxPlayers: 4,
         gameMode: 'classic',
         isPrivate: false,
-        playerName: 'TestPlayer'
+        playerName: 'TestPlayer',
     });
 });
 

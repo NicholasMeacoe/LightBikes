@@ -1,5 +1,6 @@
 class CollisionDetectionEngine {
     constructor() {
+        this.logger = require('../utils/Logger.js').createLogger('CollisionDetectionEngine');
         this.powerUpManager = null; // Will be set by orchestrator
         this.cameraEffectsManager = null; // Will be set by orchestrator
     }
@@ -41,8 +42,24 @@ class CollisionDetectionEngine {
         const isGracePeriodActive = game ? game.isGracePeriodActive() : false;
 
         // Check collisions with power-up effect integration and dynamic boundaries
-        const playerCollided = this.isCollidedWithPowerUps('player', player, playerTrail, aiTrail, bounds, dynamicBounds, isGracePeriodActive);
-        const aiCollided = this.isCollidedWithPowerUps('ai', ai, aiTrail, playerTrail, bounds, dynamicBounds, isGracePeriodActive);
+        const playerCollided = this.isCollidedWithPowerUps(
+            'player',
+            player,
+            playerTrail,
+            aiTrail,
+            bounds,
+            dynamicBounds,
+            isGracePeriodActive
+        );
+        const aiCollided = this.isCollidedWithPowerUps(
+            'ai',
+            ai,
+            aiTrail,
+            playerTrail,
+            bounds,
+            dynamicBounds,
+            isGracePeriodActive
+        );
 
         // Determine winner based on collision results
         let winner = null;
@@ -67,14 +84,14 @@ class CollisionDetectionEngine {
     checkAllCollisions(gameState, game = null) {
         const { player, playerTrail, aiOpponents, bounds } = gameState;
         const crashedEntities = [];
-        
+
         // Get dynamic boundaries if game instance is provided, otherwise use static bounds
         const dynamicBounds = game ? game.getBounds() : null;
         const isGracePeriodActive = game ? game.isGracePeriodActive() : false;
 
         // Collect all trails for obstacle detection
         const allTrails = [...playerTrail];
-        aiOpponents.forEach(ai => {
+        aiOpponents.forEach((ai) => {
             if (ai.alive && ai.trail) {
                 allTrails.push(...ai.trail);
             }
@@ -82,12 +99,12 @@ class CollisionDetectionEngine {
 
         // Check player collision against all AI trails
         const playerCollided = this.checkEntityCollision(
-            'player', 
-            player, 
-            playerTrail, 
-            this.getOtherTrails('player', gameState), 
-            bounds, 
-            dynamicBounds, 
+            'player',
+            player,
+            playerTrail,
+            this.getOtherTrails('player', gameState),
+            bounds,
+            dynamicBounds,
             isGracePeriodActive
         );
 
@@ -96,16 +113,16 @@ class CollisionDetectionEngine {
         }
 
         // Check each AI collision against player trail and other AI trails
-        aiOpponents.forEach(ai => {
+        aiOpponents.forEach((ai) => {
             if (!ai.alive) return;
 
             const aiCollided = this.checkEntityCollision(
-                ai.id, 
-                ai, 
-                ai.trail, 
-                this.getOtherTrails(ai.id, gameState), 
-                bounds, 
-                dynamicBounds, 
+                ai.id,
+                ai,
+                ai.trail,
+                this.getOtherTrails(ai.id, gameState),
+                bounds,
+                dynamicBounds,
                 isGracePeriodActive
             );
 
@@ -117,7 +134,7 @@ class CollisionDetectionEngine {
         // Determine winner based on who survived
         let winner = null;
         const survivingEntities = this.getSurvivingEntities(gameState, crashedEntities);
-        
+
         if (survivingEntities.length === 1) {
             winner = survivingEntities[0];
         } else if (survivingEntities.length === 0) {
@@ -127,10 +144,10 @@ class CollisionDetectionEngine {
 
         return {
             playerCollided: crashedEntities.includes('player'),
-            aiCollided: crashedEntities.some(id => id.startsWith('ai_')),
+            aiCollided: crashedEntities.some((id) => id.startsWith('ai_')),
             crashedEntities,
             survivingEntities,
-            winner
+            winner,
         };
     }
 
@@ -145,8 +162,24 @@ class CollisionDetectionEngine {
      * @param {boolean} isGracePeriodActive - Whether grace period is active
      * @returns {boolean} True if entity has collided
      */
-    checkEntityCollision(entityId, entity, ownTrail, obstacleTrails, bounds, dynamicBounds = null, isGracePeriodActive = false) {
-        return this.isCollidedWithPowerUps(entityId, entity, ownTrail, obstacleTrails, bounds, dynamicBounds, isGracePeriodActive);
+    checkEntityCollision(
+        entityId,
+        entity,
+        ownTrail,
+        obstacleTrails,
+        bounds,
+        dynamicBounds = null,
+        isGracePeriodActive = false
+    ) {
+        return this.isCollidedWithPowerUps(
+            entityId,
+            entity,
+            ownTrail,
+            obstacleTrails,
+            bounds,
+            dynamicBounds,
+            isGracePeriodActive
+        );
     }
 
     /**
@@ -165,7 +198,7 @@ class CollisionDetectionEngine {
 
         // Add AI trails except for the current entity
         if (gameState.aiOpponents) {
-            gameState.aiOpponents.forEach(ai => {
+            gameState.aiOpponents.forEach((ai) => {
                 if (ai.id !== entityId && ai.alive && ai.trail) {
                     otherTrails.push(...ai.trail);
                 }
@@ -191,7 +224,7 @@ class CollisionDetectionEngine {
 
         // Check which AIs survived
         if (gameState.aiOpponents) {
-            gameState.aiOpponents.forEach(ai => {
+            gameState.aiOpponents.forEach((ai) => {
                 if (ai.alive && !crashedEntities.includes(ai.id)) {
                     survivors.push(ai.id);
                 }
@@ -206,36 +239,55 @@ class CollisionDetectionEngine {
      * Handles Shield effects and Ghost Mode trail-passing
      * Supports dynamic boundaries and grace periods
      */
-    isCollidedWithPowerUps(playerId, bike, ownTrail, opponentTrail, bounds, dynamicBounds = null, isGracePeriodActive = false) {
+    isCollidedWithPowerUps(
+        playerId,
+        bike,
+        ownTrail,
+        opponentTrail,
+        bounds,
+        dynamicBounds = null,
+        isGracePeriodActive = false
+    ) {
         // Check if player has shield protection
-        const hasShield = this.powerUpManager ? this.powerUpManager.hasShieldProtection(playerId) : false;
-        const isInGhostMode = this.powerUpManager ? this.powerUpManager.isInGhostMode(playerId) : false;
+        const hasShield = this.powerUpManager
+            ? this.powerUpManager.hasShieldProtection(playerId)
+            : false;
+        const isInGhostMode = this.powerUpManager
+            ? this.powerUpManager.isInGhostMode(playerId)
+            : false;
 
         // Boundary Check - use dynamic boundaries if available, otherwise use static bounds
         const boundaryCollision = this.checkBoundaryCollision(bike, bounds, dynamicBounds);
-        
+
         // Check for near-miss with boundaries before collision
         if (!boundaryCollision) {
             this.checkBoundaryNearMiss(bike, bounds, dynamicBounds, playerId);
         }
-        
+
         if (boundaryCollision) {
             // Handle edge case where player is exactly on boundary during shrink
-            if (dynamicBounds && this.handleBoundaryEdgeCase(bike, dynamicBounds, isGracePeriodActive)) {
-                console.debug(`Edge case handling for ${playerId} - player on boundary during grace period`);
+            if (
+                dynamicBounds &&
+                this.handleBoundaryEdgeCase(bike, dynamicBounds, isGracePeriodActive)
+            ) {
+                this.logger.debug(
+                    `Edge case handling for ${playerId} - player on boundary during grace period`
+                );
                 return false;
             }
-            
+
             // Apply grace period for dynamic boundaries
             if (dynamicBounds && isGracePeriodActive) {
-                console.debug(`Grace period active for ${playerId} - boundary collision ignored`);
+                this.logger.debug(
+                    `Grace period active for ${playerId} - boundary collision ignored`
+                );
                 return false;
             }
-            
+
             if (hasShield) {
                 // Consume shield and prevent collision
                 this.powerUpManager.consumeShield(playerId);
-                console.debug(`Shield consumed for ${playerId} - boundary collision prevented`);
+                this.logger.debug(`Shield consumed for ${playerId} - boundary collision prevented`);
                 return false;
             }
             return true;
@@ -255,14 +307,18 @@ class CollisionDetectionEngine {
                         if (dynamicBounds && !this.isWithinBounds(segment, bounds, dynamicBounds)) {
                             continue; // Skip trail segments outside current arena
                         }
-                        
-                        const distance = Math.sqrt(Math.pow(bike.x - segment.x, 2) + Math.pow(bike.z - segment.z, 2));
-                        
+
+                        const distance = Math.sqrt(
+                            Math.pow(bike.x - segment.x, 2) + Math.pow(bike.z - segment.z, 2)
+                        );
+
                         if (distance < collisionTolerance) {
                             if (hasShield) {
                                 // Consume shield and prevent collision
                                 this.powerUpManager.consumeShield(playerId);
-                                console.debug(`Shield consumed for ${playerId} - self-trail collision prevented`);
+                                this.logger.debug(
+                                    `Shield consumed for ${playerId} - self-trail collision prevented`
+                                );
                                 return false;
                             }
                             return true;
@@ -281,14 +337,18 @@ class CollisionDetectionEngine {
                     if (dynamicBounds && !this.isWithinBounds(segment, bounds, dynamicBounds)) {
                         continue; // Skip trail segments outside current arena
                     }
-                    
-                    const distance = Math.sqrt(Math.pow(bike.x - segment.x, 2) + Math.pow(bike.z - segment.z, 2));
-                    
+
+                    const distance = Math.sqrt(
+                        Math.pow(bike.x - segment.x, 2) + Math.pow(bike.z - segment.z, 2)
+                    );
+
                     if (distance < collisionTolerance) {
                         if (hasShield) {
                             // Consume shield and prevent collision
                             this.powerUpManager.consumeShield(playerId);
-                            console.debug(`Shield consumed for ${playerId} - opponent trail collision prevented`);
+                            this.logger.debug(
+                                `Shield consumed for ${playerId} - opponent trail collision prevented`
+                            );
                             return false;
                         }
                         return true;
@@ -299,7 +359,7 @@ class CollisionDetectionEngine {
                 }
             }
         } else {
-            console.debug(`${playerId} in Ghost Mode - trail collisions ignored`);
+            this.logger.debug(`${playerId} in Ghost Mode - trail collisions ignored`);
         }
 
         return false;
@@ -315,16 +375,20 @@ class CollisionDetectionEngine {
     checkBoundaryCollision(bike, staticBounds, dynamicBounds = null) {
         if (dynamicBounds) {
             // Use dynamic boundaries
-            return bike.x <= dynamicBounds.minX || 
-                   bike.x >= dynamicBounds.maxX || 
-                   bike.z <= dynamicBounds.minZ || 
-                   bike.z >= dynamicBounds.maxZ;
+            return (
+                bike.x <= dynamicBounds.minX ||
+                bike.x >= dynamicBounds.maxX ||
+                bike.z <= dynamicBounds.minZ ||
+                bike.z >= dynamicBounds.maxZ
+            );
         } else {
             // Use static boundaries (legacy)
-            return bike.x <= -staticBounds || 
-                   bike.x >= staticBounds || 
-                   bike.z <= -staticBounds || 
-                   bike.z >= staticBounds;
+            return (
+                bike.x <= -staticBounds ||
+                bike.x >= staticBounds ||
+                bike.z <= -staticBounds ||
+                bike.z >= staticBounds
+            );
         }
     }
 
@@ -352,7 +416,7 @@ class CollisionDetectionEngine {
             bikeWithinBounds: this.isWithinBounds(bike, staticBounds, dynamicBounds),
             validTrailSegments: 0,
             invalidTrailSegments: 0,
-            collisionTolerance: 0.1
+            collisionTolerance: 0.1,
         };
 
         // Validate trail segments
@@ -380,12 +444,11 @@ class CollisionDetectionEngine {
         if (!dynamicBounds) return false;
 
         const tolerance = 0.1;
-        const isOnBoundary = (
+        const isOnBoundary =
             Math.abs(bike.x - dynamicBounds.minX) < tolerance ||
             Math.abs(bike.x - dynamicBounds.maxX) < tolerance ||
             Math.abs(bike.z - dynamicBounds.minZ) < tolerance ||
-            Math.abs(bike.z - dynamicBounds.maxZ) < tolerance
-        );
+            Math.abs(bike.z - dynamicBounds.maxZ) < tolerance;
 
         // If player is exactly on boundary and grace period is active, allow movement
         return isOnBoundary && isGracePeriodActive;
@@ -404,23 +467,23 @@ class CollisionDetectionEngine {
         }
 
         let minDistance = Infinity;
-        
+
         if (dynamicBounds) {
             // Check distance to each dynamic boundary
             const distances = [
                 Math.abs(bike.x - dynamicBounds.minX), // Left wall
                 Math.abs(bike.x - dynamicBounds.maxX), // Right wall
                 Math.abs(bike.z - dynamicBounds.minZ), // Top wall
-                Math.abs(bike.z - dynamicBounds.maxZ)  // Bottom wall
+                Math.abs(bike.z - dynamicBounds.maxZ), // Bottom wall
             ];
             minDistance = Math.min(...distances);
         } else {
             // Check distance to each static boundary
             const distances = [
-                Math.abs(bike.x - (-staticBounds)), // Left wall
-                Math.abs(bike.x - staticBounds),    // Right wall
-                Math.abs(bike.z - (-staticBounds)), // Top wall
-                Math.abs(bike.z - staticBounds)     // Bottom wall
+                Math.abs(bike.x - -staticBounds), // Left wall
+                Math.abs(bike.x - staticBounds), // Right wall
+                Math.abs(bike.z - -staticBounds), // Top wall
+                Math.abs(bike.z - staticBounds), // Bottom wall
             ];
             minDistance = Math.min(...distances);
         }
@@ -465,7 +528,10 @@ class CollisionDetectionEngine {
             for (let i = 0; i < ownTrail.length - excludeRecentSegments; i++) {
                 const segment = ownTrail[i];
                 if (segment && typeof segment.x === 'number' && typeof segment.z === 'number') {
-                    if (Math.abs(bike.x - segment.x) < collisionTolerance && Math.abs(bike.z - segment.z) < collisionTolerance) {
+                    if (
+                        Math.abs(bike.x - segment.x) < collisionTolerance &&
+                        Math.abs(bike.z - segment.z) < collisionTolerance
+                    ) {
                         return true;
                     }
                 }
@@ -474,7 +540,10 @@ class CollisionDetectionEngine {
 
         for (const segment of opponentTrail) {
             if (segment && typeof segment.x === 'number' && typeof segment.z === 'number') {
-                if (Math.abs(bike.x - segment.x) < collisionTolerance && Math.abs(bike.z - segment.z) < collisionTolerance) {
+                if (
+                    Math.abs(bike.x - segment.x) < collisionTolerance &&
+                    Math.abs(bike.z - segment.z) < collisionTolerance
+                ) {
                     return true;
                 }
             }

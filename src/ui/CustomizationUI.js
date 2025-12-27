@@ -2,27 +2,29 @@
  * CustomizationUI - Main user interface for the customization system
  * Provides organized interface for bike colors, trail colors, trail styles, and arena themes
  */
+const { logger } = require('../utils/Logger.js');
+
 class CustomizationUI {
     constructor(customizationManager) {
         this.customizationManager = customizationManager;
         this.isVisible = false;
         this.previewMode = false;
-        
+
         // UI components
         this.panel = null;
         this.bikeColorPicker = null;
         this.trailColorPicker = null;
         this.trailStyleSelector = null;
         this.themeSelector = null;
-        
+
         // Button reference for toggle
         this.toggleButton = null;
-        
+
         this.createToggleButton();
         this.createPanel();
         this.setupEventListeners();
     }
-    
+
     /**
      * Create the toggle button for opening customization menu
      */
@@ -51,27 +53,27 @@ class CustomizationUI {
             min-width: 44px;
             min-height: 44px;
         `;
-        
+
         this.toggleButton.addEventListener('mouseenter', () => {
             this.toggleButton.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
         });
-        
+
         this.toggleButton.addEventListener('mouseleave', () => {
             if (!this.isVisible) {
                 this.toggleButton.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
             }
         });
-        
+
         this.toggleButton.addEventListener('click', () => {
             this.toggle();
         });
-        
+
         document.body.appendChild(this.toggleButton);
-        
+
         // Add customization access to pause menu
         this.addPauseMenuIntegration();
     }
-    
+
     /**
      * Add customization menu access to the pause overlay
      */
@@ -100,28 +102,31 @@ class CustomizationUI {
                     align-items: center;
                     justify-content: center;
                 `;
-                
+
                 pauseCustomizationButton.addEventListener('mouseenter', () => {
                     pauseCustomizationButton.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
                 });
-                
+
                 pauseCustomizationButton.addEventListener('mouseleave', () => {
                     pauseCustomizationButton.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
                 });
-                
+
                 pauseCustomizationButton.addEventListener('click', () => {
                     this.show();
                 });
-                
+
                 // Insert after the resume button
                 const resumeButton = document.getElementById('resumeButton');
                 if (resumeButton && resumeButton.parentNode) {
-                    resumeButton.parentNode.insertBefore(pauseCustomizationButton, resumeButton.nextSibling);
+                    resumeButton.parentNode.insertBefore(
+                        pauseCustomizationButton,
+                        resumeButton.nextSibling
+                    );
                 }
             }
         }, 100);
     }
-    
+
     /**
      * Create the main customization panel
      */
@@ -145,7 +150,7 @@ class CustomizationUI {
             max-height: 80vh;
             overflow-y: auto;
         `;
-        
+
         // Panel header with navigation info
         const header = document.createElement('div');
         header.className = 'customization-header';
@@ -158,23 +163,23 @@ class CustomizationUI {
             </p>
         `;
         this.panel.appendChild(header);
-        
+
         // Create organized sections with clear labels
         this.createBikeCustomizationSection();
         this.createTrailCustomizationSection();
         this.createThemeSection();
         this.createControlButtons();
-        
+
         document.body.appendChild(this.panel);
     }
-    
+
     /**
      * Create bike customization section
      */
     createBikeCustomizationSection() {
         const section = document.createElement('div');
         section.className = 'settings-section';
-        
+
         // Section header with icon and description
         const sectionHeader = document.createElement('div');
         sectionHeader.className = 'section-header';
@@ -187,34 +192,34 @@ class CustomizationUI {
             </p>
         `;
         section.appendChild(sectionHeader);
-        
+
         const { ColorPickerUI } = require('./ColorPickerUI.js');
         this.bikeColorPicker = new ColorPickerUI();
-        
+
         const colorPickerElement = this.bikeColorPicker.createElement('Bike Color');
         section.appendChild(colorPickerElement);
-        
+
         // Set initial color from customization manager
         const currentState = this.customizationManager.getCurrentState();
         this.bikeColorPicker.setColor(currentState.bikeColor);
-        
+
         // Set up color change callback
         this.bikeColorPicker.setOnColorChange((color) => {
             this.customizationManager.setBikeColor('player', color);
             this.bikeColorPicker.showContrastWarning(color);
             this.refreshPreview();
         });
-        
+
         this.panel.appendChild(section);
     }
-    
+
     /**
      * Create trail customization section
      */
     createTrailCustomizationSection() {
         const section = document.createElement('div');
         section.className = 'settings-section';
-        
+
         // Section header with icon and description
         const sectionHeader = document.createElement('div');
         sectionHeader.className = 'section-header';
@@ -227,31 +232,31 @@ class CustomizationUI {
             </p>
         `;
         section.appendChild(sectionHeader);
-        
+
         // Trail color picker
         const { ColorPickerUI } = require('./ColorPickerUI.js');
         this.trailColorPicker = new ColorPickerUI();
-        
+
         const colorPickerElement = this.trailColorPicker.createElement('Trail Color');
         section.appendChild(colorPickerElement);
-        
+
         // Set initial color from customization manager
         const currentState = this.customizationManager.getCurrentState();
         this.trailColorPicker.setColor(currentState.trailColor);
-        
+
         // Set up color change callback
         this.trailColorPicker.setOnColorChange((color) => {
             this.customizationManager.setTrailColor('player', color);
             this.trailColorPicker.showContrastWarning(color);
             this.refreshPreview();
         });
-        
+
         // Trail style selector
         this.createTrailStyleSelector(section);
-        
+
         this.panel.appendChild(section);
     }
-    
+
     /**
      * Create trail style selector
      * @param {HTMLElement} section - Parent section element
@@ -259,12 +264,12 @@ class CustomizationUI {
     createTrailStyleSelector(section) {
         const styleContainer = document.createElement('div');
         styleContainer.className = 'color-picker-container';
-        
+
         const title = document.createElement('h4');
         title.textContent = 'Trail Style';
         title.className = 'color-picker-title';
         styleContainer.appendChild(title);
-        
+
         const stylesGrid = document.createElement('div');
         stylesGrid.className = 'trail-styles-grid';
         stylesGrid.style.cssText = `
@@ -272,28 +277,28 @@ class CustomizationUI {
             grid-template-columns: 1fr 1fr;
             gap: 8px;
         `;
-        
+
         const availableStyles = this.customizationManager.getAvailableTrailStyles();
         const currentState = this.customizationManager.getCurrentState();
-        
-        availableStyles.forEach(style => {
+
+        availableStyles.forEach((style) => {
             const button = document.createElement('button');
             button.className = 'trail-style-btn';
             button.setAttribute('data-style', style);
-            
+
             if (style === currentState.trailStyle) {
                 button.classList.add('active');
             }
-            
+
             // Style-specific content
             const styleName = document.createElement('div');
             styleName.className = 'style-name';
             styleName.textContent = style.charAt(0).toUpperCase() + style.slice(1);
             button.appendChild(styleName);
-            
+
             const styleDesc = document.createElement('div');
             styleDesc.className = 'style-desc';
-            
+
             switch (style) {
                 case 'solid':
                     styleDesc.textContent = 'Continuous opaque trail';
@@ -310,35 +315,35 @@ class CustomizationUI {
                 default:
                     styleDesc.textContent = 'Custom trail style';
             }
-            
+
             button.appendChild(styleDesc);
-            
+
             button.addEventListener('click', () => {
                 // Update selection
-                stylesGrid.querySelectorAll('.trail-style-btn').forEach(btn => {
+                stylesGrid.querySelectorAll('.trail-style-btn').forEach((btn) => {
                     btn.classList.remove('active');
                 });
                 button.classList.add('active');
-                
+
                 // Apply style
                 this.customizationManager.setTrailStyle('player', style);
                 this.refreshPreview();
             });
-            
+
             stylesGrid.appendChild(button);
         });
-        
+
         styleContainer.appendChild(stylesGrid);
         section.appendChild(styleContainer);
     }
-    
+
     /**
      * Create arena theme section
      */
     createThemeSection() {
         const section = document.createElement('div');
         section.className = 'settings-section';
-        
+
         // Section header with icon and description
         const sectionHeader = document.createElement('div');
         sectionHeader.className = 'section-header';
@@ -351,7 +356,7 @@ class CustomizationUI {
             </p>
         `;
         section.appendChild(sectionHeader);
-        
+
         const themesGrid = document.createElement('div');
         themesGrid.className = 'themes-grid';
         themesGrid.style.cssText = `
@@ -359,64 +364,65 @@ class CustomizationUI {
             grid-template-columns: 1fr 1fr;
             gap: 8px;
         `;
-        
+
         const availableThemes = this.customizationManager.getAvailableThemes();
         const currentState = this.customizationManager.getCurrentState();
-        
+
         const themeDescriptions = {
             'classic-grid': 'Current default styling',
             'neon-city': 'Cyberpunk visuals',
-            'space': 'Starfield background',
-            'tron-legacy': 'Movie-inspired aesthetics'
+            space: 'Starfield background',
+            'tron-legacy': 'Movie-inspired aesthetics',
         };
-        
-        availableThemes.forEach(theme => {
+
+        availableThemes.forEach((theme) => {
             const button = document.createElement('button');
             button.className = 'theme-btn';
             button.setAttribute('data-theme', theme);
-            
+
             if (theme === currentState.arenaTheme) {
                 button.classList.add('active');
             }
-            
+
             const themeName = document.createElement('div');
             themeName.className = 'theme-name';
-            themeName.textContent = theme.split('-').map(word => 
-                word.charAt(0).toUpperCase() + word.slice(1)
-            ).join(' ');
+            themeName.textContent = theme
+                .split('-')
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
             button.appendChild(themeName);
-            
+
             const themeDesc = document.createElement('div');
             themeDesc.className = 'theme-desc';
             themeDesc.textContent = themeDescriptions[theme] || 'Custom theme';
             button.appendChild(themeDesc);
-            
+
             button.addEventListener('click', () => {
                 // Update selection
-                themesGrid.querySelectorAll('.theme-btn').forEach(btn => {
+                themesGrid.querySelectorAll('.theme-btn').forEach((btn) => {
                     btn.classList.remove('active');
                 });
                 button.classList.add('active');
-                
+
                 // Apply theme
                 this.customizationManager.setArenaTheme(theme);
                 this.refreshPreview();
             });
-            
+
             themesGrid.appendChild(button);
         });
-        
+
         section.appendChild(themesGrid);
         this.panel.appendChild(section);
     }
-    
+
     /**
      * Create preview section with real-time updates
      */
     createPreviewSection() {
         const previewSection = document.createElement('div');
         previewSection.className = 'settings-section preview-section';
-        
+
         // Section header
         const sectionHeader = document.createElement('div');
         sectionHeader.className = 'section-header';
@@ -429,7 +435,7 @@ class CustomizationUI {
             </p>
         `;
         previewSection.appendChild(sectionHeader);
-        
+
         // Preview viewport container
         const previewContainer = document.createElement('div');
         previewContainer.className = 'preview-container';
@@ -446,7 +452,7 @@ class CustomizationUI {
             justify-content: center;
             align-items: center;
         `;
-        
+
         // Preview status indicator
         const previewStatus = document.createElement('div');
         previewStatus.className = 'preview-status';
@@ -460,7 +466,7 @@ class CustomizationUI {
             </div>
         `;
         previewContainer.appendChild(previewStatus);
-        
+
         // Current customization summary
         const customizationSummary = document.createElement('div');
         customizationSummary.className = 'customization-summary';
@@ -472,12 +478,12 @@ class CustomizationUI {
             font-size: 0.8em;
             color: #cccccc;
         `;
-        
+
         this.updateCustomizationSummary(customizationSummary);
         previewContainer.appendChild(customizationSummary);
-        
+
         previewSection.appendChild(previewContainer);
-        
+
         // Preview controls
         const previewControls = document.createElement('div');
         previewControls.style.cssText = `
@@ -485,7 +491,7 @@ class CustomizationUI {
             gap: 10px;
             margin-bottom: 10px;
         `;
-        
+
         const enablePreviewBtn = document.createElement('button');
         enablePreviewBtn.className = 'settings-btn preview-toggle-btn';
         enablePreviewBtn.textContent = 'Enable Preview';
@@ -498,7 +504,7 @@ class CustomizationUI {
             this.togglePreviewMode();
         });
         previewControls.appendChild(enablePreviewBtn);
-        
+
         const refreshPreviewBtn = document.createElement('button');
         refreshPreviewBtn.className = 'settings-btn';
         refreshPreviewBtn.textContent = 'Refresh';
@@ -507,23 +513,23 @@ class CustomizationUI {
             this.refreshPreview();
         });
         previewControls.appendChild(refreshPreviewBtn);
-        
+
         previewSection.appendChild(previewControls);
         this.panel.appendChild(previewSection);
-        
+
         // Store references for updates
         this.previewContainer = previewContainer;
         this.customizationSummary = customizationSummary;
         this.previewToggleBtn = enablePreviewBtn;
     }
-    
+
     /**
      * Update the customization summary display
      * @param {HTMLElement} summaryElement - The summary element to update
      */
     updateCustomizationSummary(summaryElement) {
         const currentState = this.customizationManager.getCurrentState();
-        
+
         summaryElement.innerHTML = `
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; text-align: left;">
                 <div>
@@ -540,12 +546,15 @@ class CustomizationUI {
                     <strong>Style:</strong> ${currentState.trailStyle.charAt(0).toUpperCase() + currentState.trailStyle.slice(1)}
                 </div>
                 <div>
-                    <strong>Theme:</strong> ${currentState.arenaTheme.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                    <strong>Theme:</strong> ${currentState.arenaTheme
+                        .split('-')
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ')}
                 </div>
             </div>
         `;
     }
-    
+
     /**
      * Refresh the preview display
      */
@@ -553,7 +562,7 @@ class CustomizationUI {
         if (this.customizationSummary) {
             this.updateCustomizationSummary(this.customizationSummary);
         }
-        
+
         // Show refresh notification
         this.showNotification('🔄 Preview refreshed', 'info');
     }
@@ -569,10 +578,10 @@ class CustomizationUI {
             margin: 20px 0 15px 0;
         `;
         this.panel.appendChild(separator);
-        
+
         // Add preview section before controls
         this.createPreviewSection();
-        
+
         // Control section header
         const controlHeader = document.createElement('div');
         controlHeader.innerHTML = `
@@ -581,7 +590,7 @@ class CustomizationUI {
             </h4>
         `;
         this.panel.appendChild(controlHeader);
-        
+
         // Primary action buttons (Apply/Cancel workflow)
         const primaryButtonsContainer = document.createElement('div');
         primaryButtonsContainer.className = 'primary-buttons';
@@ -591,7 +600,7 @@ class CustomizationUI {
             gap: 10px;
             margin-bottom: 15px;
         `;
-        
+
         // Apply button - confirms and saves changes
         const applyButton = document.createElement('button');
         applyButton.className = 'settings-btn apply-btn';
@@ -606,7 +615,7 @@ class CustomizationUI {
             this.applyChanges();
         });
         primaryButtonsContainer.appendChild(applyButton);
-        
+
         // Cancel button - discards changes and reverts
         const cancelButton = document.createElement('button');
         cancelButton.className = 'settings-btn cancel-btn';
@@ -620,9 +629,9 @@ class CustomizationUI {
             this.cancelChanges();
         });
         primaryButtonsContainer.appendChild(cancelButton);
-        
+
         this.panel.appendChild(primaryButtonsContainer);
-        
+
         // Secondary action buttons
         const secondaryButtonsContainer = document.createElement('div');
         secondaryButtonsContainer.className = 'secondary-buttons';
@@ -632,7 +641,7 @@ class CustomizationUI {
             gap: 10px;
             margin-bottom: 10px;
         `;
-        
+
         // Preview mode toggle
         const previewButton = document.createElement('button');
         previewButton.className = 'settings-btn preview-btn';
@@ -642,7 +651,7 @@ class CustomizationUI {
             this.togglePreviewMode();
         });
         secondaryButtonsContainer.appendChild(previewButton);
-        
+
         // Reset to defaults button with confirmation
         const resetButton = document.createElement('button');
         resetButton.className = 'settings-btn reset-btn';
@@ -652,9 +661,9 @@ class CustomizationUI {
             this.showResetConfirmation();
         });
         secondaryButtonsContainer.appendChild(resetButton);
-        
+
         this.panel.appendChild(secondaryButtonsContainer);
-        
+
         // Close button (full width)
         const closeButtonContainer = document.createElement('div');
         closeButtonContainer.style.cssText = `
@@ -662,7 +671,7 @@ class CustomizationUI {
             gap: 10px;
             margin-top: 10px;
         `;
-        
+
         const closeButton = document.createElement('button');
         closeButton.className = 'settings-btn close-btn';
         closeButton.textContent = 'Close Menu';
@@ -675,29 +684,33 @@ class CustomizationUI {
             this.handleMenuClose();
         });
         closeButtonContainer.appendChild(closeButton);
-        
+
         this.panel.appendChild(closeButtonContainer);
-        
+
         // Store button references for updates
         this.applyButton = applyButton;
         this.cancelButton = cancelButton;
         this.previewButton = previewButton;
         this.closeButton = closeButton;
     }
-    
+
     /**
      * Setup event listeners
      */
     setupEventListeners() {
         // Close panel when clicking outside
         document.addEventListener('click', (e) => {
-            if (this.isVisible && 
-                !this.panel.contains(e.target) && 
-                !this.toggleButton.contains(e.target)) {
+            /** @type {any} */
+            const target = e.target;
+            if (
+                this.isVisible &&
+                !this.panel.contains(target) &&
+                !this.toggleButton.contains(target)
+            ) {
                 this.hide();
             }
         });
-        
+
         // Escape key to close
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.isVisible) {
@@ -705,7 +718,7 @@ class CustomizationUI {
             }
         });
     }
-    
+
     /**
      * Toggle customization panel visibility
      */
@@ -716,7 +729,7 @@ class CustomizationUI {
             this.show();
         }
     }
-    
+
     /**
      * Show customization panel
      */
@@ -725,11 +738,11 @@ class CustomizationUI {
         this.isVisible = true;
         this.toggleButton.style.backgroundColor = 'rgba(255, 192, 203, 0.3)';
         this.toggleButton.style.borderColor = '#ffc0cb';
-        
+
         // Update UI with current state
         this.updateUIFromState();
     }
-    
+
     /**
      * Hide customization panel
      */
@@ -738,7 +751,7 @@ class CustomizationUI {
         this.isVisible = false;
         this.toggleButton.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
         this.toggleButton.style.borderColor = 'white';
-        
+
         // Exit preview mode if active (apply changes automatically on close)
         if (this.previewMode) {
             this.customizationManager.applyPreviewChanges();
@@ -746,7 +759,7 @@ class CustomizationUI {
             this.updatePreviewModeUI();
         }
     }
-    
+
     /**
      * Toggle preview mode
      */
@@ -760,11 +773,11 @@ class CustomizationUI {
             this.customizationManager.enablePreviewMode();
             this.previewMode = true;
         }
-        
+
         this.updatePreviewModeUI();
         this.refreshPreview();
     }
-    
+
     /**
      * Update preview mode UI indicators
      */
@@ -781,7 +794,7 @@ class CustomizationUI {
                 this.previewButton.style.borderColor = '';
             }
         }
-        
+
         // Update the preview section toggle button
         if (this.previewToggleBtn) {
             if (this.previewMode) {
@@ -794,7 +807,7 @@ class CustomizationUI {
                 this.previewToggleBtn.style.borderColor = '#00ff00';
             }
         }
-        
+
         // Update preview status indicator
         const previewModeStatus = document.getElementById('previewModeStatus');
         if (previewModeStatus) {
@@ -806,7 +819,7 @@ class CustomizationUI {
                 previewModeStatus.style.color = '#ff6666';
             }
         }
-        
+
         // Update preview container appearance
         if (this.previewContainer) {
             if (this.previewMode) {
@@ -817,7 +830,7 @@ class CustomizationUI {
                 this.previewContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
             }
         }
-        
+
         // Update apply/cancel button states based on preview mode
         if (this.applyButton && this.cancelButton) {
             if (this.previewMode) {
@@ -829,7 +842,7 @@ class CustomizationUI {
             }
         }
     }
-    
+
     /**
      * Show reset confirmation dialog
      */
@@ -849,7 +862,7 @@ class CustomizationUI {
             justify-content: center;
             z-index: 300;
         `;
-        
+
         const confirmationDialog = document.createElement('div');
         confirmationDialog.style.cssText = `
             background-color: rgba(0, 0, 0, 0.95);
@@ -862,7 +875,7 @@ class CustomizationUI {
             max-width: 400px;
             margin: 20px;
         `;
-        
+
         confirmationDialog.innerHTML = `
             <h3 style="margin: 0 0 15px 0; color: #ff6666; font-size: 1.3em;">
                 ⚠️ Reset to Defaults
@@ -900,44 +913,46 @@ class CustomizationUI {
                 </button>
             </div>
         `;
-        
+
         confirmationOverlay.appendChild(confirmationDialog);
         document.body.appendChild(confirmationOverlay);
-        
+
         // Add event listeners
+        /** @type {HTMLElement} */
         const confirmButton = confirmationDialog.querySelector('.confirm-reset-btn');
+        /** @type {HTMLElement} */
         const cancelButton = confirmationDialog.querySelector('.cancel-reset-btn');
-        
+
         confirmButton.addEventListener('mouseenter', () => {
             confirmButton.style.backgroundColor = 'rgba(255, 102, 102, 0.5)';
         });
         confirmButton.addEventListener('mouseleave', () => {
             confirmButton.style.backgroundColor = 'rgba(255, 102, 102, 0.3)';
         });
-        
+
         cancelButton.addEventListener('mouseenter', () => {
             cancelButton.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
         });
         cancelButton.addEventListener('mouseleave', () => {
             cancelButton.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
         });
-        
+
         confirmButton.addEventListener('click', () => {
             this.resetToDefaults();
             document.body.removeChild(confirmationOverlay);
         });
-        
+
         cancelButton.addEventListener('click', () => {
             document.body.removeChild(confirmationOverlay);
         });
-        
+
         // Close on overlay click
         confirmationOverlay.addEventListener('click', (e) => {
             if (e.target === confirmationOverlay) {
                 document.body.removeChild(confirmationOverlay);
             }
         });
-        
+
         // Close on escape key
         const escapeHandler = (e) => {
             if (e.key === 'Escape') {
@@ -947,7 +962,7 @@ class CustomizationUI {
         };
         document.addEventListener('keydown', escapeHandler);
     }
-    
+
     /**
      * Reset all customizations to defaults
      */
@@ -955,15 +970,15 @@ class CustomizationUI {
         try {
             this.customizationManager.resetToDefaults();
             this.updateUIFromState();
-            
+
             // Show success notification
             this.showNotification('✅ All customizations reset to defaults', 'success');
         } catch (error) {
-            console.error('Failed to reset customizations:', error);
+            logger.error('Failed to reset customizations:', error);
             this.showNotification('❌ Failed to reset customizations', 'error');
         }
     }
-    
+
     /**
      * Apply all customization changes and save them
      */
@@ -975,24 +990,23 @@ class CustomizationUI {
                 this.previewMode = false;
                 this.updatePreviewModeUI();
             }
-            
+
             // Save current preferences to storage
             this.customizationManager.saveCurrentPreferences();
-            
+
             // Show success notification
             this.showNotification('✅ Customizations applied and saved!', 'success');
-            
+
             // Auto-close menu after applying changes
             setTimeout(() => {
                 this.hide();
             }, 1500);
-            
         } catch (error) {
-            console.error('Failed to apply customizations:', error);
+            logger.error('Failed to apply customizations:', error);
             this.showNotification('❌ Failed to apply customizations', 'error');
         }
     }
-    
+
     /**
      * Cancel all changes and revert to saved settings
      */
@@ -1000,7 +1014,7 @@ class CustomizationUI {
         // Show confirmation dialog for canceling changes
         this.showCancelConfirmation();
     }
-    
+
     /**
      * Show cancel confirmation dialog
      */
@@ -1020,7 +1034,7 @@ class CustomizationUI {
             justify-content: center;
             z-index: 300;
         `;
-        
+
         const confirmationDialog = document.createElement('div');
         confirmationDialog.style.cssText = `
             background-color: rgba(0, 0, 0, 0.95);
@@ -1033,7 +1047,7 @@ class CustomizationUI {
             max-width: 400px;
             margin: 20px;
         `;
-        
+
         confirmationDialog.innerHTML = `
             <h3 style="margin: 0 0 15px 0; color: #ff6666; font-size: 1.3em;">
                 ⚠️ Cancel Changes
@@ -1071,44 +1085,46 @@ class CustomizationUI {
                 </button>
             </div>
         `;
-        
+
         confirmationOverlay.appendChild(confirmationDialog);
         document.body.appendChild(confirmationOverlay);
-        
+
         // Add event listeners
+        /** @type {HTMLElement} */
         const confirmButton = confirmationDialog.querySelector('.confirm-cancel-btn');
+        /** @type {HTMLElement} */
         const keepButton = confirmationDialog.querySelector('.keep-changes-btn');
-        
+
         confirmButton.addEventListener('mouseenter', () => {
             confirmButton.style.backgroundColor = 'rgba(255, 102, 102, 0.5)';
         });
         confirmButton.addEventListener('mouseleave', () => {
             confirmButton.style.backgroundColor = 'rgba(255, 102, 102, 0.3)';
         });
-        
+
         keepButton.addEventListener('mouseenter', () => {
             keepButton.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
         });
         keepButton.addEventListener('mouseleave', () => {
             keepButton.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
         });
-        
+
         confirmButton.addEventListener('click', () => {
             this.performCancelChanges();
             document.body.removeChild(confirmationOverlay);
         });
-        
+
         keepButton.addEventListener('click', () => {
             document.body.removeChild(confirmationOverlay);
         });
-        
+
         // Close on overlay click
         confirmationOverlay.addEventListener('click', (e) => {
             if (e.target === confirmationOverlay) {
                 document.body.removeChild(confirmationOverlay);
             }
         });
-        
+
         // Close on escape key
         const escapeHandler = (e) => {
             if (e.key === 'Escape') {
@@ -1118,7 +1134,7 @@ class CustomizationUI {
         };
         document.addEventListener('keydown', escapeHandler);
     }
-    
+
     /**
      * Actually perform the cancel changes operation
      */
@@ -1130,22 +1146,21 @@ class CustomizationUI {
                 this.previewMode = false;
                 this.updatePreviewModeUI();
             }
-            
+
             // Reload saved preferences
             this.customizationManager.loadSavedPreferences();
-            
+
             // Update UI to reflect reverted state
             this.updateUIFromState();
-            
+
             // Show notification
             this.showNotification('↶ Changes cancelled, reverted to saved settings', 'info');
-            
         } catch (error) {
-            console.error('Failed to cancel customizations:', error);
+            logger.error('Failed to cancel customizations:', error);
             this.showNotification('❌ Failed to cancel changes', 'error');
         }
     }
-    
+
     /**
      * Handle menu close with unsaved changes check
      */
@@ -1157,7 +1172,7 @@ class CustomizationUI {
             this.hide();
         }
     }
-    
+
     /**
      * Check if there are unsaved changes
      * @returns {boolean} True if there are unsaved changes
@@ -1166,7 +1181,7 @@ class CustomizationUI {
         try {
             const currentState = this.customizationManager.getCurrentState();
             const savedState = this.customizationManager.getSavedState();
-            
+
             return (
                 currentState.bikeColor !== savedState.bikeColor ||
                 currentState.trailColor !== savedState.trailColor ||
@@ -1174,11 +1189,11 @@ class CustomizationUI {
                 currentState.arenaTheme !== savedState.arenaTheme
             );
         } catch (error) {
-            console.warn('Could not check for unsaved changes:', error);
+            logger.warn('Could not check for unsaved changes:', error);
             return false;
         }
     }
-    
+
     /**
      * Show dialog when closing with unsaved changes
      */
@@ -1198,7 +1213,7 @@ class CustomizationUI {
             justify-content: center;
             z-index: 300;
         `;
-        
+
         const confirmationDialog = document.createElement('div');
         confirmationDialog.style.cssText = `
             background-color: rgba(0, 0, 0, 0.95);
@@ -1211,7 +1226,7 @@ class CustomizationUI {
             max-width: 400px;
             margin: 20px;
         `;
-        
+
         confirmationDialog.innerHTML = `
             <h3 style="margin: 0 0 15px 0; color: #ffaa00; font-size: 1.3em;">
                 💾 Unsaved Changes
@@ -1258,47 +1273,52 @@ class CustomizationUI {
                 </button>
             </div>
         `;
-        
+
         confirmationOverlay.appendChild(confirmationDialog);
         document.body.appendChild(confirmationOverlay);
-        
+
         // Add event listeners
+        /** @type {HTMLElement} */
         const saveAndCloseBtn = confirmationDialog.querySelector('.save-and-close-btn');
+        /** @type {HTMLElement} */
         const discardAndCloseBtn = confirmationDialog.querySelector('.discard-and-close-btn');
+        /** @type {HTMLElement} */
         const continueEditingBtn = confirmationDialog.querySelector('.continue-editing-btn');
-        
+
         // Hover effects
-        [saveAndCloseBtn, discardAndCloseBtn, continueEditingBtn].forEach(btn => {
-            btn.addEventListener('mouseenter', () => {
-                btn.style.opacity = '0.8';
-            });
-            btn.addEventListener('mouseleave', () => {
-                btn.style.opacity = '1';
-            });
-        });
-        
+        [saveAndCloseBtn, discardAndCloseBtn, continueEditingBtn].forEach(
+            /** @param {HTMLElement} btn */ (btn) => {
+                btn.addEventListener('mouseenter', () => {
+                    btn.style.opacity = '0.8';
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.opacity = '1';
+                });
+            }
+        );
+
         saveAndCloseBtn.addEventListener('click', () => {
             this.applyChanges();
             document.body.removeChild(confirmationOverlay);
         });
-        
+
         discardAndCloseBtn.addEventListener('click', () => {
             this.performCancelChanges();
             this.hide();
             document.body.removeChild(confirmationOverlay);
         });
-        
+
         continueEditingBtn.addEventListener('click', () => {
             document.body.removeChild(confirmationOverlay);
         });
-        
+
         // Close on overlay click (continue editing)
         confirmationOverlay.addEventListener('click', (e) => {
             if (e.target === confirmationOverlay) {
                 document.body.removeChild(confirmationOverlay);
             }
         });
-        
+
         // Close on escape key (continue editing)
         const escapeHandler = (e) => {
             if (e.key === 'Escape') {
@@ -1317,14 +1337,16 @@ class CustomizationUI {
     showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = 'customization-notification';
-        
-        const bgColor = type === 'success' ? 'rgba(0, 255, 0, 0.2)' : 
-                       type === 'error' ? 'rgba(255, 0, 0, 0.2)' : 
-                       'rgba(0, 255, 255, 0.2)';
-        const borderColor = type === 'success' ? '#00ff00' : 
-                           type === 'error' ? '#ff0000' : 
-                           '#00ffff';
-        
+
+        const bgColor =
+            type === 'success'
+                ? 'rgba(0, 255, 0, 0.2)'
+                : type === 'error'
+                  ? 'rgba(255, 0, 0, 0.2)'
+                  : 'rgba(0, 255, 255, 0.2)';
+        const borderColor =
+            type === 'success' ? '#00ff00' : type === 'error' ? '#ff0000' : '#00ffff';
+
         notification.style.cssText = `
             position: fixed;
             top: 50%;
@@ -1341,10 +1363,10 @@ class CustomizationUI {
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             animation: fadeInOut 3s ease-in-out;
         `;
-        
+
         notification.textContent = message;
         document.body.appendChild(notification);
-        
+
         // Add CSS animation
         const style = document.createElement('style');
         style.textContent = `
@@ -1356,7 +1378,7 @@ class CustomizationUI {
             }
         `;
         document.head.appendChild(style);
-        
+
         // Remove notification after animation
         setTimeout(() => {
             if (notification.parentNode) {
@@ -1367,25 +1389,25 @@ class CustomizationUI {
             }
         }, 3000);
     }
-    
+
     /**
      * Update UI elements to match current customization state
      */
     updateUIFromState() {
         const currentState = this.customizationManager.getCurrentState();
-        
+
         // Update color pickers
         if (this.bikeColorPicker) {
             this.bikeColorPicker.setColor(currentState.bikeColor);
         }
-        
+
         if (this.trailColorPicker) {
             this.trailColorPicker.setColor(currentState.trailColor);
         }
-        
+
         // Update trail style selection
         const styleButtons = this.panel.querySelectorAll('.trail-style-btn');
-        styleButtons.forEach(button => {
+        styleButtons.forEach((button) => {
             const style = button.getAttribute('data-style');
             if (style === currentState.trailStyle) {
                 button.classList.add('active');
@@ -1393,10 +1415,10 @@ class CustomizationUI {
                 button.classList.remove('active');
             }
         });
-        
+
         // Update theme selection
         const themeButtons = this.panel.querySelectorAll('.theme-btn');
-        themeButtons.forEach(button => {
+        themeButtons.forEach((button) => {
             const theme = button.getAttribute('data-theme');
             if (theme === currentState.arenaTheme) {
                 button.classList.add('active');
@@ -1404,11 +1426,11 @@ class CustomizationUI {
                 button.classList.remove('active');
             }
         });
-        
+
         // Refresh preview to show updated state
         this.refreshPreview();
     }
-    
+
     /**
      * Destroy the customization UI and clean up
      */
@@ -1416,19 +1438,19 @@ class CustomizationUI {
         if (this.toggleButton && this.toggleButton.parentNode) {
             this.toggleButton.parentNode.removeChild(this.toggleButton);
         }
-        
+
         if (this.panel && this.panel.parentNode) {
             this.panel.parentNode.removeChild(this.panel);
         }
-        
+
         if (this.bikeColorPicker) {
             this.bikeColorPicker.destroy();
         }
-        
+
         if (this.trailColorPicker) {
             this.trailColorPicker.destroy();
         }
-        
+
         this.toggleButton = null;
         this.panel = null;
         this.bikeColorPicker = null;

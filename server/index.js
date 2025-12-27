@@ -1,7 +1,7 @@
 const { GameServer } = require('./GameServer');
 
 // Get port from environment or use default
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT || '3000', 10);
 
 // Create and start server
 const server = new GameServer(PORT);

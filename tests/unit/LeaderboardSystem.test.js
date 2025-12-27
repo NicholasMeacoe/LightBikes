@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { LeaderboardSystem } = require('@/systems/LeaderboardSystem.js');
 
 describe('LeaderboardSystem', () => {
@@ -17,13 +33,13 @@ describe('LeaderboardSystem', () => {
             }),
             clear: jest.fn(() => {
                 mockLocalStorage.data = {};
-            })
+            }),
         };
 
         // Replace global localStorage
         Object.defineProperty(window, 'localStorage', {
             value: mockLocalStorage,
-            writable: true
+            writable: true,
         });
 
         leaderboard = new LeaderboardSystem();
@@ -43,7 +59,7 @@ describe('LeaderboardSystem', () => {
         it('should load existing scores from localStorage', () => {
             const existingScores = [
                 { timeMs: 30000, timestamp: Date.now(), formattedTime: '00:30.00' },
-                { timeMs: 45000, timestamp: Date.now(), formattedTime: '00:45.00' }
+                { timeMs: 45000, timestamp: Date.now(), formattedTime: '00:45.00' },
             ];
             mockLocalStorage.data['lightbikes_time_trial_scores'] = JSON.stringify(existingScores);
 
@@ -62,7 +78,7 @@ describe('LeaderboardSystem', () => {
         it('should parse and return valid scores', () => {
             const testScores = [
                 { timeMs: 30000, timestamp: Date.now(), formattedTime: '00:30.00' },
-                { timeMs: 45000, timestamp: Date.now(), formattedTime: '00:45.00' }
+                { timeMs: 45000, timestamp: Date.now(), formattedTime: '00:45.00' },
             ];
             mockLocalStorage.data['lightbikes_time_trial_scores'] = JSON.stringify(testScores);
 
@@ -75,7 +91,7 @@ describe('LeaderboardSystem', () => {
             const testScores = [
                 { timeMs: 45000, timestamp: Date.now(), formattedTime: '00:45.00' },
                 { timeMs: 30000, timestamp: Date.now(), formattedTime: '00:30.00' },
-                { timeMs: 60000, timestamp: Date.now(), formattedTime: '01:00.00' }
+                { timeMs: 60000, timestamp: Date.now(), formattedTime: '01:00.00' },
             ];
             mockLocalStorage.data['lightbikes_time_trial_scores'] = JSON.stringify(testScores);
 
@@ -91,7 +107,7 @@ describe('LeaderboardSystem', () => {
                 { timeMs: 'invalid', timestamp: Date.now(), formattedTime: '00:45.00' },
                 { timeMs: 60000, timestamp: Date.now(), formattedTime: '01:00.00' },
                 null,
-                { timeMs: -1000, timestamp: Date.now(), formattedTime: '-00:01.00' }
+                { timeMs: -1000, timestamp: Date.now(), formattedTime: '-00:01.00' },
             ];
             mockLocalStorage.data['lightbikes_time_trial_scores'] = JSON.stringify(testScores);
 
@@ -105,7 +121,7 @@ describe('LeaderboardSystem', () => {
             const testScores = Array.from({ length: 15 }, (_, i) => ({
                 timeMs: (i + 1) * 1000,
                 timestamp: Date.now(),
-                formattedTime: `00:0${i + 1}.00`
+                formattedTime: `00:0${i + 1}.00`,
             }));
             mockLocalStorage.data['lightbikes_time_trial_scores'] = JSON.stringify(testScores);
 
@@ -118,22 +134,28 @@ describe('LeaderboardSystem', () => {
 
             const scores = leaderboard.loadScores();
             expect(scores).toEqual([]);
-            expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('lightbikes_time_trial_scores');
+            expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
+                'lightbikes_time_trial_scores'
+            );
         });
 
         it('should handle non-array data', () => {
-            mockLocalStorage.data['lightbikes_time_trial_scores'] = JSON.stringify({ not: 'array' });
+            mockLocalStorage.data['lightbikes_time_trial_scores'] = JSON.stringify({
+                not: 'array',
+            });
 
             const scores = leaderboard.loadScores();
             expect(scores).toEqual([]);
-            expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('lightbikes_time_trial_scores');
+            expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
+                'lightbikes_time_trial_scores'
+            );
         });
     });
 
     describe('saveScores', () => {
         it('should save scores to localStorage', () => {
             const testScores = [
-                { timeMs: 30000, timestamp: Date.now(), formattedTime: '00:30.00' }
+                { timeMs: 30000, timestamp: Date.now(), formattedTime: '00:30.00' },
             ];
 
             const result = leaderboard.saveScores(testScores);
@@ -155,7 +177,7 @@ describe('LeaderboardSystem', () => {
         it('should handle quota exceeded error', () => {
             const quotaError = new Error('Quota exceeded');
             quotaError.name = 'QuotaExceededError';
-            
+
             // Mock localStorage to always throw quota exceeded
             const originalSetItem = localStorage.setItem;
             localStorage.setItem = jest.fn(() => {
@@ -165,16 +187,16 @@ describe('LeaderboardSystem', () => {
             const testScores = Array.from({ length: 10 }, (_, i) => ({
                 timeMs: (i + 1) * 1000,
                 timestamp: Date.now(),
-                formattedTime: `00:0${i + 1}.00`
+                formattedTime: `00:0${i + 1}.00`,
             }));
 
             const result = leaderboard.saveScores(testScores);
             expect(result).toBe(false); // Should fail when quota exceeded persists
-            
+
             // The implementation should try twice: initial attempt + retry with reduced data
             // But since our mock always throws, it should be called at least once
             expect(localStorage.setItem).toHaveBeenCalled();
-            
+
             // Restore original
             localStorage.setItem = originalSetItem;
         });
@@ -221,7 +243,7 @@ describe('LeaderboardSystem', () => {
         it('should reject invalid time values', () => {
             const invalidTimes = [null, undefined, 'string', -1000, 0, NaN, Infinity];
 
-            invalidTimes.forEach(time => {
+            invalidTimes.forEach((time) => {
                 const result = leaderboard.addScore(time);
                 expect(result.success).toBe(false);
                 expect(result.reason).toBe('Invalid time value');
@@ -323,7 +345,9 @@ describe('LeaderboardSystem', () => {
             leaderboard.clearScores();
 
             expect(leaderboard.scores).toEqual([]);
-            expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('lightbikes_time_trial_scores');
+            expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
+                'lightbikes_time_trial_scores'
+            );
         });
 
         it('should handle localStorage errors gracefully', () => {
@@ -381,7 +405,7 @@ describe('LeaderboardSystem', () => {
             const validScore = {
                 timeMs: 30000,
                 timestamp: Date.now(),
-                formattedTime: '00:30.00'
+                formattedTime: '00:30.00',
             };
 
             expect(leaderboard.isValidScore(validScore)).toBe(true);
@@ -396,10 +420,10 @@ describe('LeaderboardSystem', () => {
                 { timeMs: 'invalid' },
                 { timeMs: 30000 }, // Missing fields
                 { timeMs: -1000, timestamp: Date.now(), formattedTime: '00:30.00' },
-                { timeMs: 7000000, timestamp: Date.now(), formattedTime: '00:30.00' } // Too large
+                { timeMs: 7000000, timestamp: Date.now(), formattedTime: '00:30.00' }, // Too large
             ];
 
-            invalidScores.forEach(score => {
+            invalidScores.forEach((score) => {
                 const result = leaderboard.isValidScore(score);
                 expect(result).toBe(false);
             });

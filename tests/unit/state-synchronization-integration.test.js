@@ -3,6 +3,22 @@
  * Tests the complete flow: server state management -> network -> client prediction -> interpolation
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { GameRoom } = require('../../server/GameRoom.js');
 const { ClientPrediction } = require('@/multiplayer/ClientPrediction.js');
 const { LatencyCompensation } = require('@/multiplayer/LatencyCompensation.js');
@@ -23,7 +39,7 @@ describe('State Synchronization Integration', () => {
         // Set up server-side
         mockIo = {
             to: jest.fn().mockReturnThis(),
-            emit: jest.fn()
+            emit: jest.fn(),
         };
 
         mockSocket1 = {
@@ -31,7 +47,7 @@ describe('State Synchronization Integration', () => {
             join: jest.fn(),
             leave: jest.fn(),
             emit: jest.fn(),
-            on: jest.fn()
+            on: jest.fn(),
         };
 
         mockSocket2 = {
@@ -39,14 +55,18 @@ describe('State Synchronization Integration', () => {
             join: jest.fn(),
             leave: jest.fn(),
             emit: jest.fn(),
-            on: jest.fn()
+            on: jest.fn(),
         };
 
-        gameRoom = new GameRoom('TEST123', {
-            maxPlayers: 4,
-            gameMode: 'classic',
-            isPrivate: false
-        }, mockIo);
+        gameRoom = new GameRoom(
+            'TEST123',
+            {
+                maxPlayers: 4,
+                gameMode: 'classic',
+                isPrivate: false,
+            },
+            mockIo
+        );
 
         // Set up client-side
         mockGameInstance = {
@@ -71,12 +91,12 @@ describe('State Synchronization Integration', () => {
                 player: mockGameInstance.player,
                 playerDirection: mockGameInstance.playerDirection,
                 playerTrail: mockGameInstance.playerTrail,
-                frameCount: mockGameInstance.frameCount
-            }))
+                frameCount: mockGameInstance.frameCount,
+            })),
         };
 
         mockNetworkManager = {
-            getPing: jest.fn(() => 50)
+            getPing: jest.fn(() => 50),
         };
 
         clientPrediction = new ClientPrediction(mockGameInstance);
@@ -104,7 +124,7 @@ describe('State Synchronization Integration', () => {
             const inputData = {
                 direction: 'up',
                 timestamp: Date.now(),
-                sequenceId: 1
+                sequenceId: 1,
             };
 
             // Client applies input with prediction
@@ -123,7 +143,7 @@ describe('State Synchronization Integration', () => {
             expect(mockIo.emit).toHaveBeenCalledWith('gameState', expect.any(Object));
 
             // Get broadcasted state
-            const broadcastCall = mockIo.emit.mock.calls.find(call => call[0] === 'gameState');
+            const broadcastCall = mockIo.emit.mock.calls.find((call) => call[0] === 'gameState');
             const serverState = broadcastCall[1];
 
             // Client receives server state and reconciles
@@ -149,7 +169,9 @@ describe('State Synchronization Integration', () => {
                 gameRoom.broadcastGameState();
 
                 // Get server state
-                const broadcastCall = mockIo.emit.mock.calls.find(call => call[0] === 'gameState');
+                const broadcastCall = mockIo.emit.mock.calls.find(
+                    (call) => call[0] === 'gameState'
+                );
                 if (broadcastCall) {
                     const serverState = broadcastCall[1];
                     const playerState = Object.values(serverState.players)[0];
@@ -158,7 +180,7 @@ describe('State Synchronization Integration', () => {
                     latencyComp.addStateToBuffer(
                         playerState.id,
                         playerState,
-                        baseTime + (i * 16) // 60Hz = ~16ms per frame
+                        baseTime + i * 16 // 60Hz = ~16ms per frame
                     );
                 }
 
@@ -191,7 +213,7 @@ describe('State Synchronization Integration', () => {
             gameRoom.updateGameState();
             gameRoom.broadcastGameState();
 
-            const broadcastCall = mockIo.emit.mock.calls.find(call => call[0] === 'gameState');
+            const broadcastCall = mockIo.emit.mock.calls.find((call) => call[0] === 'gameState');
             const serverState = broadcastCall[1];
 
             // Client reconciles with server
@@ -202,7 +224,7 @@ describe('State Synchronization Integration', () => {
             const playerState = Object.values(serverState.players)[0];
             const error = Math.sqrt(
                 Math.pow(initialX - playerState.position.x, 2) +
-                Math.pow(5 - playerState.position.z, 2)
+                    Math.pow(5 - playerState.position.z, 2)
             );
 
             if (error > clientPrediction.reconciliationThreshold) {
@@ -214,7 +236,7 @@ describe('State Synchronization Integration', () => {
             // Simulate varying ping
             const pings = [30, 35, 40, 150, 160, 155, 50, 45, 40];
 
-            pings.forEach(ping => {
+            pings.forEach((ping) => {
                 latencyComp.recordPing(ping);
             });
 
@@ -237,13 +259,13 @@ describe('State Synchronization Integration', () => {
             gameRoom.handlePlayerInput(mockSocket1.id, {
                 direction: 'up',
                 timestamp: Date.now(),
-                sequenceId: 1
+                sequenceId: 1,
             });
 
             gameRoom.handlePlayerInput(mockSocket2.id, {
                 direction: 'down',
                 timestamp: Date.now(),
-                sequenceId: 1
+                sequenceId: 1,
             });
 
             // Update game state
@@ -251,7 +273,7 @@ describe('State Synchronization Integration', () => {
             gameRoom.broadcastGameState();
 
             // Verify both players in state
-            const broadcastCall = mockIo.emit.mock.calls.find(call => call[0] === 'gameState');
+            const broadcastCall = mockIo.emit.mock.calls.find((call) => call[0] === 'gameState');
             const serverState = broadcastCall[1];
 
             expect(Object.keys(serverState.players).length).toBe(2);
@@ -325,14 +347,8 @@ describe('State Synchronization Integration', () => {
             clientPrediction.saveSnapshot(newTime);
 
             // Add old state to interpolation buffer
-            latencyComp.addStateToBuffer('player1', 
-                { position: { x: 0, y: 0, z: 0 } }, 
-                oldTime
-            );
-            latencyComp.addStateToBuffer('player1', 
-                { position: { x: 1, y: 0, z: 0 } }, 
-                newTime
-            );
+            latencyComp.addStateToBuffer('player1', { position: { x: 0, y: 0, z: 0 } }, oldTime);
+            latencyComp.addStateToBuffer('player1', { position: { x: 1, y: 0, z: 0 } }, newTime);
 
             // Cleanup
             clientPrediction.cleanupOldData(newTime);
@@ -364,7 +380,7 @@ describe('State Synchronization Integration', () => {
             gameRoom.broadcastGameState();
 
             // Get broadcasted state
-            const broadcastCall = mockIo.emit.mock.calls.find(call => call[0] === 'gameState');
+            const broadcastCall = mockIo.emit.mock.calls.find((call) => call[0] === 'gameState');
             const serverState = broadcastCall[1];
             const broadcastPlayer = serverState.players[mockSocket1.id];
 
@@ -398,7 +414,7 @@ describe('State Synchronization Integration', () => {
                 gameRoom.handlePlayerInput(mockSocket1.id, {
                     direction: 'up',
                     timestamp: Date.now(),
-                    sequenceId: i
+                    sequenceId: i,
                 });
             }
 

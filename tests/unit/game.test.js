@@ -1,13 +1,22 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { Game } = require('@/core/game.js');
 const { ScoreManager } = require('@/systems/scoreManager.js');
-
-// Mock ScorePersistence to ensure consistent test behavior
-jest.mock('../../src/systems/scorePersistence.js', () => ({
-    ScorePersistence: {
-        loadHighScore: jest.fn(() => 0),
-        saveHighScore: jest.fn(() => true)
-    }
-}));
+const { ScorePersistence } = require('@/systems/scorePersistence.js');
 
 describe('Game', () => {
     let game;
@@ -15,6 +24,12 @@ describe('Game', () => {
     beforeEach(() => {
         // Clear all mocks before each test
         jest.clearAllMocks();
+
+        // Spy on ScorePersistence methods to ensure consistent test behavior
+        // using spyOn ensures we catch calls even if the module was required via different paths
+        jest.spyOn(ScorePersistence, 'loadHighScore').mockReturnValue(0);
+        jest.spyOn(ScorePersistence, 'saveHighScore').mockReturnValue(true);
+
         game = new Game();
     });
 
@@ -33,16 +48,18 @@ describe('Game', () => {
             expect(game.gameSpeed).toBe(0.1);
             expect(game.playerDirection).toEqual({ x: 1, y: 0, z: 0 });
             expect(game.playerTrail).toEqual([]);
-            
+
             // Test multi-AI structure
             expect(game.aiOpponents).toHaveLength(1);
             expect(game.aiOpponents[0]).toMatchObject({
-                x: 0, y: 0, z: -10,
+                x: 0,
+                y: 0,
+                z: -10,
                 alive: true,
                 personality: 'aggressive',
-                color: 'red'
+                color: 'red',
             });
-            
+
             // Test backward compatibility properties
             expect(game.ai).toMatchObject({ x: 0, y: 0, z: -10 });
             expect(game.aiDirection).toEqual({ x: 1, y: 0, z: 0 });
@@ -56,7 +73,7 @@ describe('Game', () => {
                 aiScore: 0,
                 highScore: 0,
                 isNewHighScore: false,
-                roundsPlayed: 0
+                roundsPlayed: 0,
             });
         });
 
@@ -114,13 +131,13 @@ describe('Game', () => {
         });
 
         it('should change player direction to left', () => {
-            game.playerDirection = {x: 0, y: 0, z: 1};
+            game.playerDirection = { x: 0, y: 0, z: 1 };
             game.changePlayerDirection('ArrowLeft');
             expect(game.playerDirection).toEqual({ x: -1, y: 0, z: 0 });
         });
 
         it('should change player direction to right', () => {
-            game.playerDirection = {x: 0, y: 0, z: 1};
+            game.playerDirection = { x: 0, y: 0, z: 1 };
             game.changePlayerDirection('ArrowRight');
             expect(game.playerDirection).toEqual({ x: 1, y: 0, z: 0 });
         });
@@ -169,9 +186,9 @@ describe('Game', () => {
             game.scoreManager.incrementPlayerScore();
             game.scoreManager.incrementAIScore();
             const highScore = game.scoreManager.highScore;
-            
+
             game.restart();
-            
+
             const scoreState = game.scoreManager.getScoreState();
             expect(scoreState.playerScore).toBe(0);
             expect(scoreState.aiScore).toBe(0);
@@ -204,7 +221,7 @@ describe('Game', () => {
         it('should include pause state in getGameState', () => {
             const gameState = game.getGameState();
             expect(gameState.isPaused).toBe(false);
-            
+
             game.pause();
             const pausedState = game.getGameState();
             expect(pausedState.isPaused).toBe(true);
@@ -213,7 +230,7 @@ describe('Game', () => {
         it('should include gameSpeed in getGameState', () => {
             const gameState = game.getGameState();
             expect(gameState.gameSpeed).toBe(0.1);
-            
+
             game.setGameSpeed(0.15);
             const updatedState = game.getGameState();
             expect(updatedState.gameSpeed).toBe(0.15);
@@ -232,7 +249,7 @@ describe('Game', () => {
         it('should include updated score information in getGameState after score changes', () => {
             game.scoreManager.incrementPlayerScore();
             game.scoreManager.incrementAIScore();
-            
+
             const gameState = game.getGameState();
             expect(gameState.playerScore).toBe(1);
             expect(gameState.aiScore).toBe(1);
@@ -263,10 +280,10 @@ describe('Game', () => {
             const initialPlayer = { ...game.player };
             const initialAI = { ...game.ai };
             const initialFrameCount = game.frameCount;
-            
+
             game.pause();
             game.update();
-            
+
             expect(game.player).toEqual(initialPlayer);
             expect(game.ai).toEqual(initialAI);
             expect(game.frameCount).toBe(initialFrameCount);
@@ -277,10 +294,10 @@ describe('Game', () => {
         it('should resume updates after unpausing', () => {
             game.pause();
             game.update(); // Should not update
-            
+
             game.resume();
             game.update(); // Should update
-            
+
             expect(game.player.x).toBeCloseTo(0.1);
             expect(game.frameCount).toBe(1);
             expect(game.playerTrail).toHaveLength(1);
@@ -294,21 +311,21 @@ describe('Game', () => {
                 ai: { ...game.ai },
                 frameCount: game.frameCount,
                 playerTrailLength: game.playerTrail.length,
-                aiTrailLength: game.aiTrail.length
+                aiTrailLength: game.aiTrail.length,
             };
-            
+
             // Pause and try to update
             game.pause();
             game.update();
             game.update();
-            
+
             // State should be preserved
             expect(game.player).toEqual(stateBeforePause.player);
             expect(game.ai).toEqual(stateBeforePause.ai);
             expect(game.frameCount).toBe(stateBeforePause.frameCount);
             expect(game.playerTrail).toHaveLength(stateBeforePause.playerTrailLength);
             expect(game.aiTrail).toHaveLength(stateBeforePause.aiTrailLength);
-            
+
             // Resume and verify updates continue
             game.resume();
             game.update();
@@ -320,7 +337,7 @@ describe('Game', () => {
                 game.pause();
                 expect(game.isPaused).toBe(true);
                 game.update(); // Should not update
-                
+
                 game.resume();
                 expect(game.isPaused).toBe(false);
                 game.update(); // Should update
@@ -338,7 +355,7 @@ describe('Game', () => {
             game.pause();
             game.gameOver = true;
             const initialFrameCount = game.frameCount;
-            
+
             game.update();
             expect(game.frameCount).toBe(initialFrameCount);
         });
@@ -350,12 +367,12 @@ describe('Game', () => {
             const result1 = game.pause();
             expect(result1).toBe(true);
             expect(game.isPaused).toBe(true);
-            
+
             // Second pause should return true but not change state
             const result2 = game.pause();
             expect(result2).toBe(true);
             expect(game.isPaused).toBe(true);
-            
+
             // Multiple pause attempts should all succeed
             for (let i = 0; i < 5; i++) {
                 const result = game.pause();
@@ -366,7 +383,7 @@ describe('Game', () => {
 
         it('should prevent pause during game over conditions', () => {
             game.gameOver = true;
-            
+
             const result = game.pause();
             expect(result).toBe(false);
             expect(game.isPaused).toBe(false);
@@ -376,10 +393,10 @@ describe('Game', () => {
             // First pause the game
             game.pause();
             expect(game.isPaused).toBe(true);
-            
+
             // Then set game over
             game.gameOver = true;
-            
+
             const result = game.resume();
             expect(result).toBe(false);
             expect(game.isPaused).toBe(true); // Should remain paused
@@ -387,7 +404,7 @@ describe('Game', () => {
 
         it('should prevent toggle during game over conditions', () => {
             game.gameOver = true;
-            
+
             const result = game.togglePause();
             expect(result).toBe(false);
             expect(game.isPaused).toBe(false);
@@ -398,7 +415,7 @@ describe('Game', () => {
             const result1 = game.resume();
             expect(result1).toBe(false);
             expect(game.isPaused).toBe(false);
-            
+
             // Pause first, then resume should work
             game.pause();
             const result2 = game.resume();
@@ -410,16 +427,16 @@ describe('Game', () => {
             // Pause the game
             game.pause();
             expect(game.isPaused).toBe(true);
-            
+
             // Restart should reset pause state
             game.restart();
             expect(game.isPaused).toBe(false);
-            
+
             // Test multiple restart cycles with different pause states
             for (let i = 0; i < 3; i++) {
                 game.pause();
                 expect(game.isPaused).toBe(true);
-                
+
                 game.restart();
                 expect(game.isPaused).toBe(false);
                 expect(game.gameOver).toBe(false);
@@ -432,7 +449,7 @@ describe('Game', () => {
                 const pauseResult = game.pause();
                 expect(pauseResult).toBe(true);
                 expect(game.isPaused).toBe(true);
-                
+
                 const resumeResult = game.resume();
                 expect(resumeResult).toBe(true);
                 expect(game.isPaused).toBe(false);
@@ -442,17 +459,17 @@ describe('Game', () => {
         it('should handle toggle operations correctly', () => {
             // Start unpaused
             expect(game.isPaused).toBe(false);
-            
+
             // Toggle to pause
             let result = game.togglePause();
             expect(result).toBe(true);
             expect(game.isPaused).toBe(true);
-            
+
             // Toggle to resume
             result = game.togglePause();
             expect(result).toBe(true);
             expect(game.isPaused).toBe(false);
-            
+
             // Multiple toggles
             for (let i = 0; i < 5; i++) {
                 result = game.togglePause();
@@ -468,20 +485,20 @@ describe('Game', () => {
                 player: { ...game.player },
                 ai: { ...game.ai },
                 frameCount: game.frameCount,
-                playerTrailLength: game.playerTrail.length
+                playerTrailLength: game.playerTrail.length,
             };
-            
+
             // Pause the game
             game.pause();
-            
+
             // Set game over and try operations
             game.gameOver = true;
-            
+
             // Failed operations should not corrupt state
             game.pause();
             game.resume();
             game.togglePause();
-            
+
             // Game state should be preserved
             expect(game.player).toEqual(stateBeforeError.player);
             expect(game.ai).toEqual(stateBeforeError.ai);
@@ -495,7 +512,7 @@ describe('Game', () => {
             it('should increment AI score when player crashes', () => {
                 const collisionResult = { playerCollided: true, aiCollided: false };
                 game.handleRoundEnd(collisionResult);
-                
+
                 const scoreState = game.scoreManager.getScoreState();
                 expect(scoreState.playerScore).toBe(0);
                 expect(scoreState.aiScore).toBe(1);
@@ -504,7 +521,7 @@ describe('Game', () => {
             it('should increment player score when AI crashes', () => {
                 const collisionResult = { playerCollided: false, aiCollided: true };
                 game.handleRoundEnd(collisionResult);
-                
+
                 const scoreState = game.scoreManager.getScoreState();
                 expect(scoreState.playerScore).toBe(1);
                 expect(scoreState.aiScore).toBe(0);
@@ -514,7 +531,7 @@ describe('Game', () => {
             it('should not increment any score when both crash', () => {
                 const collisionResult = { playerCollided: true, aiCollided: true };
                 game.handleRoundEnd(collisionResult);
-                
+
                 const scoreState = game.scoreManager.getScoreState();
                 expect(scoreState.playerScore).toBe(0);
                 expect(scoreState.aiScore).toBe(0);
@@ -523,7 +540,7 @@ describe('Game', () => {
             it('should not increment any score when neither crashes', () => {
                 const collisionResult = { playerCollided: false, aiCollided: false };
                 game.handleRoundEnd(collisionResult);
-                
+
                 const scoreState = game.scoreManager.getScoreState();
                 expect(scoreState.playerScore).toBe(0);
                 expect(scoreState.aiScore).toBe(0);
@@ -531,7 +548,7 @@ describe('Game', () => {
 
             it('should handle null collision result gracefully', () => {
                 game.handleRoundEnd(null);
-                
+
                 const scoreState = game.scoreManager.getScoreState();
                 expect(scoreState.playerScore).toBe(0);
                 expect(scoreState.aiScore).toBe(0);
@@ -539,7 +556,7 @@ describe('Game', () => {
 
             it('should handle undefined collision result gracefully', () => {
                 game.handleRoundEnd(undefined);
-                
+
                 const scoreState = game.scoreManager.getScoreState();
                 expect(scoreState.playerScore).toBe(0);
                 expect(scoreState.aiScore).toBe(0);
@@ -552,7 +569,7 @@ describe('Game', () => {
                 game.handleRoundEnd({ playerCollided: true, aiCollided: false });
                 // Tie in third round
                 game.handleRoundEnd({ playerCollided: true, aiCollided: true });
-                
+
                 const scoreState = game.scoreManager.getScoreState();
                 expect(scoreState.playerScore).toBe(1);
                 expect(scoreState.aiScore).toBe(1);
@@ -574,7 +591,7 @@ describe('Game', () => {
         it('should validate positive speed values', () => {
             game.setGameSpeed(-0.1);
             expect(game.gameSpeed).toBe(0.1); // Should remain unchanged
-            
+
             game.setGameSpeed(0);
             expect(game.gameSpeed).toBe(0.1); // Should remain unchanged
         });
@@ -582,7 +599,7 @@ describe('Game', () => {
         it('should validate numeric speed values', () => {
             game.setGameSpeed('invalid');
             expect(game.gameSpeed).toBe(0.1); // Should remain unchanged
-            
+
             game.setGameSpeed(null);
             expect(game.gameSpeed).toBe(0.1); // Should remain unchanged
         });
@@ -606,7 +623,7 @@ describe('Game', () => {
             game.update();
             expect(game.player.x).toBeCloseTo(0.1);
             expect(game.ai.x).toBeCloseTo(0.1);
-            
+
             // Change speed and move again
             game.setGameSpeed(0.05);
             game.update();
@@ -616,7 +633,7 @@ describe('Game', () => {
 
         it('should maintain speed setting across multiple updates', () => {
             game.setGameSpeed(0.08);
-            
+
             for (let i = 1; i <= 3; i++) {
                 game.update();
                 expect(game.player.x).toBeCloseTo(0.08 * i);
@@ -628,7 +645,7 @@ describe('Game', () => {
             game.setGameSpeed(0.12);
             game.changePlayerDirection('ArrowUp');
             game.update();
-            
+
             expect(game.player.x).toBeCloseTo(0);
             expect(game.player.z).toBeCloseTo(-0.12);
         });
@@ -676,11 +693,11 @@ describe('Game', () => {
         it('should stop survival tracking when game ends', () => {
             // Start the game
             arenaShrinkGame.update();
-            
+
             // Simulate game end
             const collisionResult = { playerCollided: true, aiCollided: false };
             arenaShrinkGame.handleRoundEnd(collisionResult);
-            
+
             const arenaShrinker = arenaShrinkGame.getArenaShrinker();
             expect(arenaShrinker.isTrackingSurvival).toBe(false);
         });
@@ -705,10 +722,10 @@ describe('Game', () => {
             it('should validate AI count within acceptable range', () => {
                 const invalidGame1 = new Game(undefined, { aiCount: 0 });
                 expect(invalidGame1.gameConfig.aiCount).toBe(1);
-                
+
                 const invalidGame2 = new Game(undefined, { aiCount: 5 });
                 expect(invalidGame2.gameConfig.aiCount).toBe(1);
-                
+
                 const validGame = new Game(undefined, { aiCount: 4 });
                 expect(validGame.gameConfig.aiCount).toBe(4);
             });
@@ -726,19 +743,19 @@ describe('Game', () => {
             it('should create AI opponents with unique properties', () => {
                 const multiAIGame = new Game(undefined, { aiCount: 3 });
                 const opponents = multiAIGame.aiOpponents;
-                
+
                 expect(opponents).toHaveLength(3);
-                
+
                 // Check unique IDs
-                const ids = opponents.map(ai => ai.id);
+                const ids = opponents.map((ai) => ai.id);
                 expect(new Set(ids).size).toBe(3);
-                
+
                 // Check unique colors
-                const colors = opponents.map(ai => ai.color);
+                const colors = opponents.map((ai) => ai.color);
                 expect(colors).toEqual(['red', 'blue', 'yellow']);
-                
+
                 // Check personalities are assigned
-                opponents.forEach(ai => {
+                opponents.forEach((ai) => {
                     expect(['aggressive', 'defensive', 'erratic']).toContain(ai.personality);
                 });
             });
@@ -746,13 +763,13 @@ describe('Game', () => {
             it('should assign starting positions around arena perimeter for multiple AIs', () => {
                 const multiAIGame = new Game(undefined, { aiCount: 4 });
                 const opponents = multiAIGame.aiOpponents;
-                
+
                 // All opponents should have different positions
-                const positions = opponents.map(ai => `${ai.x},${ai.z}`);
+                const positions = opponents.map((ai) => `${ai.x},${ai.z}`);
                 expect(new Set(positions).size).toBe(4);
-                
+
                 // All should be alive initially
-                opponents.forEach(ai => {
+                opponents.forEach((ai) => {
                     expect(ai.alive).toBe(true);
                     expect(ai.trail).toEqual([]);
                 });
@@ -762,7 +779,9 @@ describe('Game', () => {
                 const singleAIGame = new Game(undefined, { aiCount: 1 });
                 expect(singleAIGame.aiOpponents).toHaveLength(1);
                 expect(singleAIGame.aiOpponents[0]).toMatchObject({
-                    x: 0, y: 0, z: -10
+                    x: 0,
+                    y: 0,
+                    z: -10,
                 });
             });
         });
@@ -771,11 +790,11 @@ describe('Game', () => {
             it('should add AI opponents dynamically', () => {
                 const initialCount = game.aiOpponents.length;
                 const success = game.addAI({ personality: 'defensive', color: 'blue' });
-                
+
                 expect(success).toBe(true);
                 expect(game.aiOpponents).toHaveLength(initialCount + 1);
                 expect(game.gameConfig.aiCount).toBe(initialCount + 1);
-                
+
                 const newAI = game.aiOpponents[game.aiOpponents.length - 1];
                 expect(newAI.personality).toBe('defensive');
                 expect(newAI.color).toBe('blue');
@@ -787,7 +806,7 @@ describe('Game', () => {
                 while (game.aiOpponents.length < 4) {
                     game.addAI();
                 }
-                
+
                 const success = game.addAI();
                 expect(success).toBe(false);
                 expect(game.aiOpponents).toHaveLength(4);
@@ -796,21 +815,21 @@ describe('Game', () => {
             it('should remove AI opponents by ID', () => {
                 game.addAI({ id: 'test_ai' });
                 const initialCount = game.aiOpponents.length;
-                
+
                 const success = game.removeAI('test_ai');
                 expect(success).toBe(true);
                 expect(game.aiOpponents).toHaveLength(initialCount - 1);
                 expect(game.gameConfig.aiCount).toBe(initialCount - 1);
-                
+
                 // Should not find the removed AI
-                const removedAI = game.aiOpponents.find(ai => ai.id === 'test_ai');
+                const removedAI = game.aiOpponents.find((ai) => ai.id === 'test_ai');
                 expect(removedAI).toBeUndefined();
             });
 
             it('should handle removal of non-existent AI', () => {
                 const initialCount = game.aiOpponents.length;
                 const success = game.removeAI('non_existent_ai');
-                
+
                 expect(success).toBe(false);
                 expect(game.aiOpponents).toHaveLength(initialCount);
             });
@@ -818,16 +837,16 @@ describe('Game', () => {
             it('should get all alive entities', () => {
                 const multiAIGame = new Game(undefined, { aiCount: 2 });
                 const aliveEntities = multiAIGame.getAliveEntities();
-                
+
                 expect(aliveEntities).toHaveLength(3); // player + 2 AIs
-                
-                const player = aliveEntities.find(entity => entity.type === 'player');
+
+                const player = aliveEntities.find((entity) => entity.type === 'player');
                 expect(player).toBeDefined();
                 expect(player.id).toBe('player');
-                
-                const aiEntities = aliveEntities.filter(entity => entity.type === 'ai');
+
+                const aiEntities = aliveEntities.filter((entity) => entity.type === 'ai');
                 expect(aiEntities).toHaveLength(2);
-                aiEntities.forEach(ai => {
+                aiEntities.forEach((ai) => {
                     expect(ai.alive).toBe(true);
                     expect(ai.personality).toBeDefined();
                     expect(ai.color).toBeDefined();
@@ -836,14 +855,14 @@ describe('Game', () => {
 
             it('should exclude dead AI opponents from alive entities', () => {
                 const multiAIGame = new Game(undefined, { aiCount: 2 });
-                
+
                 // Mark one AI as dead
                 multiAIGame.aiOpponents[0].alive = false;
-                
+
                 const aliveEntities = multiAIGame.getAliveEntities();
                 expect(aliveEntities).toHaveLength(2); // player + 1 alive AI
-                
-                const aliveAIs = aliveEntities.filter(entity => entity.type === 'ai');
+
+                const aliveAIs = aliveEntities.filter((entity) => entity.type === 'ai');
                 expect(aliveAIs).toHaveLength(1);
                 expect(aliveAIs[0].id).toBe(multiAIGame.aiOpponents[1].id);
             });
@@ -853,11 +872,11 @@ describe('Game', () => {
             it('should include aiOpponents array in game state', () => {
                 const multiAIGame = new Game(undefined, { aiCount: 3 });
                 const gameState = multiAIGame.getGameState();
-                
+
                 expect(gameState.aiOpponents).toBeDefined();
                 expect(gameState.aiOpponents).toHaveLength(3);
-                
-                gameState.aiOpponents.forEach(ai => {
+
+                gameState.aiOpponents.forEach((ai) => {
                     expect(ai).toHaveProperty('id');
                     expect(ai).toHaveProperty('personality');
                     expect(ai).toHaveProperty('color');
@@ -869,12 +888,12 @@ describe('Game', () => {
             it('should maintain backward compatibility properties in game state', () => {
                 const multiAIGame = new Game(undefined, { aiCount: 2 });
                 const gameState = multiAIGame.getGameState();
-                
+
                 // Should still have legacy AI properties for backward compatibility
                 expect(gameState.ai).toBeDefined();
                 expect(gameState.aiDirection).toBeDefined();
                 expect(gameState.aiTrail).toBeDefined();
-                
+
                 // Legacy properties should reference first AI
                 expect(gameState.ai).toBe(multiAIGame.aiOpponents[0]);
                 expect(gameState.aiDirection).toBe(multiAIGame.aiOpponents[0].direction);
@@ -885,16 +904,21 @@ describe('Game', () => {
         describe('Multi-AI Movement Updates', () => {
             it('should update all alive AI opponents during game update', () => {
                 const multiAIGame = new Game(undefined, { aiCount: 3 });
-                const initialPositions = multiAIGame.aiOpponents.map(ai => ({ x: ai.x, z: ai.z }));
-                
+                const initialPositions = multiAIGame.aiOpponents.map((ai) => ({
+                    x: ai.x,
+                    z: ai.z,
+                }));
+
                 multiAIGame.update();
-                
+
                 multiAIGame.aiOpponents.forEach((ai, index) => {
                     if (ai.alive) {
                         // Position should have changed based on direction and speed
-                        const expectedX = initialPositions[index].x + ai.direction.x * multiAIGame.gameSpeed;
-                        const expectedZ = initialPositions[index].z + ai.direction.z * multiAIGame.gameSpeed;
-                        
+                        const expectedX =
+                            initialPositions[index].x + ai.direction.x * multiAIGame.gameSpeed;
+                        const expectedZ =
+                            initialPositions[index].z + ai.direction.z * multiAIGame.gameSpeed;
+
                         expect(ai.x).toBeCloseTo(expectedX);
                         expect(ai.z).toBeCloseTo(expectedZ);
                         expect(ai.trail).toHaveLength(1);
@@ -904,27 +928,30 @@ describe('Game', () => {
 
             it('should not update dead AI opponents', () => {
                 const multiAIGame = new Game(undefined, { aiCount: 2 });
-                
+
                 // Mark one AI as dead
                 multiAIGame.aiOpponents[1].alive = false;
-                const deadAIInitialPos = { x: multiAIGame.aiOpponents[1].x, z: multiAIGame.aiOpponents[1].z };
-                
+                const deadAIInitialPos = {
+                    x: multiAIGame.aiOpponents[1].x,
+                    z: multiAIGame.aiOpponents[1].z,
+                };
+
                 multiAIGame.update();
-                
+
                 // Dead AI should not move
                 expect(multiAIGame.aiOpponents[1].x).toBe(deadAIInitialPos.x);
                 expect(multiAIGame.aiOpponents[1].z).toBe(deadAIInitialPos.z);
                 expect(multiAIGame.aiOpponents[1].trail).toHaveLength(0);
-                
+
                 // Alive AI should move
                 expect(multiAIGame.aiOpponents[0].trail).toHaveLength(1);
             });
 
             it('should update backward compatibility properties during multi-AI updates', () => {
                 const multiAIGame = new Game(undefined, { aiCount: 2 });
-                
+
                 multiAIGame.update();
-                
+
                 // Legacy properties should be updated to match first AI
                 expect(multiAIGame.ai).toBe(multiAIGame.aiOpponents[0]);
                 expect(multiAIGame.aiDirection).toBe(multiAIGame.aiOpponents[0].direction);
@@ -963,16 +990,16 @@ describe('Game', () => {
 
         it('should handle multi-AI game restarts correctly', () => {
             const multiAIGame = new Game(undefined, { aiCount: 3 });
-            
+
             // Advance game and modify AI states
             multiAIGame.update();
             multiAIGame.aiOpponents[1].alive = false;
-            
+
             multiAIGame.restart();
-            
+
             // All AIs should be reset and alive
             expect(multiAIGame.aiOpponents).toHaveLength(3);
-            multiAIGame.aiOpponents.forEach(ai => {
+            multiAIGame.aiOpponents.forEach((ai) => {
                 expect(ai.alive).toBe(true);
                 expect(ai.trail).toEqual([]);
             });

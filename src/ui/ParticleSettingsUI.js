@@ -10,18 +10,20 @@ const { ParticleSettings } = require('../systems/ParticleSettings.js');
  * ParticleSettingsUI class for managing the settings interface
  * Handles DOM interactions, real-time updates, and integration with ParticleSystem
  */
+const { logger } = require('../utils/Logger.js');
+
 class ParticleSettingsUI {
     constructor() {
         this.particleSettings = new ParticleSettings();
         this.isVisible = false;
         this.elements = {};
-        
+
         // Bind methods to preserve context
         this.togglePanel = this.togglePanel.bind(this);
         this.closePanel = this.closePanel.bind(this);
         this.resetSettings = this.resetSettings.bind(this);
         this.handleSettingChange = this.handleSettingChange.bind(this);
-        
+
         // Initialize UI after DOM is ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.initialize());
@@ -34,10 +36,11 @@ class ParticleSettingsUI {
      * Initialize the settings UI
      */
     initialize() {
+        console.log('DEBUG: ParticleSettingsUI initialize called');
         this.cacheElements();
         this.bindEvents();
         this.updateUI();
-        
+
         // Listen for settings changes to update UI
         this.particleSettings.addChangeListener(this.handleSettingChange);
     }
@@ -52,22 +55,22 @@ class ParticleSettingsUI {
             settingsPanel: document.getElementById('particleSettingsPanel'),
             closeButton: document.getElementById('closeParticleSettings'),
             resetButton: document.getElementById('resetParticleSettings'),
-            
+
             // General settings
             enabledToggle: document.getElementById('particleEnabledToggle'),
             qualityButtons: document.querySelectorAll('.quality-btn'),
-            
+
             // Effect toggles
             trailSparksToggle: document.getElementById('trailSparksToggle'),
             explosionsToggle: document.getElementById('explosionsToggle'),
             collectionsToggle: document.getElementById('collectionsToggle'),
-            
+
             // Performance controls
             densitySlider: document.getElementById('particleDensitySlider'),
             densityValue: document.getElementById('particleDensityValue'),
             maxParticlesSlider: document.getElementById('maxParticlesSlider'),
             maxParticlesValue: document.getElementById('maxParticlesValue'),
-            adaptiveQualityToggle: document.getElementById('adaptiveQualityToggle')
+            adaptiveQualityToggle: document.getElementById('adaptiveQualityToggle'),
         };
     }
 
@@ -79,11 +82,11 @@ class ParticleSettingsUI {
         if (this.elements.settingsButton) {
             this.elements.settingsButton.addEventListener('click', this.togglePanel);
         }
-        
+
         if (this.elements.closeButton) {
             this.elements.closeButton.addEventListener('click', this.closePanel);
         }
-        
+
         if (this.elements.resetButton) {
             this.elements.resetButton.addEventListener('click', this.resetSettings);
         }
@@ -97,7 +100,7 @@ class ParticleSettingsUI {
         }
 
         // Quality buttons
-        this.elements.qualityButtons.forEach(button => {
+        this.elements.qualityButtons.forEach((button) => {
             button.addEventListener('click', () => {
                 const quality = button.dataset.quality;
                 this.particleSettings.setQuality(quality);
@@ -152,9 +155,11 @@ class ParticleSettingsUI {
 
         // Close panel when clicking outside
         document.addEventListener('click', (e) => {
-            if (this.isVisible && 
-                !this.elements.settingsPanel.contains(e.target) && 
-                !this.elements.settingsButton.contains(e.target)) {
+            if (
+                this.isVisible &&
+                !this.elements.settingsPanel.contains(e.target) &&
+                !this.elements.settingsButton.contains(e.target)
+            ) {
                 this.closePanel();
             }
         });
@@ -218,7 +223,7 @@ class ParticleSettingsUI {
     handleSettingChange(path, value) {
         // Update UI to reflect changes
         this.updateUI();
-        
+
         // Notify any external listeners (like ParticleSystem)
         this.notifyExternalListeners(path, value);
     }
@@ -241,7 +246,10 @@ class ParticleSettingsUI {
         // Update performance controls
         this.updateDensitySlider(settings.advanced.particleDensity);
         this.updateMaxParticlesSlider(settings.performance.maxParticles);
-        this.updateToggle(this.elements.adaptiveQualityToggle, settings.performance.adaptiveQuality);
+        this.updateToggle(
+            this.elements.adaptiveQualityToggle,
+            settings.performance.adaptiveQuality
+        );
 
         // Update settings button state based on whether particles are enabled
         if (this.elements.settingsButton && this.elements.settingsButton.style) {
@@ -275,7 +283,7 @@ class ParticleSettingsUI {
      * @param {string} activeQuality - Currently active quality level
      */
     updateQualityButtons(activeQuality) {
-        this.elements.qualityButtons.forEach(button => {
+        this.elements.qualityButtons.forEach((button) => {
             if (button.dataset.quality === activeQuality) {
                 button.classList.add('active');
             } else {
@@ -374,11 +382,11 @@ class ParticleSettingsUI {
      */
     notifyExternalListeners(path, value) {
         if (this.externalListeners) {
-            this.externalListeners.forEach(listener => {
+            this.externalListeners.forEach((listener) => {
                 try {
                     listener(path, value);
                 } catch (error) {
-                    console.error('ParticleSettingsUI: Error in external listener:', error);
+                    logger.error('ParticleSettingsUI: Error in external listener:', error);
                 }
             });
         }
@@ -427,10 +435,10 @@ class ParticleSettingsUI {
         if (this.elements.settingsButton) {
             this.elements.settingsButton.removeEventListener('click', this.togglePanel);
         }
-        
+
         // Remove settings change listener
         this.particleSettings.removeChangeListener(this.handleSettingChange);
-        
+
         // Clear references
         this.elements = {};
         this.externalListeners = [];

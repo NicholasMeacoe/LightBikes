@@ -3,13 +3,15 @@
  * Handles system preference detection, user overrides, and effect disabling
  */
 
+const { logger } = require('./Logger.js');
+
 class AccessibilityHandler {
     constructor() {
         this.systemPreference = null;
         this.userOverride = null;
         this.mediaQueryList = null;
         this.changeListeners = [];
-        
+
         this.initializeSystemPreferenceDetection();
     }
 
@@ -21,29 +23,30 @@ class AccessibilityHandler {
             if (typeof window !== 'undefined' && window.matchMedia) {
                 this.mediaQueryList = window.matchMedia('(prefers-reduced-motion: reduce)');
                 this.systemPreference = this.mediaQueryList.matches;
-                
+
                 // Listen for changes to system preference
-                const handleChange = (e) => {
+                this.handleChange = (e) => {
+                    console.log('handleChange called', e);
                     const previousPreference = this.systemPreference;
                     this.systemPreference = e.matches;
-                    
+
                     if (previousPreference !== this.systemPreference) {
                         this.notifyListeners();
                     }
                 };
-                
+
                 // Use modern addEventListener if available, fallback to addListener
                 if (this.mediaQueryList.addEventListener) {
-                    this.mediaQueryList.addEventListener('change', handleChange);
+                    this.mediaQueryList.addEventListener('change', this.handleChange);
                 } else if (this.mediaQueryList.addListener) {
-                    this.mediaQueryList.addListener(handleChange);
+                    this.mediaQueryList.addListener(this.handleChange);
                 }
             } else {
                 // Fallback for environments without matchMedia
                 this.systemPreference = false;
             }
         } catch (error) {
-            console.warn('Failed to initialize system preference detection:', error);
+            logger.warn('Failed to initialize system preference detection:', error);
             this.systemPreference = false;
         }
     }
@@ -62,15 +65,15 @@ class AccessibilityHandler {
      */
     setUserOverride(override) {
         const previousOverride = this.userOverride;
-        
+
         if (override === null || typeof override === 'boolean') {
             this.userOverride = override;
-            
+
             if (previousOverride !== this.userOverride) {
                 this.notifyListeners();
             }
         } else {
-            console.warn('Invalid user override value. Must be boolean or null.');
+            logger.warn('Invalid user override value. Must be boolean or null.');
         }
     }
 
@@ -91,7 +94,7 @@ class AccessibilityHandler {
         if (this.userOverride !== null) {
             return this.userOverride;
         }
-        
+
         // Fall back to system preference
         return this.systemPreference;
     }
@@ -113,7 +116,7 @@ class AccessibilityHandler {
             systemPreference: this.systemPreference,
             userOverride: this.userOverride,
             effectsDisabled: this.shouldDisableEffects(),
-            source: this.userOverride !== null ? 'user' : 'system'
+            source: this.userOverride !== null ? 'user' : 'system',
         };
     }
 
@@ -142,11 +145,11 @@ class AccessibilityHandler {
      * Notify all change listeners
      */
     notifyListeners() {
-        this.changeListeners.forEach(listener => {
+        this.changeListeners.forEach((listener) => {
             try {
                 listener();
             } catch (error) {
-                console.error('Error in accessibility change listener:', error);
+                logger.error('Error in accessibility change listener:', error);
             }
         });
     }
@@ -157,27 +160,38 @@ class AccessibilityHandler {
      */
     applyToEffectControllers(effectControllers) {
         const shouldDisable = this.shouldDisableEffects();
-        
+
         try {
             // Disable camera shake if controller exists
-            if (effectControllers.shakeController && typeof effectControllers.shakeController.setEnabled === 'function') {
+            if (
+                effectControllers.shakeController &&
+                typeof effectControllers.shakeController.setEnabled === 'function'
+            ) {
                 effectControllers.shakeController.setEnabled(!shouldDisable);
             }
-            
+
             // Disable motion blur if controller exists
-            if (effectControllers.motionBlurController && typeof effectControllers.motionBlurController.setEnabled === 'function') {
+            if (
+                effectControllers.motionBlurController &&
+                typeof effectControllers.motionBlurController.setEnabled === 'function'
+            ) {
                 effectControllers.motionBlurController.setEnabled(!shouldDisable);
             }
-            
+
             // Apply to any other effect controllers
-            Object.keys(effectControllers).forEach(key => {
+            Object.keys(effectControllers).forEach((key) => {
                 const controller = effectControllers[key];
-                if (controller && typeof controller.setEnabled === 'function' && key !== 'shakeController' && key !== 'motionBlurController') {
+                if (
+                    controller &&
+                    typeof controller.setEnabled === 'function' &&
+                    key !== 'shakeController' &&
+                    key !== 'motionBlurController'
+                ) {
                     controller.setEnabled(!shouldDisable);
                 }
             });
         } catch (error) {
-            console.error('Error applying accessibility settings to effect controllers:', error);
+            logger.error('Error applying accessibility settings to effect controllers:', error);
         }
     }
 
@@ -190,9 +204,9 @@ class AccessibilityHandler {
         if (!baseSettings || typeof baseSettings !== 'object') {
             return baseSettings;
         }
-        
+
         const settings = { ...baseSettings };
-        
+
         if (this.shouldDisableEffects()) {
             // Override effect-related settings
             if ('shakeEnabled' in settings) {
@@ -204,7 +218,7 @@ class AccessibilityHandler {
             // Add accessibility flag for UI indication
             settings._accessibilityOverride = true;
         }
-        
+
         return settings;
     }
 
@@ -214,7 +228,7 @@ class AccessibilityHandler {
      */
     getAccessibilityDescription() {
         const status = this.getAccessibilityStatus();
-        
+
         if (status.userOverride === true) {
             return 'Effects disabled by user preference';
         } else if (status.userOverride === false) {
@@ -240,9 +254,9 @@ class AccessibilityHandler {
                 }
             }
         } catch (error) {
-            console.warn('Error during AccessibilityHandler cleanup:', error);
+            logger.warn('Error during AccessibilityHandler cleanup:', error);
         }
-        
+
         this.changeListeners = [];
         this.mediaQueryList = null;
     }

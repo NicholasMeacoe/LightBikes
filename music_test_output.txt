@@ -1,0 +1,2256 @@
+
+> lightbikes@1.0.0 test
+> jest --coverage tests/unit/music-system-final-validation.test.js
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track ambient-space (120.00s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track ambient-space (120.00s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track ambient-space (120.00s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track ambient-space (120.00s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track ambient-space (120.00s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track ambient-space (120.00s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track ambient-space (120.00s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track ambient-space (120.00s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track ambient-space (120.00s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.warn
+    Loading attempt 1 failed for track test-track, retrying in 1872ms: HTTP 404: Not Found
+
+      182 |                 // Exponential backoff with jitter
+      183 |                 const delay = baseRetryDelay * Math.pow(2, attempt) + Math.random() * 1000;
+    > 184 |                 console.warn(`Loading attempt ${attempt + 1} failed for track ${this.id}, retrying in ${Math.round(delay)}ms:`, error.message);
+          |                         ^
+      185 |                 
+      186 |                 await new Promise(resolve => setTimeout(resolve, delay));
+      187 |             }
+
+      at MusicTrack.warn [as _performLoad] (src/audio/MusicTrack.js:184:25)
+      at MusicTrack.load (src/audio/MusicTrack.js:63:13)
+      at Object.<anonymous> (tests/unit/music-system-final-validation.test.js:293:17)
+
+  console.log
+    Background loading completed: 0 loaded, 0 failed
+
+      at log (src/audio/MusicPlayer.js:1221:25)
+
+  console.log
+    Background loading completed: 0 loaded, 0 failed
+
+      at log (src/audio/MusicPlayer.js:1221:25)
+
+  console.log
+    Background loading completed: 0 loaded, 0 failed
+
+      at log (src/audio/MusicPlayer.js:1221:25)
+
+  console.log
+    Background loading completed: 0 loaded, 0 failed
+
+      at log (src/audio/MusicPlayer.js:1221:25)
+
+  console.log
+    Background loading completed: 0 loaded, 0 failed
+
+      at log (src/audio/MusicPlayer.js:1221:25)
+
+  console.log
+    Background loading completed: 0 loaded, 0 failed
+
+      at log (src/audio/MusicPlayer.js:1221:25)
+
+  console.log
+    Background loading completed: 0 loaded, 0 failed
+
+      at log (src/audio/MusicPlayer.js:1221:25)
+
+  console.log
+    Background loading completed: 0 loaded, 0 failed
+
+      at log (src/audio/MusicPlayer.js:1221:25)
+
+  console.log
+    Background loading completed: 0 loaded, 0 failed
+
+      at log (src/audio/MusicPlayer.js:1221:25)
+
+  console.log
+    Successfully loaded track test-track (120.00s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.warn
+    Autoplay policy may be blocking audio: TypeError: this.audioContext.createBuffer is not a function
+        at AudioManager.createBuffer [as checkAutoplayPolicy] (/home/pi/source/LightBikes/src/audio/audio.js:303:46)
+        at AudioManager.checkAutoplayPolicy [as initialize] (/home/pi/source/LightBikes/src/audio/audio.js:458:48)
+        at Object.<anonymous> (/home/pi/source/LightBikes/tests/unit/music-system-final-validation.test.js:308:52)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      311 |             
+      312 |         } catch (error) {
+    > 313 |             console.warn('Autoplay policy may be blocking audio:', error);
+          |                     ^
+      314 |             return false;
+      315 |         }
+      316 |     }
+
+      at AudioManager.warn [as checkAutoplayPolicy] (src/audio/audio.js:313:21)
+      at AudioManager.checkAutoplayPolicy [as initialize] (src/audio/audio.js:458:48)
+      at Object.<anonymous> (tests/unit/music-system-final-validation.test.js:308:52)
+
+  console.info
+    Autoplay may be blocked. Audio will start after user interaction.
+
+      at AudioManager.info [as initialize] (src/audio/audio.js:460:25)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track neon-rush (120.50s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.warn
+    Autoplay policy may be blocking audio: TypeError: this.audioContext.createBuffer is not a function
+        at AudioManager.createBuffer [as checkAutoplayPolicy] (/home/pi/source/LightBikes/src/audio/audio.js:303:46)
+        at AudioManager.checkAutoplayPolicy [as initialize] (/home/pi/source/LightBikes/src/audio/audio.js:458:48)
+        at Object.<anonymous> (/home/pi/source/LightBikes/tests/unit/music-system-final-validation.test.js:321:32)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusHook (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:281:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:246:5)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      311 |             
+      312 |         } catch (error) {
+    > 313 |             console.warn('Autoplay policy may be blocking audio:', error);
+          |                     ^
+      314 |             return false;
+      315 |         }
+      316 |     }
+
+      at AudioManager.warn [as checkAutoplayPolicy] (src/audio/audio.js:313:21)
+      at AudioManager.checkAutoplayPolicy [as initialize] (src/audio/audio.js:458:48)
+      at Object.<anonymous> (tests/unit/music-system-final-validation.test.js:321:32)
+
+  console.info
+    Autoplay may be blocked. Audio will start after user interaction.
+
+      at AudioManager.info [as initialize] (src/audio/audio.js:460:25)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track neon-rush (120.50s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.warn
+    Autoplay policy may be blocking audio: TypeError: this.audioContext.createBuffer is not a function
+        at AudioManager.createBuffer [as checkAutoplayPolicy] (/home/pi/source/LightBikes/src/audio/audio.js:303:46)
+        at AudioManager.checkAutoplayPolicy [as initialize] (/home/pi/source/LightBikes/src/audio/audio.js:458:48)
+        at Object.<anonymous> (/home/pi/source/LightBikes/tests/unit/music-system-final-validation.test.js:321:32)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusHook (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:281:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:246:5)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      311 |             
+      312 |         } catch (error) {
+    > 313 |             console.warn('Autoplay policy may be blocking audio:', error);
+          |                     ^
+      314 |             return false;
+      315 |         }
+      316 |     }
+
+      at AudioManager.warn [as checkAutoplayPolicy] (src/audio/audio.js:313:21)
+      at AudioManager.checkAutoplayPolicy [as initialize] (src/audio/audio.js:458:48)
+      at Object.<anonymous> (tests/unit/music-system-final-validation.test.js:321:32)
+
+  console.info
+    Autoplay may be blocked. Audio will start after user interaction.
+
+      at AudioManager.info [as initialize] (src/audio/audio.js:460:25)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track neon-rush (120.50s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.warn
+    Autoplay policy may be blocking audio: TypeError: this.audioContext.createBuffer is not a function
+        at AudioManager.createBuffer [as checkAutoplayPolicy] (/home/pi/source/LightBikes/src/audio/audio.js:303:46)
+        at AudioManager.checkAutoplayPolicy [as initialize] (/home/pi/source/LightBikes/src/audio/audio.js:458:48)
+        at Object.<anonymous> (/home/pi/source/LightBikes/tests/unit/music-system-final-validation.test.js:349:32)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusHook (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:281:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:246:5)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      311 |             
+      312 |         } catch (error) {
+    > 313 |             console.warn('Autoplay policy may be blocking audio:', error);
+          |                     ^
+      314 |             return false;
+      315 |         }
+      316 |     }
+
+      at AudioManager.warn [as checkAutoplayPolicy] (src/audio/audio.js:313:21)
+      at AudioManager.checkAutoplayPolicy [as initialize] (src/audio/audio.js:458:48)
+      at Object.<anonymous> (tests/unit/music-system-final-validation.test.js:349:32)
+
+  console.info
+    Autoplay may be blocked. Audio will start after user interaction.
+
+      at AudioManager.info [as initialize] (src/audio/audio.js:460:25)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track neon-rush (120.50s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.warn
+    Autoplay policy may be blocking audio: TypeError: this.audioContext.createBuffer is not a function
+        at AudioManager.createBuffer [as checkAutoplayPolicy] (/home/pi/source/LightBikes/src/audio/audio.js:303:46)
+        at AudioManager.checkAutoplayPolicy [as initialize] (/home/pi/source/LightBikes/src/audio/audio.js:458:48)
+        at Object.<anonymous> (/home/pi/source/LightBikes/tests/unit/music-system-final-validation.test.js:349:32)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusHook (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:281:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:246:5)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      311 |             
+      312 |         } catch (error) {
+    > 313 |             console.warn('Autoplay policy may be blocking audio:', error);
+          |                     ^
+      314 |             return false;
+      315 |         }
+      316 |     }
+
+      at AudioManager.warn [as checkAutoplayPolicy] (src/audio/audio.js:313:21)
+      at AudioManager.checkAutoplayPolicy [as initialize] (src/audio/audio.js:458:48)
+      at Object.<anonymous> (tests/unit/music-system-final-validation.test.js:349:32)
+
+  console.info
+    Autoplay may be blocked. Audio will start after user interaction.
+
+      at AudioManager.info [as initialize] (src/audio/audio.js:460:25)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track neon-rush (120.50s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.warn
+    Autoplay policy may be blocking audio: TypeError: this.audioContext.createBuffer is not a function
+        at AudioManager.createBuffer [as checkAutoplayPolicy] (/home/pi/source/LightBikes/src/audio/audio.js:303:46)
+        at AudioManager.checkAutoplayPolicy [as initialize] (/home/pi/source/LightBikes/src/audio/audio.js:458:48)
+        at Object.<anonymous> (/home/pi/source/LightBikes/tests/unit/music-system-final-validation.test.js:349:32)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusHook (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:281:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:246:5)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      311 |             
+      312 |         } catch (error) {
+    > 313 |             console.warn('Autoplay policy may be blocking audio:', error);
+          |                     ^
+      314 |             return false;
+      315 |         }
+      316 |     }
+
+      at AudioManager.warn [as checkAutoplayPolicy] (src/audio/audio.js:313:21)
+      at AudioManager.checkAutoplayPolicy [as initialize] (src/audio/audio.js:458:48)
+      at Object.<anonymous> (tests/unit/music-system-final-validation.test.js:349:32)
+
+  console.info
+    Autoplay may be blocked. Audio will start after user interaction.
+
+      at AudioManager.info [as initialize] (src/audio/audio.js:460:25)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track neon-rush (120.50s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.warn
+    Autoplay policy may be blocking audio: TypeError: this.audioContext.createBuffer is not a function
+        at AudioManager.createBuffer [as checkAutoplayPolicy] (/home/pi/source/LightBikes/src/audio/audio.js:303:46)
+        at AudioManager.checkAutoplayPolicy [as initialize] (/home/pi/source/LightBikes/src/audio/audio.js:458:48)
+        at Object.<anonymous> (/home/pi/source/LightBikes/tests/unit/music-system-final-validation.test.js:349:32)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusHook (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:281:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:246:5)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      311 |             
+      312 |         } catch (error) {
+    > 313 |             console.warn('Autoplay policy may be blocking audio:', error);
+          |                     ^
+      314 |             return false;
+      315 |         }
+      316 |     }
+
+      at AudioManager.warn [as checkAutoplayPolicy] (src/audio/audio.js:313:21)
+      at AudioManager.checkAutoplayPolicy [as initialize] (src/audio/audio.js:458:48)
+      at Object.<anonymous> (tests/unit/music-system-final-validation.test.js:349:32)
+
+  console.info
+    Autoplay may be blocked. Audio will start after user interaction.
+
+      at AudioManager.info [as initialize] (src/audio/audio.js:460:25)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track neon-rush (120.50s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.warn
+    Autoplay policy may be blocking audio: TypeError: this.audioContext.createBuffer is not a function
+        at AudioManager.createBuffer [as checkAutoplayPolicy] (/home/pi/source/LightBikes/src/audio/audio.js:303:46)
+        at AudioManager.checkAutoplayPolicy [as initialize] (/home/pi/source/LightBikes/src/audio/audio.js:458:48)
+        at Object.<anonymous> (/home/pi/source/LightBikes/tests/unit/music-system-final-validation.test.js:349:32)
+        at Promise.then.completed (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/home/pi/source/LightBikes/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusHook (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:281:40)
+        at _runTest (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:246:5)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:121:9)
+        at run (/home/pi/source/LightBikes/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/home/pi/source/LightBikes/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/home/pi/source/LightBikes/node_modules/jest-runner/build/runTest.js:444:34)
+
+      311 |             
+      312 |         } catch (error) {
+    > 313 |             console.warn('Autoplay policy may be blocking audio:', error);
+          |                     ^
+      314 |             return false;
+      315 |         }
+      316 |     }
+
+      at AudioManager.warn [as checkAutoplayPolicy] (src/audio/audio.js:313:21)
+      at AudioManager.checkAutoplayPolicy [as initialize] (src/audio/audio.js:458:48)
+      at Object.<anonymous> (tests/unit/music-system-final-validation.test.js:349:32)
+
+  console.info
+    Autoplay may be blocked. Audio will start after user interaction.
+
+      at AudioManager.info [as initialize] (src/audio/audio.js:460:25)
+
+  console.log
+    Successfully loaded turn
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    Successfully loaded engine
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    Successfully loaded explosion
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    Successfully loaded victory
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 3)
+
+  console.log
+    Successfully loaded defeat
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 4)
+
+  console.log
+    Successfully loaded powerup_collect
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 5)
+
+  console.log
+    Successfully loaded shrink_warning
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 6)
+
+  console.log
+    Successfully loaded shrink_execute
+
+      at log (src/audio/audio.js:560:29)
+          at async Promise.allSettled (index 7)
+
+  console.log
+    All audio files preloaded successfully
+
+      at AudioManager.log [as preloadSounds] (src/audio/audio.js:587:21)
+
+  console.log
+    Music performance monitoring started
+
+      at MusicPerformanceMonitor.log [as startMonitoring] (src/audio/MusicPerformanceMonitor.js:55:17)
+
+  console.log
+    Successfully loaded track neon-rush (120.50s, 2 channels)
+
+      at MusicTrack.log [as _performLoad] (src/audio/MusicTrack.js:154:29)
+
+  console.log
+    MusicPlayer initialized successfully
+
+      at MusicPlayer.log [as initialize] (src/audio/MusicPlayer.js:173:21)
+
+  console.log
+    Music system initialized successfully
+
+      at AudioManager.log [as initializeMusicSystem] (src/audio/audio.js:1457:25)
+
+  console.log
+    AudioManager initialized successfully
+
+      at AudioManager.log [as initialize] (src/audio/audio.js:473:25)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 1 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+  console.log
+    Music performance monitoring stopped
+
+      at MusicPerformanceMonitor.log [as stopMonitoring] (src/audio/MusicPerformanceMonitor.js:66:17)
+
+  console.log
+    Audio buffer manager cleanup: removed 0 buffers
+
+      at MusicBufferManager.log [as cleanup] (src/audio/MusicBufferManager.js:413:17)
+
+FAIL tests/unit/music-system-final-validation.test.js
+  Music System Final Validation
+    System Integration
+      ✕ should initialize the complete music system successfully (113 ms)
+      ✓ should provide all required music tracks (3 ms)
+      ✓ should handle fallback URLs for missing music files (2 ms)
+    Game State Integration
+      ✓ should handle game start events (22 ms)
+      ✓ should handle game pause events (17 ms)
+      ✓ should handle game resume events (17 ms)
+      ✓ should handle game end events (14 ms)
+      ✓ should handle game restart events (15 ms)
+    Audio Ducking Integration
+      ✓ should duck music during explosion sound effects (15 ms)
+      ✓ should duck music during victory sound effects (14 ms)
+      ✓ should duck music during defeat sound effects (33 ms)
+    Settings Persistence
+      ✓ should persist music volume settings (4 ms)
+      ✓ should persist track selection (3 ms)
+      ✓ should validate settings values (3 ms)
+    Error Handling
+      ✕ should handle missing music files gracefully (1881 ms)
+      ✕ should continue game operation when music system fails (70 ms)
+    Performance Impact
+      ✓ should not block game initialization (16 ms)
+      ✓ should provide performance metrics (15 ms)
+    Requirements Validation
+      ✓ should meet Requirement 1: Atmospheric background music (14 ms)
+      ✕ should meet Requirement 2: Independent volume control (14 ms)
+      ✓ should meet Requirement 3: Smooth audio transitions (13 ms)
+      ✓ should meet Requirement 4: Multiple track options (14 ms)
+      ✓ should meet Requirement 5: Sound effects integration (13 ms)
+
+  ● Music System Final Validation › System Integration › should initialize the complete music system successfully
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: {"schema": {"duckingDuration": {"default": 0.2, "max": 1, "min": 0.1, "type": "number"}, "duckingLevel": {"default": 0.3, "max": 1, "min": 0, "type": "number"}, "fadeInDuration": {"default": 0.5, "max": 2, "min": 0.1, "type": "number"}, "fadeOutDuration": {"default": 0.5, "max": 2, "min": 0.1, "type": "number"}, "musicVolume": {"default": 0.7, "max": 1, "min": 0, "type": "number"}, "selectedTrack": {"default": "ambient-space", "enum": ["ambient-space", "cyber-pulse", "neon-rush", "none"], "type": "string"}}, "settings": {"duckingDuration": 0.2, "duckingLevel": 0.3, "fadeInDuration": 0.5, "fadeOutDuration": 0.5, "musicVolume": 0.7, "selectedTrack": "ambient-space"}, "settingsVersion": 1, "storageKey": "lightbikes_music_settings"}
+
+      105 |             
+      106 |             // Check music system availability
+    > 107 |             expect(audioManager.isMusicAvailable()).toBe(true);
+          |                                                     ^
+      108 |             
+      109 |             // Get music player instance
+      110 |             musicPlayer = audioManager.getMusicPlayer();
+
+      at Object.<anonymous> (tests/unit/music-system-final-validation.test.js:107:53)
+
+  ● Music System Final Validation › Error Handling › should handle missing music files gracefully
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "Failed to load music track"
+    Received string:    "expect(received).toBe(expected) // Object.is equality·
+    Expected: true
+    Received: false"
+
+      296 |             } catch (error) {
+      297 |                 // If both fail, should handle gracefully
+    > 298 |                 expect(error.message).toContain('Failed to load music track');
+          |                                       ^
+      299 |             }
+      300 |         });
+      301 |         
+
+      at Object.<anonymous> (tests/unit/music-system-final-validation.test.js:298:39)
+
+  ● Music System Final Validation › Error Handling › should continue game operation when music system fails
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      309 |             
+      310 |             // Should not crash the game
+    > 311 |             expect(initSuccess).toBe(false);
+          |                                 ^
+      312 |             expect(audioManager.isMusicAvailable()).toBe(false);
+      313 |             
+      314 |             // Restore original AudioContext
+
+      at Object.<anonymous> (tests/unit/music-system-final-validation.test.js:311:33)
+
+  ● Music System Final Validation › Requirements Validation › should meet Requirement 2: Independent volume control
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not 0.5
+
+      373 |             musicPlayer.setVolume(0.5);
+      374 |             expect(musicPlayer.getVolume()).toBe(0.5);
+    > 375 |             expect(musicPlayer.getVolume()).not.toBe(initialVolume);
+          |                                                 ^
+      376 |         });
+      377 |         
+      378 |         it('should meet Requirement 3: Smooth audio transitions', () => {
+
+      at Object.<anonymous> (tests/unit/music-system-final-validation.test.js:375:49)
+
+-----------------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                                                                         
+-----------------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                          |    4.56 |     3.33 |    4.86 |    4.59 |                                                                                                                                                                                                                                                           
+ audio                             |   26.54 |     19.4 |   27.21 |   26.65 |                                                                                                                                                                                                                                                           
+  MusicBufferManager.js            |   28.57 |     12.3 |   36.36 |   29.45 | 63-108,153-332,354-357,370,392-398                                                                                                                                                                                                                        
+  MusicCompatibility.js            |       0 |        0 |       0 |       0 | 8-271                                                                                                                                                                                                                                                     
+  MusicConfig.js                   |   38.09 |        0 |       0 |      40 | 125-186                                                                                                                                                                                                                                                   
+  MusicErrorHandler.js             |    9.84 |     4.65 |    7.14 |      10 | 29-158,177-424,436-437,441-594                                                                                                                                                                                                                            
+  MusicLoadingOptimizer.js         |   50.43 |    35.81 |   63.63 |   50.46 | 102-114,129-135,141-160,173-209,222,224,226,231,233,260,265,274-279,299,330-370,397-419,434-435,453-456,469-472,486-499,519-532,573,581,589,605-615,635-638                                                                                               
+  MusicLoopController.js           |       0 |        0 |       0 |       0 | 8-393                                                                                                                                                                                                                                                     
+  MusicPerformanceMonitor.js       |   39.49 |    25.58 |   38.29 |   39.61 | 114-259,296-297,310,336-347,371-383,394-395,440-634                                                                                                                                                                                                       
+  MusicPlayer.js                   |    26.2 |    13.33 |   27.41 |   26.03 | 93,97,102,110-113,152-160,177-272,285-342,372-376,392-393,399,408,418-419,436-491,503-504,517-698,710-1094,1103,1110-1111,1121,1128-1129,1139,1146-1147,1157,1164-1189,1205-1214,1223-1343                                                                
+  MusicSettings.js                 |   44.77 |    53.22 |   40.74 |   44.77 | 110-231,248-249,275,284-297,320-342,356,361,393-395,414-450,468-469                                                                                                                                                                                       
+  MusicTrack.js                    |    55.9 |    58.82 |    62.5 |   55.64 | 43,48,53-54,66-68,81,110-118,125,133,140,145,167,174,179,191-213,222,241-249,289,305-317,334,350-366                                                                                                                                                      
+  MusicTrackManager.js             |       0 |        0 |       0 |       0 | 6-386                                                                                                                                                                                                                                                     
+  MusicTrackSelector.js            |       0 |        0 |       0 |       0 | 6-388                                                                                                                                                                                                                                                     
+  audio.js                         |   27.24 |    19.77 |   34.61 |   27.24 | 98-277,298,324-391,405,417,438-439,448-452,476-543,563-565,589,608,625-661,690-835,847,855,860-865,879-899,911,950-1116,1127,1139,1150,1162,1173,1185,1196,1208,1219,1228-1318,1328,1332,1352-1414,1440,1460-1467,1484,1500-1682,1693,1699-1700,1717,1729 
+ core                              |       0 |        0 |       0 |       0 |                                                                                                                                                                                                                                                           
+  ai.js                            |       0 |        0 |       0 |       0 | 3-715                                                                                                                                                                                                                                                     
+  collision.js                     |       0 |        0 |       0 |       0 | 3-487                                                                                                                                                                                                                                                     
+  game.js                          |       0 |        0 |       0 |       0 | 3-855                                                                                                                                                                                                                                                     
+ effects                           |       0 |        0 |       0 |       0 |                                                                                                                                                                                                                                                           
+  CameraEffectsErrorHandler.js     |       0 |        0 |       0 |       0 | 40-1073                                                                                                                                                                                                                                                   
+  CameraEffectsManager.js          |       0 |        0 |       0 |       0 | 1-690                                                                                                                                                                                                                                                     
+  CameraEffectsUI.js               |       0 |        0 |       0 |       0 | 6-302                                                                                                                                                                                                                                                     
+  CameraShakeController.js         |       0 |        0 |       0 |       0 | 1-359                                                                                                                                                                                                                                                     
+  MotionBlurController.js          |       0 |        0 |       0 |       0 | 42-852                                                                                                                                                                                                                                                    
+  NearMissDetector.js              |       0 |        0 |       0 |       0 | 12-312                                                                                                                                                                                                                                                    
+  ShakeInstance.js                 |       0 |        0 |       0 |       0 | 13-157                                                                                                                                                                                                                                                    
+  SpeedTracker.js                  |       0 |        0 |       0 |       0 | 52-504                                                                                                                                                                                                                                                    
+ multiplayer                       |       0 |        0 |       0 |       0 |                                                                                                                                                                                                                                                           
+  ChatSystem.js                    |       0 |        0 |       0 |       0 | 8-572                                                                                                                                                                                                                                                     
+  ClientPrediction.js              |       0 |        0 |       0 |       0 | 8-392                                                                                                                                                                                                                                                     
+  LatencyCompensation.js           |       0 |        0 |       0 |       0 | 8-392                                                                                                                                                                                                                                                     
+  MultiplayerGame.js               |       0 |        0 |       0 |       0 | 1-433                                                                                                                                                                                                                                                     
+  NetworkErrorHandler.js           |       0 |        0 |       0 |       0 | 8-567                                                                                                                                                                                                                                                     
+  NetworkManager.js                |       0 |        0 |       0 |       0 | 6-453                                                                                                                                                                                                                                                     
+  PlayerCollisionHandler.js        |       0 |        0 |       0 |       0 | 1-284                                                                                                                                                                                                                                                     
+  PlayerEntity.js                  |       0 |        0 |       0 |       0 | 14-252                                                                                                                                                                                                                                                    
+  PositionManager.js               |       0 |        0 |       0 |       0 | 11-255                                                                                                                                                                                                                                                    
+  ReconnectionManager.js           |       0 |        0 |       0 |       0 | 8-433                                                                                                                                                                                                                                                     
+  SplitScreenCamera.js             |       0 |        0 |       0 |       0 | 7-656                                                                                                                                                                                                                                                     
+ rendering                         |       0 |        0 |       0 |       0 |                                                                                                                                                                                                                                                           
+  EmissiveMaterialSystem.js        |       0 |        0 |       0 |       0 | 53-358                                                                                                                                                                                                                                                    
+  GlowEffectManager.js             |       0 |        0 |       0 |       0 | 64-1964                                                                                                                                                                                                                                                   
+  Particle.js                      |       0 |        0 |       0 |       0 | 11-80                                                                                                                                                                                                                                                     
+  ParticlePool.js                  |       0 |        0 |       0 |       0 | 7-291                                                                                                                                                                                                                                                     
+  ParticleSystem.js                |       0 |        0 |       0 |       0 | 7-2137                                                                                                                                                                                                                                                    
+  PostProcessingPipeline.js        |       0 |        0 |       0 |       0 | 58-381                                                                                                                                                                                                                                                    
+  TrailStyleRenderer.js            |       0 |        0 |       0 |       0 | 7-347                                                                                                                                                                                                                                                     
+  renderer.js                      |       0 |        0 |       0 |       0 | 3-2028                                                                                                                                                                                                                                                    
+ systems                           |       0 |        0 |       0 |       0 |                                                                                                                                                                                                                                                           
+  AchievementSystem.js             |       0 |        0 |       0 |       0 | 7-253                                                                                                                                                                                                                                                     
+  ArenaShrinker.js                 |       0 |        0 |       0 |       0 | 11-440                                                                                                                                                                                                                                                    
+  ColorManager.js                  |       0 |        0 |       0 |       0 | 11-163                                                                                                                                                                                                                                                    
+  CustomizationManager.js          |       0 |        0 |       0 |       0 | 7-628                                                                                                                                                                                                                                                     
+  EffectsConfigManager.js          |       0 |        0 |       0 |       0 | 8-378                                                                                                                                                                                                                                                     
+  GameModes.js                     |       0 |      100 |     100 |       0 | 4-21                                                                                                                                                                                                                                                      
+  GlowSettings.js                  |       0 |        0 |       0 |       0 | 57-259                                                                                                                                                                                                                                                    
+  GlowSettingsStorage.js           |       0 |        0 |       0 |       0 | 73-368                                                                                                                                                                                                                                                    
+  IntensityConfigManager.js        |       0 |        0 |       0 |       0 | 8-302                                                                                                                                                                                                                                                     
+  LeaderboardSystem.js             |       0 |        0 |       0 |       0 | 7-270                                                                                                                                                                                                                                                     
+  LocalScoring.js                  |       0 |        0 |       0 |       0 | 10-169                                                                                                                                                                                                                                                    
+  ParticleSettings.js              |       0 |        0 |       0 |       0 | 14-529                                                                                                                                                                                                                                                    
+  PowerUpManager.js                |       0 |        0 |       0 |       0 | 12-1190                                                                                                                                                                                                                                                   
+  PreferenceStorage.js             |       0 |        0 |       0 |       0 | 7-406                                                                                                                                                                                                                                                     
+  ThemeEngine.js                   |       0 |        0 |       0 |       0 | 7-480                                                                                                                                                                                                                                                     
+  difficulty.js                    |       0 |        0 |       0 |       0 | 7-426                                                                                                                                                                                                                                                     
+  scoreManager.js                  |       0 |        0 |       0 |       0 | 5-83                                                                                                                                                                                                                                                      
+  scorePersistence.js              |       0 |        0 |       0 |       0 | 6-127                                                                                                                                                                                                                                                     
+ ui                                |       0 |        0 |       0 |       0 |                                                                                                                                                                                                                                                           
+  AchievementNotification.js       |       0 |        0 |       0 |       0 | 7-299                                                                                                                                                                                                                                                     
+  ColorPickerUI.js                 |       0 |        0 |       0 |       0 | 7-313                                                                                                                                                                                                                                                     
+  CompatibilityWarningUI.js        |       0 |        0 |       0 |       0 | 8-464                                                                                                                                                                                                                                                     
+  CountdownTimer.js                |       0 |        0 |       0 |       0 | 7-214                                                                                                                                                                                                                                                     
+  CustomizationUI.js               |       0 |        0 |       0 |       0 | 7-1439                                                                                                                                                                                                                                                    
+  GlowSettingsUI.js                |       0 |        0 |       0 |       0 | 73-378                                                                                                                                                                                                                                                    
+  LeaderboardUI.js                 |       0 |        0 |       0 |       0 | 7-542                                                                                                                                                                                                                                                     
+  LoadingIndicator.js              |       0 |        0 |       0 |       0 | 6-281                                                                                                                                                                                                                                                     
+  LocalScoringUI.js                |       0 |        0 |       0 |       0 | 11-447                                                                                                                                                                                                                                                    
+  ModeSelector.js                  |       0 |        0 |       0 |       0 | 5-457                                                                                                                                                                                                                                                     
+  MultiplayerGameOverUI.js         |       0 |        0 |       0 |       0 | 10-362                                                                                                                                                                                                                                                    
+  MultiplayerUI.js                 |       0 |        0 |       0 |       0 | 8-834                                                                                                                                                                                                                                                     
+  MusicSettingsUI.js               |       0 |        0 |       0 |       0 | 7-487                                                                                                                                                                                                                                                     
+  ParticleSettingsUI.js            |       0 |        0 |       0 |       0 | 7-440                                                                                                                                                                                                                                                     
+  StatusIndicator.js               |       0 |        0 |       0 |       0 | 11-416                                                                                                                                                                                                                                                    
+  SurvivalTimer.js                 |       0 |        0 |       0 |       0 | 7-146                                                                                                                                                                                                                                                     
+  TimerDisplay.js                  |       0 |        0 |       0 |       0 | 7-264                                                                                                                                                                                                                                                     
+  scoreDisplay.js                  |       0 |        0 |       0 |       0 | 7-418                                                                                                                                                                                                                                                     
+ utils                             |       0 |        0 |       0 |       0 |                                                                                                                                                                                                                                                           
+  AccessibilityHandler.js          |       0 |        0 |       0 |       0 | 8-251                                                                                                                                                                                                                                                     
+  BrowserCompatibility.js          |       0 |        0 |       0 |       0 | 8-323                                                                                                                                                                                                                                                     
+  CanvasVerifier.js                |       0 |        0 |       0 |       0 | 14-266                                                                                                                                                                                                                                                    
+  DualControlScheme.js             |       0 |        0 |       0 |       0 | 8-242                                                                                                                                                                                                                                                     
+  ErrorHandler.js                  |       0 |        0 |       0 |       0 | 7-504                                                                                                                                                                                                                                                     
+  ErrorRecovery.js                 |       0 |        0 |       0 |       0 | 7-409                                                                                                                                                                                                                                                     
+  ErrorRecoveryStrategies.js       |       0 |        0 |       0 |       0 | 5-180                                                                                                                                                                                                                                                     
+  InitializationErrors.js          |       0 |        0 |       0 |       0 | 10-57                                                                                                                                                                                                                                                     
+  InitializationState.js           |       0 |        0 |       0 |       0 | 7-200                                                                                                                                                                                                                                                     
+  PerformanceDegradationManager.js |       0 |        0 |       0 |       0 | 39-850                                                                                                                                                                                                                                                    
+  PerformanceMonitor.js            |       0 |        0 |       0 |       0 | 8-440                                                                                                                                                                                                                                                     
+  PerformanceOptimizer.js          |       0 |        0 |       0 |       0 | 7-526                                                                                                                                                                                                                                                     
+  PerformanceScaler.js             |       0 |        0 |       0 |       0 | 64-732                                                                                                                                                                                                                                                    
+  controls.js                      |       0 |        0 |       0 |       0 | 1-168                                                                                                                                                                                                                                                     
+-----------------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 1 failed, 1 total
+Tests:       4 failed, 19 passed, 23 total
+Snapshots:   0 total
+Time:        9.112 s
+Ran all test suites matching /tests\/unit\/music-system-final-validation.test.js/i.

@@ -3,7 +3,7 @@
  * Provides object pooling for particles to minimize garbage collection
  * and improve performance during intensive particle effects
  */
-
+const { logger } = require('../utils/Logger.js');
 const { Particle } = require('./Particle.js');
 
 /**
@@ -21,7 +21,7 @@ class ParticlePool {
         this.activeParticles = [];
         this.inactiveParticles = [];
         this.activeCount = 0;
-        
+
         // Pre-allocate all particles to avoid runtime allocation
         this.initializePool();
     }
@@ -51,15 +51,15 @@ class ParticlePool {
 
         // Get particle from inactive pool
         const particle = this.inactiveParticles.pop();
-        
+
         // Reset particle to clean state
         particle.reset();
         particle.active = true;
-        
+
         // Move to active pool
         this.activeParticles.push(particle);
         this.activeCount++;
-        
+
         return particle;
     }
 
@@ -83,11 +83,11 @@ class ParticlePool {
         // Remove from active pool
         this.activeParticles.splice(index, 1);
         this.activeCount--;
-        
+
         // Deactivate particle and reset state
         particle.active = false;
         particle.reset();
-        
+
         // Return to inactive pool for reuse
         this.inactiveParticles.push(particle);
     }
@@ -147,7 +147,7 @@ class ParticlePool {
     releaseAll() {
         // Create copy of active particles to avoid modification during iteration
         const particlesToRelease = [...this.activeParticles];
-        
+
         for (const particle of particlesToRelease) {
             this.release(particle);
         }
@@ -160,10 +160,10 @@ class ParticlePool {
      */
     updateParticles(deltaTime) {
         const particlesToRelease = [];
-        
+
         // Batch update all active particles
         this.batchUpdateParticles(deltaTime, particlesToRelease);
-        
+
         // Batch release inactive particles back to pool
         this.batchReleaseParticles(particlesToRelease);
     }
@@ -180,13 +180,13 @@ class ParticlePool {
 
         for (let batchStart = 0; batchStart < totalParticles; batchStart += batchSize) {
             const batchEnd = Math.min(batchStart + batchSize, totalParticles);
-            
+
             // Process current batch
             for (let i = batchStart; i < batchEnd; i++) {
                 const particle = this.activeParticles[i];
                 if (particle) {
                     particle.update(deltaTime);
-                    
+
                     // Mark inactive particles for release
                     if (!particle.active) {
                         particlesToRelease.push(particle);
@@ -226,7 +226,7 @@ class ParticlePool {
             activeCount: this.activeCount,
             availableCount: this.inactiveParticles.length,
             utilization: this.getUtilization(),
-            totalParticles: this.particles.length
+            totalParticles: this.particles.length,
         };
     }
 
@@ -237,42 +237,46 @@ class ParticlePool {
      */
     validateIntegrity() {
         const totalTracked = this.activeParticles.length + this.inactiveParticles.length;
-        
+
         // Check total particle count
         if (totalTracked !== this.maxParticles) {
-            console.warn(`Pool integrity error: Expected ${this.maxParticles} particles, found ${totalTracked}`);
+            logger.warn(
+                `Pool integrity error: Expected ${this.maxParticles} particles, found ${totalTracked}`
+            );
             return false;
         }
-        
+
         // Check active count consistency
         if (this.activeCount !== this.activeParticles.length) {
-            console.warn(`Pool integrity error: Active count mismatch - counter: ${this.activeCount}, array: ${this.activeParticles.length}`);
+            logger.warn(
+                `Pool integrity error: Active count mismatch - counter: ${this.activeCount}, array: ${this.activeParticles.length}`
+            );
             return false;
         }
-        
+
         // Check for duplicate particles
         const allParticles = [...this.activeParticles, ...this.inactiveParticles];
         const uniqueParticles = new Set(allParticles);
         if (uniqueParticles.size !== allParticles.length) {
-            console.warn('Pool integrity error: Duplicate particles detected');
+            logger.warn('Pool integrity error: Duplicate particles detected');
             return false;
         }
-        
+
         // Check particle states
         for (const particle of this.activeParticles) {
             if (!particle.active) {
-                console.warn('Pool integrity error: Inactive particle in active pool');
+                logger.warn('Pool integrity error: Inactive particle in active pool');
                 return false;
             }
         }
-        
+
         for (const particle of this.inactiveParticles) {
             if (particle.active) {
-                console.warn('Pool integrity error: Active particle in inactive pool');
+                logger.warn('Pool integrity error: Active particle in inactive pool');
                 return false;
             }
         }
-        
+
         return true;
     }
 

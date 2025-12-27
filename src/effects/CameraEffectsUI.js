@@ -10,11 +10,11 @@ class CameraEffectsUI {
         this.configManager = new EffectsConfigManager();
         this.isVisible = false;
         this.elements = {};
-        
+
         this.initializeElements();
         this.bindEvents();
         this.loadCurrentSettings();
-        
+
         // Listen for settings changes from other sources
         this.configManager.addChangeListener((newSettings) => {
             this.updateUIFromSettings(newSettings);
@@ -29,21 +29,21 @@ class CameraEffectsUI {
             button: document.getElementById('cameraEffectsButton'),
             panel: document.getElementById('cameraEffectsPanel'),
             accessibilityWarning: document.getElementById('accessibilityWarning'),
-            
+
             // Shake intensity buttons
             shakeIntensityButtons: document.querySelectorAll('.shake-intensity-btn'),
-            
+
             // Motion blur controls
             motionBlurToggle: document.getElementById('motionBlurToggle'),
             motionBlurQualityButtons: document.querySelectorAll('#cameraEffectsPanel .quality-btn'),
-            
+
             // Accessibility controls
             accessibilityModeToggle: document.getElementById('accessibilityModeToggle'),
             systemPreferencesToggle: document.getElementById('systemPreferencesToggle'),
-            
+
             // Action buttons
             resetButton: document.getElementById('resetCameraEffectsSettings'),
-            closeButton: document.getElementById('closeCameraEffectsSettings')
+            closeButton: document.getElementById('closeCameraEffectsSettings'),
         };
     }
 
@@ -57,7 +57,7 @@ class CameraEffectsUI {
         }
 
         // Shake intensity buttons
-        this.elements.shakeIntensityButtons.forEach(button => {
+        this.elements.shakeIntensityButtons.forEach((button) => {
             button.addEventListener('click', (e) => {
                 const intensity = parseFloat(e.currentTarget.dataset.intensity);
                 this.updateShakeIntensity(intensity);
@@ -72,7 +72,7 @@ class CameraEffectsUI {
         }
 
         // Motion blur quality buttons
-        this.elements.motionBlurQualityButtons.forEach(button => {
+        this.elements.motionBlurQualityButtons.forEach((button) => {
             button.addEventListener('click', (e) => {
                 const quality = e.currentTarget.dataset.quality;
                 this.updateMotionBlurQuality(quality);
@@ -104,9 +104,11 @@ class CameraEffectsUI {
 
         // Close panel when clicking outside
         document.addEventListener('click', (e) => {
-            if (this.isVisible && 
-                !this.elements.panel.contains(e.target) && 
-                !this.elements.button.contains(e.target)) {
+            if (
+                this.isVisible &&
+                !this.elements.panel.contains(e.target) &&
+                !this.elements.button.contains(e.target)
+            ) {
                 this.hidePanel();
             }
         });
@@ -166,7 +168,7 @@ class CameraEffectsUI {
      */
     updateUIFromSettings(settings) {
         // Update shake intensity buttons
-        this.elements.shakeIntensityButtons.forEach(button => {
+        this.elements.shakeIntensityButtons.forEach((button) => {
             button.classList.remove('active');
             if (parseFloat(button.dataset.intensity) === settings.shakeIntensity) {
                 button.classList.add('active');
@@ -177,7 +179,7 @@ class CameraEffectsUI {
         this.updateToggleState(this.elements.motionBlurToggle, settings.motionBlurEnabled);
 
         // Update motion blur quality buttons
-        this.elements.motionBlurQualityButtons.forEach(button => {
+        this.elements.motionBlurQualityButtons.forEach((button) => {
             button.classList.remove('active');
             if (button.dataset.quality === settings.motionBlurQuality) {
                 button.classList.add('active');
@@ -186,7 +188,10 @@ class CameraEffectsUI {
 
         // Update accessibility toggles
         this.updateToggleState(this.elements.accessibilityModeToggle, settings.accessibilityMode);
-        this.updateToggleState(this.elements.systemPreferencesToggle, settings.respectSystemPreferences);
+        this.updateToggleState(
+            this.elements.systemPreferencesToggle,
+            settings.respectSystemPreferences
+        );
 
         // Update accessibility warning
         this.updateAccessibilityWarning();
@@ -214,7 +219,7 @@ class CameraEffectsUI {
     updateShakeIntensity(intensity) {
         const settings = {
             shakeIntensity: intensity,
-            shakeEnabled: intensity > 0
+            shakeEnabled: intensity > 0,
         };
         this.configManager.updateSettings(settings);
     }
@@ -225,7 +230,7 @@ class CameraEffectsUI {
     toggleMotionBlur() {
         const currentSettings = this.configManager.getSettings();
         this.configManager.updateSettings({
-            motionBlurEnabled: !currentSettings.motionBlurEnabled
+            motionBlurEnabled: !currentSettings.motionBlurEnabled,
         });
     }
 
@@ -235,7 +240,7 @@ class CameraEffectsUI {
      */
     updateMotionBlurQuality(quality) {
         this.configManager.updateSettings({
-            motionBlurQuality: quality
+            motionBlurQuality: quality,
         });
     }
 
@@ -245,7 +250,7 @@ class CameraEffectsUI {
     toggleAccessibilityMode() {
         const currentSettings = this.configManager.getSettings();
         this.configManager.updateSettings({
-            accessibilityMode: !currentSettings.accessibilityMode
+            accessibilityMode: !currentSettings.accessibilityMode,
         });
     }
 
@@ -255,7 +260,7 @@ class CameraEffectsUI {
     toggleSystemPreferences() {
         const currentSettings = this.configManager.getSettings();
         this.configManager.updateSettings({
-            respectSystemPreferences: !currentSettings.respectSystemPreferences
+            respectSystemPreferences: !currentSettings.respectSystemPreferences,
         });
     }
 

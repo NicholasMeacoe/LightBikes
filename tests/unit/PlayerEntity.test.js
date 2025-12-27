@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { PlayerEntity } = require('@/multiplayer/PlayerEntity.js');
 
 describe('PlayerEntity', () => {
@@ -7,7 +23,7 @@ describe('PlayerEntity', () => {
         up: 'ArrowUp',
         down: 'ArrowDown',
         left: 'ArrowLeft',
-        right: 'ArrowRight'
+        right: 'ArrowRight',
     };
 
     beforeEach(() => {
@@ -82,9 +98,9 @@ describe('PlayerEntity', () => {
         it('should not update when player is dead', () => {
             playerEntity.isAlive = false;
             const initialPosition = { ...playerEntity.position };
-            
+
             playerEntity.update(0.1, 1.0);
-            
+
             expect(playerEntity.position).toEqual(initialPosition);
             expect(playerEntity.frameCount).toBe(0);
         });
@@ -174,7 +190,10 @@ describe('PlayerEntity', () => {
         });
 
         it('should return trail length', () => {
-            playerEntity.trail = [{ x: 0, y: 0, z: 0 }, { x: 1, y: 0, z: 0 }];
+            playerEntity.trail = [
+                { x: 0, y: 0, z: 0 },
+                { x: 1, y: 0, z: 0 },
+            ];
             expect(playerEntity.getTrailLength()).toBe(2);
         });
 

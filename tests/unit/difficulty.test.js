@@ -2,6 +2,22 @@
  * Tests for DifficultyManager class and configuration system
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { DifficultyManager, DIFFICULTY_CONFIGS } = require('@/systems/difficulty.js');
 
 // Mock localStorage for testing
@@ -16,16 +32,17 @@ const localStorageMock = {
     }),
     clear: jest.fn(() => {
         localStorageMock.store = {};
-    })
+    }),
 };
 
 // Mock game and AI controller objects
 const mockGame = {
-    setGameSpeed: jest.fn()
+    setGameSpeed: jest.fn(),
+    initializeAIOpponents: jest.fn(),
 };
 
 const mockAIController = {
-    difficultyConfig: null
+    difficultyConfig: null,
 };
 
 describe('DIFFICULTY_CONFIGS', () => {
@@ -36,7 +53,7 @@ describe('DIFFICULTY_CONFIGS', () => {
     });
 
     it('should have all required properties for each difficulty', () => {
-        Object.values(DIFFICULTY_CONFIGS).forEach(config => {
+        Object.values(DIFFICULTY_CONFIGS).forEach((config) => {
             expect(config).toHaveProperty('turnThreshold');
             expect(config).toHaveProperty('randomTurnChance');
             expect(config).toHaveProperty('gameSpeed');
@@ -48,7 +65,7 @@ describe('DIFFICULTY_CONFIGS', () => {
         expect(DIFFICULTY_CONFIGS.easy.turnThreshold).toBe(15);
         expect(DIFFICULTY_CONFIGS.medium.turnThreshold).toBe(10);
         expect(DIFFICULTY_CONFIGS.hard.turnThreshold).toBe(8);
-        
+
         expect(DIFFICULTY_CONFIGS.easy.gameSpeed).toBe(0.08);
         expect(DIFFICULTY_CONFIGS.medium.gameSpeed).toBe(0.1);
         expect(DIFFICULTY_CONFIGS.hard.gameSpeed).toBe(0.12);
@@ -62,17 +79,17 @@ describe('DifficultyManager', () => {
         // Reset mocks
         jest.clearAllMocks();
         localStorageMock.clear();
-        
+
         // Mock localStorage globally
         Object.defineProperty(window, 'localStorage', {
             value: localStorageMock,
-            writable: true
+            writable: true,
         });
 
         // Create fresh instances
         mockGame.setGameSpeed = jest.fn();
         mockAIController.difficultyConfig = null;
-        
+
         difficultyManager = new DifficultyManager(mockGame, mockAIController);
     });
 
@@ -101,13 +118,11 @@ describe('DifficultyManager', () => {
         });
 
         it('should fall back to medium for invalid difficulty levels', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-            
             difficultyManager.setDifficulty('invalid');
             expect(difficultyManager.getCurrentDifficulty()).toBe('medium');
-            expect(consoleSpy).toHaveBeenCalledWith('Invalid difficulty level: "invalid", using medium. Valid options: easy, medium, hard');
-            
-            consoleSpy.mockRestore();
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                'Invalid difficulty level: "invalid", using medium. Valid options: easy, medium, hard'
+            );
         });
 
         it('should apply changes to game system', () => {
@@ -138,7 +153,7 @@ describe('DifficultyManager', () => {
     describe('getCurrentDifficulty', () => {
         it('should return the current difficulty level', () => {
             expect(difficultyManager.getCurrentDifficulty()).toBe('medium');
-            
+
             difficultyManager.setDifficulty('easy');
             expect(difficultyManager.getCurrentDifficulty()).toBe('easy');
         });
@@ -197,22 +212,22 @@ describe('DifficultyManager', () => {
     describe('saveToStorage', () => {
         it('should save difficulty data to localStorage', () => {
             difficultyManager.setDifficulty('easy');
-            
+
             const savedData = JSON.parse(localStorageMock.store['lightbikes_difficulty']);
             expect(savedData.selectedDifficulty).toBe('easy');
             expect(savedData.timestamp).toBeGreaterThan(0);
         });
 
         it('should handle localStorage errors gracefully', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
             localStorageMock.setItem.mockImplementation(() => {
                 throw new Error('Storage error');
             });
 
             expect(() => difficultyManager.saveToStorage()).not.toThrow();
-            expect(consoleSpy).toHaveBeenCalledWith('Failed to save difficulty setting:', expect.any(Error));
-            
-            consoleSpy.mockRestore();
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                'Failed to save difficulty setting:',
+                expect.any(Error)
+            );
         });
     });
 
@@ -220,7 +235,7 @@ describe('DifficultyManager', () => {
         it('should load valid difficulty from storage', () => {
             const testData = {
                 selectedDifficulty: 'hard',
-                timestamp: Date.now()
+                timestamp: Date.now(),
             };
             localStorageMock.store['lightbikes_difficulty'] = JSON.stringify(testData);
 
@@ -231,7 +246,7 @@ describe('DifficultyManager', () => {
         it('should ignore invalid difficulty from storage', () => {
             const testData = {
                 selectedDifficulty: 'invalid',
-                timestamp: Date.now()
+                timestamp: Date.now(),
             };
             localStorageMock.store['lightbikes_difficulty'] = JSON.stringify(testData);
 
@@ -241,33 +256,33 @@ describe('DifficultyManager', () => {
 
         it('should handle missing storage data gracefully', () => {
             localStorageMock.store = {};
-            
+
             const newManager = new DifficultyManager(mockGame, mockAIController);
             expect(newManager.getCurrentDifficulty()).toBe('medium');
         });
 
         it('should handle localStorage errors gracefully', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
             localStorageMock.getItem.mockImplementation(() => {
                 throw new Error('Storage error');
             });
 
             const newManager = new DifficultyManager(mockGame, mockAIController);
             expect(newManager.getCurrentDifficulty()).toBe('medium');
-            expect(consoleSpy).toHaveBeenCalledWith('Failed to load difficulty setting:', expect.any(Error));
-            
-            consoleSpy.mockRestore();
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                'Failed to load difficulty setting:',
+                expect.any(Error)
+            );
         });
 
         it('should handle corrupted JSON data gracefully', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
             localStorageMock.store['lightbikes_difficulty'] = 'invalid json';
 
             const newManager = new DifficultyManager(mockGame, mockAIController);
             expect(newManager.getCurrentDifficulty()).toBe('medium');
-            expect(consoleSpy).toHaveBeenCalledWith('Failed to load difficulty setting:', expect.any(Error));
-            
-            consoleSpy.mockRestore();
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                'Failed to load difficulty setting:',
+                expect.any(Error)
+            );
         });
     });
 
@@ -287,23 +302,23 @@ describe('DifficultyManager', () => {
     describe('enhanced error handling and validation', () => {
         describe('setDifficulty input validation', () => {
             it('should handle non-string input types', () => {
-                const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-                
                 difficultyManager.setDifficulty(123);
                 expect(difficultyManager.getCurrentDifficulty()).toBe('medium');
-                expect(consoleSpy).toHaveBeenCalledWith('Invalid difficulty type: number, expected string. Using medium');
-                
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'Invalid difficulty type: number, expected string. Using medium'
+                );
+
                 difficultyManager.setDifficulty(null);
                 expect(difficultyManager.getCurrentDifficulty()).toBe('medium');
-                expect(consoleSpy).toHaveBeenCalledWith('Invalid difficulty type: object, expected string. Using medium');
-                
-                consoleSpy.mockRestore();
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'Invalid difficulty type: object, expected string. Using medium'
+                );
             });
 
             it('should normalize input by trimming whitespace and converting to lowercase', () => {
                 difficultyManager.setDifficulty('  EASY  ');
                 expect(difficultyManager.getCurrentDifficulty()).toBe('easy');
-                
+
                 difficultyManager.setDifficulty('Hard');
                 expect(difficultyManager.getCurrentDifficulty()).toBe('hard');
             });
@@ -311,13 +326,11 @@ describe('DifficultyManager', () => {
 
         describe('getDifficultyConfig input validation', () => {
             it('should handle non-string input types', () => {
-                const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-                
                 const config = difficultyManager.getDifficultyConfig(123);
                 expect(config).toEqual(DIFFICULTY_CONFIGS.medium);
-                expect(consoleSpy).toHaveBeenCalledWith('Invalid difficulty type in getDifficultyConfig: number, using current difficulty');
-                
-                consoleSpy.mockRestore();
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'Invalid difficulty type in getDifficultyConfig: number, using current difficulty'
+                );
             });
 
             it('should normalize string input', () => {
@@ -328,124 +341,126 @@ describe('DifficultyManager', () => {
 
         describe('applyToGame error handling', () => {
             it('should handle invalid game speed values', () => {
-                const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
                 const mockGameWithBadSpeed = { setGameSpeed: jest.fn() };
-                
+
                 // Temporarily modify config to have invalid speed
                 const originalConfig = DIFFICULTY_CONFIGS.easy.gameSpeed;
                 DIFFICULTY_CONFIGS.easy.gameSpeed = -1;
-                
+
                 const manager = new DifficultyManager(mockGameWithBadSpeed, mockAIController);
                 manager.setDifficulty('easy');
-                
+
                 // The validation happens during config validation, so check for that message
-                expect(consoleSpy).toHaveBeenCalledWith('Invalid gameSpeed for "easy": -1');
-                expect(consoleSpy).toHaveBeenCalledWith('Some difficulty configurations are invalid. Game may not function correctly.');
-                
+                expect(mockLogger.warn).toHaveBeenCalledWith('Invalid gameSpeed for "easy": -1');
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'Some difficulty configurations are invalid. Game may not function correctly.'
+                );
+
                 // Restore original config
                 DIFFICULTY_CONFIGS.easy.gameSpeed = originalConfig;
-                consoleSpy.mockRestore();
             });
 
             it('should handle setGameSpeed method throwing errors', () => {
-                const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
                 const mockGameWithError = {
-                    setGameSpeed: jest.fn(() => { throw new Error('Game error'); })
+                    setGameSpeed: jest.fn(() => {
+                        throw new Error('Game error');
+                    }),
                 };
-                
+
                 const manager = new DifficultyManager(mockGameWithError, mockAIController);
                 expect(() => manager.applyToGame()).not.toThrow();
-                expect(consoleSpy).toHaveBeenCalledWith('Error applying game speed settings:', expect.any(Error));
-                
-                consoleSpy.mockRestore();
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'Error applying game speed settings:',
+                    expect.any(Error)
+                );
             });
         });
 
         describe('applyToAI error handling', () => {
             it('should validate and correct invalid AI configuration values', () => {
-                const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-                
                 // Temporarily modify config to have invalid values
                 const originalTurnThreshold = DIFFICULTY_CONFIGS.hard.turnThreshold;
                 const originalRandomTurnChance = DIFFICULTY_CONFIGS.hard.randomTurnChance;
-                
+
                 DIFFICULTY_CONFIGS.hard.turnThreshold = -5;
                 DIFFICULTY_CONFIGS.hard.randomTurnChance = 2;
-                
+
                 difficultyManager.setDifficulty('hard');
-                
+
                 // The validation happens during config validation, so check for those messages
-                expect(consoleSpy).toHaveBeenCalledWith('Invalid turnThreshold for "hard": -5');
-                expect(consoleSpy).toHaveBeenCalledWith('Invalid configuration for difficulty "hard", falling back to medium');
-                
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'Invalid turnThreshold for "hard": -5'
+                );
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'Invalid configuration for difficulty "hard", falling back to medium'
+                );
+
                 // Restore original config
                 DIFFICULTY_CONFIGS.hard.turnThreshold = originalTurnThreshold;
                 DIFFICULTY_CONFIGS.hard.randomTurnChance = originalRandomTurnChance;
-                consoleSpy.mockRestore();
             });
         });
 
         describe('localStorage error handling', () => {
             it('should handle localStorage quota exceeded errors', () => {
-                const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
                 const quotaError = new Error('Quota exceeded');
                 quotaError.name = 'QuotaExceededError';
-                
+
                 localStorageMock.setItem.mockImplementation(() => {
                     throw quotaError;
                 });
 
                 expect(() => difficultyManager.saveToStorage()).not.toThrow();
-                expect(consoleSpy).toHaveBeenCalledWith('localStorage quota exceeded, cannot save difficulty setting');
-                
-                consoleSpy.mockRestore();
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'localStorage quota exceeded, cannot save difficulty setting'
+                );
             });
 
             it('should handle missing localStorage gracefully', () => {
-                const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-                
                 // Mock missing localStorage
                 const originalLocalStorage = window.localStorage;
                 delete window.localStorage;
-                
+
                 const manager = new DifficultyManager(mockGame, mockAIController);
                 manager.saveToStorage();
-                
-                expect(consoleSpy).toHaveBeenCalledWith('localStorage not available, cannot save difficulty setting');
-                
+
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'localStorage not available, cannot save difficulty setting'
+                );
+
                 // Restore localStorage
                 window.localStorage = originalLocalStorage;
-                consoleSpy.mockRestore();
             });
         });
 
         describe('configuration validation', () => {
             it('should validate all configurations on initialization', () => {
-                const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-                
                 // Temporarily corrupt a configuration
                 const originalConfig = DIFFICULTY_CONFIGS.easy;
                 DIFFICULTY_CONFIGS.easy = { invalid: 'config' };
-                
+
                 const manager = new DifficultyManager(mockGame, mockAIController);
-                
-                expect(consoleSpy).toHaveBeenCalledWith('Configuration for "easy" missing required property: turnThreshold');
-                expect(consoleSpy).toHaveBeenCalledWith('Some difficulty configurations are invalid. Game may not function correctly.');
-                
+
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'Configuration for "easy" missing required property: turnThreshold'
+                );
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'Some difficulty configurations are invalid. Game may not function correctly.'
+                );
+
                 // Restore original config
                 DIFFICULTY_CONFIGS.easy = originalConfig;
-                consoleSpy.mockRestore();
             });
 
             it('should validate constructor parameters', () => {
-                const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-                
                 new DifficultyManager('invalid', 123);
-                
-                expect(consoleSpy).toHaveBeenCalledWith('Invalid game parameter provided to DifficultyManager');
-                expect(consoleSpy).toHaveBeenCalledWith('Invalid aiController parameter provided to DifficultyManager');
-                
-                consoleSpy.mockRestore();
+
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'Invalid game parameter provided to DifficultyManager'
+                );
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'Invalid aiController parameter provided to DifficultyManager'
+                );
             });
         });
 
@@ -458,19 +473,18 @@ describe('DifficultyManager', () => {
             });
 
             it('should return false and log warnings for invalid configurations', () => {
-                const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-                
                 // Temporarily corrupt a configuration
                 const originalConfig = DIFFICULTY_CONFIGS.medium;
                 DIFFICULTY_CONFIGS.medium = { turnThreshold: 'invalid' };
-                
+
                 const result = difficultyManager.validateAllConfigurations();
                 expect(result).toBe(false);
-                expect(consoleSpy).toHaveBeenCalledWith('Configuration for "medium" missing required property: randomTurnChance');
-                
+                expect(mockLogger.warn).toHaveBeenCalledWith(
+                    'Configuration for "medium" missing required property: randomTurnChance'
+                );
+
                 // Restore original config
                 DIFFICULTY_CONFIGS.medium = originalConfig;
-                consoleSpy.mockRestore();
             });
         });
     });

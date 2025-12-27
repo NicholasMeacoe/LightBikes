@@ -8,15 +8,15 @@ class MultiplayerUI {
         this.networkManager = networkManager;
         this.currentView = 'menu'; // menu, browser, lobby, game
         this.selectedRoomId = null;
-        
+
         // UI element references
         this.elements = {
             container: null,
             roomBrowser: null,
             lobby: null,
-            inGameUI: null
+            inGameUI: null,
         };
-        
+
         // Callbacks
         this.callbacks = {
             createRoom: null,
@@ -24,12 +24,12 @@ class MultiplayerUI {
             leaveRoom: null,
             sendChat: null,
             toggleReady: null,
-            startGame: null
+            startGame: null,
         };
-        
+
         this.initialize();
     }
-    
+
     /**
      * Initialize UI components
      */
@@ -37,7 +37,7 @@ class MultiplayerUI {
         this.createContainer();
         this.setupNetworkEventHandlers();
     }
-    
+
     /**
      * Create main UI container
      */
@@ -63,60 +63,60 @@ class MultiplayerUI {
         }
         this.elements.container = container;
     }
-    
+
     /**
      * Setup network event handlers
      */
     setupNetworkEventHandlers() {
         if (!this.networkManager) return;
-        
+
         this.networkManager.onRoomUpdate((data) => {
             if (this.currentView === 'lobby') {
                 this.updateLobby(data);
             }
         });
-        
+
         this.networkManager.onPlayerJoined((data) => {
             this.showNotification(`${data.playerName || 'Player'} joined`);
         });
-        
+
         this.networkManager.onPlayerLeft((data) => {
             this.showNotification(`${data.playerName || 'Player'} left`);
         });
-        
+
         this.networkManager.onGameStart((data) => {
             this.hideAllViews();
             this.showInGameUI();
         });
-        
+
         this.networkManager.onGameEnd((data) => {
             this.showGameEndScreen(data);
         });
-        
+
         this.networkManager.onChatMessage((data) => {
             this.addChatMessage(data);
         });
-        
+
         this.networkManager.onConnected(() => {
             this.updateConnectionStatus('connected');
         });
-        
+
         this.networkManager.onDisconnected(() => {
             this.updateConnectionStatus('disconnected');
         });
-        
+
         this.networkManager.onReconnecting((data) => {
             this.updateConnectionStatus('reconnecting', data.attemptNumber);
         });
     }
-    
+
     /**
      * Show room browser interface
      */
     showRoomBrowser() {
         this.hideAllViews();
         this.currentView = 'browser';
-        
+
         const browser = document.createElement('div');
         browser.className = 'room-browser';
         browser.style.cssText = `
@@ -124,7 +124,7 @@ class MultiplayerUI {
             max-width: 800px;
             margin: 50px auto;
         `;
-        
+
         browser.innerHTML = `
             <h1 style="text-align: center; margin-bottom: 30px;">Multiplayer Rooms</h1>
             
@@ -179,50 +179,53 @@ class MultiplayerUI {
                 ">Back to Menu</button>
             </div>
         `;
-        
+
         this.elements.container.appendChild(browser);
         this.elements.roomBrowser = browser;
         this.elements.container.style.display = 'block';
-        
+
         // Setup event listeners
         document.getElementById('create-room-btn').addEventListener('click', () => {
             this.showCreateRoomDialog();
         });
-        
+
         document.getElementById('refresh-rooms-btn').addEventListener('click', () => {
             this.refreshRoomList();
         });
-        
+
         document.getElementById('quick-match-btn').addEventListener('click', () => {
             this.quickMatch();
         });
-        
+
         document.getElementById('back-to-menu-btn').addEventListener('click', () => {
             this.hide();
         });
-        
+
         // Load initial room list
         this.refreshRoomList();
     }
-    
+
     /**
      * Refresh room list
      */
     async refreshRoomList() {
         const roomListEl = document.getElementById('room-list');
         if (!roomListEl) return;
-        
+
         roomListEl.innerHTML = '<p style="text-align: center; color: #888;">Loading rooms...</p>';
-        
+
         try {
             const rooms = await this.networkManager.getRoomList();
-            
+
             if (rooms.length === 0) {
-                roomListEl.innerHTML = '<p style="text-align: center; color: #888;">No rooms available. Create one!</p>';
+                roomListEl.innerHTML =
+                    '<p style="text-align: center; color: #888;">No rooms available. Create one!</p>';
                 return;
             }
-            
-            roomListEl.innerHTML = rooms.map(room => `
+
+            roomListEl.innerHTML = rooms
+                .map(
+                    (room) => `
                 <div class="room-item" style="
                     background: rgba(255, 255, 255, 0.05);
                     padding: 15px;
@@ -249,12 +252,16 @@ class MultiplayerUI {
                         ${room.players >= room.maxPlayers ? 'Full' : 'Join'}
                     </button>
                 </div>
-            `).join('');
-            
+            `
+                )
+                .join('');
+
             // Add event listeners to join buttons
-            document.querySelectorAll('.join-room-btn').forEach(btn => {
+            document.querySelectorAll('.join-room-btn').forEach((btn) => {
                 btn.addEventListener('click', (e) => {
-                    const roomId = e.target.getAttribute('data-room-id');
+                    /** @type {Element} */
+                    const target = /** @type {any} */ (e.target);
+                    const roomId = target.getAttribute('data-room-id');
                     this.joinRoom(roomId);
                 });
             });
@@ -262,7 +269,7 @@ class MultiplayerUI {
             roomListEl.innerHTML = `<p style="text-align: center; color: #ff0000;">Error loading rooms: ${error.message}</p>`;
         }
     }
-    
+
     /**
      * Show create room dialog
      */
@@ -279,7 +286,7 @@ class MultiplayerUI {
             border: 2px solid #00ff00;
             z-index: 1001;
         `;
-        
+
         dialog.innerHTML = `
             <h2 style="margin-top: 0;">Create Room</h2>
             
@@ -351,17 +358,30 @@ class MultiplayerUI {
                 ">Cancel</button>
             </div>
         `;
-        
+
         this.elements.container.appendChild(dialog);
-        
+
         document.getElementById('confirm-create-btn').addEventListener('click', async () => {
+            /** @type {HTMLInputElement} */
+            const nameInput = /** @type {any} */ (document.getElementById('room-name-input'));
+            /** @type {HTMLSelectElement} */
+            const maxPlayersSelect = /** @type {any} */ (
+                document.getElementById('max-players-select')
+            );
+            /** @type {HTMLSelectElement} */
+            const gameModeSelect = /** @type {any} */ (document.getElementById('game-mode-select'));
+            /** @type {HTMLInputElement} */
+            const privateCheckbox = /** @type {any} */ (
+                document.getElementById('private-room-checkbox')
+            );
+
             const settings = {
-                name: document.getElementById('room-name-input').value,
-                maxPlayers: parseInt(document.getElementById('max-players-select').value),
-                gameMode: document.getElementById('game-mode-select').value,
-                isPrivate: document.getElementById('private-room-checkbox').checked
+                name: nameInput.value,
+                maxPlayers: parseInt(maxPlayersSelect.value),
+                gameMode: gameModeSelect.value,
+                isPrivate: privateCheckbox.checked,
             };
-            
+
             try {
                 await this.networkManager.createRoom(settings);
                 dialog.remove();
@@ -370,12 +390,12 @@ class MultiplayerUI {
                 alert('Failed to create room: ' + error.message);
             }
         });
-        
+
         document.getElementById('cancel-create-btn').addEventListener('click', () => {
             dialog.remove();
         });
     }
-    
+
     /**
      * Join a room
      */
@@ -387,15 +407,15 @@ class MultiplayerUI {
             alert('Failed to join room: ' + error.message);
         }
     }
-    
+
     /**
      * Quick match - join first available room
      */
     async quickMatch() {
         try {
             const rooms = await this.networkManager.getRoomList();
-            const availableRoom = rooms.find(room => room.players < room.maxPlayers);
-            
+            const availableRoom = rooms.find((room) => room.players < room.maxPlayers);
+
             if (availableRoom) {
                 await this.joinRoom(availableRoom.id);
             } else {
@@ -404,7 +424,7 @@ class MultiplayerUI {
                     name: 'Quick Match',
                     maxPlayers: 4,
                     gameMode: 'classic',
-                    isPrivate: false
+                    isPrivate: false,
                 });
                 this.showRoomLobby();
             }
@@ -412,14 +432,14 @@ class MultiplayerUI {
             alert('Quick match failed: ' + error.message);
         }
     }
-    
+
     /**
      * Show room lobby interface
      */
     showRoomLobby(roomData) {
         this.hideAllViews();
         this.currentView = 'lobby';
-        
+
         const lobby = document.createElement('div');
         lobby.className = 'room-lobby';
         lobby.style.cssText = `
@@ -427,7 +447,7 @@ class MultiplayerUI {
             max-width: 1000px;
             margin: 50px auto;
         `;
-        
+
         lobby.innerHTML = `
             <h1 style="text-align: center; margin-bottom: 30px;">Room Lobby</h1>
             
@@ -509,11 +529,11 @@ class MultiplayerUI {
                 </div>
             </div>
         `;
-        
+
         this.elements.container.appendChild(lobby);
         this.elements.lobby = lobby;
         this.elements.container.style.display = 'block';
-        
+
         // Setup event listeners
         let isReady = false;
         document.getElementById('ready-btn').addEventListener('click', () => {
@@ -522,7 +542,7 @@ class MultiplayerUI {
             document.getElementById('ready-btn').textContent = isReady ? 'Not Ready' : 'Ready';
             document.getElementById('ready-btn').style.background = isReady ? '#ff8800' : '#00ff00';
         });
-        
+
         document.getElementById('leave-room-btn').addEventListener('click', async () => {
             try {
                 await this.networkManager.leaveRoom();
@@ -531,29 +551,31 @@ class MultiplayerUI {
                 alert('Failed to leave room: ' + error.message);
             }
         });
-        
+
         document.getElementById('send-chat-btn').addEventListener('click', () => {
             this.sendChatMessage();
         });
-        
+
         document.getElementById('chat-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 this.sendChatMessage();
             }
         });
-        
+
         if (roomData) {
             this.updateLobby(roomData);
         }
     }
-    
+
     /**
      * Update lobby with room data
      */
     updateLobby(roomData) {
         const playerList = document.getElementById('player-list');
         if (playerList && roomData.players) {
-            playerList.innerHTML = roomData.players.map(player => `
+            playerList.innerHTML = roomData.players
+                .map(
+                    (player) => `
                 <div style="
                     padding: 10px;
                     margin-bottom: 5px;
@@ -576,9 +598,11 @@ class MultiplayerUI {
                         <span style="color: #888;">${player.ping || 0}ms</span>
                     </div>
                 </div>
-            `).join('');
+            `
+                )
+                .join('');
         }
-        
+
         if (roomData.settings) {
             const modeEl = document.getElementById('setting-mode');
             const maxEl = document.getElementById('setting-max');
@@ -586,39 +610,41 @@ class MultiplayerUI {
             if (maxEl) maxEl.textContent = roomData.settings.maxPlayers || 4;
         }
     }
-    
+
     /**
      * Send chat message
      */
     sendChatMessage() {
-        const input = document.getElementById('chat-input');
+        /** @type {HTMLInputElement} */
+        const input = /** @type {any} */ (document.getElementById('chat-input'));
         if (!input || !input.value.trim()) return;
-        
+
         this.networkManager.sendChatMessage(input.value.trim());
         input.value = '';
     }
-    
+
     /**
      * Add chat message to display
      */
     addChatMessage(data) {
         const chatMessages = document.getElementById('chat-messages');
         if (!chatMessages) return;
-        
+
         const messageEl = document.createElement('div');
-        messageEl.style.cssText = 'margin-bottom: 5px; padding: 5px; background: rgba(255, 255, 255, 0.05); border-radius: 3px;';
+        messageEl.style.cssText =
+            'margin-bottom: 5px; padding: 5px; background: rgba(255, 255, 255, 0.05); border-radius: 3px;';
         messageEl.innerHTML = `<strong>${data.playerName || 'Player'}:</strong> ${data.message}`;
-        
+
         chatMessages.appendChild(messageEl);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-    
+
     /**
      * Show in-game networking UI
      */
     showInGameUI() {
         this.currentView = 'game';
-        
+
         // Create minimal in-game UI overlay
         let inGameUI = document.getElementById('multiplayer-ingame-ui');
         if (!inGameUI) {
@@ -637,26 +663,26 @@ class MultiplayerUI {
             `;
             document.body.appendChild(inGameUI);
         }
-        
+
         this.elements.inGameUI = inGameUI;
         this.updateInGameUI();
-        
+
         // Start updating ping display
         this.startInGameUIUpdates();
     }
-    
+
     /**
      * Update in-game UI
      */
     updateInGameUI() {
         if (!this.elements.inGameUI) return;
-        
+
         const ping = this.networkManager.getPing();
         const connectionState = this.networkManager.getConnectionState();
-        
+
         let statusColor = '#00ff00';
         let statusText = 'Connected';
-        
+
         if (connectionState === 'reconnecting') {
             statusColor = '#ff8800';
             statusText = 'Reconnecting...';
@@ -664,7 +690,7 @@ class MultiplayerUI {
             statusColor = '#ff0000';
             statusText = 'Disconnected';
         }
-        
+
         this.elements.inGameUI.innerHTML = `
             <div style="font-size: 12px;">
                 <div style="margin-bottom: 5px;">
@@ -674,7 +700,7 @@ class MultiplayerUI {
             </div>
         `;
     }
-    
+
     /**
      * Start in-game UI updates
      */
@@ -684,7 +710,7 @@ class MultiplayerUI {
             this.updateInGameUI();
         }, 1000);
     }
-    
+
     /**
      * Stop in-game UI updates
      */
@@ -694,7 +720,7 @@ class MultiplayerUI {
             this.inGameUIInterval = null;
         }
     }
-    
+
     /**
      * Update connection status
      */
@@ -703,7 +729,7 @@ class MultiplayerUI {
             this.updateInGameUI();
         }
     }
-    
+
     /**
      * Show notification
      */
@@ -722,14 +748,14 @@ class MultiplayerUI {
             font-family: Arial, sans-serif;
         `;
         notification.textContent = message;
-        
+
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.remove();
         }, 3000);
     }
-    
+
     /**
      * Show game end screen
      */
@@ -748,7 +774,7 @@ class MultiplayerUI {
             z-index: 2000;
             border: 3px solid ${data.winner === this.networkManager.getPlayerId() ? '#00ff00' : '#ff0000'};
         `;
-        
+
         endScreen.innerHTML = `
             <h1 style="margin-top: 0; font-size: 48px;">
                 ${data.winner === this.networkManager.getPlayerId() ? 'Victory!' : 'Defeat'}
@@ -766,15 +792,15 @@ class MultiplayerUI {
                 margin-top: 20px;
             ">Back to Lobby</button>
         `;
-        
+
         document.body.appendChild(endScreen);
-        
+
         document.getElementById('back-to-lobby-btn').addEventListener('click', () => {
             endScreen.remove();
             this.showRoomLobby();
         });
     }
-    
+
     /**
      * Hide all views
      */
@@ -791,7 +817,7 @@ class MultiplayerUI {
             this.stopInGameUIUpdates();
         }
     }
-    
+
     /**
      * Hide entire UI
      */
@@ -802,7 +828,7 @@ class MultiplayerUI {
         }
         this.currentView = 'menu';
     }
-    
+
     /**
      * Show UI
      */
@@ -811,14 +837,14 @@ class MultiplayerUI {
             this.elements.container.style.display = 'block';
         }
     }
-    
+
     /**
      * Get current view
      */
     getCurrentView() {
         return this.currentView;
     }
-    
+
     /**
      * Cleanup
      */

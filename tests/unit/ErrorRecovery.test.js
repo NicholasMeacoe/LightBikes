@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { ErrorRecovery } = require('@/utils/ErrorRecovery.js');
 const { ErrorHandler } = require('@/utils/ErrorHandler.js');
 
@@ -14,6 +30,7 @@ describe('ErrorRecovery', () => {
     afterEach(() => {
         if (errorHandler) {
             errorHandler.clearAll();
+            document.body.innerHTML = '';
         }
     });
 
@@ -22,7 +39,7 @@ describe('ErrorRecovery', () => {
             const strategy = {
                 initialize: jest.fn(),
                 critical: true,
-                maxRetries: 3
+                maxRetries: 3,
             };
 
             errorRecovery.registerStrategy('TestComponent', strategy);
@@ -31,12 +48,12 @@ describe('ErrorRecovery', () => {
 
         it('should set default values for strategy', () => {
             const strategy = {
-                initialize: jest.fn()
+                initialize: jest.fn(),
             };
 
             errorRecovery.registerStrategy('TestComponent', strategy);
             const registered = errorRecovery.recoveryStrategies.get('TestComponent');
-            
+
             expect(registered.critical).toBe(true);
             expect(registered.maxRetries).toBe(3);
             expect(registered.retryCount).toBe(0);
@@ -47,7 +64,7 @@ describe('ErrorRecovery', () => {
         it('should initialize component successfully', async () => {
             const mockComponent = { name: 'test' };
             const strategy = {
-                initialize: jest.fn().mockResolvedValue(mockComponent)
+                initialize: jest.fn().mockResolvedValue(mockComponent),
             };
 
             errorRecovery.registerStrategy('TestComponent', strategy);
@@ -58,16 +75,16 @@ describe('ErrorRecovery', () => {
         });
 
         it('should throw error if no strategy registered', async () => {
-            await expect(
-                errorRecovery.initializeWithRecovery('UnknownComponent')
-            ).rejects.toThrow('No recovery strategy registered');
+            await expect(errorRecovery.initializeWithRecovery('UnknownComponent')).rejects.toThrow(
+                'No recovery strategy registered'
+            );
         });
 
         it('should reset retry count on successful initialization', async () => {
             const mockComponent = { name: 'test' };
             const strategy = {
                 initialize: jest.fn().mockResolvedValue(mockComponent),
-                retryCount: 2
+                retryCount: 2,
             };
 
             errorRecovery.registerStrategy('TestComponent', strategy);
@@ -80,7 +97,7 @@ describe('ErrorRecovery', () => {
         it('should remove component from failed list on success', async () => {
             const mockComponent = { name: 'test' };
             const strategy = {
-                initialize: jest.fn().mockResolvedValue(mockComponent)
+                initialize: jest.fn().mockResolvedValue(mockComponent),
             };
 
             errorRecovery.failedComponents.add('TestComponent');
@@ -99,7 +116,7 @@ describe('ErrorRecovery', () => {
                 fallback: jest.fn().mockResolvedValue(fallbackComponent),
                 critical: false,
                 maxRetries: 2,
-                retryCount: 2
+                retryCount: 2,
             };
 
             const result = await errorRecovery.attemptRecovery(
@@ -119,7 +136,7 @@ describe('ErrorRecovery', () => {
                 fallback: jest.fn().mockRejectedValue(new Error('Fallback failed')),
                 critical: false,
                 maxRetries: 2,
-                retryCount: 2
+                retryCount: 2,
             };
 
             const result = await errorRecovery.attemptRecovery(
@@ -138,15 +155,11 @@ describe('ErrorRecovery', () => {
                 fallback: null,
                 critical: true,
                 maxRetries: 2,
-                retryCount: 2
+                retryCount: 2,
             };
 
             await expect(
-                errorRecovery.attemptRecovery(
-                    'TestComponent',
-                    new Error('Init failed'),
-                    strategy
-                )
+                errorRecovery.attemptRecovery('TestComponent', new Error('Init failed'), strategy)
             ).rejects.toThrow('Init failed');
         });
     });
@@ -157,7 +170,7 @@ describe('ErrorRecovery', () => {
             const strategy = {
                 initialize: jest.fn().mockResolvedValue(mockComponent),
                 maxRetries: 3,
-                retryCount: 1
+                retryCount: 1,
             };
 
             errorRecovery.registerStrategy('TestComponent', strategy);
@@ -172,7 +185,7 @@ describe('ErrorRecovery', () => {
             const strategy = {
                 initialize: jest.fn().mockResolvedValue(mockComponent),
                 maxRetries: 3,
-                retryCount: 2
+                retryCount: 2,
             };
 
             errorRecovery.registerStrategy('TestComponent', strategy);
@@ -200,7 +213,7 @@ describe('ErrorRecovery', () => {
         it('should enable a disabled feature', () => {
             errorRecovery.disableFeature('TestFeature');
             expect(errorRecovery.isFeatureDisabled('TestFeature')).toBe(true);
-            
+
             errorRecovery.enableFeature('TestFeature');
             expect(errorRecovery.isFeatureDisabled('TestFeature')).toBe(false);
         });
@@ -262,6 +275,7 @@ describe('ErrorRecovery', () => {
         it('should not show error if feature already disabled', () => {
             errorRecovery.disableFeature('TestFeature');
             errorHandler.clearAll();
+            document.body.innerHTML = '';
 
             const error = new Error('Runtime error');
             errorRecovery.handleFeatureRuntimeError('TestFeature', error, null);
@@ -380,7 +394,7 @@ describe('ErrorRecovery', () => {
         it('should reset retry counts', () => {
             const strategy = {
                 initialize: jest.fn(),
-                retryCount: 2
+                retryCount: 2,
             };
 
             errorRecovery.registerStrategy('TestComponent', strategy);

@@ -2,7 +2,12 @@
  * Error recovery strategies for game initialization
  */
 
-const { DOMNotReadyError, CanvasCreationError, ModeSelectorError } = require('./InitializationErrors.js');
+const {
+    DOMNotReadyError,
+    CanvasCreationError,
+    ModeSelectorError,
+} = require('./InitializationErrors.js');
+const { logger } = require('./Logger.js');
 
 class ErrorRecoveryStrategies {
     constructor() {
@@ -22,7 +27,9 @@ class ErrorRecoveryStrategies {
         }
 
         this.domRetryCount++;
-        console.log(`Retrying initialization (attempt ${this.domRetryCount}/${this.maxDOMRetries})...`);
+        logger.info(
+            `Retrying initialization (attempt ${this.domRetryCount}/${this.maxDOMRetries})...`
+        );
 
         return new Promise((resolve) => {
             setTimeout(async () => {
@@ -37,11 +44,19 @@ class ErrorRecoveryStrategies {
     }
 
     /**
+     * Get user agent string (extracted for testability)
+     * @returns {string} User agent string
+     */
+    getUserAgent() {
+        return navigator.userAgent;
+    }
+
+    /**
      * Get browser compatibility message for WebGL errors
      * @returns {Object} Compatibility information
      */
     getWebGLCompatibilityMessage() {
-        const userAgent = navigator.userAgent.toLowerCase();
+        const userAgent = this.getUserAgent().toLowerCase();
         let browserName = 'your browser';
         let updateLink = '';
 
@@ -68,8 +83,8 @@ class ErrorRecoveryStrategies {
                 `Update ${browserName} to the latest version`,
                 'Enable hardware acceleration in browser settings',
                 'Try a different browser if the issue persists',
-                'Visit https://get.webgl.org/ to test WebGL support'
-            ]
+                'Visit https://get.webgl.org/ to test WebGL support',
+            ],
         };
     }
 
@@ -135,19 +150,21 @@ class ErrorRecoveryStrategies {
         `;
 
         const buttons = fallback.querySelectorAll('.fallback-mode-btn');
-        buttons.forEach(btn => {
-            btn.addEventListener('mouseenter', () => {
-                btn.style.background = '#0cc';
-            });
-            btn.addEventListener('mouseleave', () => {
-                btn.style.background = '#0ff';
-            });
-            btn.addEventListener('click', () => {
-                const mode = btn.getAttribute('data-mode');
-                fallback.remove();
-                onModeSelected(mode);
-            });
-        });
+        buttons.forEach(
+            /** @param {HTMLElement} btn */ (btn) => {
+                btn.addEventListener('mouseenter', () => {
+                    btn.style.background = '#0cc';
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.background = '#0ff';
+                });
+                btn.addEventListener('click', () => {
+                    const mode = btn.getAttribute('data-mode');
+                    fallback.remove();
+                    onModeSelected(mode);
+                });
+            }
+        );
 
         return fallback;
     }
@@ -161,10 +178,10 @@ class ErrorRecoveryStrategies {
         try {
             const fallback = this.createFallbackModeSelector(onModeSelected);
             document.body.appendChild(fallback);
-            console.log('Fallback mode selector created');
+            logger.info('Fallback mode selector created');
             return true;
         } catch (error) {
-            console.error('Failed to create fallback mode selector:', error);
+            logger.error('Failed to create fallback mode selector:', error);
             return false;
         }
     }

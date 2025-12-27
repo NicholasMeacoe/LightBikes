@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { AchievementSystem } = require('@/systems/AchievementSystem.js');
 
 describe('AchievementSystem', () => {
@@ -17,13 +33,13 @@ describe('AchievementSystem', () => {
             }),
             clear: jest.fn(() => {
                 mockLocalStorage.data = {};
-            })
+            }),
         };
 
         // Replace global localStorage
         Object.defineProperty(window, 'localStorage', {
             value: mockLocalStorage,
-            writable: true
+            writable: true,
         });
 
         achievementSystem = new AchievementSystem();
@@ -43,11 +59,11 @@ describe('AchievementSystem', () => {
 
         it('should have correct milestone definitions', () => {
             const expectedMilestones = [
-                { seconds: 30, message: "First Steps!", description: "Survived 30 seconds" },
-                { seconds: 60, message: "Getting Warmed Up!", description: "Survived 1 minute" },
-                { seconds: 120, message: "Steady Progress!", description: "Survived 2 minutes" },
-                { seconds: 300, message: "Master of Survival!", description: "Survived 5 minutes" },
-                { seconds: 600, message: "Legendary Pilot!", description: "Survived 10 minutes" }
+                { seconds: 30, message: 'First Steps!', description: 'Survived 30 seconds' },
+                { seconds: 60, message: 'Getting Warmed Up!', description: 'Survived 1 minute' },
+                { seconds: 120, message: 'Steady Progress!', description: 'Survived 2 minutes' },
+                { seconds: 300, message: 'Master of Survival!', description: 'Survived 5 minutes' },
+                { seconds: 600, message: 'Legendary Pilot!', description: 'Survived 10 minutes' },
             ];
 
             expectedMilestones.forEach((expected, index) => {
@@ -106,7 +122,9 @@ describe('AchievementSystem', () => {
         });
 
         it('should handle non-array data', () => {
-            mockLocalStorage.data['lightbikes_achievements'] = JSON.stringify({ invalid: 'object' });
+            mockLocalStorage.data['lightbikes_achievements'] = JSON.stringify({
+                invalid: 'object',
+            });
 
             const progress = achievementSystem.loadProgress();
             expect(progress).toBeInstanceOf(Set);
@@ -140,19 +158,19 @@ describe('AchievementSystem', () => {
     describe('checkMilestone', () => {
         it('should detect new milestone achievements', () => {
             const achievements = achievementSystem.checkMilestone(35);
-            
+
             expect(achievements).toHaveLength(1);
             expect(achievements[0].seconds).toBe(30);
-            expect(achievements[0].message).toBe("First Steps!");
+            expect(achievements[0].message).toBe('First Steps!');
             expect(achievements[0].timeAchieved).toBe(35);
             expect(achievementSystem.unlockedAchievements.has(30)).toBe(true);
         });
 
         it('should detect multiple milestones at once', () => {
             const achievements = achievementSystem.checkMilestone(125);
-            
+
             expect(achievements).toHaveLength(3); // 30, 60, 120 seconds
-            expect(achievements.map(a => a.seconds)).toEqual([30, 60, 120]);
+            expect(achievements.map((a) => a.seconds)).toEqual([30, 60, 120]);
             expect(achievementSystem.unlockedAchievements.has(30)).toBe(true);
             expect(achievementSystem.unlockedAchievements.has(60)).toBe(true);
             expect(achievementSystem.unlockedAchievements.has(120)).toBe(true);
@@ -185,14 +203,14 @@ describe('AchievementSystem', () => {
 
         it('should save progress when new achievements are unlocked', () => {
             const saveProgressSpy = jest.spyOn(achievementSystem, 'saveProgress');
-            
+
             achievementSystem.checkMilestone(35);
             expect(saveProgressSpy).toHaveBeenCalled();
         });
 
         it('should not save progress when no new achievements', () => {
             const saveProgressSpy = jest.spyOn(achievementSystem, 'saveProgress');
-            
+
             achievementSystem.checkMilestone(15); // Below first milestone
             expect(saveProgressSpy).not.toHaveBeenCalled();
         });
@@ -204,7 +222,7 @@ describe('AchievementSystem', () => {
             achievementSystem.unlockedAchievements.add(120);
 
             const milestones = achievementSystem.getAllMilestones();
-            
+
             expect(milestones).toHaveLength(5);
             expect(milestones[0].unlocked).toBe(true); // 30 seconds
             expect(milestones[1].unlocked).toBe(false); // 60 seconds
@@ -215,7 +233,7 @@ describe('AchievementSystem', () => {
 
         it('should include formatted time for each milestone', () => {
             const milestones = achievementSystem.getAllMilestones();
-            
+
             expect(milestones[0].formattedTime).toBe('00:30');
             expect(milestones[1].formattedTime).toBe('01:00');
             expect(milestones[2].formattedTime).toBe('02:00');
@@ -230,7 +248,7 @@ describe('AchievementSystem', () => {
             achievementSystem.unlockedAchievements.add(300);
 
             const unlocked = achievementSystem.getUnlockedAchievements();
-            
+
             expect(unlocked).toHaveLength(2);
             expect(unlocked[0].seconds).toBe(30);
             expect(unlocked[1].seconds).toBe(300);
@@ -245,9 +263,9 @@ describe('AchievementSystem', () => {
     describe('getNextMilestone', () => {
         it('should return first milestone when none unlocked', () => {
             const next = achievementSystem.getNextMilestone();
-            
+
             expect(next.seconds).toBe(30);
-            expect(next.message).toBe("First Steps!");
+            expect(next.message).toBe('First Steps!');
         });
 
         it('should return next milestone after unlocked ones', () => {
@@ -259,7 +277,7 @@ describe('AchievementSystem', () => {
         });
 
         it('should return null when all milestones unlocked', () => {
-            achievementSystem.milestones.forEach(milestone => {
+            achievementSystem.milestones.forEach((milestone) => {
                 achievementSystem.unlockedAchievements.add(milestone.seconds);
             });
 
@@ -274,7 +292,7 @@ describe('AchievementSystem', () => {
             achievementSystem.unlockedAchievements.add(60);
 
             const progress = achievementSystem.getProgress();
-            
+
             expect(progress.totalMilestones).toBe(5);
             expect(progress.unlockedCount).toBe(2);
             expect(progress.progressPercentage).toBe(40);
@@ -282,7 +300,7 @@ describe('AchievementSystem', () => {
         });
 
         it('should handle all unlocked case', () => {
-            achievementSystem.milestones.forEach(milestone => {
+            achievementSystem.milestones.forEach((milestone) => {
                 achievementSystem.unlockedAchievements.add(milestone.seconds);
             });
 
@@ -308,7 +326,7 @@ describe('AchievementSystem', () => {
             achievementSystem.sessionAchievements.add(60);
 
             achievementSystem.clearProgress();
-            
+
             expect(achievementSystem.unlockedAchievements.size).toBe(0);
             expect(achievementSystem.sessionAchievements.size).toBe(0);
             expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('lightbikes_achievements');
@@ -359,7 +377,7 @@ describe('AchievementSystem', () => {
             achievementSystem.sessionAchievements.add(60);
 
             const debugInfo = achievementSystem.getDebugInfo();
-            
+
             expect(debugInfo.totalMilestones).toBe(5);
             expect(debugInfo.unlockedCount).toBe(1);
             expect(debugInfo.sessionAchievements).toEqual([60]);
@@ -382,7 +400,7 @@ describe('AchievementSystem', () => {
             const freshSystem = new AchievementSystem();
             const achievements = freshSystem.checkMilestone(125); // Should unlock 30, 60, 120
             expect(achievements).toHaveLength(3);
-            expect(achievements.map(a => a.seconds)).toEqual([30, 60, 120]);
+            expect(achievements.map((a) => a.seconds)).toEqual([30, 60, 120]);
         });
 
         it('should not detect milestones below thresholds', () => {
@@ -397,10 +415,10 @@ describe('AchievementSystem', () => {
         it('should maintain progress across instances', () => {
             // First instance unlocks achievements
             achievementSystem.checkMilestone(125);
-            
+
             // Create new instance
             const newSystem = new AchievementSystem();
-            
+
             expect(newSystem.unlockedAchievements.has(30)).toBe(true);
             expect(newSystem.unlockedAchievements.has(60)).toBe(true);
             expect(newSystem.unlockedAchievements.has(120)).toBe(true);
@@ -410,12 +428,12 @@ describe('AchievementSystem', () => {
             // Mock localStorage as unavailable
             Object.defineProperty(window, 'localStorage', {
                 value: undefined,
-                writable: true
+                writable: true,
             });
 
             const systemWithoutStorage = new AchievementSystem();
             const achievements = systemWithoutStorage.checkMilestone(35);
-            
+
             expect(achievements).toHaveLength(1);
             expect(systemWithoutStorage.unlockedAchievements.has(30)).toBe(true);
         });

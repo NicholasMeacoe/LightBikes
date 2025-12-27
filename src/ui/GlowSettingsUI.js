@@ -1,11 +1,11 @@
 /**
  * GlowSettingsUI - Interactive user interface for glow effect configuration
- * 
+ *
  * This class manages the complete user interface for glow effect settings,
  * providing an intuitive way for users to adjust glow intensity with immediate
  * visual feedback. It handles UI interactions, settings persistence, and
  * provides real-time preview of changes.
- * 
+ *
  * Key Features:
  * - Interactive intensity selection with visual feedback
  * - Real-time preview bar showing current glow level
@@ -14,38 +14,38 @@
  * - Keyboard shortcuts and accessibility support
  * - Settings panel with smooth show/hide animations
  * - Integration with GlowSettings for persistence
- * 
+ *
  * UI Components:
  * - Settings toggle button with current intensity indicator
  * - Collapsible settings panel with intensity options
  * - Visual preview bar with glow effect simulation
  * - Reset button to restore default settings
  * - Close button and click-outside-to-close functionality
- * 
+ *
  * Interaction Features:
  * - Click intensity buttons to change level
  * - Visual feedback shows current selection
  * - Preview bar updates with glow intensity
  * - Settings button shows current state (enabled/disabled)
  * - Keyboard support (Escape to close)
- * 
+ *
  * Usage Example:
  * ```javascript
  * const settingsUI = new GlowSettingsUI(glowSettings, glowEffectManager);
- * 
+ *
  * // UI is automatically initialized and event listeners attached
  * // User interactions will automatically update settings and apply changes
- * 
+ *
  * // Programmatically update UI (e.g., from external settings change)
  * settingsUI.updateFromExternal('HIGH');
- * 
+ *
  * // Handle window resize
  * settingsUI.handleResize();
- * 
+ *
  * // Cleanup when done
  * settingsUI.destroy();
  * ```
- * 
+ *
  * HTML Structure Required:
  * ```html
  * <button id="glowSettingsButton">Glow Settings</button>
@@ -62,7 +62,7 @@
  *   <button id="closeGlowSettings">Close</button>
  * </div>
  * ```
- * 
+ *
  * @class GlowSettingsUI
  * @author LightBikes Development Team
  * @version 1.0.0
@@ -72,17 +72,17 @@ class GlowSettingsUI {
     constructor(glowSettings, glowEffectManager) {
         this.glowSettings = glowSettings;
         this.glowEffectManager = glowEffectManager;
-        
+
         // UI elements
         this.settingsButton = null;
         this.settingsPanel = null;
         this.intensityButtons = [];
         this.previewLevel = null;
         this.currentIntensityLabel = null;
-        
+
         // State
-        this.isVisible = false;
-        
+        this._isVisible = false;
+
         // Initialize UI
         this.initializeUI();
     }
@@ -96,13 +96,13 @@ class GlowSettingsUI {
         this.settingsPanel = document.getElementById('glowSettingsPanel');
         this.previewLevel = document.getElementById('glowPreviewLevel');
         this.currentIntensityLabel = document.getElementById('currentIntensityLabel');
-        
+
         // Get intensity buttons
         this.intensityButtons = Array.from(document.querySelectorAll('.glow-intensity-btn'));
-        
+
         // Set up event listeners
         this.setupEventListeners();
-        
+
         // Update UI to reflect current settings
         this.updateUI();
     }
@@ -119,7 +119,7 @@ class GlowSettingsUI {
         }
 
         // Intensity buttons
-        this.intensityButtons.forEach(button => {
+        this.intensityButtons.forEach((button) => {
             button.addEventListener('click', () => {
                 const intensity = button.dataset.intensity;
                 this.setIntensity(intensity);
@@ -144,16 +144,20 @@ class GlowSettingsUI {
 
         // Close panel when clicking outside
         document.addEventListener('click', (event) => {
-            if (this.isVisible && 
-                !this.settingsPanel.contains(event.target) && 
-                !this.settingsButton.contains(event.target)) {
+            /** @type {Node} */
+            const target = /** @type {any} */ (event.target);
+            if (
+                this._isVisible &&
+                !this.settingsPanel.contains(target) &&
+                !this.settingsButton.contains(target)
+            ) {
                 this.hidePanel();
             }
         });
 
         // Handle escape key
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && this.isVisible) {
+            if (event.key === 'Escape' && this._isVisible) {
                 this.hidePanel();
             }
         });
@@ -163,7 +167,7 @@ class GlowSettingsUI {
      * Toggle settings panel visibility
      */
     togglePanel() {
-        if (this.isVisible) {
+        if (this._isVisible) {
             this.hidePanel();
         } else {
             this.showPanel();
@@ -175,14 +179,14 @@ class GlowSettingsUI {
      */
     showPanel() {
         if (!this.settingsPanel) return;
-        
+
         this.settingsPanel.style.display = 'block';
-        this.isVisible = true;
-        
+        this._isVisible = true;
+
         if (this.settingsButton) {
             this.settingsButton.classList.add('active');
         }
-        
+
         // Update UI when panel is shown
         this.updateUI();
     }
@@ -192,10 +196,10 @@ class GlowSettingsUI {
      */
     hidePanel() {
         if (!this.settingsPanel) return;
-        
+
         this.settingsPanel.style.display = 'none';
-        this.isVisible = false;
-        
+        this._isVisible = false;
+
         if (this.settingsButton) {
             this.settingsButton.classList.remove('active');
         }
@@ -211,7 +215,7 @@ class GlowSettingsUI {
             if (this.glowEffectManager) {
                 this.glowEffectManager.setIntensity(intensity);
             }
-            
+
             // Update UI
             this.updateUI();
         }
@@ -222,12 +226,12 @@ class GlowSettingsUI {
      */
     resetSettings() {
         this.glowSettings.resetToDefaults();
-        
+
         // Apply reset settings immediately
         if (this.glowEffectManager) {
             this.glowEffectManager.setIntensity(this.glowSettings.getIntensity());
         }
-        
+
         // Update UI
         this.updateUI();
     }
@@ -238,9 +242,9 @@ class GlowSettingsUI {
     updateUI() {
         const currentIntensity = this.glowSettings.getIntensity();
         const config = this.glowSettings.getIntensityConfig();
-        
+
         // Update intensity buttons
-        this.intensityButtons.forEach(button => {
+        this.intensityButtons.forEach((button) => {
             const buttonIntensity = button.dataset.intensity;
             if (buttonIntensity === currentIntensity) {
                 button.classList.add('active');
@@ -248,10 +252,10 @@ class GlowSettingsUI {
                 button.classList.remove('active');
             }
         });
-        
+
         // Update preview
         this.updatePreview(currentIntensity, config);
-        
+
         // Update settings button state
         this.updateButtonState(currentIntensity);
     }
@@ -263,10 +267,10 @@ class GlowSettingsUI {
      */
     updatePreview(intensity, config) {
         if (!this.previewLevel || !this.currentIntensityLabel) return;
-        
+
         // Update label
         this.currentIntensityLabel.textContent = config.label;
-        
+
         // Calculate preview width based on intensity
         let previewWidth = 0;
         switch (intensity) {
@@ -283,10 +287,10 @@ class GlowSettingsUI {
                 previewWidth = 100;
                 break;
         }
-        
+
         // Update preview bar
         this.previewLevel.style.width = `${previewWidth}%`;
-        
+
         // Update glow effect on preview bar
         if (intensity === 'OFF') {
             this.previewLevel.style.boxShadow = 'none';
@@ -301,8 +305,13 @@ class GlowSettingsUI {
      * @param {string} intensity - Current intensity level
      */
     updateButtonState(intensity) {
-        if (!this.settingsButton) return;
-        
+        if (!this.settingsButton) {
+            // console.log('DEBUG: updateButtonState - No settingsButton');
+            return;
+        }
+
+        // console.log('DEBUG: updateButtonState', { intensity, style: this.settingsButton.style });
+
         // Change button appearance based on whether effects are enabled
         if (intensity === 'OFF') {
             this.settingsButton.style.opacity = '0.6';
@@ -318,7 +327,7 @@ class GlowSettingsUI {
      * @returns {boolean} True if panel is visible
      */
     isVisible() {
-        return this.isVisible;
+        return this._isVisible;
     }
 
     /**
@@ -335,16 +344,16 @@ class GlowSettingsUI {
      */
     handleResize() {
         // Adjust panel position if needed for mobile devices
-        if (this.isVisible && this.settingsPanel) {
+        if (this._isVisible && this.settingsPanel) {
             const rect = this.settingsPanel.getBoundingClientRect();
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
-            
+
             // Ensure panel stays within viewport
             if (rect.right > viewportWidth) {
                 this.settingsPanel.style.left = `${viewportWidth - rect.width - 20}px`;
             }
-            
+
             if (rect.bottom > viewportHeight) {
                 this.settingsPanel.style.top = `${viewportHeight - rect.height - 20}px`;
             }
@@ -359,11 +368,11 @@ class GlowSettingsUI {
         if (this.settingsButton) {
             this.settingsButton.removeEventListener('click', this.togglePanel);
         }
-        
-        this.intensityButtons.forEach(button => {
+
+        this.intensityButtons.forEach((button) => {
             button.removeEventListener('click', this.setIntensity);
         });
-        
+
         // Clear references
         this.glowSettings = null;
         this.glowEffectManager = null;

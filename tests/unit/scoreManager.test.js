@@ -1,21 +1,57 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { ScoreManager } = require('@/systems/scoreManager.js');
-const { ScorePersistence } = require('@/systems/scorePersistence.js');
 
 // Mock ScorePersistence
-jest.mock('./scorePersistence.js', () => ({
-    ScorePersistence: {
-        loadHighScore: jest.fn(() => 0),
-        saveHighScore: jest.fn(() => true)
-    }
+const mockScorePersistence = {
+    loadHighScore: jest.fn(() => 0),
+    saveHighScore: jest.fn(() => true),
+};
+
+jest.mock('@/systems/scorePersistence.js', () => ({
+    ScorePersistence: mockScorePersistence,
 }));
 
 describe('ScoreManager', () => {
     let scoreManager;
+    let ScoreManagerClass; // Renamed to avoid confusion
 
     beforeEach(() => {
+        jest.resetModules();
         jest.clearAllMocks();
-        ScorePersistence.loadHighScore.mockReturnValue(0);
-        scoreManager = new ScoreManager();
+
+        // Remock Logger
+        jest.mock('@/utils/Logger.js', () => ({
+            Logger: MockLoggerClass,
+            logger: mockLogger,
+            createLogger: jest.fn(() => mockLogger),
+        }));
+
+        // Remock ScorePersistence
+        jest.mock('@/systems/scorePersistence.js', () => ({
+            ScorePersistence: mockScorePersistence,
+        }));
+
+        mockScorePersistence.loadHighScore.mockReturnValue(0);
+
+        // Require fresh module
+        const module = require('@/systems/scoreManager.js');
+        ScoreManagerClass = module.ScoreManager;
+        scoreManager = new ScoreManagerClass();
     });
 
     describe('constructor', () => {
@@ -25,13 +61,13 @@ describe('ScoreManager', () => {
         });
 
         it('should load high score from persistence', () => {
-            expect(ScorePersistence.loadHighScore).toHaveBeenCalled();
+            expect(mockScorePersistence.loadHighScore).toHaveBeenCalled();
             expect(scoreManager.highScore).toBe(0);
         });
 
         it('should initialize with loaded high score', () => {
-            ScorePersistence.loadHighScore.mockReturnValue(15);
-            const newScoreManager = new ScoreManager();
+            mockScorePersistence.loadHighScore.mockReturnValue(15);
+            const newScoreManager = new ScoreManagerClass();
             expect(newScoreManager.highScore).toBe(15);
         });
     });
@@ -40,7 +76,7 @@ describe('ScoreManager', () => {
         it('should increment player score by 1', () => {
             scoreManager.incrementPlayerScore();
             expect(scoreManager.playerScore).toBe(1);
-            
+
             scoreManager.incrementPlayerScore();
             expect(scoreManager.playerScore).toBe(2);
         });
@@ -48,11 +84,11 @@ describe('ScoreManager', () => {
         it('should update high score when player score increases', () => {
             scoreManager.incrementPlayerScore();
             expect(scoreManager.highScore).toBe(1);
-            expect(ScorePersistence.saveHighScore).toHaveBeenCalledWith(1);
-            
+            expect(mockScorePersistence.saveHighScore).toHaveBeenCalledWith(1);
+
             scoreManager.incrementPlayerScore();
             expect(scoreManager.highScore).toBe(2);
-            expect(ScorePersistence.saveHighScore).toHaveBeenCalledWith(2);
+            expect(mockScorePersistence.saveHighScore).toHaveBeenCalledWith(2);
         });
 
         it('should not affect AI score', () => {
@@ -65,7 +101,7 @@ describe('ScoreManager', () => {
         it('should increment AI score by 1', () => {
             scoreManager.incrementAIScore();
             expect(scoreManager.aiScore).toBe(1);
-            
+
             scoreManager.incrementAIScore();
             expect(scoreManager.aiScore).toBe(2);
         });
@@ -81,9 +117,9 @@ describe('ScoreManager', () => {
         it('should reset player and AI scores to 0', () => {
             scoreManager.incrementPlayerScore();
             scoreManager.incrementAIScore();
-            
+
             scoreManager.resetCurrentScores();
-            
+
             expect(scoreManager.playerScore).toBe(0);
             expect(scoreManager.aiScore).toBe(0);
         });
@@ -92,9 +128,9 @@ describe('ScoreManager', () => {
             scoreManager.incrementPlayerScore();
             scoreManager.incrementPlayerScore();
             const originalHighScore = scoreManager.highScore;
-            
+
             scoreManager.resetCurrentScores();
-            
+
             expect(scoreManager.highScore).toBe(originalHighScore);
         });
     });
@@ -103,32 +139,32 @@ describe('ScoreManager', () => {
         it('should return true when high score is updated', () => {
             scoreManager.playerScore = 5;
             const result = scoreManager.updateHighScore();
-            
+
             expect(result).toBe(true);
             expect(scoreManager.highScore).toBe(5);
-            expect(ScorePersistence.saveHighScore).toHaveBeenCalledWith(5);
+            expect(mockScorePersistence.saveHighScore).toHaveBeenCalledWith(5);
         });
 
         it('should return false when high score is not updated', () => {
             scoreManager.highScore = 10;
             scoreManager.playerScore = 5;
-            
+
             const result = scoreManager.updateHighScore();
-            
+
             expect(result).toBe(false);
             expect(scoreManager.highScore).toBe(10);
-            expect(ScorePersistence.saveHighScore).not.toHaveBeenCalled();
+            expect(mockScorePersistence.saveHighScore).not.toHaveBeenCalled();
         });
 
         it('should not update high score if player score is equal', () => {
             scoreManager.highScore = 5;
             scoreManager.playerScore = 5;
-            
+
             const result = scoreManager.updateHighScore();
-            
+
             expect(result).toBe(false);
             expect(scoreManager.highScore).toBe(5);
-            expect(ScorePersistence.saveHighScore).not.toHaveBeenCalled();
+            expect(mockScorePersistence.saveHighScore).not.toHaveBeenCalled();
         });
     });
 
@@ -186,32 +222,32 @@ describe('ScoreManager', () => {
             scoreManager.playerScore = 3;
             scoreManager.aiScore = 2;
             scoreManager.highScore = 5;
-            
+
             const state = scoreManager.getScoreState();
-            
+
             expect(state).toEqual({
                 playerScore: 3,
                 aiScore: 2,
                 highScore: 5,
                 isNewHighScore: false,
-                roundsPlayed: 5
+                roundsPlayed: 5,
             });
         });
 
         it('should include isNewHighScore flag correctly', () => {
             scoreManager.incrementPlayerScore();
-            
+
             const state = scoreManager.getScoreState();
-            
+
             expect(state.isNewHighScore).toBe(true);
         });
 
         it('should calculate rounds played correctly', () => {
             scoreManager.playerScore = 7;
             scoreManager.aiScore = 3;
-            
+
             const state = scoreManager.getScoreState();
-            
+
             expect(state.roundsPlayed).toBe(10);
         });
     });
@@ -222,54 +258,54 @@ describe('ScoreManager', () => {
             scoreManager.incrementPlayerScore();
             scoreManager.incrementPlayerScore();
             scoreManager.incrementAIScore();
-            
+
             expect(scoreManager.getScoreState()).toEqual({
                 playerScore: 2,
                 aiScore: 1,
                 highScore: 2,
                 isNewHighScore: true,
-                roundsPlayed: 3
+                roundsPlayed: 3,
             });
-            
+
             // Reset for new session
             scoreManager.resetCurrentScores();
-            
+
             expect(scoreManager.getScoreState()).toEqual({
                 playerScore: 0,
                 aiScore: 0,
                 highScore: 2,
                 isNewHighScore: false,
-                roundsPlayed: 0
+                roundsPlayed: 0,
             });
-            
+
             // Second session with lower score
             scoreManager.incrementPlayerScore();
-            
+
             expect(scoreManager.getScoreState()).toEqual({
                 playerScore: 1,
                 aiScore: 0,
                 highScore: 2,
                 isNewHighScore: false,
-                roundsPlayed: 1
+                roundsPlayed: 1,
             });
         });
 
         it('should handle high score persistence scenario', () => {
             // Simulate loading high score from storage
             scoreManager.setHighScore(10);
-            
+
             // Play some rounds
             scoreManager.incrementPlayerScore();
             scoreManager.incrementPlayerScore();
-            
+
             expect(scoreManager.highScore).toBe(10);
             expect(scoreManager.isNewHighScore()).toBe(false);
-            
+
             // Achieve new high score
             for (let i = 0; i < 9; i++) {
                 scoreManager.incrementPlayerScore();
             }
-            
+
             expect(scoreManager.highScore).toBe(11);
             expect(scoreManager.isNewHighScore()).toBe(true);
         });

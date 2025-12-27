@@ -1,11 +1,11 @@
 /**
  * SpeedTracker - Velocity monitoring component for motion blur effects
- * 
+ *
  * This class implements velocity monitoring for entities in the LightBikes game,
  * providing speed threshold detection for blur activation and smooth blur intensity
  * transitions based on speed changes. It tracks multiple entities and calculates
  * their velocities for integration with the motion blur system.
- * 
+ *
  * Key Features:
  * - Multi-entity velocity monitoring
  * - Speed threshold detection for blur activation
@@ -13,62 +13,65 @@
  * - Historical speed tracking for trend analysis
  * - Power-up speed multiplier integration
  * - Performance-optimized calculations
- * 
+ *
  * Speed Calculation:
  * - Uses position delta between frames
  * - Applies smoothing to prevent jittery blur effects
  * - Accounts for power-up speed multipliers
  * - Tracks both instantaneous and average speeds
- * 
+ *
  * Integration Points:
  * - MotionBlurController: Provides speed data for blur intensity
  * - Game state: Monitors entity positions and directions
  * - Power-up system: Accounts for speed modifications
- * 
+ *
  * Usage Example:
  * ```javascript
  * const speedTracker = new SpeedTracker();
- * 
+ *
  * // Track entities
  * speedTracker.trackEntity('player', playerEntity);
  * speedTracker.trackEntity('ai1', aiEntity);
- * 
+ *
  * // Update with game state
  * speedTracker.update(gameState, deltaTime);
- * 
+ *
  * // Get speed for motion blur
  * const playerSpeed = speedTracker.getEntitySpeed('player');
  * motionBlur.updateBlurIntensity(playerSpeed);
  * ```
- * 
+ *
  * @class SpeedTracker
  * @author LightBikes Development Team
  * @version 1.0.0
  * @since 2024
  */
+const { createLogger } = require('../utils/Logger.js');
+const logger = createLogger('SpeedTracker');
+
 class SpeedTracker {
     constructor() {
         // Entity tracking
         this.trackedEntities = new Map(); // entityId -> tracking data
-        
+
         // Configuration
         this.config = {
-            smoothingFactor: 0.15,      // Speed smoothing (0 = no smoothing, 1 = maximum smoothing)
-            speedThreshold: 1.5,        // Minimum speed for blur activation
-            maxTrackingHistory: 10,     // Number of speed samples to keep
-            updateInterval: 16,         // Minimum ms between updates (60fps)
-            velocityScale: 1.0          // Global velocity scaling factor
+            smoothingFactor: 0.15, // Speed smoothing (0 = no smoothing, 1 = maximum smoothing)
+            speedThreshold: 1.5, // Minimum speed for blur activation
+            maxTrackingHistory: 10, // Number of speed samples to keep
+            updateInterval: 16, // Minimum ms between updates (60fps)
+            velocityScale: 1.0, // Global velocity scaling factor
         };
-        
+
         // Performance tracking
         this.lastUpdateTime = 0;
         this.updateCount = 0;
-        
+
         // Speed statistics
         this.globalStats = {
             maxSpeed: 0,
             averageSpeed: 0,
-            activeEntities: 0
+            activeEntities: 0,
         };
     }
 
@@ -79,7 +82,7 @@ class SpeedTracker {
      */
     trackEntity(entityId, entity) {
         if (!entityId || !entity) {
-            console.warn('SpeedTracker: Invalid entity or ID provided');
+            logger.warn('Invalid entity or ID provided');
             return;
         }
 
@@ -92,11 +95,11 @@ class SpeedTracker {
             speedHistory: [],
             lastUpdateTime: Date.now(),
             isActive: true,
-            speedMultiplier: 1.0
+            speedMultiplier: 1.0,
         };
 
         this.trackedEntities.set(entityId, trackingData);
-        console.debug(`SpeedTracker: Now tracking entity: ${entityId}`);
+        logger.debug(`Now tracking entity: ${entityId}`);
     }
 
     /**
@@ -106,7 +109,7 @@ class SpeedTracker {
     untrackEntity(entityId) {
         if (this.trackedEntities.has(entityId)) {
             this.trackedEntities.delete(entityId);
-            console.debug(`SpeedTracker: Stopped tracking entity: ${entityId}`);
+            logger.debug(`Stopped tracking entity: ${entityId}`);
         }
     }
 
@@ -117,7 +120,7 @@ class SpeedTracker {
      */
     update(gameState, deltaTime) {
         const currentTime = Date.now();
-        
+
         // Throttle updates for performance
         if (currentTime - this.lastUpdateTime < this.config.updateInterval) {
             return;
@@ -131,7 +134,7 @@ class SpeedTracker {
 
             // Update AI entities
             if (gameState.aiOpponents) {
-                gameState.aiOpponents.forEach(ai => {
+                gameState.aiOpponents.forEach((ai) => {
                     if (this.trackedEntities.has(ai.id) && ai.alive) {
                         this.updateEntitySpeed(ai.id, ai, gameState, deltaTime);
                     }
@@ -148,9 +151,8 @@ class SpeedTracker {
 
             this.lastUpdateTime = currentTime;
             this.updateCount++;
-
         } catch (error) {
-            console.error('SpeedTracker: Error during update:', error);
+            logger.error('Error during update', error);
         }
     }
 
@@ -176,15 +178,16 @@ class SpeedTracker {
             const deltaX = trackingData.currentPosition.x - trackingData.lastPosition.x;
             const deltaZ = trackingData.currentPosition.z - trackingData.lastPosition.z;
             const distance = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
-            
+
             // Convert to speed (units per second)
-            const instantaneousSpeed = deltaTime > 0 ? (distance / deltaTime) : 0;
+            const instantaneousSpeed = deltaTime > 0 ? distance / deltaTime : 0;
 
             // Get speed multiplier from power-up system if available
             trackingData.speedMultiplier = this.getSpeedMultiplier(entityId, gameState);
 
             // Apply speed multiplier and global scaling
-            const adjustedSpeed = instantaneousSpeed * trackingData.speedMultiplier * this.config.velocityScale;
+            const adjustedSpeed =
+                instantaneousSpeed * trackingData.speedMultiplier * this.config.velocityScale;
 
             // Update instantaneous speed
             trackingData.instantaneousSpeed = adjustedSpeed;
@@ -193,7 +196,8 @@ class SpeedTracker {
             if (trackingData.speedHistory.length === 0) {
                 trackingData.smoothedSpeed = adjustedSpeed;
             } else {
-                trackingData.smoothedSpeed = trackingData.smoothedSpeed + 
+                trackingData.smoothedSpeed =
+                    trackingData.smoothedSpeed +
                     (adjustedSpeed - trackingData.smoothedSpeed) * this.config.smoothingFactor;
             }
 
@@ -208,11 +212,12 @@ class SpeedTracker {
 
             // Debug logging for significant speed changes
             if (Math.abs(adjustedSpeed - trackingData.smoothedSpeed) > 0.5) {
-                console.debug(`SpeedTracker: ${entityId} speed change - Instant: ${adjustedSpeed.toFixed(2)}, Smoothed: ${trackingData.smoothedSpeed.toFixed(2)}`);
+                logger.debug(
+                    `${entityId} speed change - Instant: ${adjustedSpeed.toFixed(2)}, Smoothed: ${trackingData.smoothedSpeed.toFixed(2)}`
+                );
             }
-
         } catch (error) {
-            console.error(`SpeedTracker: Error updating entity ${entityId}:`, error);
+            logger.error(`Error updating entity ${entityId}`, error);
             trackingData.isActive = false;
         }
     }
@@ -238,9 +243,8 @@ class SpeedTracker {
             }
 
             return 1.0;
-
         } catch (error) {
-            console.warn(`SpeedTracker: Error getting speed multiplier for ${entityId}:`, error);
+            logger.warn(`Error getting speed multiplier for ${entityId}`, error);
             return 1.0;
         }
     }
@@ -270,7 +274,9 @@ class SpeedTracker {
 
         for (const [entityId, trackingData] of this.trackedEntities) {
             if (trackingData.isActive) {
-                const speed = useSmoothed ? trackingData.smoothedSpeed : trackingData.instantaneousSpeed;
+                const speed = useSmoothed
+                    ? trackingData.smoothedSpeed
+                    : trackingData.instantaneousSpeed;
                 maxSpeed = Math.max(maxSpeed, speed);
             }
         }
@@ -289,7 +295,9 @@ class SpeedTracker {
 
         for (const [entityId, trackingData] of this.trackedEntities) {
             if (trackingData.isActive) {
-                const speed = useSmoothed ? trackingData.smoothedSpeed : trackingData.instantaneousSpeed;
+                const speed = useSmoothed
+                    ? trackingData.smoothedSpeed
+                    : trackingData.instantaneousSpeed;
                 totalSpeed += speed;
                 activeCount++;
             }
@@ -304,6 +312,7 @@ class SpeedTracker {
      */
     isAnyEntityAboveThreshold() {
         for (const [entityId, trackingData] of this.trackedEntities) {
+            // DEBUG: Check ${entityId} active=${trackingData.isActive} speed=${trackingData.smoothedSpeed} thresh=${this.config.speedThreshold}
             if (trackingData.isActive && trackingData.smoothedSpeed > this.config.speedThreshold) {
                 return true;
             }
@@ -323,7 +332,7 @@ class SpeedTracker {
                 entitiesAboveThreshold.push({
                     entityId,
                     speed: trackingData.smoothedSpeed,
-                    instantaneousSpeed: trackingData.instantaneousSpeed
+                    instantaneousSpeed: trackingData.instantaneousSpeed,
                 });
             }
         }
@@ -369,9 +378,9 @@ class SpeedTracker {
     setSpeedThreshold(threshold) {
         if (typeof threshold === 'number' && threshold >= 0) {
             this.config.speedThreshold = threshold;
-            console.log(`SpeedTracker: Speed threshold set to ${threshold}`);
+            logger.info(`Speed threshold set to ${threshold}`);
         } else {
-            console.warn('SpeedTracker: Invalid speed threshold value');
+            logger.warn('Invalid speed threshold value');
         }
     }
 
@@ -382,9 +391,9 @@ class SpeedTracker {
     setSmoothingFactor(factor) {
         if (typeof factor === 'number' && factor >= 0 && factor <= 1) {
             this.config.smoothingFactor = factor;
-            console.log(`SpeedTracker: Smoothing factor set to ${factor}`);
+            logger.info(`Smoothing factor set to ${factor}`);
         } else {
-            console.warn('SpeedTracker: Invalid smoothing factor value');
+            logger.warn('Invalid smoothing factor value');
         }
     }
 
@@ -395,9 +404,9 @@ class SpeedTracker {
     setVelocityScale(scale) {
         if (typeof scale === 'number' && scale > 0) {
             this.config.velocityScale = scale;
-            console.log(`SpeedTracker: Velocity scale set to ${scale}`);
+            logger.info(`Velocity scale set to ${scale}`);
         } else {
-            console.warn('SpeedTracker: Invalid velocity scale value');
+            logger.warn('Invalid velocity scale value');
         }
     }
 
@@ -427,7 +436,7 @@ class SpeedTracker {
             activeEntityCount: this.globalStats.activeEntities,
             updateCount: this.updateCount,
             lastUpdateTime: this.lastUpdateTime,
-            entities: {}
+            entities: {},
         };
 
         for (const [entityId, trackingData] of this.trackedEntities) {
@@ -436,7 +445,7 @@ class SpeedTracker {
                 instantaneousSpeed: trackingData.instantaneousSpeed,
                 smoothedSpeed: trackingData.smoothedSpeed,
                 speedMultiplier: trackingData.speedMultiplier,
-                historyLength: trackingData.speedHistory.length
+                historyLength: trackingData.speedHistory.length,
             };
         }
 
@@ -453,10 +462,10 @@ class SpeedTracker {
         this.globalStats = {
             maxSpeed: 0,
             averageSpeed: 0,
-            activeEntities: 0
+            activeEntities: 0,
         };
-        
-        console.log('SpeedTracker: Reset all tracking data');
+
+        logger.info('Reset all tracking data');
     }
 
     /**
@@ -467,8 +476,8 @@ class SpeedTracker {
         for (const [entityId, trackingData] of this.trackedEntities) {
             trackingData.isActive = false;
         }
-        
-        console.debug('SpeedTracker: Paused');
+
+        logger.debug('Paused');
     }
 
     /**
@@ -476,19 +485,25 @@ class SpeedTracker {
      */
     resume() {
         const currentTime = Date.now();
-        
+
         // Reset positions and reactivate entities
         for (const [entityId, trackingData] of this.trackedEntities) {
             if (trackingData.entity) {
-                trackingData.lastPosition = { x: trackingData.entity.x || 0, z: trackingData.entity.z || 0 };
-                trackingData.currentPosition = { x: trackingData.entity.x || 0, z: trackingData.entity.z || 0 };
+                trackingData.lastPosition = {
+                    x: trackingData.entity.x || 0,
+                    z: trackingData.entity.z || 0,
+                };
+                trackingData.currentPosition = {
+                    x: trackingData.entity.x || 0,
+                    z: trackingData.entity.z || 0,
+                };
                 trackingData.lastUpdateTime = currentTime;
                 trackingData.isActive = true;
             }
         }
-        
+
         this.lastUpdateTime = currentTime;
-        console.debug('SpeedTracker: Resumed');
+        logger.debug('Resumed');
     }
 
     /**
@@ -496,7 +511,7 @@ class SpeedTracker {
      */
     destroy() {
         this.reset();
-        console.log('SpeedTracker: Destroyed');
+        logger.info('Destroyed');
     }
 }
 

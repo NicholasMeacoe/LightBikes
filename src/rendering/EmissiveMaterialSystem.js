@@ -1,11 +1,11 @@
 /**
  * EmissiveMaterialSystem - Manages emissive materials and pulse animations for neon glow effects
- * 
+ *
  * This class is responsible for creating, managing, and animating emissive materials
  * that provide the glowing appearance for bikes and trails in the LightBikes game.
  * It handles material lifecycle, synchronized pulsing animations, and memory management
  * to prevent leaks during extended gameplay.
- * 
+ *
  * Key Features:
  * - Creates emissive materials for bikes (high intensity) and trails (lower intensity)
  * - Synchronized pulsing animation across all materials (2.5 second cycle)
@@ -13,35 +13,35 @@
  * - Automatic material disposal and memory management
  * - Material caching and retrieval by entity ID
  * - Pulse animation pause/resume for game state changes
- * 
+ *
  * Material Hierarchy:
  * - Bikes: Base intensity 0.8 (80%) - Primary visual focus
  * - Trails: Base intensity 0.6 (60%) - Secondary visual elements
- * 
+ *
  * Pulse Animation:
  * - 2.5 second cycle period for subtle breathing effect
  * - Intensity varies between 80% and 100% using sine wave
  * - Synchronized across all materials for visual coherence
  * - Pausable for game state management
- * 
+ *
  * Usage Example:
  * ```javascript
  * const materialSystem = new EmissiveMaterialSystem();
- * 
+ *
  * // Create materials
  * const bikeMaterial = materialSystem.createBikeMaterial('player', 0x00ff00);
  * const trailMaterial = materialSystem.createTrailMaterial('player', 0x00ff00);
- * 
+ *
  * // Update in game loop
  * materialSystem.updatePulseAnimation(deltaTime);
- * 
+ *
  * // Control intensity
  * materialSystem.setGlobalIntensityMultiplier(0.5); // 50% intensity
- * 
+ *
  * // Cleanup
  * materialSystem.dispose();
  * ```
- * 
+ *
  * @class EmissiveMaterialSystem
  * @author LightBikes Development Team
  * @version 1.0.0
@@ -51,7 +51,7 @@ class EmissiveMaterialSystem {
     constructor() {
         // Material storage using entity IDs
         this.materials = new Map(); // Entity ID -> Material
-        
+
         // Pulse animation state
         this.pulseState = {
             time: 0,
@@ -59,18 +59,18 @@ class EmissiveMaterialSystem {
             paused: false,
             period: 2.5, // 2-3 second pulse cycle
             minIntensity: 0.8, // 80% minimum intensity
-            maxIntensity: 1.0  // 100% maximum intensity
+            maxIntensity: 1.0, // 100% maximum intensity
         };
-        
+
         // Base emissive intensities as specified in requirements
         this.baseIntensities = {
-            bike: 0.8,    // Bikes glow brighter
-            trail: 0.6    // Trails glow less for visual hierarchy
+            bike: 0.8, // Bikes glow brighter
+            trail: 0.6, // Trails glow less for visual hierarchy
         };
-        
+
         // Global intensity multiplier (controlled by user settings)
         this.globalIntensityMultiplier = 1.0;
-        
+
         // Material disposal tracking
         this.disposedMaterials = new Set();
     }
@@ -84,22 +84,22 @@ class EmissiveMaterialSystem {
     createBikeMaterial(entityId, color) {
         // Dispose of existing material if it exists
         this.disposeMaterial(entityId);
-        
+
         const material = new THREE.MeshLambertMaterial({
             color: color,
             emissive: color,
             emissiveIntensity: this.baseIntensities.bike * this.globalIntensityMultiplier,
-            transparent: false
+            transparent: false,
         });
-        
+
         // Store material with entity ID for management
         this.materials.set(entityId, {
             material: material,
             type: 'bike',
             baseIntensity: this.baseIntensities.bike,
-            color: color
+            color: color,
         });
-        
+
         return material;
     }
 
@@ -112,23 +112,23 @@ class EmissiveMaterialSystem {
     createTrailMaterial(entityId, color) {
         // Dispose of existing material if it exists
         this.disposeMaterial(entityId);
-        
+
         const material = new THREE.MeshBasicMaterial({
             color: color,
             emissive: color,
             emissiveIntensity: this.baseIntensities.trail * this.globalIntensityMultiplier,
             transparent: true,
-            opacity: 0.8 // Semi-transparent for trail segments
+            opacity: 0.8, // Semi-transparent for trail segments
         });
-        
+
         // Store material with entity ID for management
         this.materials.set(entityId, {
             material: material,
             type: 'trail',
             baseIntensity: this.baseIntensities.trail,
-            color: color
+            color: color,
         });
-        
+
         return material;
     }
 
@@ -141,25 +141,28 @@ class EmissiveMaterialSystem {
         if (this.pulseState.paused) {
             return;
         }
-        
+
         // Update pulse time
         this.pulseState.time += deltaTime;
-        
+
         // Calculate pulse cycle progress (0 to 1)
-        const cycleProgress = (this.pulseState.time % this.pulseState.period) / this.pulseState.period;
-        
+        const cycleProgress =
+            (this.pulseState.time % this.pulseState.period) / this.pulseState.period;
+
         // Calculate pulse intensity using sine wave for smooth breathing effect
         const pulseRange = this.pulseState.maxIntensity - this.pulseState.minIntensity;
-        this.pulseState.intensity = this.pulseState.minIntensity + 
-            (pulseRange * (Math.sin(cycleProgress * Math.PI * 2) * 0.5 + 0.5));
-        
+        this.pulseState.intensity =
+            this.pulseState.minIntensity +
+            pulseRange * (Math.sin(cycleProgress * Math.PI * 2) * 0.5 + 0.5);
+
         // Apply pulse intensity to all stored materials
         this.materials.forEach((materialData, entityId) => {
             if (!this.disposedMaterials.has(entityId)) {
-                const finalIntensity = materialData.baseIntensity * 
-                    this.globalIntensityMultiplier * 
+                const finalIntensity =
+                    materialData.baseIntensity *
+                    this.globalIntensityMultiplier *
                     this.pulseState.intensity;
-                
+
                 materialData.material.emissiveIntensity = finalIntensity;
             }
         });
@@ -186,14 +189,15 @@ class EmissiveMaterialSystem {
      */
     setGlobalIntensityMultiplier(multiplier) {
         this.globalIntensityMultiplier = Math.max(0, multiplier);
-        
+
         // Update all existing materials immediately
         this.materials.forEach((materialData, entityId) => {
             if (!this.disposedMaterials.has(entityId)) {
-                const finalIntensity = materialData.baseIntensity * 
-                    this.globalIntensityMultiplier * 
+                const finalIntensity =
+                    materialData.baseIntensity *
+                    this.globalIntensityMultiplier *
                     this.pulseState.intensity;
-                
+
                 materialData.material.emissiveIntensity = finalIntensity;
             }
         });
@@ -220,7 +224,7 @@ class EmissiveMaterialSystem {
             if (materialData.material && materialData.material.dispose) {
                 materialData.material.dispose();
             }
-            
+
             // Remove from storage
             this.materials.delete(entityId);
             this.disposedMaterials.add(entityId);
@@ -236,7 +240,7 @@ class EmissiveMaterialSystem {
             time: this.pulseState.time,
             intensity: this.pulseState.intensity,
             paused: this.pulseState.paused,
-            cycleProgress: (this.pulseState.time % this.pulseState.period) / this.pulseState.period
+            cycleProgress: (this.pulseState.time % this.pulseState.period) / this.pulseState.period,
         };
     }
 
@@ -255,14 +259,14 @@ class EmissiveMaterialSystem {
      */
     getMaterialCounts() {
         const counts = { bike: 0, trail: 0, total: 0 };
-        
+
         this.materials.forEach((materialData, entityId) => {
             if (!this.disposedMaterials.has(entityId)) {
                 counts[materialData.type]++;
                 counts.total++;
             }
         });
-        
+
         return counts;
     }
 
@@ -326,11 +330,11 @@ class EmissiveMaterialSystem {
                 materialData.material.dispose();
             }
         });
-        
+
         // Clear storage
         this.materials.clear();
         this.disposedMaterials.clear();
-        
+
         // Reset state
         this.pulseState.time = 0;
         this.pulseState.intensity = 1.0;
@@ -350,7 +354,7 @@ class EmissiveMaterialSystem {
             pulseIntensity: this.pulseState.intensity,
             pulsePaused: this.pulseState.paused,
             globalMultiplier: this.globalIntensityMultiplier,
-            disposedCount: this.disposedMaterials.size
+            disposedCount: this.disposedMaterials.size,
         };
     }
 }

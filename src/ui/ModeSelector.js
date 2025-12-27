@@ -3,16 +3,18 @@
  * Handles mode selection, persistence, and UI state management
  */
 const { GameModes } = require('../systems/GameModes.js');
+const { logger } = require('../utils/Logger.js');
 
 class ModeSelector {
     constructor(gameInstance) {
         this.game = gameInstance;
+
+        // Storage key for mode persistence
+        this.storageKey = 'lightbikes_selected_mode';
+
         this.selectedMode = this.loadSelectedMode();
         this.isVisible = false;
         this.onModeSelected = null; // Callback for mode selection
-        
-        // Storage key for mode persistence
-        this.storageKey = 'lightbikes_selected_mode';
     }
 
     /**
@@ -26,7 +28,7 @@ class ModeSelector {
                 return saved;
             }
         } catch (error) {
-            console.warn('Failed to load selected mode from localStorage:', error);
+            logger.warn('Failed to load selected mode from localStorage:', error);
         }
         return GameModes.CLASSIC;
     }
@@ -39,7 +41,7 @@ class ModeSelector {
         try {
             localStorage.setItem(this.storageKey, mode);
         } catch (error) {
-            console.warn('Failed to save selected mode to localStorage:', error);
+            logger.warn('Failed to save selected mode to localStorage:', error);
         }
     }
 
@@ -53,35 +55,35 @@ class ModeSelector {
 
         this.createModeSelectionUI();
         this.isVisible = true;
-        
+
         // Verify visibility after creation (Task 4.1)
         this.verifyVisibility();
-        
+
         // Block UI controls until mode is selected (Task 4.3)
         this.blockUIControls();
     }
-    
+
     /**
      * Verify that the mode selector element is visible (Task 4.1)
      * Applies fallback visibility fixes if needed (Task 4.2)
      */
     verifyVisibility() {
         const element = document.getElementById('mode-selector');
-        
+
         // Check if element exists
         if (!element) {
-            console.warn('ModeSelector: Element not found after creation');
+            logger.warn('ModeSelector: Element not found after creation');
             return;
         }
-        
+
         // Check if element is visible using offsetParent
         // offsetParent is null if element or any ancestor has display:none
         if (element.offsetParent === null) {
-            console.warn('ModeSelector: Element not visible, applying fallback styles');
+            logger.warn('ModeSelector: Element not visible, applying fallback styles');
             this.forceVisibility(element);
         }
     }
-    
+
     /**
      * Force visibility of the mode selector with inline styles (Task 4.2)
      * @param {HTMLElement} element - The mode selector element
@@ -95,10 +97,10 @@ class ModeSelector {
         element.style.left = '50%';
         element.style.transform = 'translate(-50%, -50%)';
         element.style.zIndex = '10000';
-        
-        console.log('ModeSelector: Forced visibility with inline styles');
+
+        logger.info('ModeSelector: Forced visibility with inline styles');
     }
-    
+
     /**
      * Block UI controls (AI count selector, difficulty selector) until mode is selected (Task 4.3)
      */
@@ -109,7 +111,7 @@ class ModeSelector {
             aiSelector.style.pointerEvents = 'none';
             aiSelector.style.opacity = '0.5';
         }
-        
+
         // Block difficulty selector
         const difficultySelector = document.getElementById('difficultySelector');
         if (difficultySelector) {
@@ -117,7 +119,7 @@ class ModeSelector {
             difficultySelector.style.opacity = '0.5';
         }
     }
-    
+
     /**
      * Unblock UI controls after mode is selected (Task 4.3)
      */
@@ -128,7 +130,7 @@ class ModeSelector {
             aiSelector.style.pointerEvents = 'auto';
             aiSelector.style.opacity = '1';
         }
-        
+
         // Unblock difficulty selector
         const difficultySelector = document.getElementById('difficultySelector');
         if (difficultySelector) {
@@ -166,7 +168,7 @@ class ModeSelector {
         const container = document.createElement('div');
         container.id = 'mode-selector';
         container.className = 'mode-selector-container';
-        
+
         // Create title
         const title = document.createElement('h2');
         title.textContent = 'Select Game Mode';
@@ -236,7 +238,7 @@ class ModeSelector {
         const option = document.createElement('div');
         option.className = 'mode-option';
         option.dataset.mode = mode;
-        
+
         if (mode === this.selectedMode) {
             option.classList.add('selected');
         }
@@ -264,7 +266,7 @@ class ModeSelector {
      */
     selectMode(mode) {
         if (!Object.values(GameModes).includes(mode)) {
-            console.warn('Invalid game mode:', mode);
+            logger.warn('Invalid game mode:', mode);
             return;
         }
 
@@ -278,8 +280,10 @@ class ModeSelector {
      */
     updateModeSelection() {
         const options = document.querySelectorAll('.mode-option');
-        options.forEach(option => {
-            if (option.dataset.mode === this.selectedMode) {
+        options.forEach((option) => {
+            /** @type {HTMLElement} */
+            const el = /** @type {any} */ (option);
+            if (el.dataset.mode === this.selectedMode) {
                 option.classList.add('selected');
             } else {
                 option.classList.remove('selected');
@@ -293,7 +297,7 @@ class ModeSelector {
     startSelectedMode() {
         // Unblock UI controls before starting (Task 4.3)
         this.unblockUIControls();
-        
+
         if (this.onModeSelected) {
             this.onModeSelected(this.selectedMode);
         }

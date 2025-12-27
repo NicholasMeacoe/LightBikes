@@ -2,15 +2,19 @@
  * AchievementSystem - Manages milestone achievements for Time Trial mode
  * Tracks progress, unlocks achievements, and persists data using localStorage
  */
+
+const { Logger } = require('../utils/Logger');
+const logger = new Logger('AchievementSystem');
+
 class AchievementSystem {
     constructor() {
         this.storageKey = 'lightbikes_achievements';
         this.milestones = [
-            { seconds: 30, message: "First Steps!", description: "Survived 30 seconds" },
-            { seconds: 60, message: "Getting Warmed Up!", description: "Survived 1 minute" },
-            { seconds: 120, message: "Steady Progress!", description: "Survived 2 minutes" },
-            { seconds: 300, message: "Master of Survival!", description: "Survived 5 minutes" },
-            { seconds: 600, message: "Legendary Pilot!", description: "Survived 10 minutes" }
+            { seconds: 30, message: 'First Steps!', description: 'Survived 30 seconds' },
+            { seconds: 60, message: 'Getting Warmed Up!', description: 'Survived 1 minute' },
+            { seconds: 120, message: 'Steady Progress!', description: 'Survived 2 minutes' },
+            { seconds: 300, message: 'Master of Survival!', description: 'Survived 5 minutes' },
+            { seconds: 600, message: 'Legendary Pilot!', description: 'Survived 10 minutes' },
         ];
         this.unlockedAchievements = this.loadProgress();
         this.sessionAchievements = new Set(); // Track achievements earned this session
@@ -38,14 +42,15 @@ class AchievementSystem {
             }
 
             // Validate and filter valid milestone values
-            const validMilestones = parsed.filter(seconds => 
-                typeof seconds === 'number' && 
-                this.milestones.some(m => m.seconds === seconds)
+            const validMilestones = parsed.filter(
+                (seconds) =>
+                    typeof seconds === 'number' &&
+                    this.milestones.some((m) => m.seconds === seconds)
             );
 
             return new Set(validMilestones);
         } catch (error) {
-            console.warn('Error loading achievement progress:', error);
+            logger.warn('Error loading achievement progress:', error);
             this.clearProgress();
             return new Set();
         }
@@ -65,7 +70,7 @@ class AchievementSystem {
             localStorage.setItem(this.storageKey, JSON.stringify(progressArray));
             return true;
         } catch (error) {
-            console.warn('Error saving achievement progress:', error);
+            logger.warn('Error saving achievement progress:', error);
             return false;
         }
     }
@@ -84,10 +89,11 @@ class AchievementSystem {
 
         for (const milestone of this.milestones) {
             // Check if milestone is reached and not already unlocked this session
-            if (timeSeconds >= milestone.seconds && 
+            if (
+                timeSeconds >= milestone.seconds &&
                 !this.unlockedAchievements.has(milestone.seconds) &&
-                !this.sessionAchievements.has(milestone.seconds)) {
-                
+                !this.sessionAchievements.has(milestone.seconds)
+            ) {
                 // Unlock the achievement
                 this.unlockedAchievements.add(milestone.seconds);
                 this.sessionAchievements.add(milestone.seconds);
@@ -95,7 +101,7 @@ class AchievementSystem {
                     seconds: milestone.seconds,
                     message: milestone.message,
                     description: milestone.description,
-                    timeAchieved: timeSeconds
+                    timeAchieved: timeSeconds,
                 });
             }
         }
@@ -113,12 +119,12 @@ class AchievementSystem {
      * @returns {Array} Array of milestone objects with unlock status
      */
     getAllMilestones() {
-        return this.milestones.map(milestone => ({
+        return this.milestones.map((milestone) => ({
             seconds: milestone.seconds,
             message: milestone.message,
             description: milestone.description,
             unlocked: this.unlockedAchievements.has(milestone.seconds),
-            formattedTime: this.formatTime(milestone.seconds * 1000)
+            formattedTime: this.formatTime(milestone.seconds * 1000),
         }));
     }
 
@@ -128,12 +134,12 @@ class AchievementSystem {
      */
     getUnlockedAchievements() {
         return this.milestones
-            .filter(milestone => this.unlockedAchievements.has(milestone.seconds))
-            .map(milestone => ({
+            .filter((milestone) => this.unlockedAchievements.has(milestone.seconds))
+            .map((milestone) => ({
                 seconds: milestone.seconds,
                 message: milestone.message,
                 description: milestone.description,
-                formattedTime: this.formatTime(milestone.seconds * 1000)
+                formattedTime: this.formatTime(milestone.seconds * 1000),
             }));
     }
 
@@ -148,7 +154,7 @@ class AchievementSystem {
                     seconds: milestone.seconds,
                     message: milestone.message,
                     description: milestone.description,
-                    formattedTime: this.formatTime(milestone.seconds * 1000)
+                    formattedTime: this.formatTime(milestone.seconds * 1000),
                 };
             }
         }
@@ -168,7 +174,7 @@ class AchievementSystem {
             totalMilestones,
             unlockedCount,
             progressPercentage,
-            allUnlocked: unlockedCount === totalMilestones
+            allUnlocked: unlockedCount === totalMilestones,
         };
     }
 
@@ -190,7 +196,7 @@ class AchievementSystem {
                 localStorage.removeItem(this.storageKey);
             }
         } catch (error) {
-            console.warn('Error clearing achievement progress:', error);
+            logger.warn('Error clearing achievement progress:', error);
         }
     }
 
@@ -210,7 +216,7 @@ class AchievementSystem {
      */
     formatTime(timeMs) {
         if (typeof timeMs !== 'number' || timeMs < 0 || !isFinite(timeMs)) {
-            return "00:00";
+            return '00:00';
         }
 
         const totalSeconds = Math.floor(timeMs / 1000);
@@ -245,7 +251,7 @@ class AchievementSystem {
             unlockedCount: this.unlockedAchievements.size,
             sessionAchievements: Array.from(this.sessionAchievements),
             storageAvailable: this.isLocalStorageAvailable(),
-            nextMilestone: this.getNextMilestone()
+            nextMilestone: this.getNextMilestone(),
         };
     }
 }

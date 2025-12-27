@@ -3,10 +3,30 @@
  * Tests all requirements from tasks 1-9
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { InitializationState } = require('@/utils/InitializationState.js');
 const { LoadingIndicator } = require('@/ui/LoadingIndicator.js');
 const { CanvasVerifier } = require('@/utils/CanvasVerifier.js');
-const { DOMNotReadyError, CanvasCreationError, ModeSelectorError } = require('@/utils/InitializationErrors.js');
+const {
+    DOMNotReadyError,
+    CanvasCreationError,
+    ModeSelectorError,
+} = require('@/utils/InitializationErrors.js');
 const { ErrorRecoveryStrategies } = require('@/utils/ErrorRecoveryStrategies.js');
 
 describe('Game Start Fix Validation', () => {
@@ -21,25 +41,28 @@ describe('Game Start Fix Validation', () => {
     describe('10.1 DOM Ready Handling', () => {
         it('should wait for DOMContentLoaded when document is loading', () => {
             const mockDoc = { readyState: 'loading', addEventListener: jest.fn() };
-            
+
             if (mockDoc.readyState === 'loading') {
                 mockDoc.addEventListener('DOMContentLoaded', jest.fn());
             }
-            
-            expect(mockDoc.addEventListener).toHaveBeenCalledWith('DOMContentLoaded', expect.any(Function));
+
+            expect(mockDoc.addEventListener).toHaveBeenCalledWith(
+                'DOMContentLoaded',
+                expect.any(Function)
+            );
         });
 
         it('should initialize immediately when DOM is interactive', () => {
             const mockDoc = { readyState: 'interactive' };
             const shouldWait = mockDoc.readyState === 'loading';
-            
+
             expect(shouldWait).toBe(false);
         });
 
         it('should initialize immediately when DOM is complete', () => {
             const mockDoc = { readyState: 'complete' };
             const shouldWait = mockDoc.readyState === 'loading';
-            
+
             expect(shouldWait).toBe(false);
         });
 
@@ -47,7 +70,7 @@ describe('Game Start Fix Validation', () => {
             const state = new InitializationState();
             state.start();
             state.completeStep('domReady');
-            
+
             expect(state.isStepComplete('domReady')).toBe(true);
         });
     });
@@ -56,12 +79,12 @@ describe('Game Start Fix Validation', () => {
         it('should verify canvas is created', () => {
             const verifier = new CanvasVerifier();
             const mockRenderer = {
-                domElement: document.createElement('canvas')
+                domElement: document.createElement('canvas'),
             };
             document.body.appendChild(mockRenderer.domElement);
-            
+
             const result = verifier.verifyCanvasCreated(mockRenderer);
-            
+
             expect(result.success).toBe(true);
         });
 
@@ -69,9 +92,9 @@ describe('Game Start Fix Validation', () => {
             const verifier = new CanvasVerifier();
             const canvas = document.createElement('canvas');
             document.body.appendChild(canvas);
-            
+
             const result = verifier.verifyCanvasVisible(canvas);
-            
+
             expect(result.success).toBe(true);
         });
 
@@ -80,15 +103,15 @@ describe('Game Start Fix Validation', () => {
             const canvas = document.createElement('canvas');
             canvas.width = 800;
             canvas.height = 600;
-            
+
             const result = verifier.verifyCanvasSize(canvas);
-            
+
             expect(result.success).toBe(true);
         });
 
         it('should handle canvas creation failure', () => {
             const error = new CanvasCreationError('Canvas creation failed');
-            
+
             expect(error.name).toBe('CanvasCreationError');
             expect(error.recoverable).toBe(false);
             expect(error.actionableSteps).toBeDefined();
@@ -100,9 +123,9 @@ describe('Game Start Fix Validation', () => {
             const mockRenderer = { domElement: canvas, render: jest.fn() };
             const mockScene = {};
             const mockCamera = {};
-            
+
             const result = verifier.renderTestFrame(mockRenderer, mockScene, mockCamera);
-            
+
             // In jsdom, render may fail but we verify the attempt was made
             expect(mockRenderer.render).toHaveBeenCalled();
             expect(result).toHaveProperty('success');
@@ -112,7 +135,7 @@ describe('Game Start Fix Validation', () => {
             const state = new InitializationState();
             state.start();
             state.completeStep('canvasVerification');
-            
+
             expect(state.isStepComplete('canvasVerification')).toBe(true);
         });
     });
@@ -124,7 +147,7 @@ describe('Game Start Fix Validation', () => {
             element.style.display = 'flex';
             element.style.zIndex = '10000';
             document.body.appendChild(element);
-            
+
             const selector = document.getElementById('mode-selector');
             expect(selector).not.toBeNull();
         });
@@ -134,7 +157,7 @@ describe('Game Start Fix Validation', () => {
             element.id = 'mode-selector';
             element.style.zIndex = '10000';
             document.body.appendChild(element);
-            
+
             expect(element.style.zIndex).toBe('10000');
         });
 
@@ -143,13 +166,13 @@ describe('Game Start Fix Validation', () => {
             element.id = 'mode-selector';
             element.style.display = 'flex';
             document.body.appendChild(element);
-            
+
             expect(element.style.display).toBe('flex');
         });
 
         it('should handle mode selector error', () => {
             const error = new ModeSelectorError('Mode selector failed');
-            
+
             expect(error.name).toBe('ModeSelectorError');
             expect(error.recoverable).toBe(true);
             expect(error.actionableSteps).toBeDefined();
@@ -158,9 +181,9 @@ describe('Game Start Fix Validation', () => {
         it('should provide fallback mode selector', () => {
             const strategies = new ErrorRecoveryStrategies();
             const callback = jest.fn();
-            
+
             const fallback = strategies.createFallbackModeSelector(callback);
-            
+
             expect(fallback).toBeDefined();
             expect(fallback.id).toBe('fallback-mode-selector');
             expect(fallback.style.zIndex).toBe('10000');
@@ -174,7 +197,7 @@ describe('Game Start Fix Validation', () => {
             selector.style.pointerEvents = 'none';
             selector.style.opacity = '0.5';
             document.body.appendChild(selector);
-            
+
             expect(selector.style.pointerEvents).toBe('none');
             expect(selector.style.opacity).toBe('0.5');
         });
@@ -185,7 +208,7 @@ describe('Game Start Fix Validation', () => {
             selector.style.pointerEvents = 'none';
             selector.style.opacity = '0.5';
             document.body.appendChild(selector);
-            
+
             expect(selector.style.pointerEvents).toBe('none');
             expect(selector.style.opacity).toBe('0.5');
         });
@@ -196,11 +219,11 @@ describe('Game Start Fix Validation', () => {
             selector.style.pointerEvents = 'none';
             selector.style.opacity = '0.5';
             document.body.appendChild(selector);
-            
+
             // Simulate unblocking
             selector.style.pointerEvents = 'auto';
             selector.style.opacity = '1';
-            
+
             expect(selector.style.pointerEvents).toBe('auto');
             expect(selector.style.opacity).toBe('1');
         });
@@ -209,7 +232,7 @@ describe('Game Start Fix Validation', () => {
             const state = new InitializationState();
             state.start();
             state.completeStep('modeSelectorReady');
-            
+
             expect(state.isStepComplete('modeSelectorReady')).toBe(true);
         });
     });
@@ -218,7 +241,7 @@ describe('Game Start Fix Validation', () => {
         it('should show loading indicator during initialization', () => {
             const indicator = new LoadingIndicator();
             indicator.show('Initializing...');
-            
+
             const element = document.getElementById('loading-indicator');
             expect(element).not.toBeNull();
             expect(element.style.display).toBe('flex');
@@ -227,10 +250,10 @@ describe('Game Start Fix Validation', () => {
         it('should update progress correctly', () => {
             const indicator = new LoadingIndicator();
             indicator.show('Starting...');
-            
+
             indicator.updateProgress('step1', 'Loading step 1...');
             expect(indicator.messageElement.textContent).toBe('Loading step 1...');
-            
+
             indicator.updateProgress('step2', 'Loading step 2...');
             expect(indicator.messageElement.textContent).toBe('Loading step 2...');
         });
@@ -238,25 +261,25 @@ describe('Game Start Fix Validation', () => {
         it('should hide when initialization completes', () => {
             const indicator = new LoadingIndicator();
             indicator.show('Loading...');
-            
+
             jest.useFakeTimers();
             indicator.hide();
-            
+
             expect(indicator.element.style.opacity).toBe('0');
-            
+
             jest.advanceTimersByTime(300);
             expect(indicator.element.style.display).toBe('none');
-            
+
             jest.useRealTimers();
         });
 
         it('should show error display on failure', () => {
             const indicator = new LoadingIndicator();
             indicator.show('Loading...');
-            
+
             const error = new Error('Test error');
             indicator.showError(error, jest.fn());
-            
+
             const errorDisplay = document.querySelector('.error-display');
             expect(errorDisplay).not.toBeNull();
         });
@@ -264,7 +287,7 @@ describe('Game Start Fix Validation', () => {
         it('should have correct z-index', () => {
             const indicator = new LoadingIndicator();
             indicator.show('Loading...');
-            
+
             const styleElement = document.getElementById('loading-indicator-styles');
             expect(styleElement.textContent).toContain('z-index: 9999');
         });
@@ -275,7 +298,7 @@ describe('Game Start Fix Validation', () => {
             const error = new CanvasCreationError('WebGL not supported');
             const strategies = new ErrorRecoveryStrategies();
             const message = strategies.getWebGLCompatibilityMessage();
-            
+
             expect(error.name).toBe('CanvasCreationError');
             expect(message.actionableSteps).toBeDefined();
             expect(message.actionableSteps.length).toBeGreaterThan(0);
@@ -283,7 +306,7 @@ describe('Game Start Fix Validation', () => {
 
         it('should handle DOM manipulation errors', () => {
             const error = new DOMNotReadyError('DOM not ready');
-            
+
             expect(error.name).toBe('DOMNotReadyError');
             expect(error.recoverable).toBe(true);
             expect(error.actionableSteps).toBeDefined();
@@ -293,7 +316,7 @@ describe('Game Start Fix Validation', () => {
             const error = new CanvasCreationError('Canvas failed');
             const state = new InitializationState();
             state.recordError('canvasVerification', error);
-            
+
             const recommendation = state.getRecoveryRecommendation();
             expect(recommendation).toBeDefined();
         });
@@ -302,10 +325,10 @@ describe('Game Start Fix Validation', () => {
             const errors = [
                 new DOMNotReadyError(),
                 new CanvasCreationError(),
-                new ModeSelectorError()
+                new ModeSelectorError(),
             ];
-            
-            errors.forEach(error => {
+
+            errors.forEach((error) => {
                 expect(error.actionableSteps).toBeDefined();
                 expect(error.actionableSteps.length).toBeGreaterThan(0);
             });
@@ -314,11 +337,11 @@ describe('Game Start Fix Validation', () => {
         it('should track errors in initialization state', () => {
             const state = new InitializationState();
             state.start();
-            
+
             const error = new Error('Test error');
             error.recoverable = true;
             state.recordError('webglCheck', error);
-            
+
             const stateData = state.getState();
             expect(stateData.errors.length).toBe(1);
             expect(stateData.errors[0].step).toBe('webglCheck');
@@ -326,22 +349,22 @@ describe('Game Start Fix Validation', () => {
 
         it('should recommend appropriate recovery strategies', () => {
             const state = new InitializationState();
-            
+
             // Test retry for early errors
             const domError = new DOMNotReadyError();
             domError.recoverable = true;
             state.recordError('domReady', domError);
-            
+
             let recommendation = state.getRecoveryRecommendation();
             expect(recommendation.shouldRecover).toBe(true);
             expect(recommendation.strategy).toBe('retry');
-            
+
             // Test fallback for mode selector
             state.reset();
             const modeSelectorError = new ModeSelectorError();
             modeSelectorError.recoverable = true;
             state.recordError('modeSelectorReady', modeSelectorError);
-            
+
             recommendation = state.getRecoveryRecommendation();
             expect(recommendation.shouldRecover).toBe(true);
             expect(recommendation.strategy).toBe('fallback');
@@ -352,7 +375,7 @@ describe('Game Start Fix Validation', () => {
         it('should complete all initialization steps', () => {
             const state = new InitializationState();
             state.start();
-            
+
             // Simulate full initialization
             state.completeStep('domReady');
             state.completeStep('errorHandlingInit');
@@ -365,7 +388,7 @@ describe('Game Start Fix Validation', () => {
             state.completeStep('systemsInit');
             state.completeStep('modeSelectorReady');
             state.complete();
-            
+
             const stateData = state.getState();
             expect(stateData.isComplete).toBe(true);
             expect(stateData.completedCount).toBe(11);
@@ -375,32 +398,32 @@ describe('Game Start Fix Validation', () => {
             const state = new InitializationState();
             const mockPerformanceNow = jest.spyOn(performance, 'now');
             mockPerformanceNow.mockReturnValue(1000);
-            
+
             state.start();
-            
+
             mockPerformanceNow.mockReturnValue(2000);
             state.complete();
-            
+
             expect(state.getDuration()).toBe(1000);
-            
+
             mockPerformanceNow.mockRestore();
         });
 
         it('should show loading indicator throughout flow', () => {
             const indicator = new LoadingIndicator();
-            
+
             indicator.show('Initializing...');
             expect(document.getElementById('loading-indicator')).not.toBeNull();
-            
+
             indicator.updateProgress('step1', 'Step 1...');
             indicator.updateProgress('step2', 'Step 2...');
-            
+
             jest.useFakeTimers();
             indicator.hide();
             jest.advanceTimersByTime(300);
-            
+
             expect(indicator.element.style.display).toBe('none');
-            
+
             jest.useRealTimers();
         });
 
@@ -410,13 +433,13 @@ describe('Game Start Fix Validation', () => {
             canvas.width = 800;
             canvas.height = 600;
             document.body.appendChild(canvas);
-            
+
             const mockRenderer = { domElement: canvas, render: jest.fn() };
-            
+
             // Verify individual checks
             const createdResult = verifier.verifyCanvasCreated(mockRenderer);
             expect(createdResult.success).toBe(true);
-            
+
             const sizeResult = verifier.verifyCanvasSize(canvas);
             expect(sizeResult.success).toBe(true);
         });
@@ -424,13 +447,13 @@ describe('Game Start Fix Validation', () => {
         it('should handle mode selection', () => {
             const strategies = new ErrorRecoveryStrategies();
             const callback = jest.fn();
-            
+
             const fallback = strategies.createFallbackModeSelector(callback);
             document.body.appendChild(fallback);
-            
+
             const classicBtn = fallback.querySelector('[data-mode="classic"]');
             classicBtn.click();
-            
+
             expect(callback).toHaveBeenCalledWith('classic');
         });
 
@@ -438,23 +461,23 @@ describe('Game Start Fix Validation', () => {
             // State tracking
             const state = new InitializationState();
             state.start();
-            
+
             // Loading indicator
             const indicator = new LoadingIndicator();
             indicator.show('Initializing...');
-            
+
             // Canvas verification
             const verifier = new CanvasVerifier();
             const canvas = document.createElement('canvas');
             canvas.width = 800;
             canvas.height = 600;
             document.body.appendChild(canvas);
-            
+
             // Complete steps
             state.completeStep('domReady');
             state.completeStep('canvasVerification');
             state.complete();
-            
+
             // Verify integration
             expect(state.isStepComplete('domReady')).toBe(true);
             expect(state.isStepComplete('canvasVerification')).toBe(true);
@@ -468,7 +491,7 @@ describe('Game Start Fix Validation', () => {
             const state = new InitializationState();
             state.start();
             state.completeStep('domReady');
-            
+
             expect(state.isStepComplete('domReady')).toBe(true);
         });
 
@@ -477,7 +500,7 @@ describe('Game Start Fix Validation', () => {
             const canvas = document.createElement('canvas');
             document.body.appendChild(canvas);
             const mockRenderer = { domElement: canvas };
-            
+
             const result = verifier.verifyCanvasCreated(mockRenderer);
             expect(result.success).toBe(true);
         });
@@ -486,15 +509,18 @@ describe('Game Start Fix Validation', () => {
             const verifier = new CanvasVerifier();
             const canvas = document.createElement('canvas');
             document.body.appendChild(canvas);
-            
+
             const result = verifier.verifyCanvasVisible(canvas);
             expect(result.success).toBe(true);
         });
 
         it('should cover requirement 1.4 - Test frame rendering', () => {
             const verifier = new CanvasVerifier();
-            const mockRenderer = { domElement: document.createElement('canvas'), render: jest.fn() };
-            
+            const mockRenderer = {
+                domElement: document.createElement('canvas'),
+                render: jest.fn(),
+            };
+
             const result = verifier.renderTestFrame(mockRenderer, {}, {});
             expect(mockRenderer.render).toHaveBeenCalled();
             expect(result).toHaveProperty('success');
@@ -504,7 +530,7 @@ describe('Game Start Fix Validation', () => {
             const element = document.createElement('div');
             element.id = 'mode-selector';
             document.body.appendChild(element);
-            
+
             expect(document.getElementById('mode-selector')).not.toBeNull();
         });
 
@@ -513,7 +539,7 @@ describe('Game Start Fix Validation', () => {
             element.style.display = 'flex';
             element.style.zIndex = '10000';
             document.body.appendChild(element);
-            
+
             // In jsdom, offsetParent may be null, so check display instead
             expect(element.style.display).toBe('flex');
             expect(element.style.zIndex).toBe('10000');
@@ -522,7 +548,7 @@ describe('Game Start Fix Validation', () => {
         it('should cover requirement 3.1 - UI control blocking', () => {
             const selector = document.createElement('select');
             selector.style.pointerEvents = 'none';
-            
+
             expect(selector.style.pointerEvents).toBe('none');
         });
 
@@ -530,9 +556,9 @@ describe('Game Start Fix Validation', () => {
             const errors = [
                 new DOMNotReadyError(),
                 new CanvasCreationError(),
-                new ModeSelectorError()
+                new ModeSelectorError(),
             ];
-            
+
             expect(errors[0].name).toBe('DOMNotReadyError');
             expect(errors[1].name).toBe('CanvasCreationError');
             expect(errors[2].name).toBe('ModeSelectorError');
@@ -542,7 +568,7 @@ describe('Game Start Fix Validation', () => {
             const state = new InitializationState();
             state.start();
             state.completeStep('domReady');
-            
+
             const stateData = state.getState();
             expect(stateData.steps.domReady).toBe(true);
         });
@@ -552,7 +578,7 @@ describe('Game Start Fix Validation', () => {
             const error = new DOMNotReadyError();
             error.recoverable = true;
             state.recordError('domReady', error);
-            
+
             const recommendation = state.getRecoveryRecommendation();
             expect(recommendation.shouldRecover).toBe(true);
         });
@@ -560,7 +586,7 @@ describe('Game Start Fix Validation', () => {
         it('should cover requirement 5.1 - Loading indicator display', () => {
             const indicator = new LoadingIndicator();
             indicator.show('Loading...');
-            
+
             expect(document.getElementById('loading-indicator')).not.toBeNull();
         });
 
@@ -568,7 +594,7 @@ describe('Game Start Fix Validation', () => {
             const indicator = new LoadingIndicator();
             indicator.show('Starting...');
             indicator.updateProgress('step1', 'Step 1...');
-            
+
             expect(indicator.messageElement.textContent).toBe('Step 1...');
         });
     });

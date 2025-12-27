@@ -15,8 +15,9 @@ const {
     PLAYBACK_STATES,
     MUSIC_SYSTEM_CONFIG,
     DUCKING_TRIGGERS,
-    MusicConfigUtils
+    MusicConfigUtils,
 } = require('./MusicConfig.js');
+const { logger } = require('../utils/Logger.js');
 
 class MusicPlayer {
     constructor(audioManager, settings = null) {
@@ -53,7 +54,7 @@ class MusicPlayer {
             startTime: 0,
             duration: 0,
             startVolume: 0,
-            targetVolume: 0
+            targetVolume: 0,
         };
 
         // Audio ducking state
@@ -61,7 +62,7 @@ class MusicPlayer {
             active: false,
             originalVolume: 0,
             duckLevel: 0,
-            recoveryTimeout: null
+            recoveryTimeout: null,
         };
 
         // Performance and error tracking (legacy - now handled by dedicated classes)
@@ -93,8 +94,26 @@ class MusicPlayer {
             return true;
         }
 
+        if (!audioContext) {
+            return false;
+        }
+
+        // Check for closed context
+        if (audioContext.state === 'closed') {
+            return false;
+        }
+
         try {
             this.audioContext = audioContext;
+
+            // Try to resume if suspended (handle autoplay policy)
+            if (this.audioContext.state === 'suspended') {
+                try {
+                    await this.audioContext.resume();
+                } catch (error) {
+                    logger.info('Autoplay prevented, waiting for user interaction');
+                }
+            }
 
             // Start performance monitoring
             this.performanceMonitor.startMonitoring();
@@ -112,11 +131,16 @@ class MusicPlayer {
             // Optimize loading strategy and preload tracks
             const selectedTrackId = this.settings.getSelectedTrack();
             if (selectedTrackId !== 'none') {
-                const trackConfigs = Object.values(MUSIC_TRACKS).filter(track => track.id !== 'none');
-                const loadingStrategy = this.loadingOptimizer.optimizeLoadingStrategy(trackConfigs, {
-                    priorityTrack: selectedTrackId,
-                    minimizeStartupDelay: true
-                });
+                const trackConfigs = Object.values(MUSIC_TRACKS).filter(
+                    (track) => track.id !== 'none'
+                );
+                const loadingStrategy = this.loadingOptimizer.optimizeLoadingStrategy(
+                    trackConfigs,
+                    {
+                        priorityTrack: selectedTrackId,
+                        minimizeStartupDelay: true,
+                    }
+                );
 
                 // Load immediate tracks (priority track)
                 for (const trackConfig of loadingStrategy.immediate) {
@@ -127,19 +151,33 @@ class MusicPlayer {
                             await track.preload();
                             const audioBuffer = track.getAudioBuffer();
                             if (audioBuffer) {
-                                this.bufferManager.registerBuffer(trackConfig.id, audioBuffer, trackConfig);
+                                this.bufferManager.registerBuffer(
+                                    trackConfig.id,
+                                    audioBuffer,
+                                    trackConfig
+                                );
                             }
-                            this.performanceMonitor.recordLoadingComplete(trackConfig.id, true, audioBuffer);
+                            this.performanceMonitor.recordLoadingComplete(
+                                trackConfig.id,
+                                true,
+                                audioBuffer
+                            );
                         } catch (error) {
                             this.performanceMonitor.recordLoadingComplete(trackConfig.id, false);
 
                             // Handle loading error with error handler
                             const recovery = await this.errorHandler.handleLoadingError(
-                                error, trackConfig.id, track.url, 0
+                                error,
+                                trackConfig.id,
+                                track.url,
+                                0
                             );
 
                             if (recovery.action === 'degrade') {
-                                console.warn(`Preloading failed for ${trackConfig.id}, continuing without music:`, recovery.message);
+                                logger.warn(
+                                    `Preloading failed for ${trackConfig.id}, continuing without music:`,
+                                    { error: recovery.message }
+                                );
                             }
                         }
                     }
@@ -152,15 +190,14 @@ class MusicPlayer {
             }
 
             this.isInitialized = true;
-            console.log('MusicPlayer initialized successfully');
+            logger.info('MusicPlayer initialized successfully');
             return true;
-
         } catch (error) {
             const recovery = this.errorHandler.handleAudioContextError(error, audioContext);
             this._handleError(error, 'initialization');
 
             if (recovery.action === 'reinitialize_audio') {
-                console.warn('Audio context initialization failed, music system disabled');
+                logger.warn('Audio context initialization failed, music system disabled');
             }
 
             return false;
@@ -173,6 +210,11 @@ class MusicPlayer {
      */
     play() {
         if (!this.isInitialized || this.playbackState === PLAYBACK_STATES.PLAYING) {
+            return false;
+        }
+
+        // Check if context is suspended (requires user interaction)
+        if (this.audioContext && this.audioContext.state === 'suspended') {
             return false;
         }
 
@@ -197,7 +239,10 @@ class MusicPlayer {
             // Create new audio source
             this.currentSource = track.createSource();
             if (!this.currentSource) {
-                this._handleError(new Error(`Failed to create source for ${selectedTrackId}`), 'play');
+                this._handleError(
+                    new Error(`Failed to create source for ${selectedTrackId}`),
+                    'play'
+                );
                 return false;
             }
 
@@ -221,7 +266,6 @@ class MusicPlayer {
             this.playbackState = PLAYBACK_STATES.PLAYING;
 
             return true;
-
         } catch (error) {
             this._handleError(error, 'play');
             return false;
@@ -243,7 +287,6 @@ class MusicPlayer {
             this.stop();
             this.playbackState = PLAYBACK_STATES.PAUSED;
             return true;
-
         } catch (error) {
             this._handleError(error, 'pause');
             return false;
@@ -276,7 +319,6 @@ class MusicPlayer {
             this.currentTrack = null;
 
             return true;
-
         } catch (error) {
             this._handleError(error, 'stop');
             return false;
@@ -313,7 +355,6 @@ class MusicPlayer {
             }
 
             return true;
-
         } catch (error) {
             this._handleError(error, 'setTrack');
             return false;
@@ -334,7 +375,7 @@ class MusicPlayer {
                 energyLevel: track.getEnergyLevel(),
                 duration: track.getDuration(),
                 isLoaded: track.isLoaded(),
-                loadingState: track.getLoadingState()
+                loadingState: track.getLoadingState(),
             });
         }
 
@@ -355,7 +396,7 @@ class MusicPlayer {
             name: this.currentTrack.getName(),
             energyLevel: this.currentTrack.getEnergyLevel(),
             duration: this.currentTrack.getDuration(),
-            playbackState: this.playbackState
+            playbackState: this.playbackState,
         };
     }
 
@@ -390,7 +431,6 @@ class MusicPlayer {
             }
 
             return true;
-
         } catch (error) {
             this._handleError(error, 'setVolume');
             return false;
@@ -441,16 +481,16 @@ class MusicPlayer {
         this.lastError = {
             message: error.message,
             operation: operation,
-            timestamp: Date.now()
+            timestamp: Date.now(),
         };
 
         // Use error handler for comprehensive error handling
         const recovery = this.errorHandler.handlePlaybackError(error, operation, {
             ...context,
-            trackId: this.currentTrack ? this.currentTrack.getId() : 'unknown'
+            trackId: this.currentTrack ? this.currentTrack.getId() : 'unknown',
         });
 
-        console.warn(`MusicPlayer error in ${operation}:`, error);
+        logger.warn(`MusicPlayer error in ${operation}:`, { error });
 
         // Apply recovery action
         if (recovery.action === 'pause_and_retry' && recovery.canRetry) {
@@ -508,7 +548,7 @@ class MusicPlayer {
             fadeActive: this.fadeState.active,
             duckingActive: this.duckingState.active,
             errorCount: this.errorCount,
-            lastError: this.lastError
+            lastError: this.lastError,
         };
     }
 
@@ -522,9 +562,9 @@ class MusicPlayer {
             return false;
         }
 
-        try {
-            const fadeDuration = duration || this.settings.getFadeInDuration();
+        let fadeDuration = duration || this.settings.getFadeInDuration();
 
+        try {
             // Record fade operation for performance monitoring
             this.performanceMonitor.recordFadeOperation('in', fadeDuration);
 
@@ -545,7 +585,7 @@ class MusicPlayer {
                 startTime: this.audioContext.currentTime,
                 duration: fadeDuration,
                 startVolume: this.masterGainNode.gain.value,
-                targetVolume: this.currentVolume
+                targetVolume: this.currentVolume,
             };
 
             this.playbackState = PLAYBACK_STATES.FADING_IN;
@@ -567,7 +607,6 @@ class MusicPlayer {
             this.playbackState = PLAYBACK_STATES.PLAYING;
 
             return true;
-
         } catch (error) {
             this._handleError(error, 'fadeIn', { duration: fadeDuration });
             this.fadeState.active = false;
@@ -581,7 +620,11 @@ class MusicPlayer {
      * @returns {Promise<boolean>} Resolves when fade completes
      */
     async fadeOut(duration = null) {
-        if (!this.isInitialized || !this.masterGainNode || this.playbackState === PLAYBACK_STATES.STOPPED) {
+        if (
+            !this.isInitialized ||
+            !this.masterGainNode ||
+            this.playbackState === PLAYBACK_STATES.STOPPED
+        ) {
             return false;
         }
 
@@ -595,7 +638,7 @@ class MusicPlayer {
                 startTime: this.audioContext.currentTime,
                 duration: fadeDuration,
                 startVolume: this.masterGainNode.gain.value,
-                targetVolume: 0
+                targetVolume: 0,
             };
 
             this.playbackState = PLAYBACK_STATES.FADING_OUT;
@@ -616,7 +659,6 @@ class MusicPlayer {
             this.masterGainNode.gain.value = this.currentVolume;
 
             return true;
-
         } catch (error) {
             this._handleError(error, 'fadeOut');
             this.fadeState.active = false;
@@ -655,7 +697,7 @@ class MusicPlayer {
             active: this.fadeState.active,
             type: this.fadeState.type,
             progress: this._calculateFadeProgress(),
-            duration: this.fadeState.duration
+            duration: this.fadeState.duration,
         };
     }
 
@@ -696,13 +738,16 @@ class MusicPlayer {
             this.fadeState.active = false;
 
             // Update playback state
-            if (this.playbackState === PLAYBACK_STATES.FADING_IN ||
-                this.playbackState === PLAYBACK_STATES.FADING_OUT) {
-                this.playbackState = this.currentSource ? PLAYBACK_STATES.PLAYING : PLAYBACK_STATES.STOPPED;
+            if (
+                this.playbackState === PLAYBACK_STATES.FADING_IN ||
+                this.playbackState === PLAYBACK_STATES.FADING_OUT
+            ) {
+                this.playbackState = this.currentSource
+                    ? PLAYBACK_STATES.PLAYING
+                    : PLAYBACK_STATES.STOPPED;
             }
 
             return true;
-
         } catch (error) {
             this._handleError(error, 'cancelFade');
             return false;
@@ -721,7 +766,10 @@ class MusicPlayer {
         }
 
         if (targetVolume < 0 || targetVolume > 1) {
-            this._handleError(new Error(`Invalid target volume: ${targetVolume}`), 'smoothVolumeTransition');
+            this._handleError(
+                new Error(`Invalid target volume: ${targetVolume}`),
+                'smoothVolumeTransition'
+            );
             return false;
         }
 
@@ -745,11 +793,27 @@ class MusicPlayer {
             await this._waitForFade(duration);
 
             return true;
-
         } catch (error) {
             this._handleError(error, 'smoothVolumeTransition');
             return false;
         }
+    }
+
+    /**
+     * Schedule automatic ducking recovery after a delay
+     * @param {number} delay - Delay in milliseconds before recovery
+     * @private
+     */
+    _scheduleDuckingRecovery(delay) {
+        // Clear any existing recovery timeout
+        if (this.duckingState.recoveryTimeout) {
+            clearTimeout(this.duckingState.recoveryTimeout);
+        }
+
+        // Schedule new recovery
+        this.duckingState.recoveryTimeout = setTimeout(() => {
+            this.unduck();
+        }, delay);
     }
 
     /**
@@ -759,7 +823,11 @@ class MusicPlayer {
      * @returns {boolean} True if ducking was applied successfully
      */
     duck(level = null, duration = null) {
-        if (!this.isInitialized || !this.masterGainNode || this.playbackState !== PLAYBACK_STATES.PLAYING) {
+        if (
+            !this.isInitialized ||
+            !this.masterGainNode ||
+            this.playbackState !== PLAYBACK_STATES.PLAYING
+        ) {
             return false;
         }
 
@@ -788,7 +856,10 @@ class MusicPlayer {
             const currentTime = this.audioContext.currentTime;
             this.masterGainNode.gain.cancelScheduledValues(currentTime);
             this.masterGainNode.gain.setValueAtTime(this.masterGainNode.gain.value, currentTime);
-            this.masterGainNode.gain.linearRampToValueAtTime(targetVolume, currentTime + duckDuration);
+            this.masterGainNode.gain.linearRampToValueAtTime(
+                targetVolume,
+                currentTime + duckDuration
+            );
 
             // Update ducking state
             this.duckingState.active = true;
@@ -796,7 +867,6 @@ class MusicPlayer {
             this.playbackState = PLAYBACK_STATES.DUCKED;
 
             return true;
-
         } catch (error) {
             this._handleError(error, 'duck');
             return false;
@@ -814,7 +884,8 @@ class MusicPlayer {
         }
 
         try {
-            const recoveryDuration = duration !== null ? duration : this.settings.getDuckingRecovery();
+            const recoveryDuration =
+                duration !== null ? duration : this.settings.getDuckingRecovery();
 
             // Apply recovery transition
             const currentTime = this.audioContext.currentTime;
@@ -834,11 +905,31 @@ class MusicPlayer {
             }
 
             return true;
-
         } catch (error) {
             this._handleError(error, 'unduck');
             return false;
         }
+    }
+
+    /**
+     * Check if music is currently ducked
+     * @returns {boolean} True if ducking is active
+     */
+    isDucked() {
+        return this.duckingState.active;
+    }
+
+    /**
+     * Get current ducking state information
+     * @returns {Object} Ducking state object
+     */
+    getDuckingState() {
+        return {
+            active: this.duckingState.active,
+            duckLevel: this.duckingState.duckLevel || 0,
+            originalVolume: this.duckingState.originalVolume,
+            recoveryTimeout: this.duckingState.recoveryTimeout !== null,
+        };
     }
 
     /**
@@ -861,311 +952,123 @@ class MusicPlayer {
             clearTimeout(this.duckingState.recoveryTimeout);
         }
 
-        this.duckingState.recoveryTimeout = setTimeout(() => {
-            this.unduck(config.recovery);
-        }, (config.duration + config.hold) * 1000);
+        this.duckingState.recoveryTimeout = setTimeout(
+            () => {
+                this.unduck(config.recovery);
+            },
+            (config.duration + config.hold) * 1000
+        );
 
         return true;
     }
 
     /**
-     * Handle game start event
-     */
-    async onGameStart() {
-        if (this.settings.shouldPlayOnStart()) {
-            // If we have a selected track, play it
-            if (this.settings.getSelectedTrack() !== 'none') {
-                // Use fade in if configured
-                if (this.settings.shouldFadeIn()) {
-                    await this.fadeIn();
-                } else {
-                    this.play();
-                }
-            }
-        }
-    }
-
-    /**
-     * Handle game pause event
-     */
-    async onGamePause() {
-        if (this.isPlaying()) {
-            // Pause music or lower volume based on preference
-            // For now, we'll just pause
-            this.pause();
-        }
-    }
-
-    /**
-     * Handle game resume event
-     */
-    async onGameResume() {
-        if (this.isPaused()) {
-            // Resume playback
-            this.play();
-        }
-    }
-
-    /**
-     * Handle game end event
-     */
-    async onGameEnd() {
-        // Fade out music on game end
-        if (this.isPlaying()) {
-            await this.fadeOut(2.0); // Slower fade out for game end
-        }
-    }
-
-    /**
-     * Handle game restart event
-     */
-    async onGameRestart() {
-        // Stop current music and restart (potentially with new track if randomized)
-        await this.stop();
-
-        // Restart music
-        await this.onGameStart();
-    }
-
-    /**
-     * Clean up resources
-     */
-
-
-    /**
-     * Restore music volume after ducking
-     * @param {number} duration - Recovery transition duration in seconds
-     * @returns {boolean} True if recovery was applied successfully
-     */
-    unduck(duration = null) {
-        if (!this.duckingState.active || !this.masterGainNode) {
-            return false;
-        }
-
-        try {
-            const recoveryDuration = duration !== null ? duration : this.settings.getDuckingDuration();
-
-            // Apply recovery transition
-            const currentTime = this.audioContext.currentTime;
-            this.masterGainNode.gain.cancelScheduledValues(currentTime);
-            this.masterGainNode.gain.setValueAtTime(this.masterGainNode.gain.value, currentTime);
-            this.masterGainNode.gain.linearRampToValueAtTime(
-                this.duckingState.originalVolume,
-                currentTime + recoveryDuration
-            );
-
-            // Clear ducking state
-            this._clearDucking();
-            this.playbackState = PLAYBACK_STATES.PLAYING;
-
-            return true;
-
-        } catch (error) {
-            this._handleError(error, 'unduck');
-            return false;
-        }
-    }
-
-    /**
-     * Handle sound effect playback with automatic ducking
-     * @param {string} effectType - Type of sound effect being played
-     * @returns {boolean} True if ducking was applied
-     */
-    onSoundEffect(effectType) {
-        if (!this.isInitialized || this.playbackState !== PLAYBACK_STATES.PLAYING) {
-            return false;
-        }
-
-        try {
-            // Get ducking configuration for this sound effect
-            const duckingConfig = MusicConfigUtils.getDuckingConfig(effectType);
-
-            if (!duckingConfig) {
-                // Use default ducking for unknown sound effects
-                return this.duck();
-            }
-
-            // Apply specific ducking for this sound effect
-            const success = this.duck(duckingConfig.duckingLevel, duckingConfig.duration);
-
-            if (success) {
-                // Schedule recovery after the sound effect should complete
-                this._scheduleDuckingRecovery(duckingConfig.recoveryDelay || 200);
-            }
-
-            return success;
-
-        } catch (error) {
-            this._handleError(error, 'onSoundEffect');
-            return false;
-        }
-    }
-
-    /**
-     * Schedule automatic recovery from ducking after a delay
-     * @param {number} delay - Delay in milliseconds before recovery
-     * @private
-     */
-    _scheduleDuckingRecovery(delay) {
-        // Clear any existing recovery timeout
-        if (this.duckingState.recoveryTimeout) {
-            clearTimeout(this.duckingState.recoveryTimeout);
-        }
-
-        // Schedule recovery
-        this.duckingState.recoveryTimeout = setTimeout(() => {
-            this.unduck();
-        }, delay);
-    }
-
-    /**
-     * Check if music is currently ducked
-     * @returns {boolean} True if music is ducked
-     */
-    isDucked() {
-        return this.duckingState.active;
-    }
-
-    /**
-     * Get current ducking state information
-     * @returns {Object} Ducking state object
-     */
-    getDuckingState() {
-        return {
-            active: this.duckingState.active,
-            originalVolume: this.duckingState.originalVolume,
-            duckLevel: this.duckingState.duckLevel,
-            hasRecoveryScheduled: !!this.duckingState.recoveryTimeout
-        };
-    }
-
-    /**
-     * Manually trigger ducking for explosion sound effects
-     * Implements automatic ducking for high-priority explosion sounds
+     * Handle explosion sound effect
+     * @returns {boolean} True if ducking was triggered
      */
     onExplosionSound() {
         return this.onSoundEffect('explosion');
     }
 
     /**
-     * Manually trigger ducking for collision sound effects
-     * Implements automatic ducking for collision sounds
+     * Handle collision sound effect
+     * @returns {boolean} True if ducking was triggered
      */
     onCollisionSound() {
         return this.onSoundEffect('collision');
     }
 
     /**
-     * Manually trigger ducking for victory sound effects
-     * Implements automatic ducking for victory sounds
+     * Handle victory sound effect
+     * @returns {boolean} True if ducking was triggered
      */
     onVictorySound() {
         return this.onSoundEffect('victory');
     }
 
     /**
-     * Manually trigger ducking for defeat sound effects
-     * Implements automatic ducking for defeat sounds
+     * Handle defeat sound effect
+     * @returns {boolean} True if ducking was triggered
      */
     onDefeatSound() {
         return this.onSoundEffect('defeat');
     }
 
     /**
-     * Handle game start event - begin music with fade-in
-     * @returns {Promise<boolean>} True if music started successfully
+     * Handle game start event
      */
     async onGameStart() {
-        if (!this.isInitialized) {
-            return false;
+        if (!this.isInitialized) return false;
+
+        // If we have a selected track (not 'none'), play it
+        if (this.settings.getSelectedTrack() !== 'none') {
+            // Use fade in by default
+            const fadeInDuration = this.settings.getFadeInDuration();
+            if (fadeInDuration > 0) {
+                await this.fadeIn();
+            } else {
+                this.play();
+            }
         }
 
-        try {
-            // Start music with fade-in
-            return await this.fadeIn();
-        } catch (error) {
-            this._handleError(error, 'onGameStart');
-            return false;
-        }
+        return true;
     }
 
     /**
-     * Handle game pause event - fade out music
-     * @returns {Promise<boolean>} True if music paused successfully
+     * Handle game pause event
      */
     async onGamePause() {
-        if (!this.isInitialized) {
-            return false;
-        }
+        if (!this.isInitialized) return false;
 
-        try {
-            // Fade out music when paused
-            return await this.fadeOut(0.5);
-        } catch (error) {
-            this._handleError(error, 'onGamePause');
-            return false;
+        if (this.isPlaying()) {
+            // Fade out on pause
+            await this.fadeOut(0.5);
         }
+        return true;
     }
 
     /**
-     * Handle game resume event - fade in music
-     * @returns {Promise<boolean>} True if music resumed successfully
+     * Handle game resume event
      */
     async onGameResume() {
-        if (!this.isInitialized) {
-            return false;
-        }
+        if (!this.isInitialized) return false;
 
-        try {
-            // Fade in music when resumed
-            return await this.fadeIn(0.5);
-        } catch (error) {
-            this._handleError(error, 'onGameResume');
-            return false;
+        if (this.isPaused()) {
+            // Resume with fade in
+            await this.fadeIn(0.5);
         }
+        return true;
     }
 
     /**
-     * Handle game end event - fade out music
-     * @returns {Promise<boolean>} True if music stopped successfully
+     * Handle game end event
      */
     async onGameEnd() {
-        if (!this.isInitialized) {
-            return false;
-        }
+        if (!this.isInitialized) return false;
 
-        try {
-            // Fade out music when game ends
-            return await this.fadeOut(1.0);
-        } catch (error) {
-            this._handleError(error, 'onGameEnd');
-            return false;
+        // Fade out music on game end
+        if (this.isPlaying()) {
+            await this.fadeOut(2.0); // Slower fade out for game end
         }
+        return true;
     }
 
     /**
-     * Handle game restart event - start fresh music
-     * @returns {Promise<boolean>} True if music restarted successfully
+     * Handle game restart event
      */
     async onGameRestart() {
-        if (!this.isInitialized) {
-            return false;
-        }
+        if (!this.isInitialized) return false;
 
-        try {
-            // Stop current music
-            this.stop();
-
-            // Clear any ducking state
-            this._clearDucking();
-
-            // Start fresh music with fade-in
-            return await this.fadeIn();
-        } catch (error) {
-            this._handleError(error, 'onGameRestart');
-            return false;
-        }
+        // Stop current playback and start fresh
+        this.stop();
+        // Start playing again
+        await this.onGameStart();
+        return true;
     }
+
+    /**
+     * Clean up resources
+     */
 
     /**
      * Start background loading for non-priority tracks
@@ -1179,7 +1082,9 @@ class MusicPlayer {
                 const results = await this.loadingOptimizer.progressiveLoad(
                     trackConfigs,
                     (progress, trackId) => {
-                        console.log(`Background loading progress: ${Math.round(progress * 100)}% (${trackId})`);
+                        logger.debug(
+                            `Background loading progress: ${Math.round(progress * 100)}% (${trackId})`
+                        );
                     },
                     (trackId, success, loadTime, error) => {
                         if (success) {
@@ -1188,16 +1093,22 @@ class MusicPlayer {
                                 const audioBuffer = track.getAudioBuffer();
                                 if (audioBuffer) {
                                     const trackConfig = MUSIC_TRACKS[trackId];
-                                    this.bufferManager.registerBuffer(trackId, audioBuffer, trackConfig);
+                                    this.bufferManager.registerBuffer(
+                                        trackId,
+                                        audioBuffer,
+                                        trackConfig
+                                    );
                                 }
                             }
                         }
                     }
                 );
 
-                console.log(`Background loading completed: ${results.loaded.length} loaded, ${results.failed.length} failed`);
+                logger.info(
+                    `Background loading completed: ${results.loaded.length} loaded, ${results.failed.length} failed`
+                );
             } catch (error) {
-                console.warn('Background loading error:', error);
+                logger.warn('Background loading error:', error);
             }
         }, 100); // Small delay to allow initialization to complete
     }
@@ -1216,20 +1127,20 @@ class MusicPlayer {
             frameRateImpact: this.performanceMonitor.getFrameRateImpact(),
             optimizationRecommendations: this.performanceMonitor.getOptimizationRecommendations(),
             bufferStatistics: this.bufferManager.getStatistics(),
-            bufferMemoryUsage: this.bufferManager.getMemoryUsage()
+            bufferMemoryUsage: this.bufferManager.getMemoryUsage(),
         };
     }
 
     /**
      * Perform system optimization based on current performance metrics
-     * @returns {Object} Optimization results
+     * @returns {Promise<Object>} Optimization results
      */
     async performOptimization() {
         const recommendations = this.performanceMonitor.getOptimizationRecommendations();
         const results = {
             performed: [],
             skipped: [],
-            errors: []
+            errors: [],
         };
 
         // Perform buffer manager optimization
@@ -1238,13 +1149,13 @@ class MusicPlayer {
             if (bufferOptimization.optimizations.length > 0) {
                 results.performed.push({
                     action: 'buffer_optimization',
-                    result: bufferOptimization
+                    result: bufferOptimization,
                 });
             }
         } catch (error) {
             results.errors.push({
                 action: 'buffer_optimization',
-                error: error.message
+                error: error.message,
             });
         }
 
@@ -1255,12 +1166,12 @@ class MusicPlayer {
                 const cleanupResult = this.bufferManager.performCleanup({ forceCleanup: false });
                 results.performed.push({
                     action: 'memory_cleanup',
-                    result: cleanupResult
+                    result: cleanupResult,
                 });
             } catch (error) {
                 results.errors.push({
                     action: 'memory_cleanup',
-                    error: error.message
+                    error: error.message,
                 });
             }
         }
@@ -1272,7 +1183,7 @@ class MusicPlayer {
                         const cleanupResult = this.bufferManager.performCleanup();
                         results.performed.push({
                             action: recommendation.action,
-                            result: cleanupResult
+                            result: cleanupResult,
                         });
                         break;
 
@@ -1281,24 +1192,25 @@ class MusicPlayer {
                         this.settings.setMusicVolume(Math.min(this.settings.getMusicVolume(), 0.7));
                         results.performed.push({
                             action: recommendation.action,
-                            result: 'Reduced volume to minimize processing load'
+                            result: 'Reduced volume to minimize processing load',
                         });
                         break;
 
                     case 'optimize_files':
                         // Suggest loading strategy optimization
                         const currentStrategy = this.bufferManager.preloadStrategy;
-                        const recommendedStrategy = this.bufferManager.getRecommendedPreloadStrategy();
+                        const recommendedStrategy =
+                            this.bufferManager.getRecommendedPreloadStrategy();
                         if (currentStrategy !== recommendedStrategy) {
                             this.bufferManager.setPreloadStrategy(recommendedStrategy);
                             results.performed.push({
                                 action: recommendation.action,
-                                result: `Changed preload strategy from ${currentStrategy} to ${recommendedStrategy}`
+                                result: `Changed preload strategy from ${currentStrategy} to ${recommendedStrategy}`,
                             });
                         } else {
                             results.skipped.push({
                                 action: recommendation.action,
-                                reason: 'Already using optimal preload strategy'
+                                reason: 'Already using optimal preload strategy',
                             });
                         }
                         break;
@@ -1306,13 +1218,13 @@ class MusicPlayer {
                     default:
                         results.skipped.push({
                             action: recommendation.action,
-                            reason: 'No automatic optimization available'
+                            reason: 'No automatic optimization available',
                         });
                 }
             } catch (error) {
                 results.errors.push({
                     action: recommendation.action,
-                    error: error.message
+                    error: error.message,
                 });
             }
         }
@@ -1347,6 +1259,9 @@ class MusicPlayer {
         if (this.errorHandler) {
             this.errorHandler.clearErrorLog();
         }
+
+        this.isInitialized = false;
+        this.audioContext = null;
 
         // Clear all tracks
         for (const track of this.tracks.values()) {

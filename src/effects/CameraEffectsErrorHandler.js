@@ -1,10 +1,10 @@
 /**
  * CameraEffectsErrorHandler - Comprehensive error recovery for camera effects
- * 
+ *
  * This class provides error handlers for WebGL and post-processing failures,
  * implements user notifications for feature availability, and adds logging
  * and debugging capabilities for troubleshooting camera effects issues.
- * 
+ *
  * Key Features:
  * - WebGL error detection and recovery
  * - Post-processing failure handling
@@ -12,28 +12,33 @@
  * - Comprehensive logging system
  * - Automatic fallback strategies
  * - Debug information collection
- * 
+ *
  * Usage Example:
  * ```javascript
  * const errorHandler = new CameraEffectsErrorHandler();
- * 
+ *
  * // Initialize with components
  * errorHandler.initialize(cameraEffectsManager, degradationManager);
- * 
+ *
  * // Handle WebGL errors
  * errorHandler.handleWebGLError(error, 'Motion blur initialization failed');
- * 
+ *
  * // Check error state
  * if (errorHandler.hasRecoverableErrors()) {
  *     errorHandler.attemptRecovery();
  * }
  * ```
- * 
+ *
  * @class CameraEffectsErrorHandler
  * @author LightBikes Development Team
  * @version 1.0.0
  * @since 2024
  */
+const { createLogger } = require('../utils/Logger.js');
+const logger = createLogger('CameraEffectsErrorHandler');
+const { ErrorRecoveryStrategies } = require('./ErrorRecoveryStrategies.js');
+const { PerformanceDegradationManager } = require('../utils/PerformanceDegradationManager.js');
+
 class CameraEffectsErrorHandler {
     constructor() {
         // Component references
@@ -41,11 +46,14 @@ class CameraEffectsErrorHandler {
         this.degradationManager = null;
         this.motionBlurController = null;
         this.shakeController = null;
-        
+
+        // Recovery strategies
+        this.recoveryStrategies = new ErrorRecoveryStrategies();
+
         // Error tracking
         this.errorLog = [];
         this.maxLogEntries = 100;
-        
+
         // Error categories and counters
         this.errorCounters = {
             webgl: 0,
@@ -54,45 +62,17 @@ class CameraEffectsErrorHandler {
             memory: 0,
             initialization: 0,
             runtime: 0,
-            recovery: 0
+            recovery: 0,
         };
-        
+
         // Error thresholds for different actions
         this.errorThresholds = {
-            warning: 1,      // Show warning after 1 error
-            degradation: 3,  // Trigger degradation after 3 errors
-            fallback: 5,     // Enter fallback mode after 5 errors
-            disable: 10      // Disable effects after 10 errors
+            warning: 1, // Show warning after 1 error
+            degradation: 3, // Trigger degradation after 3 errors
+            fallback: 5, // Enter fallback mode after 5 errors
+            disable: 10, // Disable effects after 10 errors
         };
-        
-        // Recovery strategies
-        this.recoveryStrategies = {
-            webgl: [
-                'reduceQuality',
-                'disableMotionBlur',
-                'disablePostProcessing',
-                'fallbackRendering'
-            ],
-            postProcessing: [
-                'recreateComposer',
-                'simplifyShaders',
-                'disableMotionBlur',
-                'fallbackRendering'
-            ],
-            memory: [
-                'clearCaches',
-                'reduceQuality',
-                'forceGarbageCollection',
-                'disableEffects'
-            ],
-            shader: [
-                'recompileShaders',
-                'useSimpleShaders',
-                'disableMotionBlur',
-                'fallbackRendering'
-            ]
-        };
-        
+
         // Recovery attempt tracking
         this.recoveryAttempts = {
             total: 0,
@@ -100,41 +80,41 @@ class CameraEffectsErrorHandler {
             failed: 0,
             lastAttempt: 0,
             cooldownPeriod: 5000, // 5 seconds between recovery attempts
-            maxAttempts: 3
+            maxAttempts: 3,
         };
-        
+
         // User notification system
         this.notifications = {
             shown: new Set(),
             queue: [],
             maxQueueSize: 5,
             suppressDuplicates: true,
-            notificationCooldown: 10000 // 10 seconds between similar notifications
+            notificationCooldown: 10000, // 10 seconds between similar notifications
         };
-        
+
         // Debug information collection
         this.debugInfo = {
             browserInfo: this.collectBrowserInfo(),
             systemInfo: this.collectSystemInfo(),
             webglInfo: null, // Will be populated when WebGL context is available
             performanceInfo: null,
-            lastErrorContext: null
+            lastErrorContext: null,
         };
-        
+
         // Logging configuration
         this.loggingConfig = {
             enabled: true,
             logLevel: 'info', // 'debug', 'info', 'warn', 'error'
             includeStackTrace: true,
             includeTimestamp: true,
-            includeContext: true
+            includeContext: true,
         };
-        
+
         // State tracking
         this.initialized = false;
         this.fallbackMode = false;
         this.effectsDisabled = false;
-        
+
         // Bind methods for event listeners
         this.handleWebGLContextLost = this.handleWebGLContextLost.bind(this);
         this.handleWebGLContextRestored = this.handleWebGLContextRestored.bind(this);
@@ -149,30 +129,42 @@ class CameraEffectsErrorHandler {
      * @param {CameraShakeController} shakeController - Shake controller
      * @returns {boolean} Success status
      */
-    initialize(cameraEffectsManager, degradationManager = null, motionBlurController = null, shakeController = null) {
+    initialize(
+        cameraEffectsManager,
+        degradationManager = null,
+        motionBlurController = null,
+        shakeController = null
+    ) {
         try {
             this.cameraEffectsManager = cameraEffectsManager;
             this.degradationManager = degradationManager;
             this.motionBlurController = motionBlurController;
             this.shakeController = shakeController;
-            
+
+            // Initialize recovery strategies
+            this.recoveryStrategies.initialize({
+                cameraEffectsManager,
+                degradationManager,
+                motionBlurController,
+                shakeController,
+            });
+
             // Set up global error handlers
             this.setupGlobalErrorHandlers();
-            
+
             // Collect WebGL debug information
             this.collectWebGLInfo();
-            
+
             // Initialize logging
             this.log('info', 'CameraEffectsErrorHandler initialized', {
                 browserInfo: this.debugInfo.browserInfo,
-                systemInfo: this.debugInfo.systemInfo
+                systemInfo: this.debugInfo.systemInfo,
             });
-            
+
             this.initialized = true;
             return true;
-            
         } catch (error) {
-            console.error('CameraEffectsErrorHandler: Initialization failed:', error);
+            logger.error('Initialization failed', error);
             return false;
         }
     }
@@ -185,7 +177,7 @@ class CameraEffectsErrorHandler {
         if (typeof window !== 'undefined') {
             window.addEventListener('webglcontextlost', this.handleWebGLContextLost, false);
             window.addEventListener('webglcontextrestored', this.handleWebGLContextRestored, false);
-            
+
             // Global error handler for unhandled errors
             window.addEventListener('error', this.handleUnhandledError, false);
             window.addEventListener('unhandledrejection', this.handleUnhandledError, false);
@@ -197,17 +189,22 @@ class CameraEffectsErrorHandler {
      * @param {Event} event - WebGL context lost event
      */
     handleWebGLContextLost(event) {
-        event.preventDefault();
-        
+        /** @type {any} */
+        const e = event;
+        e.preventDefault();
+
         this.log('error', 'WebGL context lost', {
-            reason: event.statusMessage || 'Unknown',
-            timestamp: Date.now()
+            reason: e.statusMessage || 'Unknown',
+            timestamp: Date.now(),
         });
-        
+
         this.handleWebGLError(new Error('WebGL context lost'), 'Context lost event');
-        
+
         // Notify user
-        this.queueNotification('error', 'Graphics context lost. Camera effects temporarily disabled.');
+        this.queueNotification(
+            'error',
+            'Graphics context lost. Camera effects temporarily disabled.'
+        );
     }
 
     /**
@@ -216,14 +213,17 @@ class CameraEffectsErrorHandler {
      */
     handleWebGLContextRestored(event) {
         this.log('info', 'WebGL context restored', {
-            timestamp: Date.now()
+            timestamp: Date.now(),
         });
-        
+
         // Attempt to recover
         this.attemptRecovery('webgl');
-        
+
         // Notify user
-        this.queueNotification('info', 'Graphics context restored. Attempting to re-enable camera effects.');
+        this.queueNotification(
+            'info',
+            'Graphics context restored. Attempting to re-enable camera effects.'
+        );
     }
 
     /**
@@ -231,24 +231,28 @@ class CameraEffectsErrorHandler {
      * @param {Event} event - Error event
      */
     handleUnhandledError(event) {
-        const error = event.error || event.reason;
-        
+        /** @type {any} */
+        const e = event;
+        const error = e.error || e.reason;
+
         // Only handle errors that seem related to camera effects
-        if (error && error.message && (
-            error.message.includes('WebGL') ||
-            error.message.includes('THREE') ||
-            error.message.includes('shader') ||
-            error.message.includes('texture') ||
-            error.message.includes('framebuffer')
-        )) {
+        if (
+            error &&
+            error.message &&
+            (error.message.includes('WebGL') ||
+                error.message.includes('THREE') ||
+                error.message.includes('shader') ||
+                error.message.includes('texture') ||
+                error.message.includes('framebuffer'))
+        ) {
             this.log('error', 'Unhandled error affecting camera effects', {
                 message: error.message,
                 stack: error.stack,
-                filename: event.filename,
-                lineno: event.lineno,
-                colno: event.colno
+                filename: e.filename,
+                lineno: e.lineno,
+                colno: e.colno,
             });
-            
+
             this.handleRuntimeError(error, 'Unhandled error');
         }
     }
@@ -261,7 +265,7 @@ class CameraEffectsErrorHandler {
      */
     handleWebGLError(error, context = 'Unknown WebGL error', additionalInfo = {}) {
         this.errorCounters.webgl++;
-        
+
         const errorEntry = {
             type: 'webgl',
             error: error,
@@ -269,18 +273,18 @@ class CameraEffectsErrorHandler {
             timestamp: Date.now(),
             counter: this.errorCounters.webgl,
             additionalInfo: additionalInfo,
-            webglInfo: this.debugInfo.webglInfo
+            webglInfo: this.debugInfo.webglInfo,
         };
-        
+
         this.addToErrorLog(errorEntry);
-        
+
         this.log('error', `WebGL Error: ${context}`, {
             message: error.message,
             stack: error.stack,
             additionalInfo: additionalInfo,
-            errorCount: this.errorCounters.webgl
+            errorCount: this.errorCounters.webgl,
         });
-        
+
         // Determine response based on error count
         if (this.errorCounters.webgl >= this.errorThresholds.disable) {
             this.disableAllEffects('Too many WebGL errors');
@@ -289,9 +293,12 @@ class CameraEffectsErrorHandler {
         } else if (this.errorCounters.webgl >= this.errorThresholds.degradation) {
             this.triggerDegradation('WebGL errors');
         } else if (this.errorCounters.webgl >= this.errorThresholds.warning) {
-            this.queueNotification('warning', 'Graphics issues detected. Camera effects may be reduced.');
+            this.queueNotification(
+                'warning',
+                'Graphics issues detected. Camera effects may be reduced.'
+            );
         }
-        
+
         // Attempt recovery if not too many attempts
         if (this.canAttemptRecovery()) {
             this.attemptRecovery('webgl');
@@ -306,32 +313,32 @@ class CameraEffectsErrorHandler {
      */
     handlePostProcessingError(error, context = 'Post-processing error', additionalInfo = {}) {
         this.errorCounters.postProcessing++;
-        
+
         const errorEntry = {
             type: 'postProcessing',
             error: error,
             context: context,
             timestamp: Date.now(),
             counter: this.errorCounters.postProcessing,
-            additionalInfo: additionalInfo
+            additionalInfo: additionalInfo,
         };
-        
+
         this.addToErrorLog(errorEntry);
-        
+
         this.log('error', `Post-processing Error: ${context}`, {
             message: error.message,
             stack: error.stack,
             additionalInfo: additionalInfo,
-            errorCount: this.errorCounters.postProcessing
+            errorCount: this.errorCounters.postProcessing,
         });
-        
+
         // Post-processing errors usually mean motion blur should be disabled
         if (this.errorCounters.postProcessing >= this.errorThresholds.degradation) {
             this.disableMotionBlur('Post-processing errors');
         } else if (this.errorCounters.postProcessing >= this.errorThresholds.warning) {
             this.queueNotification('warning', 'Motion blur effects may be unstable.');
         }
-        
+
         // Attempt recovery
         if (this.canAttemptRecovery()) {
             this.attemptRecovery('postProcessing');
@@ -346,29 +353,29 @@ class CameraEffectsErrorHandler {
      */
     handleShaderError(error, context = 'Shader error', shaderInfo = {}) {
         this.errorCounters.shader++;
-        
+
         const errorEntry = {
             type: 'shader',
             error: error,
             context: context,
             timestamp: Date.now(),
             counter: this.errorCounters.shader,
-            shaderInfo: shaderInfo
+            shaderInfo: shaderInfo,
         };
-        
+
         this.addToErrorLog(errorEntry);
-        
+
         this.log('error', `Shader Error: ${context}`, {
             message: error.message,
             shaderInfo: shaderInfo,
-            errorCount: this.errorCounters.shader
+            errorCount: this.errorCounters.shader,
         });
-        
+
         // Shader errors usually affect motion blur
         if (this.errorCounters.shader >= this.errorThresholds.degradation) {
             this.disableMotionBlur('Shader compilation errors');
         }
-        
+
         // Attempt recovery
         if (this.canAttemptRecovery()) {
             this.attemptRecovery('shader');
@@ -383,29 +390,29 @@ class CameraEffectsErrorHandler {
      */
     handleMemoryError(error, context = 'Memory error', memoryInfo = {}) {
         this.errorCounters.memory++;
-        
+
         const errorEntry = {
             type: 'memory',
             error: error,
             context: context,
             timestamp: Date.now(),
             counter: this.errorCounters.memory,
-            memoryInfo: memoryInfo
+            memoryInfo: memoryInfo,
         };
-        
+
         this.addToErrorLog(errorEntry);
-        
+
         this.log('error', `Memory Error: ${context}`, {
             message: error.message,
             memoryInfo: memoryInfo,
-            errorCount: this.errorCounters.memory
+            errorCount: this.errorCounters.memory,
         });
-        
+
         // Memory errors require immediate action
         if (this.errorCounters.memory >= this.errorThresholds.degradation) {
             this.triggerDegradation('Memory pressure');
         }
-        
+
         // Always attempt memory recovery
         this.attemptRecovery('memory');
     }
@@ -417,23 +424,23 @@ class CameraEffectsErrorHandler {
      */
     handleRuntimeError(error, context = 'Runtime error') {
         this.errorCounters.runtime++;
-        
+
         const errorEntry = {
             type: 'runtime',
             error: error,
             context: context,
             timestamp: Date.now(),
-            counter: this.errorCounters.runtime
+            counter: this.errorCounters.runtime,
         };
-        
+
         this.addToErrorLog(errorEntry);
-        
+
         this.log('error', `Runtime Error: ${context}`, {
             message: error.message,
             stack: error.stack,
-            errorCount: this.errorCounters.runtime
+            errorCount: this.errorCounters.runtime,
         });
-        
+
         // Runtime errors may indicate instability
         if (this.errorCounters.runtime >= this.errorThresholds.fallback) {
             this.enterFallbackMode('Runtime instability');
@@ -449,191 +456,59 @@ class CameraEffectsErrorHandler {
         if (!this.canAttemptRecovery()) {
             return false;
         }
-        
+
         this.recoveryAttempts.total++;
         this.recoveryAttempts.lastAttempt = Date.now();
-        
-        const strategies = this.recoveryStrategies[errorType] || [];
-        
+
+        const strategies = this.recoveryStrategies.getStrategiesForType(errorType);
+
         this.log('info', `Attempting recovery for ${errorType} error`, {
             attempt: this.recoveryAttempts.total,
-            strategies: strategies
+            strategies: strategies,
         });
-        
+
         let recovered = false;
-        
+
         for (const strategy of strategies) {
             try {
-                if (this.executeRecoveryStrategy(strategy)) {
+                if (this.recoveryStrategies.executeStrategy(strategy)) {
                     recovered = true;
+
+                    // Special handling for fallback mode state
+                    if (strategy === 'fallbackRendering') {
+                        this.fallbackMode = true;
+                        this.queueNotification(
+                            'warning',
+                            'Camera effects running in compatibility mode.'
+                        );
+                    }
+
                     break;
                 }
             } catch (strategyError) {
                 this.log('warn', `Recovery strategy ${strategy} failed`, {
-                    error: strategyError.message
+                    error: strategyError.message,
                 });
             }
         }
-        
+
         if (recovered) {
             this.recoveryAttempts.successful++;
             this.log('info', `Recovery successful using strategy`, {
                 errorType: errorType,
-                attempt: this.recoveryAttempts.total
+                attempt: this.recoveryAttempts.total,
             });
-            
+
             this.queueNotification('info', 'Camera effects recovered successfully.');
         } else {
             this.recoveryAttempts.failed++;
             this.log('error', `Recovery failed for ${errorType}`, {
                 attempt: this.recoveryAttempts.total,
-                strategiesTried: strategies
+                strategiesTried: strategies,
             });
         }
-        
+
         return recovered;
-    }
-
-    /**
-     * Execute a specific recovery strategy
-     * @param {string} strategy - Recovery strategy name
-     * @returns {boolean} Success status
-     */
-    executeRecoveryStrategy(strategy) {
-        switch (strategy) {
-            case 'reduceQuality':
-                return this.reduceQuality();
-                
-            case 'disableMotionBlur':
-                return this.disableMotionBlur('Recovery strategy');
-                
-            case 'disablePostProcessing':
-                return this.disablePostProcessing();
-                
-            case 'fallbackRendering':
-                return this.enterFallbackMode('Recovery strategy');
-                
-            case 'recreateComposer':
-                return this.recreateComposer();
-                
-            case 'simplifyShaders':
-                return this.simplifyShaders();
-                
-            case 'clearCaches':
-                return this.clearCaches();
-                
-            case 'forceGarbageCollection':
-                return this.forceGarbageCollection();
-                
-            case 'recompileShaders':
-                return this.recompileShaders();
-                
-            case 'useSimpleShaders':
-                return this.useSimpleShaders();
-                
-            case 'disableEffects':
-                return this.disableAllEffects('Recovery strategy');
-                
-            default:
-                this.log('warn', `Unknown recovery strategy: ${strategy}`);
-                return false;
-        }
-    }
-
-    /**
-     * Reduce quality as recovery strategy
-     * @returns {boolean} Success status
-     */
-    reduceQuality() {
-        try {
-            if (this.degradationManager) {
-                const currentLevel = this.degradationManager.getDegradationState().level;
-                if (currentLevel < 2) {
-                    this.degradationManager.setDegradationLevel(currentLevel + 1);
-                    return true;
-                }
-            }
-            
-            if (this.motionBlurController) {
-                const currentQuality = this.motionBlurController.getCurrentQuality();
-                if (currentQuality === 'high') {
-                    this.motionBlurController.setQuality('medium');
-                    return true;
-                } else if (currentQuality === 'medium') {
-                    this.motionBlurController.setQuality('low');
-                    return true;
-                }
-            }
-            
-            return false;
-        } catch (error) {
-            this.log('error', 'Failed to reduce quality', { error: error.message });
-            return false;
-        }
-    }
-
-    /**
-     * Disable motion blur as recovery strategy
-     * @param {string} reason - Reason for disabling
-     * @returns {boolean} Success status
-     */
-    disableMotionBlur(reason) {
-        try {
-            if (this.motionBlurController) {
-                this.motionBlurController.setEnabled(false);
-                this.log('info', `Motion blur disabled: ${reason}`);
-                return true;
-            }
-            return false;
-        } catch (error) {
-            this.log('error', 'Failed to disable motion blur', { error: error.message });
-            return false;
-        }
-    }
-
-    /**
-     * Disable post-processing as recovery strategy
-     * @returns {boolean} Success status
-     */
-    disablePostProcessing() {
-        try {
-            if (this.motionBlurController) {
-                this.motionBlurController.setEnabled(false);
-                this.log('info', 'Post-processing disabled for recovery');
-                return true;
-            }
-            return false;
-        } catch (error) {
-            this.log('error', 'Failed to disable post-processing', { error: error.message });
-            return false;
-        }
-    }
-
-    /**
-     * Enter fallback mode
-     * @param {string} reason - Reason for fallback
-     * @returns {boolean} Success status
-     */
-    enterFallbackMode(reason) {
-        try {
-            this.fallbackMode = true;
-            
-            if (this.motionBlurController) {
-                this.motionBlurController.setEnabled(false);
-            }
-            
-            if (this.degradationManager) {
-                this.degradationManager.setDegradationLevel(2); // Shake only
-            }
-            
-            this.log('info', `Entered fallback mode: ${reason}`);
-            this.queueNotification('warning', 'Camera effects running in compatibility mode.');
-            
-            return true;
-        } catch (error) {
-            this.log('error', 'Failed to enter fallback mode', { error: error.message });
-            return false;
-        }
     }
 
     /**
@@ -642,120 +517,27 @@ class CameraEffectsErrorHandler {
      * @returns {boolean} Success status
      */
     disableAllEffects(reason) {
-        try {
-            this.effectsDisabled = true;
-            
-            if (this.cameraEffectsManager) {
-                this.cameraEffectsManager.setEnabled(false);
-            }
-            
-            if (this.degradationManager) {
-                this.degradationManager.setDegradationLevel(3); // All disabled
-            }
-            
-            this.log('info', `All camera effects disabled: ${reason}`);
-            this.queueNotification('error', 'Camera effects disabled due to technical issues.');
-            
-            return true;
-        } catch (error) {
-            this.log('error', 'Failed to disable all effects', { error: error.message });
-            return false;
-        }
+        return this.recoveryStrategies.disableAllEffects(reason);
     }
 
     /**
-     * Recreate effect composer
+     * Enter fallback mode
+     * @param {string} reason - Reason for fallback
      * @returns {boolean} Success status
      */
-    recreateComposer() {
-        try {
-            if (this.motionBlurController && typeof this.motionBlurController.initialize === 'function') {
-                return this.motionBlurController.initialize();
-            }
-            return false;
-        } catch (error) {
-            this.log('error', 'Failed to recreate composer', { error: error.message });
-            return false;
-        }
+    enterFallbackMode(reason) {
+        this.fallbackMode = true;
+        this.queueNotification('warning', 'Camera effects running in compatibility mode.');
+        return this.recoveryStrategies.enterFallbackMode(reason);
     }
 
     /**
-     * Simplify shaders
+     * Disable motion blur
+     * @param {string} reason - Reason for disabling
      * @returns {boolean} Success status
      */
-    simplifyShaders() {
-        try {
-            if (this.motionBlurController) {
-                this.motionBlurController.setQuality('low');
-                return true;
-            }
-            return false;
-        } catch (error) {
-            this.log('error', 'Failed to simplify shaders', { error: error.message });
-            return false;
-        }
-    }
-
-    /**
-     * Clear caches
-     * @returns {boolean} Success status
-     */
-    clearCaches() {
-        try {
-            if (this.motionBlurController && typeof this.motionBlurController.resetPerformanceMetrics === 'function') {
-                this.motionBlurController.resetPerformanceMetrics();
-            }
-            
-            if (this.degradationManager && typeof this.degradationManager.resetPerformanceMetrics === 'function') {
-                this.degradationManager.resetPerformanceMetrics();
-            }
-            
-            // Clear our own error log if it's getting large
-            if (this.errorLog.length > 50) {
-                this.errorLog = this.errorLog.slice(-25);
-            }
-            
-            return true;
-        } catch (error) {
-            this.log('error', 'Failed to clear caches', { error: error.message });
-            return false;
-        }
-    }
-
-    /**
-     * Force garbage collection
-     * @returns {boolean} Success status
-     */
-    forceGarbageCollection() {
-        try {
-            if (window.gc) {
-                window.gc();
-                this.log('info', 'Forced garbage collection');
-                return true;
-            }
-            return false;
-        } catch (error) {
-            this.log('error', 'Failed to force garbage collection', { error: error.message });
-            return false;
-        }
-    }
-
-    /**
-     * Recompile shaders
-     * @returns {boolean} Success status
-     */
-    recompileShaders() {
-        // This would require access to shader compilation system
-        // For now, just try to reinitialize motion blur
-        return this.recreateComposer();
-    }
-
-    /**
-     * Use simple shaders
-     * @returns {boolean} Success status
-     */
-    useSimpleShaders() {
-        return this.simplifyShaders();
+    disableMotionBlur(reason) {
+        return this.recoveryStrategies.disableMotionBlur(reason);
     }
 
     /**
@@ -780,7 +562,7 @@ class CameraEffectsErrorHandler {
         const now = Date.now();
         return (
             this.recoveryAttempts.total < this.recoveryAttempts.maxAttempts &&
-            (now - this.recoveryAttempts.lastAttempt) > this.recoveryAttempts.cooldownPeriod
+            now - this.recoveryAttempts.lastAttempt > this.recoveryAttempts.cooldownPeriod
         );
     }
 
@@ -791,25 +573,24 @@ class CameraEffectsErrorHandler {
      */
     queueNotification(type, message) {
         const notificationId = `${type}:${message}`;
-        
+
         // Check for duplicates if suppression is enabled
-        if (this.notifications.suppressDuplicates && this.notifications.shown.has(notificationId)) {
-            return;
+        if (this.notifications.suppressDuplicates) {
+            // Check if already in queue (not just shown)
+            const alreadyQueued = this.notifications.queue.some((n) => n.id === notificationId);
+            if (alreadyQueued || this.notifications.shown.has(notificationId)) {
+                return;
+            }
         }
-        
+
         // Add to queue
         if (this.notifications.queue.length < this.notifications.maxQueueSize) {
             this.notifications.queue.push({
                 type,
                 message,
                 id: notificationId,
-                timestamp: Date.now()
+                timestamp: Date.now(),
             });
-        }
-        
-        // Process immediately for critical errors
-        if (type === 'error') {
-            this.processNotificationQueue();
         }
     }
 
@@ -830,15 +611,25 @@ class CameraEffectsErrorHandler {
      */
     showNotification(notification) {
         // Console notification
-        const logLevel = notification.type === 'error' ? 'error' : 
-                        notification.type === 'warning' ? 'warn' : 'info';
-        console[logLevel](`Camera Effects: ${notification.message}`);
-        
+        const logLevel =
+            notification.type === 'error'
+                ? 'error'
+                : notification.type === 'warning'
+                  ? 'warn'
+                  : 'info';
+        if (logger[logLevel]) {
+            logger[logLevel](`Camera Effects: ${notification.message}`);
+        } else {
+            logger.info(`Camera Effects: ${notification.message}`);
+        }
+
         // Dispatch custom event for UI integration
         if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('cameraEffectsError', {
-                detail: notification
-            }));
+            window.dispatchEvent(
+                new CustomEvent('cameraEffectsError', {
+                    detail: notification,
+                })
+            );
         }
     }
 
@@ -848,18 +639,18 @@ class CameraEffectsErrorHandler {
      */
     addToErrorLog(errorEntry) {
         this.errorLog.push(errorEntry);
-        
+
         // Limit log size
         if (this.errorLog.length > this.maxLogEntries) {
             this.errorLog.shift();
         }
-        
+
         // Update debug context
         this.debugInfo.lastErrorContext = {
             type: errorEntry.type,
             context: errorEntry.context,
             timestamp: errorEntry.timestamp,
-            message: errorEntry.error.message
+            message: errorEntry.error.message,
         };
     }
 
@@ -873,20 +664,20 @@ class CameraEffectsErrorHandler {
         if (!this.loggingConfig.enabled) {
             return;
         }
-        
+
         const logEntry = {
             level: level,
             message: message,
             timestamp: this.loggingConfig.includeTimestamp ? new Date().toISOString() : undefined,
-            context: this.loggingConfig.includeContext ? context : undefined
+            context: this.loggingConfig.includeContext ? context : undefined,
         };
-        
-        // Console output
-        const consoleMethod = console[level] || console.log;
+
+        // Use the logger instance
+        const loggerMethod = logger[level] || logger.info; // Fallback to info if level is not directly supported by logger
         if (this.loggingConfig.includeContext && Object.keys(context).length > 0) {
-            consoleMethod(`CameraEffectsErrorHandler: ${message}`, context);
+            loggerMethod(message, context);
         } else {
-            consoleMethod(`CameraEffectsErrorHandler: ${message}`);
+            loggerMethod(message);
         }
     }
 
@@ -895,7 +686,7 @@ class CameraEffectsErrorHandler {
      * @returns {Object} Browser information
      */
     collectBrowserInfo() {
-        return {
+        const info = {
             userAgent: navigator.userAgent,
             platform: navigator.platform,
             language: navigator.language,
@@ -903,12 +694,20 @@ class CameraEffectsErrorHandler {
             onLine: navigator.onLine,
             hardwareConcurrency: navigator.hardwareConcurrency,
             deviceMemory: navigator.deviceMemory,
-            connection: navigator.connection ? {
-                effectiveType: navigator.connection.effectiveType,
-                downlink: navigator.connection.downlink,
-                rtt: navigator.connection.rtt
-            } : null
+            connection: null,
         };
+
+        /** @type {any} */
+        const nav = navigator;
+        if (nav.connection) {
+            info.connection = {
+                effectiveType: nav.connection.effectiveType,
+                saveData: nav.connection.saveData,
+                rtt: nav.connection.rtt,
+                downlink: nav.connection.downlink,
+            };
+        }
+        return info;
     }
 
     /**
@@ -921,24 +720,28 @@ class CameraEffectsErrorHandler {
                 width: screen.width,
                 height: screen.height,
                 colorDepth: screen.colorDepth,
-                pixelDepth: screen.pixelDepth
+                pixelDepth: screen.pixelDepth,
             },
             window: {
                 innerWidth: window.innerWidth,
                 innerHeight: window.innerHeight,
-                devicePixelRatio: window.devicePixelRatio
+                devicePixelRatio: window.devicePixelRatio,
             },
             performance: {
-                memory: performance.memory ? {
-                    usedJSHeapSize: performance.memory.usedJSHeapSize,
-                    totalJSHeapSize: performance.memory.totalJSHeapSize,
-                    jsHeapSizeLimit: performance.memory.jsHeapSizeLimit
-                } : null,
-                timing: performance.timing ? {
-                    navigationStart: performance.timing.navigationStart,
-                    loadEventEnd: performance.timing.loadEventEnd
-                } : null
-            }
+                memory: performance.memory
+                    ? {
+                          usedJSHeapSize: performance.memory.usedJSHeapSize,
+                          totalJSHeapSize: performance.memory.totalJSHeapSize,
+                          jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
+                      }
+                    : null,
+                timing: performance.timing
+                    ? {
+                          navigationStart: performance.timing.navigationStart,
+                          loadEventEnd: performance.timing.loadEventEnd,
+                      }
+                    : null,
+            },
         };
     }
 
@@ -949,17 +752,27 @@ class CameraEffectsErrorHandler {
         try {
             const canvas = document.createElement('canvas');
             const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            
+
             if (gl) {
+                /** @type {any} */
+                const glAny = gl;
+                const debugInfoExtension = glAny.getExtension('WEBGL_debug_renderer_info');
+
                 this.debugInfo.webglInfo = {
-                    version: gl.getParameter(gl.VERSION),
-                    vendor: gl.getParameter(gl.VENDOR),
-                    renderer: gl.getParameter(gl.RENDERER),
-                    shadingLanguageVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
-                    maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
-                    maxRenderBufferSize: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
-                    maxViewportDims: gl.getParameter(gl.MAX_VIEWPORT_DIMS),
-                    extensions: gl.getSupportedExtensions()
+                    renderer: glAny.getParameter(glAny.RENDERER),
+                    vendor: glAny.getParameter(glAny.VENDOR),
+                    version: glAny.getParameter(glAny.VERSION),
+                    shadingLanguageVersion: glAny.getParameter(glAny.SHADING_LANGUAGE_VERSION),
+                    maxTextureSize: glAny.getParameter(glAny.MAX_TEXTURE_SIZE),
+                    maxRenderBufferSize: glAny.getParameter(glAny.MAX_RENDERBUFFER_SIZE),
+                    maxViewportDims: glAny.getParameter(glAny.MAX_VIEWPORT_DIMS),
+                    extensions: glAny.getSupportedExtensions(),
+                    unmaskedRenderer: debugInfoExtension
+                        ? glAny.getParameter(debugInfoExtension.UNMASKED_RENDERER_WEBGL)
+                        : undefined,
+                    unmaskedVendor: debugInfoExtension
+                        ? glAny.getParameter(debugInfoExtension.UNMASKED_VENDOR_WEBGL)
+                        : undefined,
                 };
             }
         } catch (error) {
@@ -976,11 +789,13 @@ class CameraEffectsErrorHandler {
             counters: { ...this.errorCounters },
             totalErrors: Object.values(this.errorCounters).reduce((sum, count) => sum + count, 0),
             recoveryAttempts: { ...this.recoveryAttempts },
-            recoverySuccessRate: this.recoveryAttempts.total > 0 ? 
-                (this.recoveryAttempts.successful / this.recoveryAttempts.total) * 100 : 0,
+            recoverySuccessRate:
+                this.recoveryAttempts.total > 0
+                    ? (this.recoveryAttempts.successful / this.recoveryAttempts.total) * 100
+                    : 0,
             recentErrors: this.errorLog.slice(-10),
             fallbackMode: this.fallbackMode,
-            effectsDisabled: this.effectsDisabled
+            effectsDisabled: this.effectsDisabled,
         };
     }
 
@@ -992,7 +807,7 @@ class CameraEffectsErrorHandler {
         return {
             ...this.debugInfo,
             errorStatistics: this.getErrorStatistics(),
-            loggingConfig: { ...this.loggingConfig }
+            loggingConfig: { ...this.loggingConfig },
         };
     }
 
@@ -1001,24 +816,27 @@ class CameraEffectsErrorHandler {
      * @returns {boolean} True if there are recoverable errors
      */
     hasRecoverableErrors() {
-        const totalErrors = Object.values(this.errorCounters).reduce((sum, count) => sum + count, 0);
-        return totalErrors > 0 && 
-               totalErrors < this.errorThresholds.disable && 
-               !this.effectsDisabled;
+        const totalErrors = Object.values(this.errorCounters).reduce(
+            (sum, count) => sum + count,
+            0
+        );
+        return (
+            totalErrors > 0 && totalErrors < this.errorThresholds.disable && !this.effectsDisabled
+        );
     }
 
     /**
      * Reset error counters
      */
     resetErrorCounters() {
-        Object.keys(this.errorCounters).forEach(key => {
+        Object.keys(this.errorCounters).forEach((key) => {
             this.errorCounters[key] = 0;
         });
-        
+
         this.recoveryAttempts.total = 0;
         this.recoveryAttempts.successful = 0;
         this.recoveryAttempts.failed = 0;
-        
+
         this.log('info', 'Error counters reset');
     }
 
@@ -1033,7 +851,7 @@ class CameraEffectsErrorHandler {
             effectsDisabled: this.effectsDisabled,
             errorStatistics: this.getErrorStatistics(),
             canAttemptRecovery: this.canAttemptRecovery(),
-            notificationQueueSize: this.notifications.queue.length
+            notificationQueueSize: this.notifications.queue.length,
         };
     }
 
@@ -1049,24 +867,23 @@ class CameraEffectsErrorHandler {
                 window.removeEventListener('error', this.handleUnhandledError);
                 window.removeEventListener('unhandledrejection', this.handleUnhandledError);
             }
-            
+
             // Clear references
             this.cameraEffectsManager = null;
             this.degradationManager = null;
             this.motionBlurController = null;
             this.shakeController = null;
-            
+
             // Clear data
             this.errorLog = [];
             this.notifications.queue = [];
             this.notifications.shown.clear();
-            
+
             this.initialized = false;
-            
+
             this.log('info', 'CameraEffectsErrorHandler destroyed');
-            
         } catch (error) {
-            console.error('CameraEffectsErrorHandler: Error during destruction:', error);
+            logger.error('Error during destruction', error);
         }
     }
 }

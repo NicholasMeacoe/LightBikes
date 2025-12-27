@@ -2,6 +2,22 @@
  * Integration tests for local multiplayer scoring system
  * Tests the complete flow from game events to UI updates
  */
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { MultiplayerGame } = require('@/multiplayer/MultiplayerGame.js');
 const { LocalScoringUI } = require('@/ui/LocalScoringUI.js');
 const { PlayerCollisionHandler } = require('@/multiplayer/PlayerCollisionHandler.js');
@@ -14,7 +30,7 @@ describe('Local Scoring Integration', () => {
     beforeEach(() => {
         // Clear DOM
         document.body.innerHTML = '';
-        
+
         // Initialize game and systems
         game = new MultiplayerGame();
         scoringUI = new LocalScoringUI(game.localScoring);
@@ -32,7 +48,7 @@ describe('Local Scoring Integration', () => {
             // Simulate Player 2 collision
             const collisionResult = {
                 player1Collided: false,
-                player2Collided: true
+                player2Collided: true,
             };
 
             game.handleRoundEnd(collisionResult);
@@ -55,7 +71,7 @@ describe('Local Scoring Integration', () => {
             // Simulate Player 1 collision
             const collisionResult = {
                 player1Collided: true,
-                player2Collided: false
+                player2Collided: false,
             };
 
             game.handleRoundEnd(collisionResult);
@@ -78,7 +94,7 @@ describe('Local Scoring Integration', () => {
             // Simulate both players colliding
             const collisionResult = {
                 player1Collided: true,
-                player2Collided: true
+                player2Collided: true,
             };
 
             game.handleRoundEnd(collisionResult);
@@ -223,7 +239,7 @@ describe('Local Scoring Integration', () => {
 
         it('should auto-hide winner announcement', () => {
             scoringUI.showRoundWinner('P1');
-            
+
             const announcement = document.getElementById('winnerAnnouncement');
             expect(announcement.style.display).toBe('block');
 
@@ -292,7 +308,7 @@ describe('Local Scoring Integration', () => {
 
         it('should provide scoring details through getLocalScoring', () => {
             game.handleRoundEnd({ player1Collided: false, player2Collided: true });
-            
+
             const scoring = game.getLocalScoring();
             expect(scoring.player1Wins).toBe(1);
             expect(scoring.player2Wins).toBe(0);
@@ -339,7 +355,7 @@ describe('Local Scoring Integration', () => {
             scoringUI.updateScores();
             expect(document.getElementById('roundIndicator').textContent).toBe('Round 4');
             game.handleRoundEnd({ player1Collided: false, player2Collided: true });
-            
+
             // Show final scores
             scoringUI.showFinalScores();
             const announcement = document.getElementById('winnerAnnouncement');

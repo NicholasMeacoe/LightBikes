@@ -6,38 +6,40 @@
 /**
  * StatusIndicator class manages the power-up status display UI
  */
+const { logger } = require('../utils/Logger.js');
+
 class StatusIndicator {
     constructor() {
         this.container = null;
         this.activeIndicators = new Map(); // effectId -> indicator element
         this.initialized = false;
-        
+
         // Power-up type configurations for UI display
         this.powerUpUIConfig = {
-            'SPEED_BOOST': {
+            SPEED_BOOST: {
                 icon: '⚡',
                 color: '#0066ff',
                 name: 'Speed Boost',
-                showTimer: true
+                showTimer: true,
             },
-            'SHIELD': {
+            SHIELD: {
                 icon: '🛡️',
                 color: '#ffd700',
                 name: 'Shield',
-                showTimer: false
+                showTimer: false,
             },
-            'TRAIL_ERASER': {
+            TRAIL_ERASER: {
                 icon: '🗑️',
                 color: '#9932cc',
                 name: 'Trail Eraser',
-                showTimer: false
+                showTimer: false,
             },
-            'GHOST_MODE': {
+            GHOST_MODE: {
                 icon: '👻',
                 color: '#ffffff',
                 name: 'Ghost Mode',
-                showTimer: true
-            }
+                showTimer: true,
+            },
         };
     }
 
@@ -60,7 +62,7 @@ class StatusIndicator {
         this.container = document.createElement('div');
         this.container.id = 'powerUpStatusIndicator';
         this.container.className = 'status-indicator-container';
-        
+
         // Position in top-right corner, below difficulty selector
         document.body.appendChild(this.container);
     }
@@ -200,10 +202,10 @@ class StatusIndicator {
 
         // Get player effects (focus on player for now, can extend for multiplayer)
         const playerEffects = allActiveEffects.player || [];
-        
+
         // Clear existing indicators
         this.clearIndicators();
-        
+
         if (playerEffects.length === 0) {
             this.hideContainer();
             return;
@@ -212,9 +214,9 @@ class StatusIndicator {
         // Show container and add header
         this.showContainer();
         this.addHeader();
-        
+
         // Add indicators for each active effect
-        playerEffects.forEach(effect => {
+        playerEffects.forEach((effect) => {
             this.addEffectIndicator(effect);
         });
     }
@@ -264,13 +266,13 @@ class StatusIndicator {
     addEffectIndicator(effect) {
         const config = this.powerUpUIConfig[effect.type];
         if (!config) {
-            console.warn(`No UI config found for effect type: ${effect.type}`);
+            logger.warn(`No UI config found for effect type: ${effect.type}`);
             return;
         }
 
         const indicator = document.createElement('div');
         indicator.className = 'status-indicator-item';
-        
+
         // Add type-specific styling
         if (config.showTimer) {
             indicator.classList.add('timed');
@@ -296,7 +298,7 @@ class StatusIndicator {
 
         // Create right side (timer or permanent indicator)
         const rightSide = document.createElement('div');
-        
+
         if (config.showTimer && effect.duration !== -1) {
             rightSide.className = 'status-indicator-timer';
             this.updateTimer(rightSide, effect);
@@ -318,7 +320,7 @@ class StatusIndicator {
             element: indicator,
             timerElement: rightSide,
             effect: effect,
-            config: config
+            config: config,
         });
 
         this.container.appendChild(indicator);
@@ -331,7 +333,7 @@ class StatusIndicator {
      */
     updateTimer(timerElement, effect) {
         const remainingTime = effect.getRemainingTime();
-        
+
         if (remainingTime <= 0) {
             timerElement.textContent = '0s';
             return;
@@ -372,18 +374,18 @@ class StatusIndicator {
     handleEffectRemoved(effectType, startTime) {
         const effectId = `${effectType}_${startTime}`;
         const indicator = this.activeIndicators.get(effectId);
-        
+
         if (indicator) {
             // Add fade-out animation before removal
             indicator.element.style.transition = 'opacity 0.3s ease-out';
             indicator.element.style.opacity = '0';
-            
+
             setTimeout(() => {
                 if (indicator.element.parentNode) {
                     indicator.element.parentNode.removeChild(indicator.element);
                 }
                 this.activeIndicators.delete(effectId);
-                
+
                 // Hide container if no more effects
                 if (this.activeIndicators.size === 0) {
                     this.hideContainer();
@@ -408,7 +410,7 @@ class StatusIndicator {
             initialized: this.initialized,
             visible: this.container ? this.container.classList.contains('visible') : false,
             activeIndicators: this.activeIndicators.size,
-            containerExists: !!this.container
+            containerExists: !!this.container,
         };
     }
 }

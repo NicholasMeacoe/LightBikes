@@ -1,9 +1,25 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { CameraShakeController } = require('@/effects/CameraShakeController.js');
 const { ShakeInstance } = require('@/effects/ShakeInstance.js');
 
 // Mock Three.js camera
 const createMockCamera = () => ({
-    position: { x: 0, y: 10, z: 20 }
+    position: { x: 0, y: 10, z: 20 },
 });
 
 describe('CameraShakeController', () => {
@@ -78,7 +94,7 @@ describe('CameraShakeController', () => {
         it('should respect intensity bounds for collision shake', () => {
             controller.triggerCollisionShake(0.3); // Below minimum
             controller.triggerCollisionShake(1.5); // Above maximum
-            
+
             expect(controller.getActiveShakeCount()).toBe(2);
             // Both should be clamped to valid range
         });
@@ -124,7 +140,7 @@ describe('CameraShakeController', () => {
         it('should clamp distance values', () => {
             controller.triggerNearMissShake(0.05); // Below minimum
             controller.triggerNearMissShake(1.5); // Above maximum
-            
+
             expect(controller.getActiveShakeCount()).toBe(2);
         });
 
@@ -171,25 +187,25 @@ describe('CameraShakeController', () => {
     describe('camera position updates', () => {
         it('should apply shake offset to camera position', () => {
             const originalPos = { ...mockCamera.position };
-            
+
             controller.triggerCollisionShake();
             controller.update(0.016); // One frame
 
             // Camera position should be different from original
-            const positionChanged = 
+            const positionChanged =
                 mockCamera.position.x !== originalPos.x ||
                 mockCamera.position.y !== originalPos.y ||
                 mockCamera.position.z !== originalPos.z;
-            
+
             expect(positionChanged).toBe(true);
         });
 
         it('should reset camera position when disabled', () => {
             controller.triggerCollisionShake();
             controller.update(0.016);
-            
+
             controller.setEnabled(false);
-            
+
             expect(mockCamera.position.x).toBe(controller.originalPosition.x);
             expect(mockCamera.position.y).toBe(controller.originalPosition.y);
             expect(mockCamera.position.z).toBe(controller.originalPosition.z);
@@ -198,7 +214,7 @@ describe('CameraShakeController', () => {
         it('should update original position', () => {
             const newPosition = { x: 5, y: 15, z: 25 };
             controller.updateOriginalPosition(newPosition);
-            
+
             expect(controller.originalPosition).toEqual(newPosition);
         });
     });
@@ -206,7 +222,7 @@ describe('CameraShakeController', () => {
     describe('configuration', () => {
         it('should get shake configuration', () => {
             const config = controller.getShakeConfig();
-            
+
             expect(config.collision).toBeDefined();
             expect(config.nearMiss).toBeDefined();
             expect(config.intensitySettings).toBeDefined();
@@ -216,14 +232,14 @@ describe('CameraShakeController', () => {
         it('should update shake configuration', () => {
             controller.updateShakeConfig('collision', { duration: 2.0 });
             const config = controller.getShakeConfig();
-            
+
             expect(config.collision.defaultDuration).toBe(2.0);
         });
 
         it('should get effective intensity multiplier', () => {
             controller.setIntensitySetting('low');
             const multiplier = controller.getEffectiveIntensityMultiplier();
-            
+
             expect(multiplier).toBe(0.5); // low setting * 1.0 base multiplier
         });
     });
@@ -232,17 +248,17 @@ describe('CameraShakeController', () => {
         it('should update active shakes', () => {
             controller.triggerCollisionShake();
             const initialInfo = controller.getActiveShakesInfo()[0];
-            
+
             controller.update(0.1);
             const updatedInfo = controller.getActiveShakesInfo()[0];
-            
+
             expect(updatedInfo.remaining).toBeLessThan(initialInfo.remaining);
         });
 
         it('should handle update without camera', () => {
             const controllerWithoutCamera = new CameraShakeController(null);
             controllerWithoutCamera.triggerCollisionShake();
-            
+
             expect(() => {
                 controllerWithoutCamera.update(0.016);
             }).not.toThrow();
@@ -251,7 +267,7 @@ describe('CameraShakeController', () => {
         it('should not update when disabled', () => {
             controller.triggerCollisionShake();
             controller.setEnabled(false);
-            
+
             const offset = controller.getCurrentOffset();
             expect(offset.x).toBe(0);
             expect(offset.y).toBe(0);

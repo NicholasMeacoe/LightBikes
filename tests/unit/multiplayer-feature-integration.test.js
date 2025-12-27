@@ -6,9 +6,25 @@
  * - Sound effects integration
  * - Particle system integration
  * - Customization system integration
- * 
+ *
  * Requirements: 6.1, 6.2, 6.3, 6.4, 6.5
  */
+
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
 
 const { MultiplayerGame } = require('@/multiplayer/MultiplayerGame.js');
 const { PlayerEntity } = require('@/multiplayer/PlayerEntity.js');
@@ -18,6 +34,9 @@ const { CustomizationManager } = require('@/systems/CustomizationManager.js');
 
 // Mock THREE.js
 global.THREE = {
+    MeshBasicMaterial: jest.fn().mockImplementation(() => ({})),
+    MeshLambertMaterial: jest.fn().mockImplementation(() => ({})),
+    SphereGeometry: jest.fn().mockImplementation(() => ({})),
     Vector3: class {
         constructor(x = 0, y = 0, z = 0) {
             this.x = x;
@@ -80,7 +99,11 @@ global.THREE = {
             return this;
         }
         getHex() {
-            return (Math.round(this.r * 255) << 16) + (Math.round(this.g * 255) << 8) + Math.round(this.b * 255);
+            return (
+                (Math.round(this.r * 255) << 16) +
+                (Math.round(this.g * 255) << 8) +
+                Math.round(this.b * 255)
+            );
         }
     },
     BufferGeometry: class {
@@ -125,7 +148,7 @@ global.THREE = {
     DoubleSide: 2,
     ClampToEdgeWrapping: 1001,
     LinearFilter: 1006,
-    RGBAFormat: 1023
+    RGBAFormat: 1023,
 };
 
 describe('Multiplayer Feature Integration', () => {
@@ -137,7 +160,7 @@ describe('Multiplayer Feature Integration', () => {
         // Create mock scene
         mockScene = {
             add: jest.fn(),
-            remove: jest.fn()
+            remove: jest.fn(),
         };
 
         // Create mock audio manager
@@ -151,7 +174,7 @@ describe('Multiplayer Feature Integration', () => {
             handleGamePause: jest.fn(),
             handleGameResume: jest.fn(),
             isMuted: false,
-            isInitialized: true
+            isInitialized: true,
         };
 
         // Create multiplayer game instance
@@ -197,7 +220,7 @@ describe('Multiplayer Feature Integration', () => {
             // Verify both players are affected by same boundaries
             const player1InBounds = game.arenaShrinker.isWithinBounds(game.player1.position);
             const player2InBounds = game.arenaShrinker.isWithinBounds(game.player2.position);
-            
+
             // Both players should be within bounds initially
             expect(player1InBounds).toBe(true);
             expect(player2InBounds).toBe(true);
@@ -314,7 +337,7 @@ describe('Multiplayer Feature Integration', () => {
             // Set player positions
             const player1InitialPos = { x: 5, y: 0, z: 5 };
             const player2InitialPos = { x: -5, y: 0, z: -5 };
-            
+
             game.player1.position.x = player1InitialPos.x;
             game.player1.position.y = player1InitialPos.y;
             game.player1.position.z = player1InitialPos.z;
@@ -396,7 +419,7 @@ describe('Multiplayer Feature Integration', () => {
         test('should handle collision sounds for both players', () => {
             // Set up collision scenario
             game.player1.isAlive = false; // Player 1 crashed
-            game.player2.isAlive = true;  // Player 2 survived
+            game.player2.isAlive = true; // Player 2 survived
 
             // Verify game can detect collision state
             const gameState = game.getGameState();
@@ -422,7 +445,7 @@ describe('Multiplayer Feature Integration', () => {
             // Create particle system
             const particleSystem = new ParticleSystem(mockScene, {
                 maxParticles: 200,
-                enabled: true
+                enabled: true,
             });
 
             // Verify particle system is initialized
@@ -457,7 +480,7 @@ describe('Multiplayer Feature Integration', () => {
             // Create particle system
             const particleSystem = new ParticleSystem(mockScene, {
                 maxParticles: 200,
-                enabled: true
+                enabled: true,
             });
 
             // Simulate collision particles for player 1
@@ -479,7 +502,7 @@ describe('Multiplayer Feature Integration', () => {
             // Create particle system
             const particleSystem = new ParticleSystem(mockScene, {
                 maxParticles: 200,
-                enabled: true
+                enabled: true,
             });
 
             // Emit some particles
@@ -494,7 +517,7 @@ describe('Multiplayer Feature Integration', () => {
             const pausedGameState = {
                 isPaused: true,
                 gameOver: false,
-                frameCount: 10
+                frameCount: 10,
             };
 
             // Update with paused state
@@ -508,7 +531,7 @@ describe('Multiplayer Feature Integration', () => {
             // Create particle system
             const particleSystem = new ParticleSystem(mockScene, {
                 maxParticles: 200,
-                enabled: true
+                enabled: true,
             });
 
             // Set to paused state
@@ -518,7 +541,7 @@ describe('Multiplayer Feature Integration', () => {
             const resumedGameState = {
                 isPaused: false,
                 gameOver: false,
-                frameCount: 20
+                frameCount: 20,
             };
 
             // Update with resumed state
@@ -539,8 +562,8 @@ describe('Multiplayer Feature Integration', () => {
 
             // In multiplayer, each player should have their own customization
             // Player 1 uses green, Player 2 uses blue (stored as strings)
-            expect(game.player1.color).toBe("green");
-            expect(game.player2.color).toBe("blue");
+            expect(game.player1.color).toBe('green');
+            expect(game.player2.color).toBe('blue');
 
             // Verify colors are different
             expect(game.player1.color).not.toBe(game.player2.color);
@@ -635,7 +658,7 @@ describe('Multiplayer Feature Integration', () => {
             // Create particle system
             const particleSystem = new ParticleSystem(mockScene, {
                 maxParticles: 200,
-                enabled: true
+                enabled: true,
             });
 
             // Emit particles for both players (using hex color values)
@@ -666,7 +689,7 @@ describe('Multiplayer Feature Integration', () => {
             // Create particle system
             const particleSystem = new ParticleSystem(mockScene, {
                 maxParticles: 200,
-                enabled: true
+                enabled: true,
             });
 
             // Verify player colors are maintained
@@ -686,8 +709,8 @@ describe('Multiplayer Feature Integration', () => {
             game.isPaused = false;
 
             // Verify colors still maintained (stored as strings)
-            expect(game.player1.color).toBe("green");
-            expect(game.player2.color).toBe("blue");
+            expect(game.player1.color).toBe('green');
+            expect(game.player2.color).toBe('blue');
         });
 
         test('should handle all features together with pause/resume', () => {
@@ -698,7 +721,7 @@ describe('Multiplayer Feature Integration', () => {
 
             const particleSystem = new ParticleSystem(mockScene, {
                 maxParticles: 200,
-                enabled: true
+                enabled: true,
             });
 
             // Start game
@@ -719,7 +742,7 @@ describe('Multiplayer Feature Integration', () => {
             const pausedGameState = {
                 isPaused: true,
                 gameOver: false,
-                frameCount: 10
+                frameCount: 10,
             };
 
             // Update particle system with paused state
@@ -736,7 +759,7 @@ describe('Multiplayer Feature Integration', () => {
             const resumedGameState = {
                 isPaused: false,
                 gameOver: false,
-                frameCount: 20
+                frameCount: 20,
             };
 
             // Update particle system with resumed state
@@ -747,8 +770,8 @@ describe('Multiplayer Feature Integration', () => {
             expect(particleSystem.isPaused).toBe(false);
 
             // Verify player customization maintained (stored as strings)
-            expect(game.player1.color).toBe("green");
-            expect(game.player2.color).toBe("blue");
+            expect(game.player1.color).toBe('green');
+            expect(game.player2.color).toBe('blue');
         });
     });
 
@@ -760,18 +783,18 @@ describe('Multiplayer Feature Integration', () => {
 
             const particleSystem = new ParticleSystem(mockScene, {
                 maxParticles: 200,
-                enabled: true
+                enabled: true,
             });
 
             // Simulate multiple updates
             const startTime = performance.now();
-            
+
             for (let i = 0; i < 100; i++) {
                 game.update();
                 particleSystem.update(0.016, {
                     isPaused: false,
                     gameOver: false,
-                    frameCount: i
+                    frameCount: i,
                 });
             }
 
@@ -792,7 +815,7 @@ describe('Multiplayer Feature Integration', () => {
             for (let i = 0; i < 10; i++) {
                 game.isPaused = true;
                 expect(game.isPaused).toBe(true);
-                
+
                 game.isPaused = false;
                 expect(game.isPaused).toBe(false);
             }

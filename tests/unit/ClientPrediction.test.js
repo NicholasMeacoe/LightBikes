@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { ClientPrediction } = require('@/multiplayer/ClientPrediction.js');
 
 describe('ClientPrediction', () => {
@@ -42,8 +58,8 @@ describe('ClientPrediction', () => {
                 player: mockGameInstance.player,
                 playerDirection: mockGameInstance.playerDirection,
                 playerTrail: mockGameInstance.playerTrail,
-                frameCount: mockGameInstance.frameCount
-            }))
+                frameCount: mockGameInstance.frameCount,
+            })),
         };
 
         clientPrediction = new ClientPrediction(mockGameInstance);
@@ -98,7 +114,9 @@ describe('ClientPrediction', () => {
                 clientPrediction.applyInput({ direction: 'up', sequenceId: i }, Date.now() + i);
             }
 
-            expect(clientPrediction.inputHistory.length).toBeLessThanOrEqual(clientPrediction.maxInputHistory);
+            expect(clientPrediction.inputHistory.length).toBeLessThanOrEqual(
+                clientPrediction.maxInputHistory
+            );
         });
     });
 
@@ -132,13 +150,13 @@ describe('ClientPrediction', () => {
             const serverState = {
                 timestamp: Date.now(),
                 players: {
-                    'player1': {
+                    player1: {
                         position: { x: 0, y: 0, z: 0 },
                         direction: { x: 1, y: 0, z: 0 },
                         trail: [{ x: 0, y: 0, z: 0 }],
-                        lastProcessedSequence: 0
-                    }
-                }
+                        lastProcessedSequence: 0,
+                    },
+                },
             };
 
             clientPrediction.reconcileWithServer(serverState, Date.now());
@@ -155,13 +173,13 @@ describe('ClientPrediction', () => {
             const serverState = {
                 timestamp: Date.now(),
                 players: {
-                    'player1': {
+                    player1: {
                         position: { x: 0, y: 0, z: 0 },
                         direction: { x: 1, y: 0, z: 0 },
                         trail: [{ x: 0, y: 0, z: 0 }],
-                        lastProcessedSequence: 0
-                    }
-                }
+                        lastProcessedSequence: 0,
+                    },
+                },
             };
 
             const initialX = mockGameInstance.player.x;
@@ -175,13 +193,13 @@ describe('ClientPrediction', () => {
             const serverState = {
                 timestamp: Date.now(),
                 players: {
-                    'player1': {
+                    player1: {
                         position: { x: 0, y: 0, z: 0 },
                         direction: { x: 1, y: 0, z: 0 },
                         trail: [{ x: 0, y: 0, z: 0 }],
-                        lastProcessedSequence: 5
-                    }
-                }
+                        lastProcessedSequence: 5,
+                    },
+                },
             };
 
             clientPrediction.reconcileWithServer(serverState, Date.now());
@@ -224,7 +242,9 @@ describe('ClientPrediction', () => {
                 clientPrediction.saveSnapshot(Date.now() + i);
             }
 
-            expect(clientPrediction.snapshots.size).toBeLessThanOrEqual(clientPrediction.maxSnapshots);
+            expect(clientPrediction.snapshots.size).toBeLessThanOrEqual(
+                clientPrediction.maxSnapshots
+            );
         });
     });
 
@@ -266,7 +286,7 @@ describe('ClientPrediction', () => {
                 player: { x: 10, y: 0, z: 10 },
                 playerDirection: { x: 0, y: 0, z: 1 },
                 playerTrail: [{ x: 10, y: 0, z: 10 }],
-                frameCount: 100
+                frameCount: 100,
             };
 
             clientPrediction.restoreSnapshot(snapshot);
@@ -316,8 +336,16 @@ describe('ClientPrediction', () => {
             const oldTime = Date.now() - 3000;
             const newTime = Date.now();
 
-            clientPrediction.inputHistory.push({ timestamp: oldTime, direction: 'up', sequenceId: 1 });
-            clientPrediction.inputHistory.push({ timestamp: newTime, direction: 'down', sequenceId: 2 });
+            clientPrediction.inputHistory.push({
+                timestamp: oldTime,
+                direction: 'up',
+                sequenceId: 1,
+            });
+            clientPrediction.inputHistory.push({
+                timestamp: newTime,
+                direction: 'down',
+                sequenceId: 2,
+            });
 
             clientPrediction.cleanupOldData(newTime);
 
@@ -377,7 +405,7 @@ describe('ClientPrediction', () => {
                 { direction: 'up', sequenceId: 1, timestamp: Date.now() },
                 { direction: 'down', sequenceId: 2, timestamp: Date.now() },
                 { direction: 'left', sequenceId: 3, timestamp: Date.now() },
-                { direction: 'right', sequenceId: 4, timestamp: Date.now() }
+                { direction: 'right', sequenceId: 4, timestamp: Date.now() },
             ];
 
             mockGameInstance.changePlayerDirection.mockClear();

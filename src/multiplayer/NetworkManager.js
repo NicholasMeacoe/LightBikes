@@ -4,6 +4,10 @@
  */
 
 const io = require('socket.io-client');
+console.log('NetworkManager loaded io:', io, 'isMock:', io && io._isMockFunction);
+const { Logger } = require('../utils/Logger');
+
+const logger = Logger.create('NetworkManager');
 
 class NetworkManager {
     constructor(gameInstance, renderingEngine) {
@@ -14,7 +18,7 @@ class NetworkManager {
         this.roomId = null;
         this.playerId = null;
         this.ping = 0;
-        
+
         // Event callbacks
         this.eventHandlers = {
             stateUpdate: [],
@@ -28,15 +32,15 @@ class NetworkManager {
             connected: [],
             disconnected: [],
             reconnecting: [],
-            reconnected: []
+            reconnected: [],
         };
-        
+
         // Connection state
         this.connectionState = 'disconnected'; // disconnected, connecting, connected, reconnecting
         this.lastPingTime = 0;
         this.pingInterval = null;
     }
-    
+
     /**
      * Connect to the game server
      * @param {string} serverUrl - WebSocket server URL (e.g., 'http://localhost:3000')
@@ -48,18 +52,20 @@ class NetworkManager {
                 resolve();
                 return;
             }
-            
+
             this.connectionState = 'connecting';
-            
+
             // Create Socket.IO connection
-            this.socket = io(serverUrl, {
+            /** @type {any} */
+            const ioClient = io;
+            this.socket = ioClient(serverUrl, {
                 reconnection: true,
                 reconnectionDelay: 1000,
                 reconnectionDelayMax: 5000,
                 reconnectionAttempts: 5,
-                timeout: 10000
+                timeout: 10000,
             });
-            
+
             // Connection event handlers
             this.socket.on('connect', () => {
                 this.connected = true;
@@ -69,37 +75,37 @@ class NetworkManager {
                 this.triggerEvent('connected', { playerId: this.playerId });
                 resolve();
             });
-            
+
             this.socket.on('connect_error', (error) => {
                 this.connectionState = 'disconnected';
                 this.triggerEvent('error', { type: 'connection', error: error.message });
                 reject(error);
             });
-            
+
             this.socket.on('disconnect', (reason) => {
                 this.connected = false;
                 this.connectionState = 'disconnected';
                 this.stopPingMonitoring();
                 this.triggerEvent('disconnected', { reason });
             });
-            
+
             this.socket.on('reconnecting', (attemptNumber) => {
                 this.connectionState = 'reconnecting';
                 this.triggerEvent('reconnecting', { attemptNumber });
             });
-            
+
             this.socket.on('reconnect', (attemptNumber) => {
                 this.connected = true;
                 this.connectionState = 'connected';
                 this.startPingMonitoring();
                 this.triggerEvent('reconnected', { attemptNumber });
             });
-            
+
             // Game event handlers
             this.setupGameEventHandlers();
         });
     }
-    
+
     /**
      * Set up handlers for game-specific events
      */
@@ -108,47 +114,47 @@ class NetworkManager {
         this.socket.on('gameState', (data) => {
             this.triggerEvent('stateUpdate', data);
         });
-        
+
         // Room updates
         this.socket.on('roomUpdate', (data) => {
             this.roomId = data.roomId;
             this.triggerEvent('roomUpdate', data);
         });
-        
+
         // Player events
         this.socket.on('playerJoined', (data) => {
             this.triggerEvent('playerJoined', data);
         });
-        
+
         this.socket.on('playerLeft', (data) => {
             this.triggerEvent('playerLeft', data);
         });
-        
+
         // Game lifecycle events
         this.socket.on('gameStart', (data) => {
             this.triggerEvent('gameStart', data);
         });
-        
+
         this.socket.on('gameEnd', (data) => {
             this.triggerEvent('gameEnd', data);
         });
-        
+
         // Chat events
         this.socket.on('chatMessage', (data) => {
             this.triggerEvent('chatMessage', data);
         });
-        
+
         // Ping response
         this.socket.on('pong', (timestamp) => {
             this.ping = Date.now() - timestamp;
         });
-        
+
         // Error events
         this.socket.on('error', (data) => {
             this.triggerEvent('error', data);
         });
     }
-    
+
     /**
      * Disconnect from the server
      */
@@ -163,7 +169,7 @@ class NetworkManager {
             this.playerId = null;
         }
     }
-    
+
     /**
      * Create a new game room
      * @param {Object} settings - Room settings (maxPlayers, gameMode, isPrivate)
@@ -175,7 +181,7 @@ class NetworkManager {
                 reject(new Error('Not connected to server'));
                 return;
             }
-            
+
             this.socket.emit('createRoom', settings, (response) => {
                 if (response.success) {
                     this.roomId = response.roomId;
@@ -186,7 +192,7 @@ class NetworkManager {
             });
         });
     }
-    
+
     /**
      * Join an existing game room
      * @param {string} roomId - Room ID to join
@@ -198,7 +204,7 @@ class NetworkManager {
                 reject(new Error('Not connected to server'));
                 return;
             }
-            
+
             this.socket.emit('joinRoom', { roomId }, (response) => {
                 if (response.success) {
                     this.roomId = roomId;
@@ -209,7 +215,7 @@ class NetworkManager {
             });
         });
     }
-    
+
     /**
      * Rejoin a room after reconnection
      * @param {string} roomId - Room ID to rejoin
@@ -222,21 +228,25 @@ class NetworkManager {
                 reject(new Error('Not connected to server'));
                 return;
             }
-            
-            this.socket.emit('rejoinRoom', { 
-                roomId, 
-                previousPlayerId 
-            }, (response) => {
-                if (response.success) {
-                    this.roomId = roomId;
-                    resolve(response);
-                } else {
-                    reject(new Error(response.error || 'Failed to rejoin room'));
+
+            this.socket.emit(
+                'rejoinRoom',
+                {
+                    roomId,
+                    previousPlayerId,
+                },
+                (response) => {
+                    if (response.success) {
+                        this.roomId = roomId;
+                        resolve(response);
+                    } else {
+                        reject(new Error(response.error || 'Failed to rejoin room'));
+                    }
                 }
-            });
+            );
         });
     }
-    
+
     /**
      * Leave the current room
      * @returns {Promise} Resolves when left
@@ -247,7 +257,7 @@ class NetworkManager {
                 reject(new Error('Not in a room'));
                 return;
             }
-            
+
             this.socket.emit('leaveRoom', {}, (response) => {
                 if (response.success) {
                     this.roomId = null;
@@ -258,7 +268,7 @@ class NetworkManager {
             });
         });
     }
-    
+
     /**
      * Send player input to server
      * @param {string} direction - Direction (up, down, left, right)
@@ -268,14 +278,14 @@ class NetworkManager {
         if (!this.connected || !this.roomId) {
             return;
         }
-        
+
         this.socket.emit('input', {
             direction,
             timestamp,
-            sequenceId: this.generateSequenceId()
+            sequenceId: this.generateSequenceId(),
         });
     }
-    
+
     /**
      * Send chat message
      * @param {string} message - Chat message text
@@ -284,13 +294,13 @@ class NetworkManager {
         if (!this.connected || !this.roomId) {
             return;
         }
-        
+
         this.socket.emit('chat', {
             message,
-            timestamp: Date.now()
+            timestamp: Date.now(),
         });
     }
-    
+
     /**
      * Send ready status
      * @param {boolean} isReady - Whether player is ready
@@ -299,10 +309,10 @@ class NetworkManager {
         if (!this.connected || !this.roomId) {
             return;
         }
-        
+
         this.socket.emit('ready', { isReady });
     }
-    
+
     /**
      * Request room list
      * @returns {Promise} Resolves with list of available rooms
@@ -313,7 +323,7 @@ class NetworkManager {
                 reject(new Error('Not connected to server'));
                 return;
             }
-            
+
             this.socket.emit('getRoomList', {}, (response) => {
                 if (response.success) {
                     resolve(response.rooms);
@@ -323,7 +333,7 @@ class NetworkManager {
             });
         });
     }
-    
+
     /**
      * Register event handler
      * @param {string} event - Event name
@@ -334,7 +344,7 @@ class NetworkManager {
             this.eventHandlers[event].push(callback);
         }
     }
-    
+
     /**
      * Unregister event handler
      * @param {string} event - Event name
@@ -342,10 +352,10 @@ class NetworkManager {
      */
     off(event, callback) {
         if (this.eventHandlers[event]) {
-            this.eventHandlers[event] = this.eventHandlers[event].filter(cb => cb !== callback);
+            this.eventHandlers[event] = this.eventHandlers[event].filter((cb) => cb !== callback);
         }
     }
-    
+
     /**
      * Trigger event handlers
      * @param {string} event - Event name
@@ -353,16 +363,16 @@ class NetworkManager {
      */
     triggerEvent(event, data) {
         if (this.eventHandlers[event]) {
-            this.eventHandlers[event].forEach(callback => {
+            this.eventHandlers[event].forEach((callback) => {
                 try {
                     callback(data);
                 } catch (error) {
-                    console.error(`Error in ${event} handler:`, error);
+                    logger.error(`Error in ${event} handler:`, error);
                 }
             });
         }
     }
-    
+
     /**
      * Start ping monitoring
      */
@@ -374,7 +384,7 @@ class NetworkManager {
             }
         }, 1000);
     }
-    
+
     /**
      * Stop ping monitoring
      */
@@ -384,7 +394,7 @@ class NetworkManager {
             this.pingInterval = null;
         }
     }
-    
+
     /**
      * Generate sequence ID for input messages
      */
@@ -394,7 +404,7 @@ class NetworkManager {
         }
         return ++this._sequenceId;
     }
-    
+
     /**
      * Get current connection state
      * @returns {string} Connection state
@@ -402,7 +412,7 @@ class NetworkManager {
     getConnectionState() {
         return this.connectionState;
     }
-    
+
     /**
      * Get current ping
      * @returns {number} Ping in milliseconds
@@ -410,7 +420,7 @@ class NetworkManager {
     getPing() {
         return this.ping;
     }
-    
+
     /**
      * Check if connected
      * @returns {boolean} True if connected
@@ -418,7 +428,7 @@ class NetworkManager {
     isConnected() {
         return this.connected;
     }
-    
+
     /**
      * Get current room ID
      * @returns {string|null} Room ID or null
@@ -426,7 +436,7 @@ class NetworkManager {
     getRoomId() {
         return this.roomId;
     }
-    
+
     /**
      * Get player ID
      * @returns {string|null} Player ID or null
@@ -434,20 +444,44 @@ class NetworkManager {
     getPlayerId() {
         return this.playerId;
     }
-    
+
     // Convenience methods for event registration
-    onStateUpdate(callback) { this.on('stateUpdate', callback); }
-    onPlayerJoined(callback) { this.on('playerJoined', callback); }
-    onPlayerLeft(callback) { this.on('playerLeft', callback); }
-    onGameStart(callback) { this.on('gameStart', callback); }
-    onGameEnd(callback) { this.on('gameEnd', callback); }
-    onRoomUpdate(callback) { this.on('roomUpdate', callback); }
-    onChatMessage(callback) { this.on('chatMessage', callback); }
-    onError(callback) { this.on('error', callback); }
-    onConnected(callback) { this.on('connected', callback); }
-    onDisconnected(callback) { this.on('disconnected', callback); }
-    onReconnecting(callback) { this.on('reconnecting', callback); }
-    onReconnected(callback) { this.on('reconnected', callback); }
+    onStateUpdate(callback) {
+        this.on('stateUpdate', callback);
+    }
+    onPlayerJoined(callback) {
+        this.on('playerJoined', callback);
+    }
+    onPlayerLeft(callback) {
+        this.on('playerLeft', callback);
+    }
+    onGameStart(callback) {
+        this.on('gameStart', callback);
+    }
+    onGameEnd(callback) {
+        this.on('gameEnd', callback);
+    }
+    onRoomUpdate(callback) {
+        this.on('roomUpdate', callback);
+    }
+    onChatMessage(callback) {
+        this.on('chatMessage', callback);
+    }
+    onError(callback) {
+        this.on('error', callback);
+    }
+    onConnected(callback) {
+        this.on('connected', callback);
+    }
+    onDisconnected(callback) {
+        this.on('disconnected', callback);
+    }
+    onReconnecting(callback) {
+        this.on('reconnecting', callback);
+    }
+    onReconnected(callback) {
+        this.on('reconnected', callback);
+    }
 }
 
 module.exports = { NetworkManager };

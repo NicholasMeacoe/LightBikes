@@ -4,6 +4,7 @@ node_modules/
 .vscode/
 .kiro/
 coverage/
+logs/
 .specify/
 .gemini/
 .amazonq/

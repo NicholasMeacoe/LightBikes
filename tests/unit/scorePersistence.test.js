@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { ScorePersistence } = require('@/systems/scorePersistence.js');
 
 describe('ScorePersistence', () => {
@@ -8,8 +24,9 @@ describe('ScorePersistence', () => {
     beforeEach(() => {
         // Store original localStorage
         originalLocalStorage = global.localStorage;
-        originalWindowLocalStorage = typeof window !== 'undefined' ? window.localStorage : undefined;
-        
+        originalWindowLocalStorage =
+            typeof window !== 'undefined' ? window.localStorage : undefined;
+
         // Clear any existing data from jsdom localStorage
         if (typeof window !== 'undefined' && window.localStorage) {
             window.localStorage.clear();
@@ -17,22 +34,22 @@ describe('ScorePersistence', () => {
         if (global.localStorage && global.localStorage.clear) {
             global.localStorage.clear();
         }
-        
+
         // Create a completely fresh mock localStorage for each test
         mockLocalStorage = {
             store: {},
-            getItem: function(key) {
+            getItem: function (key) {
                 return this.store[key] || null;
             },
-            setItem: function(key, value) {
+            setItem: function (key, value) {
                 this.store[key] = value;
             },
-            removeItem: function(key) {
+            removeItem: function (key) {
                 delete this.store[key];
             },
-            clear: function() {
+            clear: function () {
                 this.store = {};
-            }
+            },
         };
 
         // Replace global localStorage
@@ -42,7 +59,7 @@ describe('ScorePersistence', () => {
             Object.defineProperty(window, 'localStorage', {
                 value: mockLocalStorage,
                 writable: true,
-                configurable: true
+                configurable: true,
             });
         }
     });
@@ -58,7 +75,7 @@ describe('ScorePersistence', () => {
             Object.defineProperty(window, 'localStorage', {
                 value: originalWindowLocalStorage,
                 writable: true,
-                configurable: true
+                configurable: true,
             });
         }
     });
@@ -71,10 +88,10 @@ describe('ScorePersistence', () => {
         it('should return false when localStorage throws on setItem', () => {
             // Create a localStorage that throws on setItem
             const throwingStorage = {
-                setItem: function() {
+                setItem: function () {
                     throw new Error('Storage quota exceeded');
                 },
-                removeItem: function() {}
+                removeItem: function () {},
             };
             global.localStorage = throwingStorage;
             if (typeof window !== 'undefined') {
@@ -142,10 +159,10 @@ describe('ScorePersistence', () => {
         it('should handle localStorage errors gracefully', () => {
             // Create a localStorage that throws on setItem
             const throwingStorage = {
-                setItem: function() {
+                setItem: function () {
                     throw new Error('Storage error');
                 },
-                removeItem: function() {}
+                removeItem: function () {},
             };
             global.localStorage = throwingStorage;
             if (typeof window !== 'undefined') {
@@ -187,11 +204,11 @@ describe('ScorePersistence', () => {
         it('should handle localStorage errors gracefully', () => {
             // Create a localStorage that throws on getItem
             const throwingStorage = {
-                getItem: function() {
+                getItem: function () {
                     throw new Error('Storage error');
                 },
-                setItem: function() {},
-                removeItem: function() {}
+                setItem: function () {},
+                removeItem: function () {},
             };
             global.localStorage = throwingStorage;
             if (typeof window !== 'undefined') {
@@ -258,11 +275,13 @@ describe('ScorePersistence', () => {
         it('should handle localStorage errors gracefully', () => {
             // Create a localStorage that throws on removeItem
             const throwingStorage = {
-                getItem: function() { return null; },
-                setItem: function() {},
-                removeItem: function() {
+                getItem: function () {
+                    return null;
+                },
+                setItem: function () {},
+                removeItem: function () {
                     throw new Error('Storage error');
-                }
+                },
             };
             global.localStorage = throwingStorage;
             if (typeof window !== 'undefined') {

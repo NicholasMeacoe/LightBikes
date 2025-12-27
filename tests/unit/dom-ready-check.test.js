@@ -3,6 +3,22 @@
  * Verifies that the game waits for DOM to be ready before initializing
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 describe('DOM Ready Check Logic', () => {
     describe('readyState detection', () => {
         it('should correctly identify loading state', () => {
@@ -29,7 +45,7 @@ describe('DOM Ready Check Logic', () => {
             const readyState = 'loading';
             let initializeCalled = false;
             let eventListenerAdded = false;
-            
+
             // Simulate the logic from script.js
             if (readyState === 'loading') {
                 // Would add event listener
@@ -38,7 +54,7 @@ describe('DOM Ready Check Logic', () => {
                 // Would initialize immediately
                 initializeCalled = true;
             }
-            
+
             expect(eventListenerAdded).toBe(true);
             expect(initializeCalled).toBe(false);
         });
@@ -47,7 +63,7 @@ describe('DOM Ready Check Logic', () => {
             const readyState = 'interactive';
             let initializeCalled = false;
             let eventListenerAdded = false;
-            
+
             // Simulate the logic from script.js
             if (readyState === 'loading') {
                 // Would add event listener
@@ -56,7 +72,7 @@ describe('DOM Ready Check Logic', () => {
                 // Would initialize immediately
                 initializeCalled = true;
             }
-            
+
             expect(eventListenerAdded).toBe(false);
             expect(initializeCalled).toBe(true);
         });
@@ -65,7 +81,7 @@ describe('DOM Ready Check Logic', () => {
             const readyState = 'complete';
             let initializeCalled = false;
             let eventListenerAdded = false;
-            
+
             // Simulate the logic from script.js
             if (readyState === 'loading') {
                 // Would add event listener
@@ -74,7 +90,7 @@ describe('DOM Ready Check Logic', () => {
                 // Would initialize immediately
                 initializeCalled = true;
             }
-            
+
             expect(eventListenerAdded).toBe(false);
             expect(initializeCalled).toBe(true);
         });
@@ -89,7 +105,11 @@ describe('DOM Ready Check Logic', () => {
         it('should allow checking readyState equality', () => {
             const currentState = document.readyState;
             expect(typeof currentState).toBe('string');
-            expect(currentState === 'loading' || currentState === 'interactive' || currentState === 'complete').toBe(true);
+            expect(
+                currentState === 'loading' ||
+                    currentState === 'interactive' ||
+                    currentState === 'complete'
+            ).toBe(true);
         });
     });
 
@@ -97,22 +117,25 @@ describe('DOM Ready Check Logic', () => {
         it('should support DOMContentLoaded event', () => {
             const mockHandler = jest.fn();
             document.addEventListener('DOMContentLoaded', mockHandler);
-            
+
             // Verify the event listener was added
             expect(mockHandler).toBeDefined();
             expect(typeof mockHandler).toBe('function');
         });
 
-        it('should execute handler when DOMContentLoaded fires', (done) => {
-            // This test verifies the event mechanism works
-            if (document.readyState === 'complete') {
-                // DOM is already loaded, test passes
-                done();
-            } else {
-                document.addEventListener('DOMContentLoaded', () => {
-                    done();
-                });
-            }
+        it('should execute handler when DOMContentLoaded fires', () => {
+            return new Promise((resolve) => {
+                if (document.readyState === 'complete') {
+                    // DOM is already loaded, test passes
+                    expect(true).toBe(true);
+                    resolve();
+                } else {
+                    document.addEventListener('DOMContentLoaded', () => {
+                        expect(true).toBe(true);
+                        resolve();
+                    });
+                }
+            });
         });
     });
 });

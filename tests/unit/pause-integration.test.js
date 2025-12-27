@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { Game } = require('@/core/game.js');
 const { PlayerController } = require('@/utils/controls.js');
 
@@ -31,7 +47,7 @@ describe('Pause System Integration Tests', () => {
                 frameCount: game.frameCount,
                 playerX: game.player.x,
                 aiX: game.ai.x,
-                playerTrailLength: game.playerTrail.length
+                playerTrailLength: game.playerTrail.length,
             };
 
             // Act - pause and attempt updates
@@ -64,7 +80,7 @@ describe('Pause System Integration Tests', () => {
             const midGameState = {
                 frameCount: game.frameCount,
                 playerDirection: { ...game.playerDirection },
-                playerPosition: { ...game.player }
+                playerPosition: { ...game.player },
             };
 
             // Pause during active movement
@@ -137,7 +153,7 @@ describe('Pause System Integration Tests', () => {
 
         it('should integrate resume button with game state', async () => {
             // Wait for event listeners to be set up
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise((resolve) => setTimeout(resolve, 10));
 
             const resumeButton = document.getElementById('resumeButton');
 
@@ -153,7 +169,7 @@ describe('Pause System Integration Tests', () => {
         });
 
         it('should handle UI interactions during different game states', async () => {
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise((resolve) => setTimeout(resolve, 10));
 
             const resumeButton = document.getElementById('resumeButton');
 
@@ -206,7 +222,7 @@ describe('Pause System Integration Tests', () => {
         });
 
         it('should handle concurrent pause operations from different sources', async () => {
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise((resolve) => setTimeout(resolve, 10));
 
             const resumeButton = document.getElementById('resumeButton');
 
@@ -284,7 +300,7 @@ describe('Pause System Integration Tests', () => {
                 aiPosition: { ...game.ai },
                 playerDirection: { ...game.playerDirection },
                 playerTrailLength: game.playerTrail.length,
-                aiTrailLength: game.aiTrail.length
+                aiTrailLength: game.aiTrail.length,
             };
 
             // Multiple pause/resume cycles
@@ -320,7 +336,7 @@ describe('Pause System Integration Tests', () => {
         beforeEach(() => {
             const { AIController } = require('@/core/ai.js');
             const { CollisionDetectionEngine } = require('@/core/collision.js');
-            
+
             aiController = new AIController();
             collisionDetectionEngine = new CollisionDetectionEngine();
         });
@@ -330,23 +346,23 @@ describe('Pause System Integration Tests', () => {
             for (let i = 0; i < 10; i++) {
                 game.update();
             }
-            
+
             // Position AI near boundary to force decision (within 10 units to trigger turn)
             game.ai.x = game.bounds - 0.5;
             game.aiDirection = { x: 1, y: 0, z: 0 };
-            
+
             const gameState = game.getGameState();
-            
+
             // Normal operation - AI should turn away from boundary
             const normalDecision = aiController.calculateAIDirection(gameState);
             expect(normalDecision.newDirection.x).not.toBe(1);
-            
+
             // Pause and verify AI maintains current direction
             game.pause();
             const pausedGameState = game.getGameState();
             const pausedDecision = aiController.calculateAIDirection(pausedGameState);
             expect(pausedDecision.newDirection).toEqual(game.aiDirection);
-            
+
             // Resume and verify AI resumes decision-making
             game.resume();
             const resumedGameState = game.getGameState();
@@ -359,22 +375,22 @@ describe('Pause System Integration Tests', () => {
             for (let i = 0; i < 15; i++) {
                 game.update(); // Get past grace period
             }
-            
+
             // Position player at boundary
             game.player.x = game.bounds + 0.1;
-            
+
             const gameState = game.getGameState();
-            
+
             // Normal operation - should detect collision
             const normalCollision = collisionDetectionEngine.checkCollisions(gameState);
             expect(normalCollision.playerCollided).toBe(true);
-            
+
             // Pause and verify no collision detection
             game.pause();
             const pausedGameState = game.getGameState();
             const pausedCollision = collisionDetectionEngine.checkCollisions(pausedGameState);
             expect(pausedCollision.playerCollided).toBe(false);
-            
+
             // Resume and verify collision detection resumes
             game.resume();
             const resumedGameState = game.getGameState();
@@ -388,27 +404,27 @@ describe('Pause System Integration Tests', () => {
             for (let i = 0; i < 20; i++) {
                 game.update();
             }
-            
+
             const preState = {
                 playerTrailLength: game.playerTrail.length,
                 aiTrailLength: game.aiTrail.length,
                 playerPosition: { ...game.player },
-                aiPosition: { ...game.ai }
+                aiPosition: { ...game.ai },
             };
-            
+
             // Pause and verify systems maintain state
             game.pause();
             const pausedState = game.getGameState();
-            
+
             // AI should not change direction
             const aiDecision = aiController.calculateAIDirection(pausedState);
             expect(aiDecision.newDirection).toEqual(game.aiDirection);
-            
+
             // Collision system should not detect collisions
             const collisionResult = collisionDetectionEngine.checkCollisions(pausedState);
             expect(collisionResult.playerCollided).toBe(false);
             expect(collisionResult.aiCollided).toBe(false);
-            
+
             // Game state should be preserved
             expect(game.playerTrail).toHaveLength(preState.playerTrailLength);
             expect(game.aiTrail).toHaveLength(preState.aiTrailLength);
@@ -421,31 +437,31 @@ describe('Pause System Integration Tests', () => {
             for (let i = 0; i < 10; i++) {
                 game.update();
             }
-            
+
             // Create obstacle for AI to avoid
             game.playerTrail.push({ x: game.ai.x + 0.5, y: 0, z: game.ai.z });
-            
+
             const initialAIDirection = { ...game.aiDirection };
-            
+
             // Pause the game
             game.pause();
-            
+
             // Multiple pause cycles to test state preservation
             for (let cycle = 0; cycle < 3; cycle++) {
                 const pausedState = game.getGameState();
                 const pausedDecision = aiController.calculateAIDirection(pausedState);
                 expect(pausedDecision.newDirection).toEqual(game.aiDirection);
-                
+
                 // Brief resume and re-pause
                 game.resume();
                 game.pause();
             }
-            
+
             // Final resume and test AI behavior
             game.resume();
             const finalState = game.getGameState();
             const finalDecision = aiController.calculateAIDirection(finalState);
-            
+
             // AI should make appropriate decision based on current state
             expect(finalDecision.newDirection).toBeDefined();
             expect(finalDecision.newState).toBe('DEFENSIVE');
@@ -455,30 +471,30 @@ describe('Pause System Integration Tests', () => {
             // Test with minimal game state
             game.restart();
             game.pause();
-            
+
             const pausedState = game.getGameState();
-            
+
             // AI should handle pause state gracefully even with minimal state
             expect(() => {
                 const decision = aiController.calculateAIDirection(pausedState);
                 expect(decision.newDirection).toEqual(game.aiDirection);
             }).not.toThrow();
-            
+
             // Collision system should handle pause state gracefully
             expect(() => {
                 const collision = collisionDetectionEngine.checkCollisions(pausedState);
                 expect(collision.playerCollided).toBe(false);
                 expect(collision.aiCollided).toBe(false);
             }).not.toThrow();
-            
+
             // Resume and verify systems work normally
             game.resume();
             game.update();
-            
+
             const resumedState = game.getGameState();
             const resumedDecision = aiController.calculateAIDirection(resumedState);
             const resumedCollision = collisionDetectionEngine.checkCollisions(resumedState);
-            
+
             expect(resumedDecision).toBeDefined();
             expect(resumedCollision).toBeDefined();
         });

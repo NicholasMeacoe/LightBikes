@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { PlayerController } = require('@/utils/controls.js');
 const { Game } = require('@/core/game.js');
 const { MultiplayerGame } = require('@/multiplayer/MultiplayerGame.js');
@@ -114,7 +130,7 @@ describe('PlayerController', () => {
             playerController.init();
 
             // Wait for setupUIEventListeners to complete
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise((resolve) => setTimeout(resolve, 10));
         });
 
         it('should resume game when resume button is clicked', () => {
@@ -240,7 +256,7 @@ describe('PlayerController', () => {
             playerController.init();
 
             // Wait for event listeners to be set up
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
                 setTimeout(() => {
                     expect(game.isPaused).toBe(false);
 
@@ -278,13 +294,13 @@ describe('PlayerController', () => {
             const pEvent = new KeyboardEvent('keydown', { key: 'p' });
             const escEvent = new KeyboardEvent('keydown', { key: 'Escape' });
 
-            document.dispatchEvent(pEvent);     // pause
+            document.dispatchEvent(pEvent); // pause
             expect(game.isPaused).toBe(true);
 
-            document.dispatchEvent(escEvent);   // resume
+            document.dispatchEvent(escEvent); // resume
             expect(game.isPaused).toBe(false);
 
-            document.dispatchEvent(pEvent);     // pause again
+            document.dispatchEvent(pEvent); // pause again
             expect(game.isPaused).toBe(true);
         });
 
@@ -293,7 +309,7 @@ describe('PlayerController', () => {
             document.body.innerHTML = '<div id="resumeButton">Resume</div>';
             playerController.init();
 
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
                 setTimeout(() => {
                     game.pause();
                     game.gameOver = true;
@@ -317,8 +333,8 @@ describe('PlayerController', () => {
 
         beforeEach(() => {
             // Clean up any existing event listeners
-            document.removeEventListener('keydown', () => { });
-            document.removeEventListener('keyup', () => { });
+            document.removeEventListener('keydown', () => {});
+            document.removeEventListener('keyup', () => {});
 
             multiplayerGame = new MultiplayerGame();
             playerController = new PlayerController(multiplayerGame);
@@ -400,7 +416,11 @@ describe('PlayerController', () => {
             it('should handle Player 1 input in multiplayer mode', () => {
                 const spy = jest.spyOn(multiplayerGame, 'changePlayerDirection');
                 // Use a direction that allows turning right (not a 180-degree reversal)
-                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({ x: 0, y: 0, z: 1 }); // Moving down
+                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({
+                    x: 0,
+                    y: 0,
+                    z: 1,
+                }); // Moving down
 
                 const event = new KeyboardEvent('keydown', { code: 'ArrowRight' }); // Turn right
                 document.dispatchEvent(event);
@@ -411,7 +431,11 @@ describe('PlayerController', () => {
             it('should handle Player 2 input in multiplayer mode', () => {
                 const spy = jest.spyOn(multiplayerGame, 'changePlayerDirection');
                 // Use a direction that allows turning right (not a 180-degree reversal)
-                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({ x: 0, y: 0, z: 1 }); // Moving down
+                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({
+                    x: 0,
+                    y: 0,
+                    z: 1,
+                }); // Moving down
 
                 const event = new KeyboardEvent('keydown', { code: 'KeyD' }); // Turn right
                 document.dispatchEvent(event);
@@ -421,7 +445,11 @@ describe('PlayerController', () => {
 
             it('should validate direction changes to prevent 180-degree reversals', () => {
                 const spy = jest.spyOn(multiplayerGame, 'changePlayerDirection');
-                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({ x: 0, y: 0, z: -1 }); // Moving up
+                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({
+                    x: 0,
+                    y: 0,
+                    z: -1,
+                }); // Moving up
 
                 // Try to reverse direction (should be blocked)
                 const event = new KeyboardEvent('keydown', { code: 'ArrowDown' });
@@ -432,7 +460,11 @@ describe('PlayerController', () => {
 
             it('should allow valid direction changes', () => {
                 const spy = jest.spyOn(multiplayerGame, 'changePlayerDirection');
-                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({ x: 0, y: 0, z: -1 }); // Moving up
+                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({
+                    x: 0,
+                    y: 0,
+                    z: -1,
+                }); // Moving up
 
                 // Try to turn right (should be allowed)
                 const event = new KeyboardEvent('keydown', { code: 'ArrowRight' });
@@ -443,7 +475,11 @@ describe('PlayerController', () => {
 
             it('should trigger turn sound for valid multiplayer input', () => {
                 window.audioManager = { playTurnSound: jest.fn() };
-                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({ x: 0, y: 0, z: 1 }); // Moving down
+                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({
+                    x: 0,
+                    y: 0,
+                    z: 1,
+                }); // Moving down
                 jest.spyOn(multiplayerGame, 'changePlayerDirection').mockReturnValue(true);
 
                 const event = new KeyboardEvent('keydown', { code: 'ArrowRight' }); // Turn right (valid)
@@ -460,7 +496,11 @@ describe('PlayerController', () => {
 
                 window.audioManager = { playTurnSound: jest.fn() };
                 const spy = jest.spyOn(multiplayerGame, 'changePlayerDirection');
-                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({ x: 0, y: 0, z: -1 }); // Moving up
+                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({
+                    x: 0,
+                    y: 0,
+                    z: -1,
+                }); // Moving up
 
                 // Try to reverse direction (should be blocked)
                 const event = new KeyboardEvent('keydown', { code: 'ArrowDown' });
@@ -476,7 +516,11 @@ describe('PlayerController', () => {
 
             it('should handle simultaneous input from both players', () => {
                 const spy = jest.spyOn(multiplayerGame, 'changePlayerDirection');
-                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({ x: 0, y: 0, z: 1 }); // Moving down
+                jest.spyOn(multiplayerGame, 'getPlayerDirection').mockReturnValue({
+                    x: 0,
+                    y: 0,
+                    z: 1,
+                }); // Moving down
 
                 // Simulate simultaneous key presses (both turning right)
                 const p1Event = new KeyboardEvent('keydown', { code: 'ArrowRight' });

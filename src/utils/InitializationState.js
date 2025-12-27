@@ -1,6 +1,7 @@
 /**
  * InitializationState - Tracks game initialization progress and state
  */
+const { logger } = require('./Logger.js');
 
 class InitializationState {
     constructor() {
@@ -15,13 +16,14 @@ class InitializationState {
             controlsSetup: false,
             systemsInit: false,
             modeSelectorReady: false,
-            gameStarted: false
+            gameStarted: false,
         };
-        
+
         this.errors = [];
         this.startTime = null;
         this.endTime = null;
         this.currentStep = null;
+        this.debug = false;
     }
 
     /**
@@ -37,13 +39,13 @@ class InitializationState {
      * @param {string} step - Step name
      */
     completeStep(step) {
-        if (this.steps.hasOwnProperty(step)) {
-            this.steps[step] = true;
-            this.currentStep = step;
-            this.log(`Step completed: ${step}`);
-        } else {
-            console.warn(`Unknown initialization step: ${step}`);
+        if (!this.steps.hasOwnProperty(step)) {
+            logger.warn(`Unknown initialization step: ${step}`);
+            return;
         }
+        this.steps[step] = true;
+        this.currentStep = step;
+        this.log(`Step completed: ${step}`);
     }
 
     /**
@@ -57,9 +59,9 @@ class InitializationState {
             error: error.message,
             name: error.name,
             recoverable: error.recoverable || false,
-            timestamp: performance.now() - (this.startTime || 0)
+            timestamp: performance.now() - (this.startTime || 0),
         };
-        
+
         this.errors.push(errorRecord);
         this.log(`Error in ${step}: ${error.message}`);
     }
@@ -97,7 +99,7 @@ class InitializationState {
      * @returns {Array<string>} Array of completed step names
      */
     getCompletedSteps() {
-        return Object.keys(this.steps).filter(step => this.steps[step]);
+        return Object.keys(this.steps).filter((step) => this.steps[step]);
     }
 
     /**
@@ -105,7 +107,7 @@ class InitializationState {
      * @returns {Array<string>} Array of incomplete step names
      */
     getIncompleteSteps() {
-        return Object.keys(this.steps).filter(step => !this.steps[step]);
+        return Object.keys(this.steps).filter((step) => !this.steps[step]);
     }
 
     /**
@@ -120,7 +122,7 @@ class InitializationState {
             duration: this.getDuration(),
             isComplete: this.steps.gameStarted,
             completedCount: this.getCompletedSteps().length,
-            totalSteps: Object.keys(this.steps).length
+            totalSteps: Object.keys(this.steps).length,
         };
     }
 
@@ -130,17 +132,17 @@ class InitializationState {
      */
     getRecoveryRecommendation() {
         const lastError = this.errors[this.errors.length - 1];
-        
+
         if (!lastError) {
             return { shouldRecover: false, reason: 'No errors recorded' };
         }
 
         // Check if error is recoverable
         if (!lastError.recoverable) {
-            return { 
-                shouldRecover: false, 
+            return {
+                shouldRecover: false,
                 reason: 'Error is not recoverable',
-                step: lastError.step
+                step: lastError.step,
             };
         }
 
@@ -151,7 +153,7 @@ class InitializationState {
                 shouldRecover: true,
                 reason: 'Early initialization error, retry recommended',
                 step: lastError.step,
-                strategy: 'retry'
+                strategy: 'retry',
             };
         }
 
@@ -161,7 +163,7 @@ class InitializationState {
                 shouldRecover: true,
                 reason: 'Mode selector error, fallback available',
                 step: lastError.step,
-                strategy: 'fallback'
+                strategy: 'fallback',
             };
         }
 
@@ -169,7 +171,7 @@ class InitializationState {
             shouldRecover: true,
             reason: 'Recoverable error detected',
             step: lastError.step,
-            strategy: 'retry'
+            strategy: 'retry',
         };
     }
 
@@ -177,7 +179,7 @@ class InitializationState {
      * Reset state for retry
      */
     reset() {
-        Object.keys(this.steps).forEach(step => {
+        Object.keys(this.steps).forEach((step) => {
             this.steps[step] = false;
         });
         this.errors = [];
@@ -193,7 +195,9 @@ class InitializationState {
      * @private
      */
     log(message) {
-        console.log(`[InitializationState] ${message}`);
+        if (this.debug) {
+            logger.info(`[InitializationState] ${message}`);
+        }
     }
 }
 

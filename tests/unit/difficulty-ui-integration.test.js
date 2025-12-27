@@ -3,6 +3,22 @@
  * Tests the interaction between difficulty buttons and DifficultyManager
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { DifficultyManager } = require('@/systems/difficulty.js');
 
 describe('Difficulty UI Integration', () => {
@@ -20,31 +36,31 @@ describe('Difficulty UI Integration', () => {
                 classList: {
                     add: jest.fn(),
                     remove: jest.fn(),
-                    contains: jest.fn()
+                    contains: jest.fn(),
                 },
                 addEventListener: jest.fn(),
-                click: jest.fn()
+                click: jest.fn(),
             },
             medium: {
                 getAttribute: jest.fn(() => 'medium'),
                 classList: {
                     add: jest.fn(),
                     remove: jest.fn(),
-                    contains: jest.fn(() => true) // Initially active
+                    contains: jest.fn(() => true), // Initially active
                 },
                 addEventListener: jest.fn(),
-                click: jest.fn()
+                click: jest.fn(),
             },
             hard: {
                 getAttribute: jest.fn(() => 'hard'),
                 classList: {
                     add: jest.fn(),
                     remove: jest.fn(),
-                    contains: jest.fn()
+                    contains: jest.fn(),
                 },
                 addEventListener: jest.fn(),
-                click: jest.fn()
-            }
+                click: jest.fn(),
+            },
         };
 
         mockDocument = {
@@ -59,7 +75,7 @@ describe('Difficulty UI Integration', () => {
                 if (selector === '[data-level="medium"]') return mockButtons.medium;
                 if (selector === '[data-level="hard"]') return mockButtons.hard;
                 return null;
-            })
+            }),
         };
 
         global.document = mockDocument;
@@ -69,17 +85,17 @@ describe('Difficulty UI Integration', () => {
             getItem: jest.fn(),
             setItem: jest.fn(),
             removeItem: jest.fn(),
-            clear: jest.fn()
+            clear: jest.fn(),
         };
         global.localStorage = localStorageMock;
 
         // Create mock game and AI objects
         mockGame = {
-            setGameSpeed: jest.fn()
+            setGameSpeed: jest.fn(),
         };
 
         mockAI = {
-            difficultyConfig: null
+            difficultyConfig: null,
         };
 
         // Create DifficultyManager instance
@@ -99,8 +115,8 @@ describe('Difficulty UI Integration', () => {
             updateDifficultyUI = () => {
                 const currentDifficulty = difficultyManager.getCurrentDifficulty();
                 const buttons = document.querySelectorAll('.difficulty-btn');
-                
-                buttons.forEach(button => {
+
+                buttons.forEach((button) => {
                     const buttonLevel = button.getAttribute('data-level');
                     if (buttonLevel === currentDifficulty) {
                         button.classList.add('active');
@@ -116,7 +132,7 @@ describe('Difficulty UI Integration', () => {
             const selectedLevel = 'easy';
             difficultyManager.setDifficulty(selectedLevel);
             updateDifficultyUI();
-            
+
             // Verify DifficultyManager was updated
             expect(difficultyManager.getCurrentDifficulty()).toBe('easy');
             expect(mockGame.setGameSpeed).toHaveBeenCalledWith(0.08);
@@ -129,7 +145,7 @@ describe('Difficulty UI Integration', () => {
             const selectedLevel = 'hard';
             difficultyManager.setDifficulty(selectedLevel);
             updateDifficultyUI();
-            
+
             // Verify DifficultyManager was updated
             expect(difficultyManager.getCurrentDifficulty()).toBe('hard');
             expect(mockGame.setGameSpeed).toHaveBeenCalledWith(0.12);
@@ -141,22 +157,22 @@ describe('Difficulty UI Integration', () => {
             // Simulate clicking easy button
             difficultyManager.setDifficulty('easy');
             updateDifficultyUI();
-            
+
             // Verify UI calls were made correctly for easy selection
             expect(mockButtons.easy.classList.add).toHaveBeenCalledWith('active');
             expect(mockButtons.medium.classList.remove).toHaveBeenCalledWith('active');
             expect(mockButtons.hard.classList.remove).toHaveBeenCalledWith('active');
-            
+
             // Reset mocks
-            Object.values(mockButtons).forEach(button => {
+            Object.values(mockButtons).forEach((button) => {
                 button.classList.add.mockClear();
                 button.classList.remove.mockClear();
             });
-            
+
             // Simulate clicking hard button
             difficultyManager.setDifficulty('hard');
             updateDifficultyUI();
-            
+
             // Verify UI calls were made correctly for hard selection
             expect(mockButtons.hard.classList.add).toHaveBeenCalledWith('active');
             expect(mockButtons.easy.classList.remove).toHaveBeenCalledWith('active');
@@ -166,26 +182,26 @@ describe('Difficulty UI Integration', () => {
         it('should apply changes immediately to game and AI systems', () => {
             // Clear previous calls
             mockGame.setGameSpeed.mockClear();
-            
+
             // Simulate clicking hard button
             difficultyManager.setDifficulty('hard');
-            
+
             // Verify immediate application to game system
             expect(mockGame.setGameSpeed).toHaveBeenCalledWith(0.12);
-            
+
             // Verify immediate application to AI system
             expect(mockAI.difficultyConfig).toEqual({
                 turnThreshold: 8,
                 randomTurnChance: 0.01,
                 gameSpeed: 0.12,
-                description: "Faster AI, more challenging gameplay"
+                description: 'Faster AI, more challenging gameplay',
             });
         });
 
         it('should save difficulty selection to localStorage', () => {
             // Simulate clicking easy button
             difficultyManager.setDifficulty('easy');
-            
+
             // Verify localStorage was called
             expect(localStorage.setItem).toHaveBeenCalledWith(
                 'lightbikes_difficulty',
@@ -199,7 +215,7 @@ describe('Difficulty UI Integration', () => {
             difficultyManager.setDifficulty('hard');
             difficultyManager.setDifficulty('medium');
             updateDifficultyUI();
-            
+
             // Should end up with medium difficulty
             expect(difficultyManager.getCurrentDifficulty()).toBe('medium');
             expect(mockButtons.medium.classList.add).toHaveBeenCalledWith('active');
@@ -212,13 +228,13 @@ describe('Difficulty UI Integration', () => {
         it('should initialize UI based on current difficulty selection', () => {
             // Set difficulty to hard programmatically
             difficultyManager.setDifficulty('hard');
-            
+
             // Define and call updateDifficultyUI function
             const updateDifficultyUI = () => {
                 const currentDifficulty = difficultyManager.getCurrentDifficulty();
                 const buttons = document.querySelectorAll('.difficulty-btn');
-                
-                buttons.forEach(button => {
+
+                buttons.forEach((button) => {
                     const buttonLevel = button.getAttribute('data-level');
                     if (buttonLevel === currentDifficulty) {
                         button.classList.add('active');
@@ -227,9 +243,9 @@ describe('Difficulty UI Integration', () => {
                     }
                 });
             };
-            
+
             updateDifficultyUI();
-            
+
             // Verify UI calls were made correctly
             expect(mockButtons.hard.classList.add).toHaveBeenCalledWith('active');
             expect(mockButtons.easy.classList.remove).toHaveBeenCalledWith('active');

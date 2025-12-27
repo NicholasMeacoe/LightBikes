@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { StatusIndicator } = require('@/ui/StatusIndicator.js');
 
 describe('StatusIndicator', () => {
@@ -15,20 +31,20 @@ describe('StatusIndicator', () => {
             classList: {
                 add: jest.fn(),
                 remove: jest.fn(),
-                contains: jest.fn(() => false)
+                contains: jest.fn(() => false),
             },
             appendChild: jest.fn(),
             removeChild: jest.fn(),
             querySelector: jest.fn(() => null),
             querySelectorAll: jest.fn(() => []),
-            parentNode: null
+            parentNode: null,
         });
 
         mockDocument = {
             createElement: jest.fn(mockElement),
             body: mockElement(),
             head: mockElement(),
-            querySelectorAll: jest.fn(() => [])
+            querySelectorAll: jest.fn(() => []),
         };
 
         global.document = mockDocument;
@@ -48,7 +64,7 @@ describe('StatusIndicator', () => {
 
         it('should create container when initialized', () => {
             statusIndicator.initialize();
-            
+
             expect(statusIndicator.initialized).toBe(true);
             expect(statusIndicator.container).toBeTruthy();
             expect(mockDocument.createElement).toHaveBeenCalledWith('div');
@@ -58,9 +74,9 @@ describe('StatusIndicator', () => {
         it('should not reinitialize if already initialized', () => {
             statusIndicator.initialize();
             const firstContainer = statusIndicator.container;
-            
+
             statusIndicator.initialize();
-            
+
             expect(statusIndicator.container).toBe(firstContainer);
         });
     });
@@ -68,33 +84,33 @@ describe('StatusIndicator', () => {
     describe('power-up UI configuration', () => {
         it('should have correct UI config for all power-up types', () => {
             const config = statusIndicator.powerUpUIConfig;
-            
+
             expect(config.SPEED_BOOST).toEqual({
                 icon: '⚡',
                 color: '#0066ff',
                 name: 'Speed Boost',
-                showTimer: true
+                showTimer: true,
             });
 
             expect(config.SHIELD).toEqual({
                 icon: '🛡️',
                 color: '#ffd700',
                 name: 'Shield',
-                showTimer: false
+                showTimer: false,
             });
 
             expect(config.TRAIL_ERASER).toEqual({
                 icon: '🗑️',
                 color: '#9932cc',
                 name: 'Trail Eraser',
-                showTimer: false
+                showTimer: false,
             });
 
             expect(config.GHOST_MODE).toEqual({
                 icon: '👻',
                 color: '#ffffff',
                 name: 'Ghost Mode',
-                showTimer: true
+                showTimer: true,
             });
         });
     });
@@ -108,7 +124,7 @@ describe('StatusIndicator', () => {
             expect(() => {
                 statusIndicator.updateStatus({ player: [] });
             }).not.toThrow();
-            
+
             expect(statusIndicator.container.classList.remove).toHaveBeenCalledWith('visible');
         });
 
@@ -116,7 +132,7 @@ describe('StatusIndicator', () => {
             expect(() => {
                 statusIndicator.updateStatus({});
             }).not.toThrow();
-            
+
             expect(statusIndicator.container.classList.remove).toHaveBeenCalledWith('visible');
         });
 
@@ -125,29 +141,27 @@ describe('StatusIndicator', () => {
                 type: 'SPEED_BOOST',
                 startTime: Date.now(),
                 duration: 3000,
-                getRemainingTime: () => 2500
+                getRemainingTime: () => 2500,
             };
 
             statusIndicator.updateStatus({ player: [mockEffect] });
-            
+
             expect(statusIndicator.container.classList.add).toHaveBeenCalledWith('visible');
         });
 
         it('should warn for unknown power-up types', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-            
             const mockEffect = {
                 type: 'UNKNOWN_TYPE',
                 startTime: Date.now(),
                 duration: 3000,
-                getRemainingTime: () => 2500
+                getRemainingTime: () => 2500,
             };
 
             statusIndicator.updateStatus({ player: [mockEffect] });
-            
-            expect(consoleSpy).toHaveBeenCalledWith('No UI config found for effect type: UNKNOWN_TYPE');
-            
-            consoleSpy.mockRestore();
+
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                'No UI config found for effect type: UNKNOWN_TYPE'
+            );
         });
     });
 
@@ -189,7 +203,7 @@ describe('StatusIndicator', () => {
 
         it('should clear indicators and hide container on reset', () => {
             statusIndicator.reset();
-            
+
             expect(statusIndicator.container.classList.remove).toHaveBeenCalledWith('visible');
             expect(statusIndicator.container.innerHTML).toBe('');
             expect(statusIndicator.activeIndicators.size).toBe(0);
@@ -199,20 +213,20 @@ describe('StatusIndicator', () => {
     describe('debug information', () => {
         it('should provide correct debug info when not initialized', () => {
             const debugInfo = statusIndicator.getDebugInfo();
-            
+
             expect(debugInfo).toEqual({
                 initialized: false,
                 visible: false,
                 activeIndicators: 0,
-                containerExists: false
+                containerExists: false,
             });
         });
 
         it('should provide correct debug info when initialized', () => {
             statusIndicator.initialize();
-            
+
             const debugInfo = statusIndicator.getDebugInfo();
-            
+
             expect(debugInfo.initialized).toBe(true);
             expect(debugInfo.containerExists).toBe(true);
             expect(debugInfo.activeIndicators).toBe(0);
@@ -231,17 +245,17 @@ describe('StatusIndicator', () => {
                 parentElement: {
                     classList: {
                         add: jest.fn(),
-                        remove: jest.fn()
-                    }
-                }
+                        remove: jest.fn(),
+                    },
+                },
             };
 
             const mockEffect = {
-                getRemainingTime: () => 1200 // 1.2 seconds
+                getRemainingTime: () => 1200, // 1.2 seconds
             };
 
             statusIndicator.updateTimer(mockTimerElement, mockEffect);
-            
+
             expect(mockTimerElement.textContent).toBe('2s'); // Math.ceil(1200/1000)
         });
 
@@ -251,17 +265,17 @@ describe('StatusIndicator', () => {
                 parentElement: {
                     classList: {
                         add: jest.fn(),
-                        remove: jest.fn()
-                    }
-                }
+                        remove: jest.fn(),
+                    },
+                },
             };
 
             const mockEffect = {
-                getRemainingTime: () => 1500 // 1.5 seconds
+                getRemainingTime: () => 1500, // 1.5 seconds
             };
 
             statusIndicator.updateTimer(mockTimerElement, mockEffect);
-            
+
             expect(mockTimerElement.parentElement.classList.add).toHaveBeenCalledWith('expiring');
         });
 
@@ -271,18 +285,20 @@ describe('StatusIndicator', () => {
                 parentElement: {
                     classList: {
                         add: jest.fn(),
-                        remove: jest.fn()
-                    }
-                }
+                        remove: jest.fn(),
+                    },
+                },
             };
 
             const mockEffect = {
-                getRemainingTime: () => 2500 // 2.5 seconds
+                getRemainingTime: () => 2500, // 2.5 seconds
             };
 
             statusIndicator.updateTimer(mockTimerElement, mockEffect);
-            
-            expect(mockTimerElement.parentElement.classList.remove).toHaveBeenCalledWith('expiring');
+
+            expect(mockTimerElement.parentElement.classList.remove).toHaveBeenCalledWith(
+                'expiring'
+            );
         });
 
         it('should show 0s when time expires', () => {
@@ -291,17 +307,17 @@ describe('StatusIndicator', () => {
                 parentElement: {
                     classList: {
                         add: jest.fn(),
-                        remove: jest.fn()
-                    }
-                }
+                        remove: jest.fn(),
+                    },
+                },
             };
 
             const mockEffect = {
-                getRemainingTime: () => 0
+                getRemainingTime: () => 0,
             };
 
             statusIndicator.updateTimer(mockTimerElement, mockEffect);
-            
+
             expect(mockTimerElement.textContent).toBe('0s');
         });
     });

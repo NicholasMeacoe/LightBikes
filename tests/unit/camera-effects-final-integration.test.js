@@ -3,6 +3,69 @@
  * Tests smooth transitions and natural effect combinations
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
+// Mock PerformanceDegradationManager to preventing auto-disabling effects
+jest.mock('@/utils/PerformanceDegradationManager.js', () => ({
+    PerformanceDegradationManager: jest.fn().mockImplementation(() => ({
+        initialize: jest.fn(() => true),
+        update: jest.fn(),
+        shouldEnableEffects: jest.fn(() => true),
+        shouldEnableShake: jest.fn(() => true),
+        shouldEnableMotionBlur: jest.fn(() => true),
+        getDegradationState: jest.fn(() => ({})),
+        getCapabilitiesSummary: jest.fn(() => ({})),
+        destroy: jest.fn(),
+        getPerformanceMetrics: jest.fn(() => ({ currentFPS: 60 })),
+    })),
+}));
+
+// Mock MotionBlurController to avoid WebGL complexity in integration tests
+jest.mock('@/effects/MotionBlurController.js', () => ({
+    MotionBlurController: jest.fn().mockImplementation(() => ({
+        enabled: true,
+        initialized: false,
+        blurConfig: { intensity: 0, maxIntensity: 0.8, velocityFactor: 0.5 },
+        renderer: null,
+
+        initialize: jest.fn(function () {
+            this.initialized = true;
+            return true;
+        }),
+        updateBlurIntensity: jest.fn(function (speed) {
+            if (speed > 0) {
+                this.blurConfig.intensity = 0.5;
+            } else {
+                this.blurConfig.intensity = 0;
+            }
+        }),
+        getBlurConfig: jest.fn(function () {
+            return this.blurConfig;
+        }),
+        getCurrentQuality: jest.fn(() => 'medium'),
+        setEnabled: jest.fn(function (enabled) {
+            this.enabled = enabled;
+        }),
+        render: jest.fn(),
+        setQuality: jest.fn(),
+        destroy: jest.fn(),
+    })),
+}));
+
 const { CameraEffectsManager } = require('@/effects/CameraEffectsManager.js');
 const { Game } = require('@/core/game.js');
 const { GameModes } = require('@/systems/GameModes.js');
@@ -13,64 +76,68 @@ global.THREE = {
     Scene: jest.fn(() => ({
         background: null,
         add: jest.fn(),
-        remove: jest.fn()
+        remove: jest.fn(),
     })),
     PerspectiveCamera: jest.fn(() => ({
         position: {
-            x: 0, y: 20, z: 20,
+            x: 0,
+            y: 20,
+            z: 20,
             set: jest.fn(),
             clone: () => ({ x: 0, y: 20, z: 20 }),
-            copy: jest.fn()
+            copy: jest.fn(),
         },
         aspect: 1,
         updateProjectionMatrix: jest.fn(),
-        lookAt: jest.fn()
+        lookAt: jest.fn(),
     })),
     WebGLRenderer: jest.fn(() => ({
         domElement: document.createElement('canvas'),
         setSize: jest.fn(),
         setClearColor: jest.fn(),
-        render: jest.fn()
+        render: jest.fn(),
     })),
     AmbientLight: jest.fn(() => ({})),
     DirectionalLight: jest.fn(() => ({
-        position: { set: jest.fn() }
+        position: { set: jest.fn() },
     })),
     GridHelper: jest.fn(() => ({})),
     BoxHelper: jest.fn(() => ({})),
     BoxGeometry: jest.fn(() => ({})),
     SphereGeometry: jest.fn(() => ({})),
     MeshBasicMaterial: jest.fn(() => ({
-        dispose: jest.fn()
+        dispose: jest.fn(),
     })),
     Mesh: jest.fn(() => ({
         position: { x: 0, y: 0, z: 0 },
         visible: true,
         userData: {},
         geometry: { dispose: jest.fn() },
-        material: { dispose: jest.fn() }
+        material: { dispose: jest.fn() },
     })),
     Color: jest.fn(() => ({})),
     Vector3: jest.fn(() => ({
-        x: 0, y: 0, z: 0,
+        x: 0,
+        y: 0,
+        z: 0,
         clone: () => ({ x: 0, y: 0, z: 0 }),
         copy: jest.fn(),
-        set: jest.fn()
+        set: jest.fn(),
     })),
     MeshLambertMaterial: jest.fn(() => ({
-        dispose: jest.fn()
+        dispose: jest.fn(),
     })),
     Float32BufferAttribute: jest.fn(() => ({})),
     BufferGeometry: jest.fn(() => ({
         setAttribute: jest.fn(),
-        dispose: jest.fn()
+        dispose: jest.fn(),
     })),
     LineBasicMaterial: jest.fn(() => ({
-        dispose: jest.fn()
+        dispose: jest.fn(),
     })),
     LineSegments: jest.fn(() => ({
         geometry: { dispose: jest.fn() },
-        material: { dispose: jest.fn() }
+        material: { dispose: jest.fn() },
     })),
     InstancedMesh: jest.fn(() => ({
         instanceMatrix: { needsUpdate: false },
@@ -78,21 +145,73 @@ global.THREE = {
         setColorAt: jest.fn(),
         geometry: { dispose: jest.fn() },
         material: { dispose: jest.fn() },
-        visible: true
+        visible: true,
     })),
     Matrix4: jest.fn(() => ({
         makeTranslation: jest.fn(),
         makeScale: jest.fn(),
-        multiply: jest.fn()
-    }))
+        multiply: jest.fn(),
+    })),
 };
 
 // Mock document and window
 global.document = {
     body: { appendChild: jest.fn() },
-    createElement: jest.fn(() => ({
-        getContext: jest.fn(() => null)
-    }))
+    createElement: jest.fn((tag) => {
+        if (tag === 'canvas') {
+            return {
+                getContext: jest.fn((type) => {
+                    if (type === '2d') {
+                        return {
+                            createRadialGradient: jest.fn(() => ({ addColorStop: jest.fn() })),
+                            fillRect: jest.fn(),
+                            clearRect: jest.fn(),
+                            beginPath: jest.fn(),
+                            arc: jest.fn(),
+                            closePath: jest.fn(),
+                            fill: jest.fn(),
+                            fillStyle: '#000000',
+                            globalAlpha: 1,
+                            canvas: { width: 100, height: 100 },
+                        };
+                    }
+                    // Default to WebGL for any other context type (webgl, experimental-webgl, or undefined)
+                    return {
+                        getExtension: jest.fn(() => ({})),
+                        getParameter: jest.fn(() => 4096),
+                        createShader: jest.fn(() => ({})),
+                        shaderSource: jest.fn(),
+                        compileShader: jest.fn(),
+                        getShaderParameter: jest.fn(() => true),
+                        createProgram: jest.fn(() => ({})),
+                        attachShader: jest.fn(),
+                        linkProgram: jest.fn(),
+                        getProgramParameter: jest.fn(() => true),
+                        useProgram: jest.fn(),
+                        createBuffer: jest.fn(() => ({})),
+                        bindBuffer: jest.fn(),
+                        bufferData: jest.fn(),
+                        enableVertexAttribArray: jest.fn(),
+                        vertexAttribPointer: jest.fn(),
+                        clearColor: jest.fn(),
+                        clear: jest.fn(),
+                        viewport: jest.fn(),
+                        drawingBufferWidth: 1024,
+                        drawingBufferHeight: 768,
+                    };
+                }),
+                style: {},
+                width: 1024,
+                height: 768,
+                addEventListener: jest.fn(),
+                removeEventListener: jest.fn(),
+            };
+        }
+        return {
+            style: {},
+            appendChild: jest.fn(),
+        };
+    }),
 };
 
 global.window = {
@@ -100,8 +219,8 @@ global.window = {
     innerHeight: 768,
     matchMedia: jest.fn(() => ({
         matches: false,
-        addListener: jest.fn()
-    }))
+        addListener: jest.fn(),
+    })),
 };
 
 describe('Camera Effects Final Integration', () => {
@@ -110,6 +229,46 @@ describe('Camera Effects Final Integration', () => {
     let cameraEffectsManager;
 
     beforeEach(() => {
+        // Mock HTMLCanvasElement.prototype.getContext to prevent 'Not implemented' error
+        if (typeof HTMLCanvasElement !== 'undefined') {
+            jest.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation((type) => {
+                if (type === 'webgl' || type === 'experimental-webgl') {
+                    return {
+                        getExtension: jest.fn(() => ({})),
+                        getParameter: jest.fn(() => 4096),
+                        createShader: jest.fn(() => ({})),
+                        shaderSource: jest.fn(),
+                        compileShader: jest.fn(),
+                        getShaderParameter: jest.fn(() => true),
+                        createProgram: jest.fn(() => ({})),
+                        attachShader: jest.fn(),
+                        linkProgram: jest.fn(),
+                        getProgramParameter: jest.fn(() => true),
+                        useProgram: jest.fn(),
+                        createBuffer: jest.fn(() => ({})),
+                        bindBuffer: jest.fn(),
+                        bufferData: jest.fn(),
+                        enableVertexAttribArray: jest.fn(),
+                        vertexAttribPointer: jest.fn(),
+                        clearColor: jest.fn(),
+                        clear: jest.fn(),
+                        viewport: jest.fn(),
+                        drawingBufferWidth: 1024,
+                        drawingBufferHeight: 768,
+                    };
+                }
+                return {
+                    createRadialGradient: jest.fn(() => ({ addColorStop: jest.fn() })),
+                    fillRect: jest.fn(),
+                    clearRect: jest.fn(),
+                    beginPath: jest.fn(),
+                    arc: jest.fn(),
+                    closePath: jest.fn(),
+                    fill: jest.fn(),
+                };
+            });
+        }
+
         game = new Game(GameModes.CLASSIC);
         renderingEngine = new RenderingEngine(30);
         cameraEffectsManager = new CameraEffectsManager(
@@ -118,7 +277,7 @@ describe('Camera Effects Final Integration', () => {
             game.getGameState()
         );
         cameraEffectsManager.initialize();
-        
+
         jest.clearAllMocks();
     });
 
@@ -131,28 +290,28 @@ describe('Camera Effects Final Integration', () => {
     describe('Smooth Transitions', () => {
         it('should handle smooth transitions between different effect intensities', () => {
             const gameState = game.getGameState();
-            
+
             // Start with low intensity
             cameraEffectsManager.updateSettings({ shakeIntensity: 0.5 });
             cameraEffectsManager.onCollision(gameState.player, 0.5);
             cameraEffectsManager.update(0.016);
-            
+
             // Transition to high intensity
             cameraEffectsManager.updateSettings({ shakeIntensity: 2.0 });
             cameraEffectsManager.onCollision(gameState.player, 1.0);
             cameraEffectsManager.update(0.016);
-            
+
             // Should handle transitions smoothly
             expect(cameraEffectsManager.isEnabled()).toBe(true);
         });
 
         it('should smoothly transition motion blur intensity with speed changes', () => {
             const gameState = game.getGameState();
-            
+
             // Gradual speed increase
             const speeds = [1.0, 1.5, 2.0, 2.5, 3.0, 2.5, 2.0, 1.5, 1.0];
-            
-            speeds.forEach(speed => {
+
+            speeds.forEach((speed) => {
                 expect(() => {
                     cameraEffectsManager.onSpeedChange(gameState.player, speed);
                     cameraEffectsManager.update(0.016);
@@ -162,20 +321,20 @@ describe('Camera Effects Final Integration', () => {
 
         it('should handle smooth transitions when enabling/disabling effects', () => {
             const gameState = game.getGameState();
-            
+
             // Enable effects and trigger
             cameraEffectsManager.setEnabled(true);
             cameraEffectsManager.onCollision(gameState.player, 1.0);
             cameraEffectsManager.update(0.016);
-            
+
             // Disable effects
             cameraEffectsManager.setEnabled(false);
             cameraEffectsManager.update(0.016);
-            
+
             // Re-enable effects
             cameraEffectsManager.setEnabled(true);
             cameraEffectsManager.update(0.016);
-            
+
             expect(cameraEffectsManager.isEnabled()).toBe(true);
         });
     });
@@ -183,7 +342,7 @@ describe('Camera Effects Final Integration', () => {
     describe('Natural Effect Combinations', () => {
         it('should handle simultaneous collision shake and motion blur naturally', () => {
             const gameState = game.getGameState();
-            
+
             // Trigger both effects simultaneously
             expect(() => {
                 cameraEffectsManager.onCollision(gameState.player, 1.0);
@@ -195,7 +354,7 @@ describe('Camera Effects Final Integration', () => {
         it('should combine multiple shake effects additively', () => {
             const gameState = game.getGameState();
             const nearEntity = { id: 'ai_1', x: 0.5, y: 0, z: 0 };
-            
+
             // Trigger multiple shake effects
             expect(() => {
                 cameraEffectsManager.onNearMiss(nearEntity, 0.5);
@@ -207,7 +366,7 @@ describe('Camera Effects Final Integration', () => {
         it('should handle rapid successive effects naturally', () => {
             const gameState = game.getGameState();
             const nearEntity = { id: 'ai_1', x: 0.7, y: 0, z: 0 };
-            
+
             // Rapid succession of effects
             for (let i = 0; i < 10; i++) {
                 expect(() => {
@@ -216,7 +375,7 @@ describe('Camera Effects Final Integration', () => {
                     } else if (i % 3 === 1) {
                         cameraEffectsManager.onNearMiss(nearEntity, 0.8);
                     } else {
-                        cameraEffectsManager.onSpeedChange(gameState.player, 2.0 + (i * 0.1));
+                        cameraEffectsManager.onSpeedChange(gameState.player, 2.0 + i * 0.1);
                     }
                     cameraEffectsManager.update(0.016);
                 }).not.toThrow();
@@ -227,25 +386,25 @@ describe('Camera Effects Final Integration', () => {
             const gameState = game.getGameState();
             const nearEntity1 = { id: 'ai_1', x: 0.6, y: 0, z: 0 };
             const nearEntity2 = { id: 'ai_2', x: 0.9, y: 0, z: 0 };
-            
+
             // Simulate complex gameplay scenario
             expect(() => {
                 // Player speeds up
                 cameraEffectsManager.onSpeedChange(gameState.player, 2.5);
                 cameraEffectsManager.update(0.016);
-                
+
                 // Near miss with first AI
                 cameraEffectsManager.onNearMiss(nearEntity1, 0.6);
                 cameraEffectsManager.update(0.016);
-                
+
                 // Speed increases more
                 cameraEffectsManager.onSpeedChange(gameState.player, 3.0);
                 cameraEffectsManager.update(0.016);
-                
+
                 // Near miss with second AI
                 cameraEffectsManager.onNearMiss(nearEntity2, 0.9);
                 cameraEffectsManager.update(0.016);
-                
+
                 // Final collision
                 cameraEffectsManager.onCollision(gameState.player, 1.0);
                 cameraEffectsManager.update(0.016);
@@ -257,9 +416,9 @@ describe('Camera Effects Final Integration', () => {
         it('should maintain performance during intensive effect sequences', () => {
             const gameState = game.getGameState();
             const nearEntity = { id: 'ai_1', x: 0.5, y: 0, z: 0 };
-            
+
             const startTime = Date.now();
-            
+
             // Intensive sequence
             for (let i = 0; i < 100; i++) {
                 cameraEffectsManager.onCollision(gameState.player, 0.8);
@@ -267,17 +426,17 @@ describe('Camera Effects Final Integration', () => {
                 cameraEffectsManager.onSpeedChange(gameState.player, 2.0 + Math.sin(i * 0.1));
                 cameraEffectsManager.update(0.016);
             }
-            
+
             const endTime = Date.now();
             const duration = endTime - startTime;
-            
+
             // Should complete within reasonable time
             expect(duration).toBeLessThan(200);
         });
 
         it('should handle memory management during extended gameplay', () => {
             const gameState = game.getGameState();
-            
+
             // Extended gameplay simulation
             for (let i = 0; i < 1000; i++) {
                 if (i % 10 === 0) {
@@ -285,22 +444,23 @@ describe('Camera Effects Final Integration', () => {
                 }
                 cameraEffectsManager.update(0.016);
             }
-            
+
             // Should still be functional
             expect(cameraEffectsManager.isEnabled()).toBe(true);
         });
 
         it('should clean up completed effects automatically', () => {
             const gameState = game.getGameState();
-            
+
             // Trigger short-duration effects
             cameraEffectsManager.onCollision(gameState.player, 0.5);
-            
+
             // Update for longer than effect duration
-            for (let i = 0; i < 120; i++) { // 2 seconds at 60fps
+            for (let i = 0; i < 120; i++) {
+                // 2 seconds at 60fps
                 cameraEffectsManager.update(0.016);
             }
-            
+
             // Should have cleaned up completed effects
             expect(cameraEffectsManager.isEnabled()).toBe(true);
         });
@@ -309,7 +469,7 @@ describe('Camera Effects Final Integration', () => {
     describe('Error Recovery and Robustness', () => {
         it('should recover gracefully from invalid effect parameters', () => {
             const gameState = game.getGameState();
-            
+
             // Mix valid and invalid parameters
             expect(() => {
                 cameraEffectsManager.onCollision(gameState.player, 1.0); // Valid
@@ -319,20 +479,20 @@ describe('Camera Effects Final Integration', () => {
                 cameraEffectsManager.onCollision(gameState.player, 0.8); // Valid again
                 cameraEffectsManager.update(0.016);
             }).not.toThrow();
-            
+
             expect(cameraEffectsManager.isEnabled()).toBe(true);
         });
 
         it('should maintain functionality after settings errors', () => {
             const gameState = game.getGameState();
-            
+
             // Apply invalid settings
             expect(() => {
                 cameraEffectsManager.updateSettings({ invalidProperty: 'invalid' });
                 cameraEffectsManager.updateSettings({ shakeIntensity: 'not a number' });
                 cameraEffectsManager.updateSettings({ shakeIntensity: 1.5 }); // Valid
             }).not.toThrow();
-            
+
             // Should still work
             expect(() => {
                 cameraEffectsManager.onCollision(gameState.player, 1.0);
@@ -342,7 +502,7 @@ describe('Camera Effects Final Integration', () => {
 
         it('should handle rapid enable/disable cycles', () => {
             const gameState = game.getGameState();
-            
+
             // Rapid enable/disable cycles
             for (let i = 0; i < 20; i++) {
                 expect(() => {
@@ -351,7 +511,7 @@ describe('Camera Effects Final Integration', () => {
                     cameraEffectsManager.update(0.016);
                 }).not.toThrow();
             }
-            
+
             // Should end in a stable state
             expect(typeof cameraEffectsManager.isEnabled()).toBe('boolean');
         });
@@ -360,18 +520,18 @@ describe('Camera Effects Final Integration', () => {
     describe('Integration Completeness', () => {
         it('should integrate all components into main game loop successfully', () => {
             const gameState = game.getGameState();
-            
+
             // Simulate main game loop integration
             expect(() => {
                 // Update camera effects (as done in script.js)
                 cameraEffectsManager.update(0.016);
-                
+
                 // Handle collision events (as done in script.js)
                 cameraEffectsManager.onCollision(gameState.player, 1.0);
-                
+
                 // Handle speed changes (as done in game.js)
                 cameraEffectsManager.onSpeedChange(gameState.player, 2.5);
-                
+
                 // Handle pause/resume (as done in script.js)
                 cameraEffectsManager.pause();
                 cameraEffectsManager.resume();
@@ -382,11 +542,11 @@ describe('Camera Effects Final Integration', () => {
             // Test integration with RenderingEngine
             expect(cameraEffectsManager.camera).toBe(renderingEngine.camera);
             expect(cameraEffectsManager.renderer).toBe(renderingEngine.renderer);
-            
+
             // Test integration with Game
             const gameState = game.getGameState();
             expect(gameState.player).toBeDefined();
-            
+
             // Should work with game state
             expect(() => {
                 cameraEffectsManager.onCollision(gameState.player, 1.0);
@@ -395,7 +555,7 @@ describe('Camera Effects Final Integration', () => {
 
         it('should provide comprehensive status reporting for debugging', () => {
             const status = cameraEffectsManager.getStatus();
-            
+
             // Should provide detailed status information
             expect(status).toHaveProperty('initialized');
             expect(status).toHaveProperty('enabled');
@@ -407,11 +567,11 @@ describe('Camera Effects Final Integration', () => {
 
         it('should handle all game mode transitions smoothly', () => {
             const modes = [GameModes.CLASSIC, GameModes.TIME_TRIAL, GameModes.ARENA_SHRINK];
-            
-            modes.forEach(mode => {
+
+            modes.forEach((mode) => {
                 const testGame = new Game(mode);
                 const gameState = testGame.getGameState();
-                
+
                 expect(() => {
                     cameraEffectsManager.updateGameState(gameState);
                     cameraEffectsManager.onCollision(gameState.player, 0.8);

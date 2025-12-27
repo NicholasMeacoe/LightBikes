@@ -4,7 +4,25 @@
  */
 
 // Mock THREE.js
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 global.THREE = {
+    MeshBasicMaterial: jest.fn().mockImplementation(() => ({})),
+    SphereGeometry: jest.fn().mockImplementation(() => ({})),
     Scene: class Scene {
         constructor() {
             this.children = [];
@@ -52,7 +70,7 @@ global.THREE = {
         setHex(hex) {
             this.color = hex;
         }
-    }
+    },
 };
 
 const { TrailStyleRenderer } = require('@/rendering/TrailStyleRenderer.js');
@@ -69,11 +87,11 @@ describe('TrailStyleRenderer', () => {
                 emissiveIntensity: 0.3,
                 transparent: true,
                 opacity: 0.8,
-                dispose: jest.fn()
+                dispose: jest.fn(),
             }),
-            disposeMaterial: jest.fn()
+            disposeMaterial: jest.fn(),
         };
-        
+
         renderer = new TrailStyleRenderer(mockScene, mockEmissiveMaterialSystem);
     });
 
@@ -102,9 +120,9 @@ describe('TrailStyleRenderer', () => {
             renderer.setTrailStyle('player', 'solid');
             const position = { x: 1, y: 0, z: 1 };
             const trail = [];
-            
+
             const segment = renderer.createStyledTrailSegment(position, 0x00ff00, trail, 'player');
-            
+
             expect(segment).toBeTruthy();
             expect(segment.position.x).toBe(1);
             expect(segment.position.z).toBe(1);
@@ -115,7 +133,7 @@ describe('TrailStyleRenderer', () => {
         it('should render all segments for solid style', () => {
             renderer.setTrailStyle('player', 'solid');
             const config = renderer.getStyleConfig('solid');
-            
+
             expect(renderer.shouldRenderSegment(0, config)).toBe(true);
             expect(renderer.shouldRenderSegment(1, config)).toBe(true);
             expect(renderer.shouldRenderSegment(5, config)).toBe(true);
@@ -126,7 +144,7 @@ describe('TrailStyleRenderer', () => {
         it('should create dashed trail segments with alternating pattern', () => {
             renderer.setTrailStyle('player', 'dashed');
             const config = renderer.getStyleConfig('dashed');
-            
+
             // Should render segments at indices 0, 2, 4, etc.
             expect(renderer.shouldRenderSegment(0, config)).toBe(true);
             expect(renderer.shouldRenderSegment(1, config)).toBe(false);
@@ -138,9 +156,9 @@ describe('TrailStyleRenderer', () => {
             renderer.setTrailStyle('player', 'dashed');
             const position = { x: 1, y: 0, z: 1 };
             const trail = [{}]; // Simulate existing segment (index 1)
-            
+
             const segment = renderer.createStyledTrailSegment(position, 0x00ff00, trail, 'player');
-            
+
             expect(segment).toBeNull(); // Should be skipped for dashed pattern
         });
     });
@@ -150,9 +168,9 @@ describe('TrailStyleRenderer', () => {
             renderer.setTrailStyle('player', 'glowing');
             const position = { x: 1, y: 0, z: 1 };
             const trail = [];
-            
+
             const segment = renderer.createStyledTrailSegment(position, 0x00ff00, trail, 'player');
-            
+
             expect(segment).toBeTruthy();
             expect(segment.userData.style).toBe('glowing');
             expect(mockEmissiveMaterialSystem.createTrailMaterial).toHaveBeenCalled();
@@ -162,9 +180,9 @@ describe('TrailStyleRenderer', () => {
             renderer.setTrailStyle('player', 'glowing');
             const position = { x: 1, y: 0, z: 1 };
             const trail = [];
-            
+
             const segment = renderer.createStyledTrailSegment(position, 0x00ff00, trail, 'player');
-            
+
             expect(segment.material.emissiveIntensity).toBe(0.5);
         });
     });
@@ -174,9 +192,9 @@ describe('TrailStyleRenderer', () => {
             renderer.setTrailStyle('player', 'rainbow');
             const position = { x: 1, y: 0, z: 1 };
             const trail = [];
-            
+
             const segment = renderer.createStyledTrailSegment(position, 0x00ff00, trail, 'player');
-            
+
             expect(segment).toBeTruthy();
             expect(segment.userData.style).toBe('rainbow');
         });
@@ -185,7 +203,7 @@ describe('TrailStyleRenderer', () => {
             const color1 = renderer.calculateRainbowColor(0);
             const color2 = renderer.calculateRainbowColor(10);
             const color3 = renderer.calculateRainbowColor(20);
-            
+
             expect(color1).not.toBe(color2);
             expect(color2).not.toBe(color3);
             expect(typeof color1).toBe('number');
@@ -195,12 +213,12 @@ describe('TrailStyleRenderer', () => {
             renderer.setTrailStyle('player', 'rainbow');
             const position = { x: 1, y: 0, z: 1 };
             const trail = [];
-            
+
             const segment = renderer.createStyledTrailSegment(position, 0x00ff00, trail, 'player');
             segment.material.color = { setHex: jest.fn() };
-            
+
             renderer.updateRainbowTrails(0.1);
-            
+
             expect(segment.material.color.setHex).toHaveBeenCalled();
         });
     });
@@ -210,10 +228,10 @@ describe('TrailStyleRenderer', () => {
             renderer.setTrailStyle('player', 'solid');
             const position = { x: 1, y: 0, z: 1 };
             const trail = [];
-            
+
             const segment = renderer.createStyledTrailSegment(position, 0x00ff00, trail, 'player');
             expect(mockScene.children).toContain(segment);
-            
+
             renderer.clearPlayerTrails('player');
             expect(mockScene.children).not.toContain(segment);
         });
@@ -221,22 +239,37 @@ describe('TrailStyleRenderer', () => {
         it('should clear all trails', () => {
             renderer.setTrailStyle('player', 'solid');
             renderer.setTrailStyle('ai_1', 'glowing');
-            
-            const segment1 = renderer.createStyledTrailSegment({ x: 1, y: 0, z: 1 }, 0x00ff00, [], 'player');
-            const segment2 = renderer.createStyledTrailSegment({ x: 2, y: 0, z: 2 }, 0xff0000, [], 'ai_1');
-            
+
+            const segment1 = renderer.createStyledTrailSegment(
+                { x: 1, y: 0, z: 1 },
+                0x00ff00,
+                [],
+                'player'
+            );
+            const segment2 = renderer.createStyledTrailSegment(
+                { x: 2, y: 0, z: 2 },
+                0xff0000,
+                [],
+                'ai_1'
+            );
+
             expect(mockScene.children.length).toBe(2);
-            
+
             renderer.clearAllTrails();
             expect(mockScene.children.length).toBe(0);
         });
 
         it('should dispose materials when clearing trails', () => {
             renderer.setTrailStyle('player', 'glowing');
-            const segment = renderer.createStyledTrailSegment({ x: 1, y: 0, z: 1 }, 0x00ff00, [], 'player');
-            
+            const segment = renderer.createStyledTrailSegment(
+                { x: 1, y: 0, z: 1 },
+                0x00ff00,
+                [],
+                'player'
+            );
+
             renderer.clearPlayerTrails('player');
-            
+
             expect(mockEmissiveMaterialSystem.disposeMaterial).toHaveBeenCalled();
         });
     });
@@ -255,7 +288,7 @@ describe('TrailStyleRenderer', () => {
             expect(solidConfig).toBeTruthy();
             expect(solidConfig.opacity).toBe(0.8);
             expect(solidConfig.renderAllSegments).toBe(true);
-            
+
             const dashedConfig = renderer.getStyleConfig('dashed');
             expect(dashedConfig.segments).toBe('alternating');
             expect(dashedConfig.renderAllSegments).toBe(false);
@@ -265,9 +298,9 @@ describe('TrailStyleRenderer', () => {
     describe('Effect Updates', () => {
         it('should update trail effects with delta time', () => {
             const updateRainbowSpy = jest.spyOn(renderer, 'updateRainbowTrails');
-            
+
             renderer.updateTrailEffects(0.016);
-            
+
             expect(updateRainbowSpy).toHaveBeenCalledWith(0.016);
         });
     });

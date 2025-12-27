@@ -1,7 +1,9 @@
 const { ShakeInstance } = require('./ShakeInstance.js');
+const { createLogger } = require('../utils/Logger.js');
+const logger = createLogger('CameraShakeController');
 
 /**
- * CameraShakeController manages camera shake effects with smooth interpolation 
+ * CameraShakeController manages camera shake effects with smooth interpolation
  * and configurable intensity. Supports multiple simultaneous shake effects.
  */
 class CameraShakeController {
@@ -11,41 +13,43 @@ class CameraShakeController {
      */
     constructor(camera) {
         this.camera = camera;
-        this.originalPosition = camera ? { 
-            x: camera.position.x, 
-            y: camera.position.y, 
-            z: camera.position.z 
-        } : { x: 0, y: 0, z: 0 };
-        
+        this.originalPosition = camera
+            ? {
+                  x: camera.position.x,
+                  y: camera.position.y,
+                  z: camera.position.z,
+              }
+            : { x: 0, y: 0, z: 0 };
+
         this.shakeOffset = { x: 0, y: 0, z: 0 };
         this.activeShakes = [];
         this.intensityMultiplier = 1.0; // 0.0 to 2.0
         this.enabled = true;
-        
+
         // Configuration for different shake types with user preference scaling
         this.shakeConfig = {
             collision: {
                 minIntensity: 0.5,
                 maxIntensity: 1.0,
                 defaultIntensity: 0.75,
-                defaultDuration: 1.0
+                defaultDuration: 1.0,
             },
             nearMiss: {
                 minIntensity: 0.1,
                 maxIntensity: 0.2,
                 defaultIntensity: 0.15,
-                defaultDuration: 0.3
-            }
+                defaultDuration: 0.3,
+            },
         };
 
         // User preference settings (Off, Low, Medium, High)
         this.intensitySettings = {
-            'off': 0.0,
-            'low': 0.5,
-            'medium': 1.0,
-            'high': 1.5
+            off: 0.0,
+            low: 0.5,
+            medium: 1.0,
+            high: 1.5,
         };
-        
+
         this.currentIntensitySetting = 'medium'; // Default to medium
     }
 
@@ -58,21 +62,25 @@ class CameraShakeController {
         if (!this.enabled || this.currentIntensitySetting === 'off') return;
 
         const config = this.shakeConfig.collision;
-        let baseIntensity = (intensity !== null) ? 
-            Math.max(config.minIntensity, Math.min(config.maxIntensity, intensity)) : 
-            config.defaultIntensity;
-        
+        let baseIntensity =
+            intensity !== null
+                ? Math.max(config.minIntensity, Math.min(config.maxIntensity, intensity))
+                : config.defaultIntensity;
+
         // Apply user preference scaling
         const userScale = this.intensitySettings[this.currentIntensitySetting];
-        const finalIntensity = baseIntensity * userScale * this.intensityMultiplier;
-        
+
+        // Apply screen size scaling (reduce intensity on small screens)
+        let screenScale = 1.0;
+        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+            screenScale = 0.7; // Reduce by 30% on mobile
+        }
+
+        const finalIntensity = baseIntensity * userScale * this.intensityMultiplier * screenScale;
+
         const finalDuration = duration !== null ? duration : config.defaultDuration;
 
-        const shake = new ShakeInstance(
-            finalIntensity,
-            finalDuration,
-            'collision'
-        );
+        const shake = new ShakeInstance(finalIntensity, finalDuration, 'collision');
 
         this.activeShakes.push(shake);
         this.cleanupCompletedShakes();
@@ -87,24 +95,21 @@ class CameraShakeController {
         if (!this.enabled || this.currentIntensitySetting === 'off') return;
 
         const config = this.shakeConfig.nearMiss;
-        
+
         // Scale intensity based on distance (closer = stronger)
         // Distance of 0.1 = max intensity (0.2), distance of 1.0 = min intensity (0.1)
         const normalizedDistance = Math.max(0.1, Math.min(1.0, distance));
-        const intensityScale = 1.0 - ((normalizedDistance - 0.1) / 0.9);
-        const baseIntensity = config.minIntensity + (intensityScale * (config.maxIntensity - config.minIntensity));
+        const intensityScale = 1.0 - (normalizedDistance - 0.1) / 0.9;
+        const baseIntensity =
+            config.minIntensity + intensityScale * (config.maxIntensity - config.minIntensity);
 
         // Apply user preference scaling
         const userScale = this.intensitySettings[this.currentIntensitySetting];
         const finalIntensity = baseIntensity * userScale * this.intensityMultiplier;
-        
+
         const finalDuration = duration !== null ? duration : config.defaultDuration;
 
-        const shake = new ShakeInstance(
-            finalIntensity,
-            finalDuration,
-            'nearMiss'
-        );
+        const shake = new ShakeInstance(finalIntensity, finalDuration, 'nearMiss');
 
         this.activeShakes.push(shake);
         this.cleanupCompletedShakes();
@@ -121,7 +126,7 @@ class CameraShakeController {
         }
 
         // Update all active shakes
-        this.activeShakes = this.activeShakes.filter(shake => shake.update(deltaTime));
+        this.activeShakes = this.activeShakes.filter((shake) => shake.update(deltaTime));
 
         // Calculate combined offset from all active shakes
         this.calculateCombinedOffset();
@@ -172,7 +177,7 @@ class CameraShakeController {
      * Removes completed shake instances from active list
      */
     cleanupCompletedShakes() {
-        this.activeShakes = this.activeShakes.filter(shake => !shake.isComplete());
+        this.activeShakes = this.activeShakes.filter((shake) => !shake.isComplete());
     }
 
     /**
@@ -197,7 +202,7 @@ class CameraShakeController {
      */
     setEnabled(enabled) {
         this.enabled = enabled;
-        
+
         if (!enabled) {
             // Clear all active shakes and reset camera position
             this.activeShakes = [];
@@ -263,13 +268,15 @@ class CameraShakeController {
         const validSettings = Object.keys(this.intensitySettings);
         if (validSettings.includes(setting.toLowerCase())) {
             this.currentIntensitySetting = setting.toLowerCase();
-            
+
             // If set to off, clear all active shakes
             if (this.currentIntensitySetting === 'off') {
                 this.clearAllShakes();
             }
         } else {
-            console.warn(`Invalid intensity setting: ${setting}. Valid options: ${validSettings.join(', ')}`);
+            logger.warn(
+                `Invalid intensity setting: ${setting}. Valid options: ${validSettings.join(', ')}`
+            );
         }
     }
 
@@ -309,7 +316,7 @@ class CameraShakeController {
             collision: { ...this.shakeConfig.collision },
             nearMiss: { ...this.shakeConfig.nearMiss },
             intensitySettings: { ...this.intensitySettings },
-            currentSetting: this.currentIntensitySetting
+            currentSetting: this.currentIntensitySetting,
         };
     }
 
@@ -340,11 +347,11 @@ class CameraShakeController {
      * @returns {Array} Array of shake information objects
      */
     getActiveShakesInfo() {
-        return this.activeShakes.map(shake => ({
+        return this.activeShakes.map((shake) => ({
             type: shake.getType(),
             intensity: shake.getCurrentIntensity(),
             remaining: shake.getRemainingDuration(),
-            offset: shake.getOffset()
+            offset: shake.getOffset(),
         }));
     }
 }

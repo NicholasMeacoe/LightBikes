@@ -1,5 +1,9 @@
 const { PerformanceDegradationManager } = require('../utils/PerformanceDegradationManager.js');
 const { CameraEffectsErrorHandler } = require('./CameraEffectsErrorHandler.js');
+const { CameraShakeController } = require('./CameraShakeController.js');
+const { MotionBlurController } = require('./MotionBlurController.js');
+const { createLogger } = require('../utils/Logger.js');
+const logger = createLogger('CameraEffectsManager');
 
 /**
  * CameraEffectsManager - Core camera effects infrastructure
@@ -12,44 +16,47 @@ class CameraEffectsManager {
         this.camera = camera;
         this.renderer = renderer;
         this.gameState = gameState;
-        
-        // Initialize subsystems (will be implemented in later tasks)
-        this.shakeController = null; // Will be CameraShakeController
-        this.motionBlurController = null; // Will be MotionBlurController
+
+        // Initialize subsystems
+        this.shakeController = new CameraShakeController(camera);
+        this.motionBlurController = new MotionBlurController(renderer);
         this.configManager = null; // Will be EffectsConfigManager
-        
+
         // Error handling and performance management
         this.degradationManager = new PerformanceDegradationManager();
         this.errorHandler = new CameraEffectsErrorHandler();
-        
+
         // Core state management
         this.enabled = true;
         this.initialized = false;
         this.lastUpdateTime = 0;
-        
+
         // Event handler registry for collision and speed change notifications
         this.eventHandlers = {
             collision: [],
             nearMiss: [],
-            speedChange: []
+            speedChange: [],
         };
-        
+
         // Integration state with RenderingEngine
         this.originalCameraPosition = null;
         this.originalUpdateCamera = null;
-        
+
         // Performance monitoring
         this.performanceMetrics = {
             lastFrameTime: 0,
             averageFrameTime: 16.67, // 60fps baseline
-            frameCount: 0
+            frameCount: 0,
         };
-        
+
         // Effect pooling for performance optimization
         this.effectPool = {
             shakeInstances: [],
-            maxPoolSize: 10
+            maxPoolSize: 10,
         };
+
+        // Current settings state
+        this.settings = {};
     }
 
     /**
@@ -61,39 +68,63 @@ class CameraEffectsManager {
         try {
             // Validate required dependencies
             if (!this.camera || !this.renderer) {
-                console.error('CameraEffectsManager: Missing required camera or renderer');
+                logger.error('Missing required camera or renderer');
                 return false;
             }
 
             // Initialize error handler first
-            if (!this.errorHandler.initialize(this, this.degradationManager, this.motionBlurController, this.shakeController)) {
-                console.warn('CameraEffectsManager: Error handler initialization failed, continuing without error handling');
+            if (
+                !this.errorHandler.initialize(
+                    this,
+                    this.degradationManager,
+                    this.motionBlurController,
+                    this.shakeController
+                )
+            ) {
+                logger.warn(
+                    'Error handler initialization failed, continuing without error handling'
+                );
+            }
+
+            // Initialize Motion Blur Controller
+            if (this.motionBlurController) {
+                this.motionBlurController.initialize(this.errorHandler);
+                if (this.gameState && this.gameState.speedTracker) {
+                    this.motionBlurController.setSpeedTracker(this.gameState.speedTracker);
+                }
             }
 
             // Initialize degradation manager
-            if (!this.degradationManager.initialize(this, this.motionBlurController, this.shakeController)) {
-                console.warn('CameraEffectsManager: Degradation manager initialization failed, continuing with basic functionality');
+            if (
+                !this.degradationManager.initialize(
+                    this,
+                    this.motionBlurController,
+                    this.shakeController
+                )
+            ) {
+                logger.warn(
+                    'Degradation manager initialization failed, continuing with basic functionality'
+                );
             }
 
             // Store original camera position for shake offset calculations
             this.originalCameraPosition = this.camera.position.clone();
-            
+
             // Initialize performance tracking
-            this.lastUpdateTime = Date.now();
+            this.lastUpdateTime = performance.now();
             this.performanceMetrics.lastFrameTime = this.lastUpdateTime;
-            
+
             this.initialized = true;
-            console.log('CameraEffectsManager: Successfully initialized with error handling and performance monitoring');
+            logger.info('Successfully initialized with error handling and performance monitoring');
             return true;
-            
         } catch (error) {
-            console.error('CameraEffectsManager: Initialization failed:', error);
-            
+            logger.error('Initialization failed', error);
+
             // Handle initialization error through error handler
             if (this.errorHandler) {
                 this.errorHandler.handleRuntimeError(error, 'CameraEffectsManager initialization');
             }
-            
+
             this.initialized = false;
             return false;
         }
@@ -112,33 +143,32 @@ class CameraEffectsManager {
         try {
             // Update performance metrics
             this.updatePerformanceMetrics(deltaTime);
-            
+
             // Update degradation manager for performance monitoring
             if (this.degradationManager) {
                 this.degradationManager.update(deltaTime);
-                
+
                 // Check if effects should be enabled based on performance
                 if (!this.degradationManager.shouldEnableEffects()) {
                     this.setEnabled(false);
                     return;
                 }
             }
-            
+
             // Update subsystems when they are implemented
             if (this.shakeController && this.degradationManager?.shouldEnableShake()) {
                 this.shakeController.update(deltaTime);
             }
-            
-            if (this.motionBlurController && this.degradationManager?.shouldEnableMotionBlur()) {
-                this.motionBlurController.update(deltaTime);
-            }
-            
+
+            // MotionBlurController updates are handled via onSpeedChange and render,
+            // but we might need to update internal state if needed.
+            // For now, we rely on onSpeedChange.
+
             // Apply camera effects to the rendering pipeline
             this.applyCameraEffects();
-            
         } catch (error) {
-            console.error('CameraEffectsManager: Update error:', error);
-            
+            logger.error('Update error', error);
+
             // Handle error through error handler
             if (this.errorHandler) {
                 this.errorHandler.handleRuntimeError(error, 'CameraEffectsManager update');
@@ -162,21 +192,27 @@ class CameraEffectsManager {
         try {
             // Validate parameters
             if (!entity || typeof intensity !== 'number') {
-                console.warn('CameraEffectsManager: Invalid collision parameters');
+                logger.warn('Invalid collision parameters');
                 return;
             }
 
             // Clamp intensity to valid range
             const clampedIntensity = Math.max(0.0, Math.min(1.0, intensity));
-            
+
             // Notify registered event handlers
             this.notifyEventHandlers('collision', { entity, intensity: clampedIntensity });
-            
+
+            // Trigger shake effect
+            if (this.shakeController) {
+                this.shakeController.triggerCollisionShake(clampedIntensity);
+            }
+
             // Log for debugging (will be removed in production)
-            console.debug(`CameraEffectsManager: Collision event - entity: ${entity.id || 'unknown'}, intensity: ${clampedIntensity}`);
-            
+            logger.debug(
+                `Collision event - entity: ${entity.id || 'unknown'}, intensity: ${clampedIntensity}`
+            );
         } catch (error) {
-            console.error('CameraEffectsManager: Collision handling error:', error);
+            logger.error('Collision handling error', error);
         }
     }
 
@@ -193,7 +229,7 @@ class CameraEffectsManager {
         try {
             // Validate parameters
             if (!entity || typeof distance !== 'number') {
-                console.warn('CameraEffectsManager: Invalid near-miss parameters');
+                logger.warn('Invalid near-miss parameters');
                 return;
             }
 
@@ -201,15 +237,21 @@ class CameraEffectsManager {
             if (distance < 0 || distance > 2.0) {
                 return;
             }
-            
+
             // Notify registered event handlers
             this.notifyEventHandlers('nearMiss', { entity, distance });
-            
+
+            // Trigger shake effect
+            if (this.shakeController) {
+                this.shakeController.triggerNearMissShake(distance);
+            }
+
             // Log for debugging (will be removed in production)
-            console.debug(`CameraEffectsManager: Near-miss event - entity: ${entity.id || 'unknown'}, distance: ${distance}`);
-            
+            logger.debug(
+                `Near-miss event - entity: ${entity.id || 'unknown'}, distance: ${distance}`
+            );
         } catch (error) {
-            console.error('CameraEffectsManager: Near-miss handling error:', error);
+            logger.error('Near-miss handling error', error);
         }
     }
 
@@ -226,7 +268,7 @@ class CameraEffectsManager {
         try {
             // Validate parameters
             if (!entity || typeof newSpeed !== 'number') {
-                console.warn('CameraEffectsManager: Invalid speed change parameters');
+                logger.warn('Invalid speed change parameters');
                 return;
             }
 
@@ -234,15 +276,21 @@ class CameraEffectsManager {
             if (newSpeed < 0 || newSpeed > 10.0) {
                 return;
             }
-            
+
             // Notify registered event handlers
             this.notifyEventHandlers('speedChange', { entity, newSpeed });
-            
+
+            // Update motion blur
+            if (this.motionBlurController) {
+                this.motionBlurController.updateBlurIntensity(newSpeed);
+            }
+
             // Log for debugging (will be removed in production)
-            console.debug(`CameraEffectsManager: Speed change event - entity: ${entity.id || 'unknown'}, speed: ${newSpeed}`);
-            
+            logger.debug(
+                `Speed change event - entity: ${entity.id || 'unknown'}, speed: ${newSpeed}`
+            );
         } catch (error) {
-            console.error('CameraEffectsManager: Speed change handling error:', error);
+            logger.error('Speed change handling error', error);
         }
     }
 
@@ -253,12 +301,12 @@ class CameraEffectsManager {
      */
     addEventListener(eventType, handler) {
         if (!this.eventHandlers[eventType]) {
-            console.warn(`CameraEffectsManager: Unknown event type: ${eventType}`);
+            logger.warn(`Unknown event type: ${eventType}`);
             return;
         }
 
         if (typeof handler !== 'function') {
-            console.warn('CameraEffectsManager: Event handler must be a function');
+            logger.warn('Event handler must be a function');
             return;
         }
 
@@ -291,11 +339,11 @@ class CameraEffectsManager {
             return;
         }
 
-        this.eventHandlers[eventType].forEach(handler => {
+        this.eventHandlers[eventType].forEach((handler) => {
             try {
                 handler(eventData);
             } catch (error) {
-                console.error(`CameraEffectsManager: Event handler error for ${eventType}:`, error);
+                logger.error(`Event handler error for ${eventType}`, error);
             }
         });
     }
@@ -311,7 +359,7 @@ class CameraEffectsManager {
 
         // This method will coordinate with shake and motion blur controllers
         // For now, it maintains the existing camera behavior
-        
+
         // Future implementation will:
         // 1. Apply shake offset to camera position
         // 2. Update motion blur parameters based on camera movement
@@ -323,13 +371,13 @@ class CameraEffectsManager {
      * @param {number} deltaTime - Time elapsed since last update
      */
     updatePerformanceMetrics(deltaTime) {
-        const currentTime = Date.now();
+        const currentTime = performance.now();
         const frameTime = currentTime - this.performanceMetrics.lastFrameTime;
-        
+
         // Update running average (simple exponential moving average)
-        this.performanceMetrics.averageFrameTime = 
-            (this.performanceMetrics.averageFrameTime * 0.9) + (frameTime * 0.1);
-        
+        this.performanceMetrics.averageFrameTime =
+            this.performanceMetrics.averageFrameTime * 0.9 + frameTime * 0.1;
+
         this.performanceMetrics.lastFrameTime = currentTime;
         this.performanceMetrics.frameCount++;
     }
@@ -339,10 +387,22 @@ class CameraEffectsManager {
      * @returns {Object} Performance metrics
      */
     getPerformanceMetrics() {
+        const currentFPS = 1000 / this.performanceMetrics.averageFrameTime;
+
+        // Update min/max FPS
+        if (!this.performanceMetrics.minFPS || currentFPS < this.performanceMetrics.minFPS) {
+            this.performanceMetrics.minFPS = currentFPS;
+        }
+        if (!this.performanceMetrics.maxFPS || currentFPS > this.performanceMetrics.maxFPS) {
+            this.performanceMetrics.maxFPS = currentFPS;
+        }
+
         return {
             ...this.performanceMetrics,
-            currentFPS: 1000 / this.performanceMetrics.averageFrameTime,
-            isPerformanceGood: this.performanceMetrics.averageFrameTime < 20 // 50+ FPS
+            currentFPS: currentFPS,
+            minFPS: this.performanceMetrics.minFPS,
+            maxFPS: this.performanceMetrics.maxFPS,
+            isPerformanceGood: this.performanceMetrics.averageFrameTime < 20, // 50+ FPS
         };
     }
 
@@ -352,13 +412,21 @@ class CameraEffectsManager {
      */
     setEnabled(enabled) {
         this.enabled = Boolean(enabled);
-        
+
+        if (this.shakeController) {
+            this.shakeController.setEnabled(this.enabled);
+        }
+
+        if (this.motionBlurController) {
+            this.motionBlurController.setEnabled(this.enabled);
+        }
+
         if (!this.enabled) {
             // Reset camera to original position when disabled
             this.resetCameraPosition();
         }
-        
-        console.log(`CameraEffectsManager: ${this.enabled ? 'Enabled' : 'Disabled'}`);
+
+        logger.info(`${this.enabled ? 'Enabled' : 'Disabled'}`);
     }
 
     /**
@@ -391,15 +459,18 @@ class CameraEffectsManager {
         }
 
         // Pause subsystems when implemented
-        if (this.shakeController && typeof this.shakeController.pause === 'function') {
-            this.shakeController.pause();
+        if (
+            this.shakeController &&
+            typeof (/** @type {any} */ (this.shakeController).pause) === 'function'
+        ) {
+            /** @type {any} */ (this.shakeController).pause();
         }
-        
+
         if (this.motionBlurController && typeof this.motionBlurController.pause === 'function') {
             this.motionBlurController.pause();
         }
-        
-        console.debug('CameraEffectsManager: Paused');
+
+        logger.debug('Paused');
     }
 
     /**
@@ -412,19 +483,22 @@ class CameraEffectsManager {
         }
 
         // Resume subsystems when implemented
-        if (this.shakeController && typeof this.shakeController.resume === 'function') {
-            this.shakeController.resume();
+        if (
+            this.shakeController &&
+            typeof (/** @type {any} */ (this.shakeController).resume) === 'function'
+        ) {
+            /** @type {any} */ (this.shakeController).resume();
         }
-        
+
         if (this.motionBlurController && typeof this.motionBlurController.resume === 'function') {
             this.motionBlurController.resume();
         }
-        
+
         // Reset timing to prevent large delta time jumps
-        this.lastUpdateTime = Date.now();
+        this.lastUpdateTime = performance.now();
         this.performanceMetrics.lastFrameTime = this.lastUpdateTime;
-        
-        console.debug('CameraEffectsManager: Resumed');
+
+        logger.debug('Resumed');
     }
 
     /**
@@ -435,49 +509,57 @@ class CameraEffectsManager {
         try {
             // Reset camera position
             this.resetCameraPosition();
-            
+
             // Clear event handlers
-            Object.keys(this.eventHandlers).forEach(eventType => {
+            Object.keys(this.eventHandlers).forEach((eventType) => {
                 this.eventHandlers[eventType] = [];
             });
-            
+
             // Destroy subsystems when implemented
-            if (this.shakeController && typeof this.shakeController.destroy === 'function') {
-                this.shakeController.destroy();
+            if (
+                this.shakeController &&
+                typeof (/** @type {any} */ (this.shakeController).destroy) === 'function'
+            ) {
+                /** @type {any} */ (this.shakeController).destroy();
             }
-            
-            if (this.motionBlurController && typeof this.motionBlurController.destroy === 'function') {
+
+            if (
+                this.motionBlurController &&
+                typeof this.motionBlurController.destroy === 'function'
+            ) {
                 this.motionBlurController.destroy();
             }
-            
+
             if (this.configManager && typeof this.configManager.destroy === 'function') {
                 this.configManager.destroy();
             }
-            
+
             // Clean up effect pool
             if (this.effectPool) {
                 this.effectPool.shakeInstances = [];
             }
-            
+
             // Destroy error handling and performance management
-            if (this.degradationManager && typeof this.degradationManager.destroy === 'function') {
-                this.degradationManager.destroy();
+            if (
+                this.degradationManager &&
+                typeof (/** @type {any} */ (this.degradationManager).destroy) === 'function'
+            ) {
+                /** @type {any} */ (this.degradationManager).destroy();
             }
-            
+
             if (this.errorHandler && typeof this.errorHandler.destroy === 'function') {
                 this.errorHandler.destroy();
             }
-            
+
             // Reset state
             this.initialized = false;
             this.enabled = false;
             this.originalCameraPosition = null;
-            
-            console.log('CameraEffectsManager: Destroyed');
-            
+
+            logger.info('Destroyed');
         } catch (error) {
-            console.error('CameraEffectsManager: Destruction error:', error);
-            
+            logger.error('Destruction error', error);
+
             // Handle destruction error
             if (this.errorHandler) {
                 this.errorHandler.handleRuntimeError(error, 'CameraEffectsManager destruction');
@@ -493,6 +575,7 @@ class CameraEffectsManager {
         return {
             initialized: this.initialized,
             enabled: this.enabled,
+            settings: { ...this.settings },
             hasCamera: !!this.camera,
             hasRenderer: !!this.renderer,
             eventHandlerCounts: Object.keys(this.eventHandlers).reduce((counts, eventType) => {
@@ -501,15 +584,31 @@ class CameraEffectsManager {
             }, {}),
             performanceMetrics: this.getPerformanceMetrics(),
             subsystems: {
-                shakeController: !!this.shakeController,
-                motionBlurController: !!this.motionBlurController,
+                shake: this.shakeController
+                    ? {
+                          enabled: this.shakeController.isEnabled(),
+                          activeEffects: this.shakeController.getActiveShakeCount(),
+                          currentOffset: this.shakeController.getCurrentOffset(),
+                      }
+                    : null,
+                motionBlur: this.motionBlurController
+                    ? {
+                          enabled: this.motionBlurController.enabled,
+                          intensity: this.motionBlurController.getBlurConfig().intensity,
+                          quality: this.motionBlurController.getCurrentQuality(),
+                      }
+                    : null,
                 configManager: !!this.configManager,
                 degradationManager: !!this.degradationManager,
-                errorHandler: !!this.errorHandler
+                errorHandler: !!this.errorHandler,
             },
-            degradationState: this.degradationManager ? this.degradationManager.getDegradationState() : null,
+            degradationState: this.degradationManager
+                ? this.degradationManager.getDegradationState()
+                : null,
             errorStatistics: this.errorHandler ? this.errorHandler.getErrorStatistics() : null,
-            capabilities: this.degradationManager ? this.degradationManager.getCapabilitiesSummary() : null
+            capabilities: this.degradationManager
+                ? this.degradationManager.getCapabilitiesSummary()
+                : null,
         };
     }
 
@@ -546,6 +645,96 @@ class CameraEffectsManager {
             return this.errorHandler.attemptRecovery('runtime');
         }
         return false;
+    }
+    /**
+     * Update camera effects settings
+     * @param {Object} settings - New settings to apply
+     */
+    updateSettings(settings) {
+        if (!settings) return;
+
+        // Update local settings tracking
+        this.settings = { ...this.settings, ...settings };
+
+        if (this.configManager && typeof this.configManager.updateSettings === 'function') {
+            this.configManager.updateSettings(settings);
+        }
+
+        // Handle specific settings that might affect the manager directly
+        if (settings.accessibilityMode !== undefined) {
+            // If accessibility mode is enabled, we might want to disable effects
+            // or pass this to controllers
+            if (settings.accessibilityMode) {
+                if (this.shakeController) this.shakeController.setEnabled(false);
+                if (this.motionBlurController) this.motionBlurController.setEnabled(false);
+            } else {
+                if (this.shakeController) this.shakeController.setEnabled(true);
+                if (this.motionBlurController) this.motionBlurController.setEnabled(true);
+            }
+        }
+
+        if (settings.shakeIntensity !== undefined && this.shakeController) {
+            // Map numeric intensity to 'low', 'medium', 'high' if needed, or set multiplier
+            // For now assuming the controller handles it or we map it
+            // The controller expects setIntensitySetting('low'|'medium'|'high') or setIntensityMultiplier(number)
+            if (typeof settings.shakeIntensity === 'number') {
+                this.shakeController.setIntensityMultiplier(settings.shakeIntensity);
+            }
+        }
+
+        if (settings.shakeEnabled !== undefined && this.shakeController) {
+            this.shakeController.setEnabled(settings.shakeEnabled);
+        }
+
+        if (settings.motionBlurEnabled !== undefined && this.motionBlurController) {
+            this.motionBlurController.setEnabled(settings.motionBlurEnabled);
+        }
+
+        if (settings.motionBlurQuality !== undefined && this.motionBlurController) {
+            this.motionBlurController.setQuality(settings.motionBlurQuality);
+        }
+
+        if (settings.respectSystemPreferences !== undefined) {
+            if (settings.respectSystemPreferences && window.matchMedia) {
+                const prefersReducedMotion = window.matchMedia(
+                    '(prefers-reduced-motion: reduce)'
+                ).matches;
+                if (prefersReducedMotion) {
+                    if (this.shakeController) this.shakeController.setEnabled(false);
+                    if (this.motionBlurController) this.motionBlurController.setEnabled(false);
+                }
+            }
+        }
+
+        logger.debug('Settings updated', settings);
+    }
+
+    /**
+     * Reset all camera effects
+     * Clears all active effects and returns to initial state
+     */
+    reset() {
+        if (this.shakeController) {
+            this.shakeController.clearAllShakes();
+        }
+
+        if (this.motionBlurController) {
+            this.motionBlurController.setEnabled(false);
+            this.motionBlurController.setEnabled(this.enabled);
+        }
+
+        this.resetCameraPosition();
+
+        logger.debug('Reset');
+    }
+
+    /**
+     * Update the game state reference
+     * @param {Object} newGameState - New game state object
+     */
+    updateGameState(newGameState) {
+        this.gameState = newGameState;
+        logger.debug('Game state updated');
     }
 }
 

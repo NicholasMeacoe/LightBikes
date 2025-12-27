@@ -23,7 +23,7 @@ class LoadingIndicator {
             `;
             document.body.appendChild(this.element);
             this.messageElement = this.element.querySelector('.loading-message');
-            
+
             if (!this.stylesAdded) {
                 this._addStyles();
                 this.stylesAdded = true;
@@ -40,7 +40,7 @@ class LoadingIndicator {
                 this.messageElement.textContent = message;
             }
         }
-        
+
         this.element.style.display = 'flex';
     }
 
@@ -78,16 +78,18 @@ class LoadingIndicator {
             this.show('Error');
         }
 
-        const errorTitle = (error.name && error.name !== 'Error') ? error.name : 'Initialization Error';
+        const errorTitle =
+            error.name && error.name !== 'Error' ? error.name : 'Initialization Error';
         const errorMessage = error.message || 'An unexpected error occurred';
         const technicalDetails = error.stack ? `<pre>${error.stack}</pre>` : '';
-        
-        const actionableSteps = this._getActionableSteps(error);
-        const stepsHTML = actionableSteps.length > 0 
-            ? `<ul>${actionableSteps.map(step => `<li>${step}</li>`).join('')}</ul>`
-            : '';
 
-        const retryButton = retryCallback 
+        const actionableSteps = this._getActionableSteps(error);
+        const stepsHTML =
+            actionableSteps.length > 0
+                ? `<ul>${actionableSteps.map((step) => `<li>${step}</li>`).join('')}</ul>`
+                : '';
+
+        const retryButton = retryCallback
             ? `<button class="error-retry-button" id="error-retry-button">Retry</button>`
             : '';
 
@@ -106,7 +108,7 @@ class LoadingIndicator {
         if (retryCallback) {
             const button = document.getElementById('error-retry-button');
             if (button) {
-                button.addEventListener('click', retryCallback);
+                button.addEventListener('click', /** @type {EventListener} */ (retryCallback));
             }
         }
     }

@@ -337,10 +337,10 @@ class LeaderboardUI {
         const statItems = [
             { label: 'Total Scores', value: stats.totalScores },
             { label: 'Best Time', value: stats.bestTime || 'N/A' },
-            { label: 'Average Time', value: stats.averageTime || 'N/A' }
+            { label: 'Average Time', value: stats.averageTime || 'N/A' },
         ];
 
-        statItems.forEach(stat => {
+        statItems.forEach((stat) => {
             const item = document.createElement('div');
             item.style.cssText = `
                 background-color: rgba(255, 255, 255, 0.05);
@@ -422,10 +422,14 @@ class LeaderboardUI {
      */
     getRankColor(rank) {
         switch (rank) {
-            case 1: return '#FFD700'; // Gold
-            case 2: return '#C0C0C0'; // Silver
-            case 3: return '#CD7F32'; // Bronze
-            default: return '#00ffff'; // Cyan
+            case 1:
+                return '#FFD700'; // Gold
+            case 2:
+                return '#C0C0C0'; // Silver
+            case 3:
+                return '#CD7F32'; // Bronze
+            default:
+                return '#00ffff'; // Cyan
         }
     }
 
@@ -436,10 +440,14 @@ class LeaderboardUI {
      */
     getMedalEmoji(rank) {
         switch (rank) {
-            case 1: return '🥇';
-            case 2: return '🥈';
-            case 3: return '🥉';
-            default: return '';
+            case 1:
+                return '🥇';
+            case 2:
+                return '🥈';
+            case 3:
+                return '🥉';
+            default:
+                return '';
         }
     }
 
@@ -451,7 +459,7 @@ class LeaderboardUI {
     formatDate(timestamp) {
         const date = new Date(timestamp);
         const now = new Date();
-        const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+        const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
         if (diffDays === 0) {
             return 'Today';

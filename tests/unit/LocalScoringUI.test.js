@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { LocalScoringUI } = require('@/ui/LocalScoringUI.js');
 const { LocalScoring } = require('@/systems/LocalScoring.js');
 
@@ -8,7 +24,7 @@ describe('LocalScoringUI', () => {
     beforeEach(() => {
         // Clear any existing elements
         document.body.innerHTML = '';
-        
+
         localScoring = new LocalScoring();
         localScoringUI = new LocalScoringUI(localScoring);
     });
@@ -45,7 +61,7 @@ describe('LocalScoringUI', () => {
         it('should display Player 1 score', () => {
             localScoring.player1Wins = 3;
             localScoringUI.updateScores();
-            
+
             const player1Score = document.getElementById('player1Score');
             expect(player1Score.textContent).toBe('P1: 3');
             expect(player1Score.style.display).toBe('block');
@@ -54,7 +70,7 @@ describe('LocalScoringUI', () => {
         it('should display Player 2 score', () => {
             localScoring.player2Wins = 2;
             localScoringUI.updateScores();
-            
+
             const player2Score = document.getElementById('player2Score');
             expect(player2Score.textContent).toBe('P2: 2');
             expect(player2Score.style.display).toBe('block');
@@ -63,7 +79,7 @@ describe('LocalScoringUI', () => {
         it('should display current round', () => {
             localScoring.currentRound = 5;
             localScoringUI.updateScores();
-            
+
             const roundIndicator = document.getElementById('roundIndicator');
             expect(roundIndicator.textContent).toBe('Round 5');
             expect(roundIndicator.style.display).toBe('block');
@@ -71,14 +87,14 @@ describe('LocalScoringUI', () => {
 
         it('should hide winner announcement during gameplay', () => {
             localScoringUI.updateScores();
-            
+
             const announcement = document.getElementById('winnerAnnouncement');
             expect(announcement.style.display).toBe('none');
         });
 
         it('should handle zero scores', () => {
             localScoringUI.updateScores();
-            
+
             expect(document.getElementById('player1Score').textContent).toBe('P1: 0');
             expect(document.getElementById('player2Score').textContent).toBe('P2: 0');
         });
@@ -95,7 +111,7 @@ describe('LocalScoringUI', () => {
 
         it('should show Player 1 winner announcement', () => {
             localScoringUI.showRoundWinner('P1');
-            
+
             const announcement = document.getElementById('winnerAnnouncement');
             expect(announcement.textContent).toBe('Player 1 Wins!');
             expect(announcement.style.display).toBe('block');
@@ -104,7 +120,7 @@ describe('LocalScoringUI', () => {
 
         it('should show Player 2 winner announcement', () => {
             localScoringUI.showRoundWinner('P2');
-            
+
             const announcement = document.getElementById('winnerAnnouncement');
             expect(announcement.textContent).toBe('Player 2 Wins!');
             expect(announcement.style.display).toBe('block');
@@ -113,7 +129,7 @@ describe('LocalScoringUI', () => {
 
         it('should show tie announcement', () => {
             localScoringUI.showRoundWinner(null);
-            
+
             const announcement = document.getElementById('winnerAnnouncement');
             expect(announcement.textContent).toBe('Tie!');
             expect(announcement.style.display).toBe('block');
@@ -122,12 +138,12 @@ describe('LocalScoringUI', () => {
 
         it('should auto-hide announcement after 3 seconds', () => {
             localScoringUI.showRoundWinner('P1');
-            
+
             const announcement = document.getElementById('winnerAnnouncement');
             expect(announcement.style.display).toBe('block');
-            
+
             jest.advanceTimersByTime(3000);
-            
+
             expect(announcement.style.display).toBe('none');
         });
 
@@ -135,7 +151,7 @@ describe('LocalScoringUI', () => {
             localScoring.player1Wins = 2;
             localScoring.player2Wins = 1;
             localScoringUI.showRoundWinner('P1');
-            
+
             expect(document.getElementById('player1Score').textContent).toBe('P1: 2');
             expect(document.getElementById('player2Score').textContent).toBe('P2: 1');
         });
@@ -146,7 +162,7 @@ describe('LocalScoringUI', () => {
             localScoring.player1Wins = 5;
             localScoring.player2Wins = 3;
             localScoringUI.showFinalScores();
-            
+
             const announcement = document.getElementById('winnerAnnouncement');
             expect(announcement.style.display).toBe('block');
             expect(announcement.classList.contains('player1-wins')).toBe(true);
@@ -158,7 +174,7 @@ describe('LocalScoringUI', () => {
             localScoring.player1Wins = 2;
             localScoring.player2Wins = 4;
             localScoringUI.showFinalScores();
-            
+
             const announcement = document.getElementById('winnerAnnouncement');
             expect(announcement.style.display).toBe('block');
             expect(announcement.classList.contains('player2-wins')).toBe(true);
@@ -170,7 +186,7 @@ describe('LocalScoringUI', () => {
             localScoring.player1Wins = 3;
             localScoring.player2Wins = 3;
             localScoringUI.showFinalScores();
-            
+
             const announcement = document.getElementById('winnerAnnouncement');
             expect(announcement.style.display).toBe('block');
             expect(announcement.classList.contains('tie')).toBe(true);
@@ -183,7 +199,7 @@ describe('LocalScoringUI', () => {
             localScoring.player2Wins = 2;
             localScoring.currentRound = 7;
             localScoringUI.showFinalScores();
-            
+
             expect(document.getElementById('player1Score').textContent).toBe('P1: 4');
             expect(document.getElementById('player2Score').textContent).toBe('P2: 2');
             expect(document.getElementById('roundIndicator').textContent).toBe('Round 7');
@@ -194,7 +210,7 @@ describe('LocalScoringUI', () => {
         it('should hide all score elements', () => {
             localScoringUI.updateScores();
             localScoringUI.hideScores();
-            
+
             expect(document.getElementById('player1Score').style.display).toBe('none');
             expect(document.getElementById('player2Score').style.display).toBe('none');
             expect(document.getElementById('roundIndicator').style.display).toBe('none');
@@ -212,7 +228,7 @@ describe('LocalScoringUI', () => {
         it('should show score elements', () => {
             localScoringUI.hideScores();
             localScoringUI.showScores();
-            
+
             expect(document.getElementById('player1Score').style.display).toBe('block');
             expect(document.getElementById('player2Score').style.display).toBe('block');
             expect(document.getElementById('roundIndicator').style.display).toBe('block');
@@ -222,7 +238,7 @@ describe('LocalScoringUI', () => {
             localScoring.player1Wins = 3;
             localScoring.player2Wins = 2;
             localScoringUI.showScores();
-            
+
             expect(document.getElementById('player1Score').textContent).toBe('P1: 3');
             expect(document.getElementById('player2Score').textContent).toBe('P2: 2');
         });
@@ -232,10 +248,10 @@ describe('LocalScoringUI', () => {
         it('should hide scores and update display', () => {
             localScoring.player1Wins = 5;
             localScoringUI.showRoundWinner('P1');
-            
+
             localScoring.resetScores();
             localScoringUI.reset();
-            
+
             expect(document.getElementById('player1Score').textContent).toBe('P1: 0');
             expect(document.getElementById('player2Score').textContent).toBe('P2: 0');
         });
@@ -244,7 +260,7 @@ describe('LocalScoringUI', () => {
     describe('destroy', () => {
         it('should remove all score elements', () => {
             localScoringUI.destroy();
-            
+
             expect(document.getElementById('player1Score')).toBeFalsy();
             expect(document.getElementById('player2Score')).toBeFalsy();
             expect(document.getElementById('roundIndicator')).toBeFalsy();
@@ -278,8 +294,12 @@ describe('LocalScoringUI', () => {
         it('should apply correct classes to elements', () => {
             expect(document.getElementById('player1Score').className).toContain('player1-score');
             expect(document.getElementById('player2Score').className).toContain('player2-score');
-            expect(document.getElementById('roundIndicator').className).toContain('round-indicator');
-            expect(document.getElementById('winnerAnnouncement').className).toContain('winner-announcement');
+            expect(document.getElementById('roundIndicator').className).toContain(
+                'round-indicator'
+            );
+            expect(document.getElementById('winnerAnnouncement').className).toContain(
+                'winner-announcement'
+            );
         });
     });
 
@@ -296,16 +316,16 @@ describe('LocalScoringUI', () => {
             // Start of round
             localScoringUI.updateScores();
             expect(document.getElementById('roundIndicator').textContent).toBe('Round 1');
-            
+
             // Player 1 wins
             localScoring.incrementScore('P1');
             localScoringUI.showRoundWinner('P1');
             expect(document.getElementById('player1Score').textContent).toBe('P1: 1');
-            
+
             // Auto-hide winner announcement
             jest.advanceTimersByTime(3000);
             expect(document.getElementById('winnerAnnouncement').style.display).toBe('none');
-            
+
             // Next round
             localScoring.nextRound();
             localScoringUI.updateScores();
@@ -320,10 +340,10 @@ describe('LocalScoringUI', () => {
             localScoring.nextRound();
             localScoring.incrementScore('P1');
             localScoring.nextRound();
-            
+
             // Show final scores
             localScoringUI.showFinalScores();
-            
+
             const announcement = document.getElementById('winnerAnnouncement');
             expect(announcement.style.display).toBe('block');
             expect(announcement.textContent).toContain('Player 1 Wins!');
@@ -335,11 +355,11 @@ describe('LocalScoringUI', () => {
             localScoring.incrementScore('P1');
             localScoring.incrementScore('P2');
             localScoringUI.updateScores();
-            
+
             // Reset
             localScoring.resetScores();
             localScoringUI.reset();
-            
+
             // Verify reset state
             expect(document.getElementById('player1Score').textContent).toBe('P1: 0');
             expect(document.getElementById('player2Score').textContent).toBe('P2: 0');

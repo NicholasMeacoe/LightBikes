@@ -13,7 +13,7 @@ const MUSIC_TRACKS = {
         energyLevel: 'ambient',
         loop: true,
         preload: true,
-        description: 'Calm, atmospheric background music for focused gameplay'
+        description: 'Calm, atmospheric background music for focused gameplay',
     },
     'cyber-pulse': {
         id: 'cyber-pulse',
@@ -23,7 +23,7 @@ const MUSIC_TRACKS = {
         energyLevel: 'upbeat',
         loop: true,
         preload: true,
-        description: 'Energetic electronic beats matching the cyberpunk aesthetic'
+        description: 'Energetic electronic beats matching the cyberpunk aesthetic',
     },
     'neon-rush': {
         id: 'neon-rush',
@@ -33,9 +33,9 @@ const MUSIC_TRACKS = {
         energyLevel: 'intense',
         loop: true,
         preload: true,
-        description: 'High-intensity music for competitive and fast-paced gameplay'
+        description: 'High-intensity music for competitive and fast-paced gameplay',
     },
-    'none': {
+    none: {
         id: 'none',
         name: 'No Music',
         url: null,
@@ -43,8 +43,15 @@ const MUSIC_TRACKS = {
         energyLevel: null,
         loop: false,
         preload: false,
-        description: 'Disable background music'
-    }
+        description: 'Disable background music',
+    },
+};
+
+// Energy levels for track categorization
+const ENERGY_LEVELS = {
+    AMBIENT: 'ambient',
+    UPBEAT: 'upbeat',
+    INTENSE: 'intense',
 };
 
 // Playback states
@@ -56,7 +63,7 @@ const PLAYBACK_STATES = {
     FADING_IN: 'fading_in',
     FADING_OUT: 'fading_out',
     DUCKED: 'ducked',
-    ERROR: 'error'
+    ERROR: 'error',
 };
 
 // Error types for music system
@@ -68,7 +75,7 @@ const ERROR_TYPES = {
     CONTEXT_ERROR: 'context_error',
     PLAYBACK_FAILED: 'playback_failed',
     SETTINGS_ERROR: 'settings_error',
-    UNKNOWN_ERROR: 'unknown_error'
+    UNKNOWN_ERROR: 'unknown_error',
 };
 
 // Audio MIME types for format detection
@@ -76,7 +83,7 @@ const AUDIO_MIME_TYPES = {
     MP3: 'audio/mpeg',
     OGG: 'audio/ogg',
     WAV: 'audio/wav',
-    M4A: 'audio/mp4'
+    M4A: 'audio/mp4',
 };
 
 // Music system configuration
@@ -87,7 +94,9 @@ const MUSIC_SYSTEM_CONFIG = {
     duckingLevel: 0.3,
     duckingDuration: 0.2,
     maxRetries: 3,
-    loadTimeout: 10000
+    loadTimeout: 10000,
+    MAX_CONCURRENT_FADE_OPERATIONS: 4,
+    AUDIO_BUFFER_CLEANUP_INTERVAL: 60000, // 1 minute
 };
 
 // Ducking triggers for different sound effects
@@ -95,23 +104,23 @@ const DUCKING_TRIGGERS = {
     explosion: {
         duckingLevel: 0.2,
         duration: 0.3,
-        recoveryDelay: 1000
+        recoveryDelay: 1000,
     },
     victory: {
         duckingLevel: 0.3,
         duration: 0.2,
-        recoveryDelay: 2000
+        recoveryDelay: 2000,
     },
     defeat: {
         duckingLevel: 0.3,
         duration: 0.2,
-        recoveryDelay: 2000
+        recoveryDelay: 2000,
     },
     collision: {
         duckingLevel: 0.4,
         duration: 0.1,
-        recoveryDelay: 500
-    }
+        recoveryDelay: 500,
+    },
 };
 
 // Configuration utilities
@@ -124,7 +133,7 @@ const MusicConfigUtils = {
     isValidTrackId(trackId) {
         return typeof trackId === 'string' && MUSIC_TRACKS.hasOwnProperty(trackId);
     },
-    
+
     /**
      * Get ducking configuration for a sound effect
      * @param {string} effectType - Type of sound effect
@@ -133,7 +142,7 @@ const MusicConfigUtils = {
     getDuckingConfig(effectType) {
         return DUCKING_TRIGGERS[effectType] || null;
     },
-    
+
     /**
      * Get all available track IDs
      * @returns {Array<string>} Array of track IDs
@@ -141,7 +150,7 @@ const MusicConfigUtils = {
     getAvailableTrackIds() {
         return Object.keys(MUSIC_TRACKS);
     },
-    
+
     /**
      * Get track configuration by ID
      * @param {string} trackId - Track identifier
@@ -150,7 +159,7 @@ const MusicConfigUtils = {
     getTrackConfig(trackId) {
         return MUSIC_TRACKS[trackId] || null;
     },
-    
+
     /**
      * Get the appropriate URL for a track (primary or fallback)
      * @param {string} trackId - Track identifier
@@ -160,14 +169,14 @@ const MusicConfigUtils = {
     getTrackUrl(trackId, useFallback = false) {
         const config = MUSIC_TRACKS[trackId];
         if (!config) return null;
-        
+
         if (useFallback && config.fallbackUrl) {
             return config.fallbackUrl;
         }
-        
+
         return config.url;
     },
-    
+
     /**
      * Check if a track has a fallback URL available
      * @param {string} trackId - Track identifier
@@ -177,23 +186,24 @@ const MusicConfigUtils = {
         const config = MUSIC_TRACKS[trackId];
         return config && config.fallbackUrl !== null;
     },
-    
+
     /**
      * Get default music system configuration
      * @returns {Object} Default configuration object
      */
     getDefaultConfig() {
         return { ...MUSIC_SYSTEM_CONFIG };
-    }
+    },
 };
 
 // Export using CommonJS pattern to match existing project architecture
 module.exports = {
     MUSIC_TRACKS,
+    ENERGY_LEVELS,
     PLAYBACK_STATES,
     MUSIC_SYSTEM_CONFIG,
     DUCKING_TRIGGERS,
     ERROR_TYPES,
     AUDIO_MIME_TYPES,
-    MusicConfigUtils
+    MusicConfigUtils,
 };

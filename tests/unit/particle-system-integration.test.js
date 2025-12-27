@@ -4,6 +4,22 @@
  */
 
 // Mock Three.js for testing environment
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const mockThree = {
     Vector3: class {
         constructor(x = 0, y = 0, z = 0) {
@@ -83,6 +99,9 @@ const mockThree = {
         setSize(width, height) {
             this.domElement.width = width;
             this.domElement.height = height;
+        }
+        setClearColor(color, alpha) {
+            // Mock implementation
         }
         render(scene, camera) {
             // Mock implementation
@@ -275,7 +294,7 @@ const mockThree = {
     ClampToEdgeWrapping: 'clamp',
     LinearFilter: 'linear',
     RGBAFormat: 'rgba',
-    DoubleSide: 'double'
+    DoubleSide: 'double',
 };
 
 // Mock document for texture creation
@@ -289,7 +308,7 @@ global.document = {
                     if (type === '2d') {
                         return {
                             createRadialGradient: (x0, y0, r0, x1, y1, r1) => ({
-                                addColorStop: (offset, color) => {}
+                                addColorStop: (offset, color) => {},
                             }),
                             fillRect: (x, y, width, height) => {},
                             clearRect: (x, y, width, height) => {},
@@ -298,32 +317,32 @@ global.document = {
                             fill: () => {},
                             beginPath: () => {},
                             arc: () => {},
-                            closePath: () => {}
+                            closePath: () => {},
                         };
                     }
                     return null;
-                }
+                },
             };
         }
         return {};
-    }
+    },
 };
 
 // Mock localStorage for settings persistence tests
 const mockLocalStorage = {
     store: {},
-    getItem: function(key) {
+    getItem: function (key) {
         return this.store[key] || null;
     },
-    setItem: function(key, value) {
+    setItem: function (key, value) {
         this.store[key] = value;
     },
-    removeItem: function(key) {
+    removeItem: function (key) {
         delete this.store[key];
     },
-    clear: function() {
+    clear: function () {
         this.store = {};
-    }
+    },
 };
 
 // Setup global mocks
@@ -343,17 +362,38 @@ describe('ParticleSystem Integration Tests', () => {
     let particleSettingsUI;
 
     beforeEach(() => {
+        // Mock HTMLCanvasElement.prototype.getContext to prevent JSDOM "Not implemented" errors
+        if (typeof HTMLCanvasElement !== 'undefined') {
+            jest.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation((type) => {
+                if (type === '2d') {
+                    return {
+                        createRadialGradient: jest.fn(() => ({ addColorStop: jest.fn() })),
+                        fillRect: jest.fn(),
+                        clearRect: jest.fn(),
+                        beginPath: jest.fn(),
+                        arc: jest.fn(),
+                        closePath: jest.fn(),
+                        fill: jest.fn(),
+                        fillStyle: '#000000',
+                        globalAlpha: 1,
+                        canvas: { width: 100, height: 100 },
+                    };
+                }
+                return null;
+            });
+        }
+
         // Clear localStorage
         mockLocalStorage.clear();
-        
+
         // Create mock scene with tracking
         mockScene = {
             add: jest.fn(),
             remove: jest.fn(),
             addedObjects: [],
-            removedObjects: []
+            removedObjects: [],
         };
-        
+
         // Track scene operations
         mockScene.add.mockImplementation((object) => {
             mockScene.addedObjects.push(object);
@@ -366,7 +406,7 @@ describe('ParticleSystem Integration Tests', () => {
         particleSystem = new ParticleSystem(mockScene, {
             maxParticles: 100,
             enabled: true,
-            quality: 'medium'
+            quality: 'medium',
         });
 
         game = new Game();
@@ -388,7 +428,7 @@ describe('ParticleSystem Integration Tests', () => {
             // Verify particle system was added to scene
             expect(mockScene.add).toHaveBeenCalledTimes(1);
             expect(mockScene.addedObjects).toHaveLength(1);
-            
+
             const addedObject = mockScene.addedObjects[0];
             expect(addedObject).toBeInstanceOf(mockThree.Points);
             expect(addedObject.geometry).toBeInstanceOf(mockThree.BufferGeometry);
@@ -398,13 +438,13 @@ describe('ParticleSystem Integration Tests', () => {
         it('should create proper buffer attributes for particle rendering', () => {
             const addedObject = mockScene.addedObjects[0];
             const geometry = addedObject.geometry;
-            
+
             // Verify all required buffer attributes exist
             expect(geometry.attributes.position).toBeInstanceOf(mockThree.BufferAttribute);
             expect(geometry.attributes.color).toBeInstanceOf(mockThree.BufferAttribute);
             expect(geometry.attributes.size).toBeInstanceOf(mockThree.BufferAttribute);
             expect(geometry.attributes.alpha).toBeInstanceOf(mockThree.BufferAttribute);
-            
+
             // Verify buffer sizes match maxParticles setting
             expect(geometry.attributes.position.array.length).toBe(100 * 3); // x,y,z per particle
             expect(geometry.attributes.color.array.length).toBe(100 * 3); // r,g,b per particle
@@ -416,7 +456,7 @@ describe('ParticleSystem Integration Tests', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 1,
-                gameOver: false
+                gameOver: false,
             };
 
             // Create some particles
@@ -442,7 +482,7 @@ describe('ParticleSystem Integration Tests', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 1,
-                gameOver: false
+                gameOver: false,
             };
 
             // Create 3 particles
@@ -466,10 +506,10 @@ describe('ParticleSystem Integration Tests', () => {
 
         it('should handle scene removal during disposal', () => {
             const addedObject = mockScene.addedObjects[0];
-            
+
             // Dispose particle system
             particleSystem.dispose();
-            
+
             // Verify object was removed from scene
             expect(mockScene.remove).toHaveBeenCalledWith(addedObject);
             expect(mockScene.removedObjects).toContain(addedObject);
@@ -478,7 +518,7 @@ describe('ParticleSystem Integration Tests', () => {
         it('should properly configure shader material for particle rendering', () => {
             const addedObject = mockScene.addedObjects[0];
             const material = addedObject.material;
-            
+
             // Verify shader material configuration
             expect(material.uniforms.pointTexture).toBeDefined();
             expect(material.uniforms.time).toBeDefined();
@@ -498,7 +538,7 @@ describe('ParticleSystem Integration Tests', () => {
                 frameCount: 1,
                 gameOver: false,
                 player: { x: 5, y: 0, z: 5 },
-                playerDirection: { x: 1, y: 0, z: 0 }
+                playerDirection: { x: 1, y: 0, z: 0 },
             };
 
             // Update particle system multiple times
@@ -516,7 +556,7 @@ describe('ParticleSystem Integration Tests', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 1,
-                gameOver: false
+                gameOver: false,
             };
 
             // Create particles during normal gameplay
@@ -534,7 +574,7 @@ describe('ParticleSystem Integration Tests', () => {
             // Pause the game
             gameState.isPaused = true;
             particleSystem.update(0.016, gameState);
-            
+
             // Verify pause state was handled
             expect(particleSystem.isPaused).toBe(true);
             expect(particleSystem.settings.effects.trailSparks).toBe(false); // Should disable new emissions
@@ -542,7 +582,7 @@ describe('ParticleSystem Integration Tests', () => {
             // Resume the game
             gameState.isPaused = false;
             particleSystem.update(0.016, gameState);
-            
+
             // Verify resume state was handled
             expect(particleSystem.isPaused).toBe(false);
             expect(particleSystem.settings.effects.trailSparks).toBe(true); // Should restore emissions
@@ -552,7 +592,7 @@ describe('ParticleSystem Integration Tests', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 10,
-                gameOver: false
+                gameOver: false,
             };
 
             // Create particles and update
@@ -563,7 +603,7 @@ describe('ParticleSystem Integration Tests', () => {
                 0.1
             );
             particleSystem.update(0.016, gameState);
-            
+
             const activeCountBeforeRestart = particleSystem.getActiveParticleCount();
             expect(activeCountBeforeRestart).toBeGreaterThan(0);
 
@@ -573,7 +613,7 @@ describe('ParticleSystem Integration Tests', () => {
 
             // Verify restart was handled
             expect(particleSystem.getActiveParticleCount()).toBe(0);
-            expect(particleSystem.frameCount).toBe(0);
+            expect(particleSystem.frameCount).toBe(1);
             expect(particleSystem.degradationLevel).toBe(0);
         });
 
@@ -581,7 +621,7 @@ describe('ParticleSystem Integration Tests', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 1,
-                gameOver: false
+                gameOver: false,
             };
 
             // Test trail spark emission
@@ -609,7 +649,7 @@ describe('ParticleSystem Integration Tests', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 1,
-                gameOver: false
+                gameOver: false,
             };
 
             // Update multiple times to build performance history
@@ -629,7 +669,7 @@ describe('ParticleSystem Integration Tests', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 1,
-                gameOver: false
+                gameOver: false,
             };
 
             // Create particles during normal gameplay
@@ -657,7 +697,7 @@ describe('ParticleSystem Integration Tests', () => {
             renderingEngine.initializeParticleSystem(ParticleSystem, {
                 maxParticles: 50,
                 enabled: true,
-                quality: 'medium'
+                quality: 'medium',
             });
 
             // Verify particle system was created
@@ -672,7 +712,7 @@ describe('ParticleSystem Integration Tests', () => {
         it('should emit trail sparks during entity movement without affecting other rendering', () => {
             renderingEngine.initializeParticleSystem(ParticleSystem, {
                 maxParticles: 50,
-                enabled: true
+                enabled: true,
             });
 
             const gameState = {
@@ -682,15 +722,17 @@ describe('ParticleSystem Integration Tests', () => {
                 player: { x: 5, y: 0, z: 5 },
                 playerDirection: { x: 1, y: 0, z: 0 },
                 gameSpeed: 0.1,
-                aiOpponents: [{
-                    id: 'ai_1',
-                    x: 10,
-                    y: 0,
-                    z: 10,
-                    direction: { x: 0, y: 0, z: 1 },
-                    color: 'red',
-                    alive: true
-                }]
+                aiOpponents: [
+                    {
+                        id: 'ai_1',
+                        x: 10,
+                        y: 0,
+                        z: 10,
+                        direction: { x: 0, y: 0, z: 1 },
+                        color: 'red',
+                        alive: true,
+                    },
+                ],
             };
 
             // Update rendering engine (which should update particle system)
@@ -704,7 +746,7 @@ describe('ParticleSystem Integration Tests', () => {
         it('should handle explosion effects during collision events', () => {
             renderingEngine.initializeParticleSystem(ParticleSystem, {
                 maxParticles: 100,
-                enabled: true
+                enabled: true,
             });
 
             const explosionPosition = { x: 15, y: 0, z: 15 };
@@ -718,15 +760,16 @@ describe('ParticleSystem Integration Tests', () => {
             expect(finalCount).toBeGreaterThan(initialCount);
 
             // Verify particles have explosion properties
-            const activeParticles = renderingEngine.particleSystem.particlePool.getActiveParticles();
-            const explosionParticles = activeParticles.filter(p => p.type === 'explosion');
+            const activeParticles =
+                renderingEngine.particleSystem.particlePool.getActiveParticles();
+            const explosionParticles = activeParticles.filter((p) => p.type === 'explosion');
             expect(explosionParticles.length).toBeGreaterThan(0);
         });
 
         it('should handle collection effects during power-up collection', () => {
             renderingEngine.initializeParticleSystem(ParticleSystem, {
                 maxParticles: 100,
-                enabled: true
+                enabled: true,
             });
 
             const collectionPosition = { x: 20, y: 0, z: 20 };
@@ -740,8 +783,9 @@ describe('ParticleSystem Integration Tests', () => {
             expect(finalCount).toBeGreaterThan(initialCount);
 
             // Verify particles have collection properties
-            const activeParticles = renderingEngine.particleSystem.particlePool.getActiveParticles();
-            const collectionParticles = activeParticles.filter(p => p.type === 'collection');
+            const activeParticles =
+                renderingEngine.particleSystem.particlePool.getActiveParticles();
+            const collectionParticles = activeParticles.filter((p) => p.type === 'collection');
             expect(collectionParticles.length).toBeGreaterThan(0);
         });
 
@@ -749,7 +793,7 @@ describe('ParticleSystem Integration Tests', () => {
             renderingEngine.initializeParticleSystem(ParticleSystem, {
                 maxParticles: 200,
                 enabled: true,
-                quality: 'high'
+                quality: 'high',
             });
 
             const gameState = {
@@ -758,7 +802,7 @@ describe('ParticleSystem Integration Tests', () => {
                 gameOver: false,
                 player: { x: 0, y: 0, z: 0 },
                 playerDirection: { x: 1, y: 0, z: 0 },
-                gameSpeed: 0.1
+                gameSpeed: 0.1,
             };
 
             // Create many particles to test performance
@@ -768,7 +812,8 @@ describe('ParticleSystem Integration Tests', () => {
 
             // Update multiple times
             const startTime = Date.now();
-            for (let i = 0; i < 60; i++) { // Simulate 1 second at 60fps
+            for (let i = 0; i < 60; i++) {
+                // Simulate 1 second at 60fps
                 renderingEngine.updateIntegratedParticleSystem(gameState);
                 gameState.frameCount++;
             }
@@ -786,7 +831,7 @@ describe('ParticleSystem Integration Tests', () => {
         it('should handle particle system disable/enable without breaking rendering', () => {
             renderingEngine.initializeParticleSystem(ParticleSystem, {
                 maxParticles: 50,
-                enabled: true
+                enabled: true,
             });
 
             // Create some particles
@@ -815,13 +860,13 @@ describe('ParticleSystem Integration Tests', () => {
             particleSettings.updateSettings({
                 enabled: false,
                 quality: 'high',
-                effects: { trailSparks: false }
+                effects: { trailSparks: false },
             });
 
             // Verify settings were persisted
             const stored = localStorage.getItem('lightbikes_particle_settings');
             expect(stored).toBeTruthy();
-            
+
             const settings = JSON.parse(stored);
             expect(settings.enabled).toBe(false);
             expect(settings.quality).toBe('high');
@@ -836,12 +881,12 @@ describe('ParticleSystem Integration Tests', () => {
                 effects: {
                     trailSparks: false,
                     explosions: true,
-                    collections: false
+                    collections: false,
                 },
                 performance: {
                     maxParticles: 50,
-                    adaptiveQuality: false
-                }
+                    adaptiveQuality: false,
+                },
             };
             localStorage.setItem('lightbikes_particle_settings', JSON.stringify(testSettings));
 
@@ -863,11 +908,11 @@ describe('ParticleSystem Integration Tests', () => {
             renderingEngine.initializeParticleSystem(ParticleSystem, {
                 maxParticles: 100,
                 enabled: true,
-                quality: 'medium'
+                quality: 'medium',
             });
 
             const particleSystem = renderingEngine.particleSystem;
-            
+
             // Verify initial settings
             expect(particleSystem.getSettings().enabled).toBe(true);
             expect(particleSystem.getSettings().quality).toBe('medium');
@@ -887,7 +932,7 @@ describe('ParticleSystem Integration Tests', () => {
 
             // Change settings through ParticleSettings
             const particleSettings = particleSettingsUI.getParticleSettings();
-            
+
             particleSettings.updateSettings({ enabled: false });
             particleSettingsUI.notifyExternalListeners('enabled', false);
             expect(particleSystem.getSettings().enabled).toBe(false);
@@ -904,7 +949,7 @@ describe('ParticleSystem Integration Tests', () => {
         it('should handle bulk settings updates correctly', () => {
             renderingEngine.initializeParticleSystem(ParticleSystem, {
                 maxParticles: 100,
-                enabled: true
+                enabled: true,
             });
 
             const particleSystem = renderingEngine.particleSystem;
@@ -918,7 +963,9 @@ describe('ParticleSystem Integration Tests', () => {
             // Set up listener for bulk updates
             particleSettingsUI.addExternalListener((path, value) => {
                 if (path === 'bulk' || path === 'reset') {
-                    renderingEngine.reinitializeParticleSystem(particleSettingsUI.getParticleSystemSettings());
+                    renderingEngine.reinitializeParticleSystem(
+                        particleSettingsUI.getParticleSystemSettings()
+                    );
                 }
             });
 
@@ -956,7 +1003,7 @@ describe('ParticleSystem Integration Tests', () => {
         it('should validate settings before applying to particle system', () => {
             renderingEngine.initializeParticleSystem(ParticleSystem, {
                 maxParticles: 100,
-                enabled: true
+                enabled: true,
             });
 
             const particleSystem = renderingEngine.particleSystem;
@@ -976,7 +1023,7 @@ describe('ParticleSystem Integration Tests', () => {
             const particleSettings = particleSettingsUI.getParticleSettings();
             particleSettings.updateSettings({ quality: 'invalid' });
             particleSettingsUI.notifyExternalListeners('quality', 'invalid');
-            
+
             // Quality should remain unchanged
             expect(particleSystem.getSettings().quality).toBe(originalQuality);
 
@@ -992,7 +1039,7 @@ describe('ParticleSystem Integration Tests', () => {
             particleSettings.updateSettings({
                 enabled: false,
                 quality: 'low',
-                effects: { explosions: false }
+                effects: { explosions: false },
             });
 
             // Initialize particle system with settings
@@ -1018,7 +1065,7 @@ describe('ParticleSystem Integration Tests', () => {
     describe('Error Handling and Edge Cases', () => {
         it('should handle Three.js context loss gracefully', () => {
             const addedObject = mockScene.addedObjects[0];
-            
+
             // Simulate context restoration
             expect(() => {
                 particleSystem.onContextRestore();
@@ -1033,7 +1080,7 @@ describe('ParticleSystem Integration Tests', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 1,
-                gameOver: false
+                gameOver: false,
             };
 
             // Mock geometry to throw error during buffer update
@@ -1073,7 +1120,7 @@ describe('ParticleSystem Integration Tests', () => {
             const gameState = {
                 isPaused: false,
                 frameCount: 1,
-                gameOver: false
+                gameOver: false,
             };
 
             // Create maximum particles

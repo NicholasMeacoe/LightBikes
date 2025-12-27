@@ -1,3 +1,19 @@
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { MultiplayerGameOverUI } = require('@/ui/MultiplayerGameOverUI.js');
 
 describe('MultiplayerGameOverUI', () => {
@@ -6,7 +22,7 @@ describe('MultiplayerGameOverUI', () => {
     beforeEach(() => {
         // Clear document body
         document.body.innerHTML = '';
-        
+
         // Remove any existing styles
         const existingStyles = document.getElementById('multiplayerGameOverStyles');
         if (existingStyles) {
@@ -41,7 +57,7 @@ describe('MultiplayerGameOverUI', () => {
         it('should not add duplicate styles', () => {
             gameOverUI.addStyles();
             gameOverUI.addStyles();
-            
+
             const styleElements = document.querySelectorAll('#multiplayerGameOverStyles');
             expect(styleElements.length).toBe(1);
         });
@@ -60,8 +76,8 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 3,
                     player2Wins: 2,
-                    totalRounds: 5
-                }
+                    totalRounds: 5,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());
@@ -75,13 +91,15 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 5,
                     player2Wins: 2,
-                    totalRounds: 7
-                }
+                    totalRounds: 7,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());
 
-            const titleElement = gameOverUI.gameOverElement.querySelector('.multiplayer-game-over-title');
+            const titleElement = gameOverUI.gameOverElement.querySelector(
+                '.multiplayer-game-over-title'
+            );
             expect(titleElement.textContent).toContain('Player 1 Wins!');
             expect(titleElement.classList.contains('player1-wins')).toBe(true);
         });
@@ -91,13 +109,15 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 2,
                     player2Wins: 5,
-                    totalRounds: 7
-                }
+                    totalRounds: 7,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());
 
-            const titleElement = gameOverUI.gameOverElement.querySelector('.multiplayer-game-over-title');
+            const titleElement = gameOverUI.gameOverElement.querySelector(
+                '.multiplayer-game-over-title'
+            );
             expect(titleElement.textContent).toContain('Player 2 Wins!');
             expect(titleElement.classList.contains('player2-wins')).toBe(true);
         });
@@ -107,13 +127,15 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 3,
                     player2Wins: 3,
-                    totalRounds: 6
-                }
+                    totalRounds: 6,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());
 
-            const titleElement = gameOverUI.gameOverElement.querySelector('.multiplayer-game-over-title');
+            const titleElement = gameOverUI.gameOverElement.querySelector(
+                '.multiplayer-game-over-title'
+            );
             expect(titleElement.textContent).toContain('Tie Game!');
             expect(titleElement.classList.contains('tie')).toBe(true);
         });
@@ -123,13 +145,15 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 4,
                     player2Wins: 3,
-                    totalRounds: 7
-                }
+                    totalRounds: 7,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());
 
-            const scoreValues = gameOverUI.gameOverElement.querySelectorAll('.multiplayer-score-value');
+            const scoreValues = gameOverUI.gameOverElement.querySelectorAll(
+                '.multiplayer-score-value'
+            );
             expect(scoreValues[0].textContent).toBe('4');
             expect(scoreValues[1].textContent).toBe('3');
         });
@@ -139,8 +163,8 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 3,
                     player2Wins: 2,
-                    totalRounds: 5
-                }
+                    totalRounds: 5,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());
@@ -155,15 +179,15 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 3,
                     player2Wins: 2,
-                    totalRounds: 5
-                }
+                    totalRounds: 5,
+                },
             };
 
             gameOverUI.show(gameState, onRestart, jest.fn(), jest.fn());
 
             const restartBtn = document.getElementById('multiplayerRestartBtn');
             expect(restartBtn).not.toBeNull();
-            
+
             restartBtn.click();
             expect(onRestart).toHaveBeenCalled();
         });
@@ -174,15 +198,15 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 3,
                     player2Wins: 2,
-                    totalRounds: 5
-                }
+                    totalRounds: 5,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), onResetScores, jest.fn());
 
             const resetBtn = document.getElementById('multiplayerResetBtn');
             expect(resetBtn).not.toBeNull();
-            
+
             resetBtn.click();
             expect(onResetScores).toHaveBeenCalled();
         });
@@ -193,15 +217,15 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 3,
                     player2Wins: 2,
-                    totalRounds: 5
-                }
+                    totalRounds: 5,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), jest.fn(), onReturnToSinglePlayer);
 
             const singlePlayerBtn = document.getElementById('multiplayerSinglePlayerBtn');
             expect(singlePlayerBtn).not.toBeNull();
-            
+
             singlePlayerBtn.click();
             expect(onReturnToSinglePlayer).toHaveBeenCalled();
         });
@@ -211,8 +235,8 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 3,
                     player2Wins: 2,
-                    totalRounds: 5
-                }
+                    totalRounds: 5,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());
@@ -220,7 +244,7 @@ describe('MultiplayerGameOverUI', () => {
 
             const restartBtn = document.getElementById('multiplayerRestartBtn');
             restartBtn.click();
-            
+
             expect(gameOverUI.isVisible()).toBe(false);
         });
 
@@ -230,7 +254,9 @@ describe('MultiplayerGameOverUI', () => {
             gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());
 
             expect(gameOverUI.gameOverElement).not.toBeNull();
-            const scoreValues = gameOverUI.gameOverElement.querySelectorAll('.multiplayer-score-value');
+            const scoreValues = gameOverUI.gameOverElement.querySelectorAll(
+                '.multiplayer-score-value'
+            );
             expect(scoreValues[0].textContent).toBe('0');
             expect(scoreValues[1].textContent).toBe('0');
         });
@@ -240,8 +266,8 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 3,
                     player2Wins: 2,
-                    totalRounds: 5
-                }
+                    totalRounds: 5,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());
@@ -262,8 +288,8 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 3,
                     player2Wins: 2,
-                    totalRounds: 5
-                }
+                    totalRounds: 5,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());
@@ -288,8 +314,8 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 3,
                     player2Wins: 2,
-                    totalRounds: 5
-                }
+                    totalRounds: 5,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());
@@ -301,8 +327,8 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 3,
                     player2Wins: 2,
-                    totalRounds: 5
-                }
+                    totalRounds: 5,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());
@@ -317,8 +343,8 @@ describe('MultiplayerGameOverUI', () => {
                 localScoring: {
                     player1Wins: 3,
                     player2Wins: 2,
-                    totalRounds: 5
-                }
+                    totalRounds: 5,
+                },
             };
 
             gameOverUI.show(gameState, jest.fn(), jest.fn(), jest.fn());

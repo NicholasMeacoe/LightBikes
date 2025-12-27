@@ -1,6 +1,7 @@
+// @ts-nocheck - Example file with GameServer event listeners
 /**
  * Example: Integrating ServerMonitor and PlayerAnalytics with GameServer
- * 
+ *
  * This example demonstrates how to use the monitoring and analytics systems
  * to track server performance and player behavior in a production environment.
  */
@@ -16,13 +17,13 @@ const monitor = new ServerMonitor({
     enableConsoleOutput: true,
     cpuThreshold: 80,
     memoryThreshold: 85,
-    connectionThreshold: 1000
+    connectionThreshold: 1000,
 });
 
 const analytics = new PlayerAnalytics({
     sessionTimeout: 300000, // 5 minutes
     reportInterval: 60000, // Generate report every minute
-    anomalyThreshold: 3
+    anomalyThreshold: 3,
 });
 
 // Start monitoring
@@ -36,7 +37,7 @@ monitor.on('metrics', (snapshot) => {
         memory: `${snapshot.memory.percentage.toFixed(2)}%`,
         connections: snapshot.connections,
         rooms: snapshot.rooms,
-        messagesPerSecond: snapshot.messagesPerSecond
+        messagesPerSecond: snapshot.messagesPerSecond,
     });
 });
 
@@ -60,7 +61,7 @@ analytics.on('report', (report) => {
         peakPlayers: report.global.peakConcurrentPlayers,
         violations: report.global.totalViolations,
         topPlayers: report.topPlayers.length,
-        suspiciousPlayers: report.suspiciousPlayers.length
+        suspiciousPlayers: report.suspiciousPlayers.length,
     });
 });
 
@@ -68,7 +69,7 @@ analytics.on('anomaly', (anomaly) => {
     console.warn('Anomaly detected:', {
         player: anomaly.playerId,
         type: anomaly.type,
-        data: anomaly.data
+        data: anomaly.data,
     });
 });
 
@@ -76,13 +77,13 @@ analytics.on('violation', (violation) => {
     console.error('Violation detected:', {
         player: violation.playerId,
         type: violation.violation.type,
-        severity: violation.violation.severity
+        severity: violation.violation.severity,
     });
-    
+
     // Log to monitor
     monitor.log('warn', 'Player violation detected', {
         playerId: violation.playerId,
-        type: violation.violation.type
+        type: violation.violation.type,
     });
 });
 
@@ -93,18 +94,18 @@ const gameServer = new GameServer(3000);
 gameServer.on('connection', (socket) => {
     monitor.trackConnection(true);
     monitor.log('info', 'Player connected', { socketId: socket.id });
-    
+
     // Start player session
     analytics.startSession(socket.id, {
         ip: socket.handshake.address,
-        userAgent: socket.handshake.headers['user-agent']
+        userAgent: socket.handshake.headers['user-agent'],
     });
 });
 
 gameServer.on('disconnect', (socket) => {
     monitor.trackConnection(false);
     monitor.log('info', 'Player disconnected', { socketId: socket.id });
-    
+
     // End player session
     analytics.endSession(socket.id);
 });
@@ -121,41 +122,41 @@ gameServer.on('roomClosed', (room) => {
 
 gameServer.on('gameStart', (room) => {
     monitor.log('info', 'Game started', { roomId: room.id });
-    
+
     // Track game start for all players
-    room.players.forEach(player => {
+    room.players.forEach((player) => {
         analytics.trackGameStart(player.id, {
             roomId: room.id,
-            gameMode: room.settings.gameMode
+            gameMode: room.settings.gameMode,
         });
     });
 });
 
 gameServer.on('gameEnd', (room, results) => {
-    monitor.log('info', 'Game ended', { 
+    monitor.log('info', 'Game ended', {
         roomId: room.id,
-        winner: results.winner
+        winner: results.winner,
     });
-    
+
     // Track game end for all players
-    room.players.forEach(player => {
+    room.players.forEach((player) => {
         analytics.trackGameEnd(player.id, {
             won: player.id === results.winner,
             duration: results.duration,
-            moves: player.moveCount || 0
+            moves: player.moveCount || 0,
         });
     });
 });
 
 gameServer.on('message', (socket, message) => {
     monitor.trackMessage();
-    
+
     // Track player movement
     if (message.type === 'input') {
         analytics.trackMovement(socket.id, {
             speed: message.speed,
             directionChange: message.directionChange,
-            reactionTime: message.reactionTime
+            reactionTime: message.reactionTime,
         });
     }
 });
@@ -169,9 +170,9 @@ gameServer.on('violation', (playerId, violation) => {
 });
 
 gameServer.on('error', (error) => {
-    monitor.log('error', 'Server error', { 
+    monitor.log('error', 'Server error', {
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
     });
 });
 
@@ -186,8 +187,8 @@ function getMonitoringDashboard() {
             global: analytics.getGlobalStats(),
             topPlayers: analytics.getTopPlayers(10),
             suspiciousPlayers: analytics.getSuspiciousPlayers(10),
-            recentAnomalies: analytics.getAnomalies(50)
-        }
+            recentAnomalies: analytics.getAnomalies(50),
+        },
     };
 }
 
@@ -200,11 +201,11 @@ setInterval(() => {
 // Graceful shutdown
 process.on('SIGTERM', () => {
     monitor.log('info', 'Shutting down server...');
-    
+
     monitor.stop();
     analytics.stop();
     gameServer.stop();
-    
+
     process.exit(0);
 });
 
@@ -213,7 +214,7 @@ module.exports = {
     monitor,
     analytics,
     gameServer,
-    getMonitoringDashboard
+    getMonitoringDashboard,
 };
 
 console.log('Game server with monitoring started on port 3000');

@@ -1,4 +1,7 @@
 const { CollisionDetectionEngine } = require('../core/collision.js');
+const { Logger } = require('../utils/Logger');
+
+const logger = Logger.create('PlayerCollisionHandler');
 
 /**
  * PlayerCollisionHandler - Extends CollisionDetectionEngine for player vs player scenarios
@@ -20,67 +23,71 @@ class PlayerCollisionHandler extends CollisionDetectionEngine {
     checkMultiplayerCollisions(gameState, game = null) {
         // Respect grace period - no collisions in first 10 frames
         if (gameState.frameCount < 10) {
-            return { 
-                player1Collided: false, 
-                player2Collided: false, 
+            return {
+                player1Collided: false,
+                player2Collided: false,
                 winner: null,
-                collisionType: null
+                collisionType: null,
             };
         }
 
         // Respect pause state - return no collisions when paused
         if (gameState.isPaused) {
-            return { 
-                player1Collided: false, 
-                player2Collided: false, 
+            return {
+                player1Collided: false,
+                player2Collided: false,
                 winner: null,
-                collisionType: null
+                collisionType: null,
             };
         }
 
         const { player1, player2, bounds } = gameState;
-        
+
         if (!player1 || !player2) {
-            return { 
-                player1Collided: false, 
-                player2Collided: false, 
+            return {
+                player1Collided: false,
+                player2Collided: false,
                 winner: null,
-                collisionType: 'invalid_state'
+                collisionType: 'invalid_state',
             };
         }
 
         // Get dynamic boundaries and grace period from game instance
-        const dynamicBounds = (game && typeof game.getBounds === 'function') ? game.getBounds() : null;
-        const isGracePeriodActive = (game && typeof game.isGracePeriodActive === 'function') ? game.isGracePeriodActive() : false;
+        const dynamicBounds =
+            game && typeof game.getBounds === 'function' ? game.getBounds() : null;
+        const isGracePeriodActive =
+            game && typeof game.isGracePeriodActive === 'function'
+                ? game.isGracePeriodActive()
+                : false;
 
         // Check collisions for both players
         const player1Collided = this.checkPlayerCollision(
-            'P1', 
-            player1.position, 
-            player1.trail, 
-            player2.trail, 
-            bounds, 
-            dynamicBounds, 
+            'P1',
+            player1.position,
+            player1.trail,
+            player2.trail,
+            bounds,
+            dynamicBounds,
             isGracePeriodActive
         );
 
         const player2Collided = this.checkPlayerCollision(
-            'P2', 
-            player2.position, 
-            player2.trail, 
-            player1.trail, 
-            bounds, 
-            dynamicBounds, 
+            'P2',
+            player2.position,
+            player2.trail,
+            player1.trail,
+            bounds,
+            dynamicBounds,
             isGracePeriodActive
         );
 
         // Check for direct player vs player collision (bike to bike)
         const directCollision = this.checkDirectPlayerCollision(player1.position, player2.position);
-        
+
         // Determine winner and collision type
         const result = this.determineMultiplayerWinner(
-            player1Collided, 
-            player2Collided, 
+            player1Collided,
+            player2Collided,
             directCollision
         );
 
@@ -98,20 +105,28 @@ class PlayerCollisionHandler extends CollisionDetectionEngine {
      * @param {boolean} isGracePeriodActive - Whether grace period is active
      * @returns {boolean} True if player has collided
      */
-    checkPlayerCollision(playerId, playerPosition, playerTrail, opponentTrail, bounds, dynamicBounds = null, isGracePeriodActive = false) {
+    checkPlayerCollision(
+        playerId,
+        playerPosition,
+        playerTrail,
+        opponentTrail,
+        bounds,
+        dynamicBounds = null,
+        isGracePeriodActive = false
+    ) {
         // If grace period is active from game instance, no collisions should be detected
         if (isGracePeriodActive) {
             return false;
         }
-        
+
         // Use the enhanced collision detection from parent class
         return this.isCollidedWithPowerUps(
-            playerId, 
-            playerPosition, 
-            playerTrail, 
-            opponentTrail, 
-            bounds, 
-            dynamicBounds, 
+            playerId,
+            playerPosition,
+            playerTrail,
+            opponentTrail,
+            bounds,
+            dynamicBounds,
             isGracePeriodActive
         );
     }
@@ -124,10 +139,10 @@ class PlayerCollisionHandler extends CollisionDetectionEngine {
      */
     checkDirectPlayerCollision(player1Position, player2Position) {
         const distance = Math.sqrt(
-            Math.pow(player1Position.x - player2Position.x, 2) + 
-            Math.pow(player1Position.z - player2Position.z, 2)
+            Math.pow(player1Position.x - player2Position.x, 2) +
+                Math.pow(player1Position.z - player2Position.z, 2)
         );
-        
+
         return distance < this.collisionTolerance;
     }
 
@@ -168,7 +183,7 @@ class PlayerCollisionHandler extends CollisionDetectionEngine {
             player2Collided,
             winner,
             collisionType,
-            directCollision
+            directCollision,
         };
     }
 
@@ -180,8 +195,8 @@ class PlayerCollisionHandler extends CollisionDetectionEngine {
      */
     checkPlayerNearMiss(player1Position, player2Position, activePlayerId = 'P1') {
         const distance = Math.sqrt(
-            Math.pow(player1Position.x - player2Position.x, 2) + 
-            Math.pow(player1Position.z - player2Position.z, 2)
+            Math.pow(player1Position.x - player2Position.x, 2) +
+                Math.pow(player1Position.z - player2Position.z, 2)
         );
 
         // Trigger near-miss if players are close but not colliding
@@ -205,7 +220,7 @@ class PlayerCollisionHandler extends CollisionDetectionEngine {
         return {
             isTie: true,
             timeDifference: 0,
-            winner: null
+            winner: null,
         };
     }
 
@@ -234,8 +249,8 @@ class PlayerCollisionHandler extends CollisionDetectionEngine {
         );
 
         const playerDistance = Math.sqrt(
-            Math.pow(gameState.player1.position.x - gameState.player2.position.x, 2) + 
-            Math.pow(gameState.player1.position.z - gameState.player2.position.z, 2)
+            Math.pow(gameState.player1.position.x - gameState.player2.position.x, 2) +
+                Math.pow(gameState.player1.position.z - gameState.player2.position.z, 2)
         );
 
         return {
@@ -246,7 +261,7 @@ class PlayerCollisionHandler extends CollisionDetectionEngine {
             collisionTolerance: this.collisionTolerance,
             excludeRecentSegments: this.excludeRecentSegments,
             frameCount: gameState.frameCount,
-            gracePeriodActive: gameState.frameCount < 10
+            gracePeriodActive: gameState.frameCount < 10,
         };
     }
 
@@ -265,15 +280,18 @@ class PlayerCollisionHandler extends CollisionDetectionEngine {
         const isInGhostMode = this.powerUpManager.isInGhostMode(playerId);
 
         // Ghost mode prevents trail collisions but not boundary collisions
-        if (isInGhostMode && (collisionType === 'trail_collision' || collisionType === 'direct_collision')) {
-            console.debug(`${playerId} in Ghost Mode - ${collisionType} ignored`);
+        if (
+            isInGhostMode &&
+            (collisionType === 'trail_collision' || collisionType === 'direct_collision')
+        ) {
+            logger.debug(`${playerId} in Ghost Mode - ${collisionType} ignored`);
             return true;
         }
 
         // Shield protects against all collision types
         if (hasShield) {
             this.powerUpManager.consumeShield(playerId);
-            console.debug(`Shield consumed for ${playerId} - ${collisionType} prevented`);
+            logger.debug(`Shield consumed for ${playerId} - ${collisionType} prevented`);
             return true;
         }
 

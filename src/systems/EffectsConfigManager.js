@@ -3,6 +3,9 @@
  * Handles settings validation, defaults, browser storage, and change propagation
  */
 
+const { Logger } = require('../utils/Logger');
+const logger = Logger.create('EffectsConfigManager');
+
 class EffectsConfigManager {
     constructor() {
         this.storageKey = 'lightbikes_camera_effects_settings';
@@ -10,16 +13,16 @@ class EffectsConfigManager {
         this.defaultSettings = {
             version: this.settingsVersion,
             shakeEnabled: true,
-            shakeIntensity: 1.0,        // 0.0 to 2.0 multiplier
+            shakeIntensity: 1.0, // 0.0 to 2.0 multiplier
             motionBlurEnabled: true,
             motionBlurQuality: 'medium', // 'low' | 'medium' | 'high'
-            accessibilityMode: false,   // Disables all effects
-            respectSystemPreferences: true
+            accessibilityMode: false, // Disables all effects
+            respectSystemPreferences: true,
         };
-        
+
         this.currentSettings = null;
         this.changeListeners = [];
-        
+
         this.loadSettings();
     }
 
@@ -39,16 +42,16 @@ class EffectsConfigManager {
     updateSettings(newSettings) {
         const validatedSettings = this.validateSettings(newSettings);
         if (!validatedSettings || Object.keys(validatedSettings).length === 0) {
-            console.warn('Invalid settings provided to EffectsConfigManager');
+            logger.warn('Invalid settings provided to EffectsConfigManager');
             return false;
         }
 
         const previousSettings = { ...this.currentSettings };
         this.currentSettings = { ...this.currentSettings, ...validatedSettings };
-        
+
         this.saveSettings();
         this.notifyListeners(this.currentSettings, previousSettings);
-        
+
         return true;
     }
 
@@ -89,7 +92,7 @@ class EffectsConfigManager {
      */
     validateSettings(settings) {
         if (!settings || typeof settings !== 'object') {
-            console.warn('Invalid settings object provided to validateSettings');
+            logger.warn('Invalid settings object provided to validateSettings');
             return null;
         }
 
@@ -106,12 +109,21 @@ class EffectsConfigManager {
         }
 
         // Validate boolean settings
-        const booleanKeys = ['shakeEnabled', 'motionBlurEnabled', 'accessibilityMode', 'respectSystemPreferences'];
-        booleanKeys.forEach(key => {
+        const booleanKeys = [
+            'shakeEnabled',
+            'motionBlurEnabled',
+            'accessibilityMode',
+            'respectSystemPreferences',
+        ];
+        booleanKeys.forEach((key) => {
             if (key in settings) {
-                if (typeof settings[key] === 'boolean' || 
-                    settings[key] === 'true' || settings[key] === 'false' ||
-                    settings[key] === 1 || settings[key] === 0) {
+                if (
+                    typeof settings[key] === 'boolean' ||
+                    settings[key] === 'true' ||
+                    settings[key] === 'false' ||
+                    settings[key] === 1 ||
+                    settings[key] === 0
+                ) {
                     validated[key] = Boolean(settings[key]);
                 } else {
                     errors.push(`${key} must be a boolean value`);
@@ -141,7 +153,7 @@ class EffectsConfigManager {
 
         // Log validation errors if any
         if (errors.length > 0) {
-            console.warn('Settings validation errors:', errors);
+            logger.warn('Settings validation errors:', errors);
         }
 
         return validated;
@@ -156,18 +168,21 @@ class EffectsConfigManager {
                 const stored = localStorage.getItem(this.storageKey);
                 if (stored) {
                     const parsedSettings = JSON.parse(stored);
-                    
+
                     // Check if settings need migration
                     const migratedSettings = this.migrateSettings(parsedSettings);
                     const validatedSettings = this.validateSettings(migratedSettings);
-                    
+
                     if (validatedSettings && Object.keys(validatedSettings).length > 0) {
                         this.currentSettings = { ...this.defaultSettings, ...validatedSettings };
-                        
-                        // Save migrated settings if version changed
+
+                        // If migration occurred, save the updated settings
                         if (migratedSettings.version !== parsedSettings.version) {
                             this.saveSettings();
-                            console.log('Camera effects settings migrated to version', this.settingsVersion);
+                            logger.info(
+                                'Camera effects settings migrated to version',
+                                this.settingsVersion
+                            );
                         }
                     } else {
                         this.currentSettings = { ...this.defaultSettings };
@@ -179,7 +194,7 @@ class EffectsConfigManager {
                 this.currentSettings = { ...this.defaultSettings };
             }
         } catch (error) {
-            console.warn('Failed to load camera effects settings from storage:', error);
+            logger.warn('Failed to load camera effects settings from storage:', error);
             this.currentSettings = { ...this.defaultSettings };
         }
     }
@@ -199,7 +214,7 @@ class EffectsConfigManager {
         // Add version if missing (pre-1.0.0 settings)
         if (!migrated.version) {
             migrated.version = this.settingsVersion;
-            
+
             // Migrate any legacy settings here if needed
             // For example, if we had different property names in the past
         }
@@ -224,7 +239,7 @@ class EffectsConfigManager {
                 localStorage.setItem(this.storageKey, JSON.stringify(this.currentSettings));
             }
         } catch (error) {
-            console.warn('Failed to save camera effects settings to storage:', error);
+            logger.warn('Failed to save camera effects settings to storage:', error);
         }
     }
 
@@ -234,11 +249,11 @@ class EffectsConfigManager {
      * @param {Object} previousSettings - Previous settings
      */
     notifyListeners(newSettings, previousSettings) {
-        this.changeListeners.forEach(listener => {
+        this.changeListeners.forEach((listener) => {
             try {
                 listener(newSettings, previousSettings);
             } catch (error) {
-                console.error('Error in settings change listener:', error);
+                logger.error('Error in settings change listener:', error);
             }
         });
     }
@@ -249,8 +264,8 @@ class EffectsConfigManager {
      * @returns {*} Setting value
      */
     getSetting(key) {
-        return this.currentSettings[key] !== undefined 
-            ? this.currentSettings[key] 
+        return this.currentSettings[key] !== undefined
+            ? this.currentSettings[key]
             : this.defaultSettings[key];
     }
 
@@ -283,12 +298,12 @@ class EffectsConfigManager {
      */
     getEffectiveSettings() {
         const settings = this.getSettings();
-        
+
         if (this.shouldDisableEffects()) {
             return {
                 ...settings,
                 shakeEnabled: false,
-                motionBlurEnabled: false
+                motionBlurEnabled: false,
             };
         }
 
@@ -301,24 +316,24 @@ class EffectsConfigManager {
      */
     checkAndRepairSettings() {
         let wasRepaired = false;
-        
+
         try {
             // Check if current settings are valid
             const validatedCurrent = this.validateSettings(this.currentSettings);
-            
+
             if (!validatedCurrent || Object.keys(validatedCurrent).length === 0) {
-                console.warn('Current settings are corrupted, resetting to defaults');
+                logger.warn('Current settings are corrupted, resetting to defaults');
                 this.currentSettings = { ...this.defaultSettings };
                 this.saveSettings();
                 wasRepaired = true;
             } else {
                 // Check if any required keys are missing
                 const requiredKeys = Object.keys(this.defaultSettings);
-                const missingKeys = requiredKeys.filter(key => !(key in this.currentSettings));
-                
+                const missingKeys = requiredKeys.filter((key) => !(key in this.currentSettings));
+
                 if (missingKeys.length > 0) {
-                    console.warn('Missing settings keys detected, adding defaults:', missingKeys);
-                    missingKeys.forEach(key => {
+                    logger.warn('Missing settings keys detected, adding defaults:', missingKeys);
+                    missingKeys.forEach((key) => {
                         this.currentSettings[key] = this.defaultSettings[key];
                     });
                     this.saveSettings();
@@ -326,12 +341,12 @@ class EffectsConfigManager {
                 }
             }
         } catch (error) {
-            console.error('Error during settings integrity check:', error);
+            logger.error('Error during settings integrity check:', error);
             this.currentSettings = { ...this.defaultSettings };
             this.saveSettings();
             wasRepaired = true;
         }
-        
+
         return wasRepaired;
     }
 
@@ -343,7 +358,7 @@ class EffectsConfigManager {
         try {
             return JSON.stringify(this.currentSettings, null, 2);
         } catch (error) {
-            console.error('Failed to export settings:', error);
+            logger.error('Failed to export settings:', error);
             return null;
         }
     }
@@ -357,7 +372,7 @@ class EffectsConfigManager {
         try {
             const importedSettings = JSON.parse(settingsJson);
             const validatedSettings = this.validateSettings(importedSettings);
-            
+
             if (validatedSettings && Object.keys(validatedSettings).length > 0) {
                 const previousSettings = { ...this.currentSettings };
                 this.currentSettings = { ...this.defaultSettings, ...validatedSettings };
@@ -365,11 +380,11 @@ class EffectsConfigManager {
                 this.notifyListeners(this.currentSettings, previousSettings);
                 return true;
             } else {
-                console.warn('Invalid settings data provided for import');
+                logger.warn('Invalid settings data provided for import');
                 return false;
             }
         } catch (error) {
-            console.error('Failed to import settings:', error);
+            logger.error('Failed to import settings:', error);
             return false;
         }
     }

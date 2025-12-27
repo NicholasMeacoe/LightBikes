@@ -4,6 +4,22 @@
  * Requirements: 8.5, 4.5, 5.4, 6.1, 6.2, 6.3, 1.5, 3.5
  */
 
+const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
+
+const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
+MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+
+jest.mock('@/utils/Logger.js', () => ({
+    Logger: MockLoggerClass,
+    logger: mockLogger,
+    createLogger: jest.fn(() => mockLogger),
+}));
+
 const { MultiplayerGame } = require('@/multiplayer/MultiplayerGame.js');
 const { DualControlScheme } = require('@/utils/DualControlScheme.js');
 const { SplitScreenCamera } = require('@/multiplayer/SplitScreenCamera.js');
@@ -13,15 +29,15 @@ const { LocalScoring } = require('@/systems/LocalScoring.js');
 // Mock THREE.js camera
 class MockCamera {
     constructor() {
-        this.position = { 
-            x: 0, 
-            y: 20, 
+        this.position = {
+            x: 0,
+            y: 20,
             z: 20,
-            clone: () => ({ x: 0, y: 20, z: 20 })
+            clone: () => ({ x: 0, y: 20, z: 20 }),
         };
         this.lookAtTarget = { x: 0, y: 0, z: 0 };
     }
-    
+
     lookAt(x, y, z) {
         this.lookAtTarget = { x, y, z };
     }
@@ -97,10 +113,10 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
                 { code: 'ArrowRight', player: 'P1' },
                 { code: 'KeyD', player: 'P2' },
                 { code: 'ArrowDown', player: 'P1' },
-                { code: 'KeyS', player: 'P2' }
+                { code: 'KeyS', player: 'P2' },
             ];
 
-            inputs.forEach(input => {
+            inputs.forEach((input) => {
                 const result = dualControls.handleKeyDown({ code: input.code });
                 expect(result.playerId).toBe(input.player);
             });
@@ -144,7 +160,7 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
 
         test('should calculate optimal zoom for varying player distances', () => {
             const distances = [0, 10, 20, 30, 40];
-            const zooms = distances.map(d => splitScreenCamera.calculateOptimalZoom(d));
+            const zooms = distances.map((d) => splitScreenCamera.calculateOptimalZoom(d));
 
             // Zoom should increase with distance
             for (let i = 1; i < zooms.length; i++) {
@@ -152,7 +168,7 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
             }
 
             // Should respect min/max bounds
-            zooms.forEach(zoom => {
+            zooms.forEach((zoom) => {
                 expect(zoom).toBeGreaterThanOrEqual(splitScreenCamera.minZoom);
                 expect(zoom).toBeLessThanOrEqual(splitScreenCamera.maxZoom);
             });
@@ -162,7 +178,7 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
             const testCases = [
                 { p1: { x: 0, z: 0 }, p2: { x: 10, z: 10 }, expected: { x: 5, z: 5 } },
                 { p1: { x: -10, z: -10 }, p2: { x: 10, z: 10 }, expected: { x: 0, z: 0 } },
-                { p1: { x: -5, z: 5 }, p2: { x: 5, z: -5 }, expected: { x: 0, z: 0 } }
+                { p1: { x: -5, z: 5 }, p2: { x: 5, z: -5 }, expected: { x: 0, z: 0 } },
             ];
 
             testCases.forEach(({ p1, p2, expected }) => {
@@ -175,17 +191,19 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
         test('should handle players at maximum distance', () => {
             const player1 = { x: -15, z: -15, isAlive: true };
             const player2 = { x: 15, z: 15, isAlive: true };
-            
+
             splitScreenCamera.setPlayers([player1, player2]);
             splitScreenCamera.updateSplitScreenCamera(player1, player2, { x: 0, y: 0, z: 0 });
 
-            expect(splitScreenCamera.targetPosition.y).toBeLessThanOrEqual(splitScreenCamera.maxZoom);
+            expect(splitScreenCamera.targetPosition.y).toBeLessThanOrEqual(
+                splitScreenCamera.maxZoom
+            );
         });
 
         test('should smoothly transition camera during rapid player movement', () => {
             const player1 = { x: 0, z: 0, isAlive: true };
             const player2 = { x: 0, z: 0, isAlive: true };
-            
+
             splitScreenCamera.setPlayers([player1, player2]);
 
             // Simulate rapid movement
@@ -202,7 +220,7 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
         test('should maintain visibility of both players', () => {
             const player1 = { x: -10, z: -10, isAlive: true };
             const player2 = { x: 10, z: 10, isAlive: true };
-            
+
             splitScreenCamera.setPlayers([player1, player2]);
             splitScreenCamera.update();
 
@@ -223,12 +241,12 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
                 isPaused: false,
                 player1: {
                     position: { x: -5, y: 0, z: 0 },
-                    trail: []
+                    trail: [],
                 },
                 player2: {
                     position: { x: 5, y: 0, z: 0 },
-                    trail: []
-                }
+                    trail: [],
+                },
             };
         });
 
@@ -238,7 +256,7 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
 
             const result = collisionHandler.checkMultiplayerCollisions(gameState, {
                 getBounds: () => null,
-                isGracePeriodActive: () => false
+                isGracePeriodActive: () => false,
             });
 
             expect(result.player1Collided).toBe(true);
@@ -253,7 +271,7 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
 
             const result = collisionHandler.checkMultiplayerCollisions(gameState, {
                 getBounds: () => null,
-                isGracePeriodActive: () => false
+                isGracePeriodActive: () => false,
             });
 
             expect(result.player1Collided).toBe(true);
@@ -267,7 +285,7 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
 
             const result = collisionHandler.checkMultiplayerCollisions(gameState, {
                 getBounds: () => null,
-                isGracePeriodActive: () => false
+                isGracePeriodActive: () => false,
             });
 
             expect(result.directCollision).toBe(true);
@@ -280,7 +298,7 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
 
             const result = collisionHandler.checkMultiplayerCollisions(gameState, {
                 getBounds: () => null,
-                isGracePeriodActive: () => false
+                isGracePeriodActive: () => false,
             });
 
             expect(result.player1Collided).toBe(true);
@@ -369,7 +387,7 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
         test('should resume both players simultaneously', () => {
             game.isPaused = true;
             game.update();
-            
+
             game.isPaused = false;
             const frameCountBeforeResume = game.frameCount;
             game.update();
@@ -388,8 +406,10 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
         test('should apply arena shrinking equally to both players', () => {
             // Mock arena shrinker
             game.getBounds = jest.fn(() => ({
-                minX: -10, maxX: 10,
-                minZ: -10, maxZ: 10
+                minX: -10,
+                maxX: 10,
+                minZ: -10,
+                maxZ: 10,
             }));
 
             const bounds = game.getBounds();
@@ -399,16 +419,20 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
 
         test('should detect when players are outside shrunk arena', () => {
             game.getBounds = jest.fn(() => ({
-                minX: -10, maxX: 10,
-                minZ: -10, maxZ: 10
+                minX: -10,
+                maxX: 10,
+                minZ: -10,
+                maxZ: 10,
             }));
 
             game.player1.position.x = -15;
             game.player2.position.x = 15;
 
             const bounds = game.getBounds();
-            const p1OutOfBounds = game.player1.position.x < bounds.minX || game.player1.position.x > bounds.maxX;
-            const p2OutOfBounds = game.player2.position.x < bounds.minX || game.player2.position.x > bounds.maxX;
+            const p1OutOfBounds =
+                game.player1.position.x < bounds.minX || game.player1.position.x > bounds.maxX;
+            const p2OutOfBounds =
+                game.player2.position.x < bounds.minX || game.player2.position.x > bounds.maxX;
 
             expect(p1OutOfBounds).toBe(true);
             expect(p2OutOfBounds).toBe(true);
@@ -503,7 +527,7 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
         test('should handle maximum player distance efficiently', () => {
             const player1 = { x: -15, z: -15, isAlive: true };
             const player2 = { x: 15, z: 15, isAlive: true };
-            
+
             splitScreenCamera.setPlayers([player1, player2]);
 
             const startTime = performance.now();
@@ -521,7 +545,7 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
         test('should maintain smooth camera movement at maximum distance', () => {
             const player1 = { x: -15, z: -15, isAlive: true };
             const player2 = { x: 15, z: 15, isAlive: true };
-            
+
             splitScreenCamera.setPlayers([player1, player2]);
 
             const positions = [];
@@ -557,7 +581,7 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
                 { key: 'ArrowDown', player: 'P1' },
                 { key: 'KeyW', player: 'P2' },
                 { key: 'KeyD', player: 'P2' },
-                { key: 'KeyS', player: 'P2' }
+                { key: 'KeyS', player: 'P2' },
             ];
 
             directions.forEach(({ key, player }) => {
@@ -616,7 +640,10 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
                 splitScreenCamera.update();
 
                 const gameState = game.getGameState();
-                const collisionResult = collisionHandler.checkMultiplayerCollisions(gameState, game);
+                const collisionResult = collisionHandler.checkMultiplayerCollisions(
+                    gameState,
+                    game
+                );
 
                 if (collisionResult.player1Collided || collisionResult.player2Collided) {
                     game.handleRoundEnd(collisionResult);
@@ -638,7 +665,7 @@ describe('Comprehensive Multiplayer Functionality Tests', () => {
             for (let i = 0; i < 100; i++) {
                 game.update();
                 splitScreenCamera.update();
-                
+
                 const gameState = game.getGameState();
                 collisionHandler.checkMultiplayerCollisions(gameState, game);
             }
