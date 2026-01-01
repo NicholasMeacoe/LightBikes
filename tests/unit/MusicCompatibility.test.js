@@ -21,61 +21,67 @@ jest.mock('@/utils/Logger.js', () => ({
 
 const { MusicCompatibility } = require('@/audio/MusicCompatibility.js');
 
-// Mock Web Audio API
-const mockAudioContext = {
-    state: 'running',
-    resume: jest.fn().mockResolvedValue(undefined),
-    createBuffer: jest.fn().mockReturnValue({}),
-    createBufferSource: jest.fn().mockReturnValue({
-        buffer: null,
-        connect: jest.fn(),
-        start: jest.fn(),
-    }),
-    destination: {},
-};
-
-const mockAudio = {
-    canPlayType: jest.fn(),
-};
-
-// Mock global objects
-Object.defineProperty(window, 'AudioContext', {
-    value: jest.fn(() => mockAudioContext),
-    configurable: true,
-});
-
-Object.defineProperty(window, 'webkitAudioContext', {
-    value: jest.fn(() => mockAudioContext),
-    configurable: true,
-});
-
-Object.defineProperty(window, 'Audio', {
-    value: jest.fn(() => mockAudio),
-    configurable: true,
-});
-
-// Mock navigator.userAgent
-const setUserAgent = (userAgent) => {
-    Object.defineProperty(global.navigator, 'userAgent', {
-        value: userAgent,
-        configurable: true,
-    });
-};
-
 describe('MusicCompatibility', () => {
     let compatibility;
     const originalUserAgent = global.navigator.userAgent;
+    let mockAudioContext;
+    let mockAudio;
 
     beforeEach(() => {
         jest.clearAllMocks();
-        mockAudioContext.state = 'running';
-        mockAudio.canPlayType.mockReturnValue('probably');
+
+        // Setup mock implementations
+        mockAudioContext = {
+            state: 'running',
+            resume: jest.fn().mockResolvedValue(undefined),
+            createBuffer: jest.fn().mockReturnValue({}),
+            createBufferSource: jest.fn().mockReturnValue({
+                buffer: null,
+                connect: jest.fn(),
+                start: jest.fn(),
+            }),
+            destination: {},
+        };
+
+        mockAudio = {
+            canPlayType: jest.fn().mockReturnValue('probably'),
+        };
+
+        // Mock global AudioContext
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => mockAudioContext),
+            configurable: true,
+            writable: true,
+        });
+
+        Object.defineProperty(window, 'webkitAudioContext', {
+            value: jest.fn(() => mockAudioContext),
+            configurable: true,
+            writable: true,
+        });
+
+        // Mock global Audio
+        Object.defineProperty(window, 'Audio', {
+            value: jest.fn(() => mockAudio),
+            configurable: true,
+            writable: true,
+        });
+
         setUserAgent(originalUserAgent);
     });
 
     afterAll(() => {
         setUserAgent(originalUserAgent);
     });
+
+    // Helper to set user agent
+    const setUserAgent = (userAgent) => {
+        Object.defineProperty(global.navigator, 'userAgent', {
+            value: userAgent,
+            configurable: true,
+            writable: true,
+        });
+    };
 
     describe('constructor and initialization', () => {
         it('should initialize with Web Audio API support detection', () => {
@@ -89,8 +95,8 @@ describe('MusicCompatibility', () => {
             const originalAudioContext = window.AudioContext;
             const originalWebkitAudioContext = window.webkitAudioContext;
 
-            delete window.AudioContext;
-            delete window.webkitAudioContext;
+            window.AudioContext = undefined;
+            window.webkitAudioContext = undefined;
 
             compatibility = new MusicCompatibility();
 
@@ -137,8 +143,7 @@ describe('MusicCompatibility', () => {
 
             expect(context).toBeNull();
 
-            // Restore the mock for other tests
-            window.AudioContext.mockImplementation(() => mockAudioContext);
+            // Restore the mock for other tests not needed as beforeEach resets it
         });
     });
 
@@ -172,7 +177,6 @@ describe('MusicCompatibility', () => {
         it('should unlock suspended audio context', async () => {
             // Reset the mock state
             mockAudioContext.state = 'suspended';
-            mockAudioContext.resume.mockClear();
 
             // Create fresh instance
             const suspendedCompatibility = new MusicCompatibility();
@@ -281,8 +285,8 @@ describe('MusicCompatibility', () => {
             compatibility = new MusicCompatibility();
 
             // Mock document event listeners
-            document.addEventListener = jest.fn();
-            document.removeEventListener = jest.fn();
+            jest.spyOn(document, 'addEventListener');
+            jest.spyOn(document, 'removeEventListener');
         });
 
         it('should call callback immediately if no interaction required', () => {

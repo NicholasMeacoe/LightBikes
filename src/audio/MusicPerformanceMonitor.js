@@ -353,6 +353,8 @@ class MusicPerformanceMonitor {
             };
 
             this.frameRateMonitor = requestAnimationFrame(measureFrameRate);
+        } else {
+            // console.log('DEBUG: requestAnimationFrame not in window');
         }
     }
 
@@ -396,7 +398,9 @@ class MusicPerformanceMonitor {
      */
     _stopPerformanceObserver() {
         if (this.performanceObserver) {
-            this.performanceObserver.disconnect();
+            if (typeof this.performanceObserver.disconnect === 'function') {
+                this.performanceObserver.disconnect();
+            }
             this.performanceObserver = null;
         }
     }

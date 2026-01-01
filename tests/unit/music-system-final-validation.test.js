@@ -115,6 +115,17 @@ describe('Music System Final Validation', () => {
         jest.resetModules();
         jest.clearAllMocks();
 
+        // Setup global fetch mock
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: true,
+                status: 200,
+                statusText: 'OK',
+                headers: { get: () => 'audio/mpeg' },
+                arrayBuffer: () => Promise.resolve(new ArrayBuffer(1024)),
+            })
+        );
+
         // Re-establish mocks
         jest.mock('@/utils/Logger.js', () => ({
             Logger: MockLoggerClass,

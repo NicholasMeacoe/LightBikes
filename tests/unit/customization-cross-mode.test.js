@@ -3,21 +3,25 @@
  * Tests customization system functionality across all game modes
  */
 
-const mockLogger = {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-};
+jest.mock('@/utils/Logger.js', () => {
+    const mockLogger = {
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+        debug: jest.fn(),
+    };
 
-const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
-MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+    const MockLoggerClass = jest.fn(() => mockLogger);
+    MockLoggerClass.create = jest.fn(() => mockLogger);
 
-jest.mock('@/utils/Logger.js', () => ({
-    Logger: MockLoggerClass,
-    logger: mockLogger,
-    createLogger: jest.fn(() => mockLogger),
-}));
+    return {
+        Logger: MockLoggerClass,
+        logger: mockLogger,
+        createLogger: jest.fn(() => mockLogger),
+    };
+});
+
+const { logger: mockLogger } = require('@/utils/Logger.js');
 
 // Mock Storage prototype for reliable localStorage testing
 const store = {};
@@ -34,13 +38,8 @@ const clearSpy = jest.spyOn(Storage.prototype, 'clear').mockImplementation(() =>
     Object.keys(store).forEach((k) => delete store[k]);
 });
 
-const { Game } = require('@/core/game.js');
-const { GameModes } = require('@/systems/GameModes.js');
-const { CustomizationManager } = require('@/systems/CustomizationManager.js');
-const { PreferenceStorage } = require('@/systems/PreferenceStorage.js');
-
-// Mock ThemeEngine to avoid Three.js issues
-jest.mock('../../src/systems/ThemeEngine.js', () => ({
+// Mock ThemeEngine before requiring CustomizationManager
+jest.mock('@/systems/ThemeEngine.js', () => ({
     ThemeEngine: jest.fn().mockImplementation(() => ({
         isValidTheme: jest.fn((themeName) => {
             const validThemes = ['classic-grid', 'neon-city', 'space', 'tron-legacy'];
@@ -50,6 +49,11 @@ jest.mock('../../src/systems/ThemeEngine.js', () => ({
         getAvailableThemes: jest.fn(() => ['classic-grid', 'neon-city', 'space', 'tron-legacy']),
     })),
 }));
+
+// Remove top-level requires to avoid capturing un-mocked modules
+// const { Game } = require('@/core/game.js');
+// const { CustomizationManager } = require('@/systems/CustomizationManager.js');
+// const { PreferenceStorage } = require('@/systems/PreferenceStorage.js');
 
 // Mock THREE.js
 global.THREE = {
@@ -101,11 +105,20 @@ global.THREE = {
 };
 
 describe('Cross-Mode Customization Compatibility', () => {
+    let CustomizationManager, PreferenceStorage, Game, GameModes;
     let classicGame, timeTrialGame, arenaShrinkGame;
     let renderingEngine, preferenceStorage;
     let classicCustomization, timeTrialCustomization, arenaShrinkCustomization;
 
     beforeEach(() => {
+        jest.resetModules();
+
+        // Re-require modules
+        CustomizationManager = require('@/systems/CustomizationManager.js').CustomizationManager;
+        PreferenceStorage = require('@/systems/PreferenceStorage.js').PreferenceStorage;
+        Game = require('@/core/game.js').Game;
+        GameModes = require('@/systems/GameModes.js').GameModes;
+
         Object.keys(store).forEach((k) => delete store[k]);
         jest.clearAllMocks();
 

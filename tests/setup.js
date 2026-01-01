@@ -2,163 +2,325 @@
 
 // Mock Three.js environment
 const mockThreeJS = {
-    Scene: jest.fn().mockImplementation(() => ({
-        add: jest.fn(),
-        remove: jest.fn(),
-        traverse: jest.fn(),
-        background: null,
-    })),
-    WebGLRenderer: jest.fn().mockImplementation(() => ({
-        setSize: jest.fn(),
-        setClearColor: jest.fn(),
-        render: jest.fn(),
-        getSize: jest.fn(() => ({ width: 800, height: 600, x: 800, y: 600 })),
-        getPixelRatio: jest.fn(() => 1),
-        setPixelRatio: jest.fn(),
-        getContext: jest.fn(),
-        getDrawingBufferSize: jest.fn(() => ({ width: 800, height: 600 })),
-        setDrawingBufferSize: jest.fn(),
-        dispose: jest.fn(),
-        domElement: {
-            width: 800,
-            height: 600,
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
-        },
-        info: {
-            render: { calls: 10, frame: 0, triangles: 0, points: 0, lines: 0 },
-            memory: { geometries: 5, textures: 3, programs: 2 },
-        },
-    })),
-    PerspectiveCamera: jest.fn().mockImplementation(() => ({
-        position: { x: 0, y: 20, z: 20, clone: jest.fn() },
-    })),
-    BoxGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
-    SphereGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
-    OctahedronGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
-    ConeGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
-    IcosahedronGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
-    PlaneGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
-    TorusGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
-    CylinderGeometry: jest.fn().mockImplementation(() => ({ dispose: jest.fn() })),
-    MeshLambertMaterial: jest.fn().mockImplementation((options) => ({
-        color: options.color,
-        emissive: options.emissive,
-        emissiveIntensity: options.emissiveIntensity,
-        transparent: options.transparent,
-        opacity: options.opacity,
-        dispose: jest.fn(),
-        needsUpdate: false,
-    })),
-    MeshBasicMaterial: jest.fn().mockImplementation((options) => ({
-        color: options.color,
-        transparent: options.transparent,
-        opacity: options.opacity,
-        dispose: jest.fn(),
-    })),
-    Mesh: jest.fn().mockImplementation(() => ({
-        position: { x: 0, y: 0, z: 0 },
-        material: null,
-        userData: {},
-    })),
-    Color: jest.fn().mockImplementation((color) => ({
-        setHex: jest.fn(),
-        getHex: jest.fn().mockReturnValue(color),
-    })),
-    Vector3: jest.fn().mockImplementation(() => ({
-        distanceTo: jest.fn().mockReturnValue(10),
-        set: jest.fn(),
-    })),
-    Euler: jest.fn().mockImplementation(() => ({
-        set: jest.fn(),
-    })),
-    Quaternion: jest.fn().mockImplementation(() => ({
-        setFromEuler: jest.fn(),
-    })),
-    Matrix4: jest.fn().mockImplementation(() => ({
-        makeScale: jest.fn(),
-        compose: jest.fn(),
-    })),
-    InstancedMesh: jest.fn().mockImplementation((geometry, material, count) => ({
-        geometry,
-        material,
-        count: 0,
-        instanceMatrix: {
+    Scene: function () {
+        return {
+            add: jest.fn(),
+            remove: jest.fn(),
+            traverse: jest.fn(),
+            background: null,
+            children: [],
+        };
+    },
+    WebGLRenderer: function () {
+        const domElement = document.createElement('canvas');
+        domElement.width = 800;
+        domElement.height = 600;
+        return {
+            setSize: jest.fn(),
+            setClearColor: jest.fn(),
+            render: jest.fn(),
+            getSize: jest.fn(() => ({ width: 800, height: 600 })),
+            getPixelRatio: jest.fn(() => 1),
+            setPixelRatio: jest.fn(),
+            getContext: jest.fn(),
+            dispose: jest.fn(),
+            domElement: domElement,
+            info: {
+                render: { calls: 0, frame: 0, triangles: 0, points: 0, lines: 0 },
+                memory: { geometries: 0, textures: 0, programs: 0 },
+            },
+        };
+    },
+    PerspectiveCamera: function () {
+        return {
+            position: {
+                x: 0,
+                y: 20,
+                z: 20,
+                set: function (x, y, z) {
+                    this.x = x;
+                    this.y = y;
+                    this.z = z;
+                    return this;
+                },
+                copy: function (v) {
+                    this.x = v.x;
+                    this.y = v.y;
+                    this.z = v.z;
+                    return this;
+                },
+                clone: function () {
+                    return { ...this };
+                },
+            },
+            lookAt: jest.fn(),
+            updateProjectionMatrix: jest.fn(),
+        };
+    },
+    BoxGeometry: function () {
+        return { dispose: jest.fn() };
+    },
+    SphereGeometry: function () {
+        return { dispose: jest.fn() };
+    },
+    OctahedronGeometry: function () {
+        return { dispose: jest.fn() };
+    },
+    ConeGeometry: function () {
+        return { dispose: jest.fn() };
+    },
+    IcosahedronGeometry: function () {
+        return { dispose: jest.fn() };
+    },
+    PlaneGeometry: function () {
+        return { dispose: jest.fn() };
+    },
+    TorusGeometry: function () {
+        return { dispose: jest.fn() };
+    },
+    CylinderGeometry: function () {
+        return { dispose: jest.fn() };
+    },
+    MeshLambertMaterial: function (options = {}) {
+        return {
+            color: options.color,
+            emissive: options.emissive,
+            emissiveIntensity: options.emissiveIntensity || 0,
+            transparent: options.transparent,
+            opacity: options.opacity || 1,
+            dispose: jest.fn(),
             needsUpdate: false,
-        },
-        setMatrixAt: jest.fn(),
-    })),
-    GridHelper: jest.fn().mockImplementation(() => ({
-        material: {
+        };
+    },
+    MeshBasicMaterial: function (options = {}) {
+        return {
+            color: options.color,
+            transparent: options.transparent,
+            opacity: options.opacity || 1,
+            dispose: jest.fn(),
+        };
+    },
+    LineBasicMaterial: function (options = {}) {
+        return {
+            color: { setHex: jest.fn().mockImplementation((hex) => (options.color = hex)) },
+            opacity: options.opacity || 1,
+            transparent: options.transparent,
+            dispose: jest.fn(),
+            linewidth: options.linewidth,
+        };
+    },
+    PointsMaterial: function (options = {}) {
+        return {
+            color: options.color,
+            size: options.size,
+            transparent: options.transparent,
+            opacity: options.opacity || 1,
+            dispose: jest.fn(),
+        };
+    },
+    AmbientLight: function (color, intensity) {
+        return {
             color: { setHex: jest.fn() },
-            opacity: 0.3,
-            transparent: true,
-            emissive: { setHex: jest.fn() },
-            emissiveIntensity: 0,
-        },
-    })),
-    AmbientLight: jest.fn().mockImplementation(() => ({
-        color: { setHex: jest.fn() },
-        intensity: 0.6,
-        isAmbientLight: true,
-    })),
-    DirectionalLight: jest.fn().mockImplementation(() => ({
-        color: { setHex: jest.fn() },
-        intensity: 0.8,
-        position: { set: jest.fn() },
-        isDirectionalLight: true,
-    })),
-    BufferGeometry: jest.fn().mockImplementation(() => ({
-        setAttribute: jest.fn(),
-        dispose: jest.fn(),
-    })),
-    Float32BufferAttribute: jest
-        .fn()
-        .mockImplementation((array, itemSize) => ({ array, itemSize, isBufferAttribute: true })),
-    BufferAttribute: jest
-        .fn()
-        .mockImplementation((array, itemSize) => ({ array, itemSize, isBufferAttribute: true })),
-    PointsMaterial: jest.fn().mockImplementation((options) => ({
-        color: options.color,
-        size: options.size,
-        transparent: options.transparent,
-        opacity: options.opacity,
-        dispose: jest.fn(),
-    })),
-    Points: jest.fn().mockImplementation((geometry, material) => ({
-        geometry,
-        material,
-        isPoints: true,
-        type: 'Points',
-        frustumCulled: false, // Default to false for mocks
-    })),
-    LineBasicMaterial: jest.fn().mockImplementation((options) => ({
-        color: { setHex: jest.fn().mockImplementation((hex) => (options.color = hex)) },
-        opacity: options.opacity,
-        transparent: options.transparent,
-        dispose: jest.fn(),
-        linewidth: options.linewidth, // Add linewidth if used
-    })),
-    LineSegments: jest.fn().mockImplementation((geometry, material) => ({
-        geometry,
-        material,
-        isLineSegments: true,
-        type: 'LineSegments',
-        frustumCulled: false, // Default to false for mocks
-    })),
-    EffectComposer: jest.fn().mockImplementation(() => ({
-        addPass: jest.fn(),
-        render: jest.fn(),
-        setSize: jest.fn(),
-        dispose: jest.fn(),
-        passes: [],
-        renderToScreen: false,
-    })),
-    RenderPass: jest.fn().mockImplementation(() => ({
-        render: jest.fn(),
-        setSize: jest.fn(),
-        dispose: jest.fn(),
-    })),
+            intensity: intensity || 1,
+            isAmbientLight: true,
+            dispose: jest.fn(),
+        };
+    },
+    DirectionalLight: function (color, intensity) {
+        return {
+            color: { setHex: jest.fn() },
+            intensity: intensity || 1,
+            position: { set: jest.fn() },
+            isDirectionalLight: true,
+            dispose: jest.fn(),
+        };
+    },
+    BoxHelper: function (object) {
+        return {
+            material: {},
+            dispose: jest.fn(),
+            update: jest.fn(),
+            isBoxHelper: true,
+        };
+    },
+    Mesh: function (geometry, material) {
+        return {
+            geometry,
+            material,
+            position: {
+                x: 0,
+                y: 0,
+                z: 0,
+                set: function (nx, ny, nz) {
+                    this.x = nx;
+                    this.y = ny;
+                    this.z = nz;
+                    return this;
+                },
+                copy: function (v) {
+                    this.x = v.x;
+                    this.y = v.y;
+                    this.z = v.z;
+                    return this;
+                },
+            },
+            rotation: {
+                x: 0,
+                y: 0,
+                z: 0,
+                set: jest.fn(),
+            },
+            scale: {
+                x: 1,
+                y: 1,
+                z: 1,
+                set: jest.fn(),
+            },
+            visible: true,
+            userData: {},
+            add: jest.fn(),
+            remove: jest.fn(),
+            dispose: function () {
+                if (this.geometry) this.geometry.dispose();
+                if (this.material) this.material.dispose();
+            },
+        };
+    },
+    Group: function () {
+        return {
+            add: jest.fn(),
+            remove: jest.fn(),
+            clear: jest.fn(),
+            children: [],
+            position: { x: 0, y: 0, z: 0, set: jest.fn() },
+            rotation: { x: 0, y: 0, z: 0, set: jest.fn() },
+        };
+    },
+    Color: function (color) {
+        return {
+            setHex: jest.fn(),
+            getHex: jest.fn().mockReturnValue(color),
+            r: 1,
+            g: 1,
+            b: 1,
+        };
+    },
+    Vector3: function (x = 0, y = 0, z = 0) {
+        return {
+            x,
+            y,
+            z,
+            distanceTo: jest.fn().mockReturnValue(10),
+            set: function (nx, ny, nz) {
+                this.x = nx;
+                this.y = ny;
+                this.z = nz;
+                return this;
+            },
+            copy: function (v) {
+                this.x = v.x;
+                this.y = v.y;
+                this.z = v.z;
+                return this;
+            },
+            clone: function () {
+                return { ...this };
+            },
+            add: jest.fn().mockReturnThis(),
+            sub: jest.fn().mockReturnThis(),
+            multiplyScalar: jest.fn().mockReturnThis(),
+            normalize: jest.fn().mockReturnThis(),
+            length: jest.fn().mockReturnValue(0),
+        };
+    },
+    Euler: function () {
+        return {
+            set: jest.fn(),
+        };
+    },
+    Quaternion: function () {
+        return {
+            setFromEuler: jest.fn(),
+        };
+    },
+    Matrix4: function () {
+        return {
+            makeScale: jest.fn().mockReturnThis(),
+            compose: jest.fn().mockReturnThis(),
+            makeTranslation: jest.fn().mockReturnThis(),
+            makeRotationY: jest.fn().mockReturnThis(),
+            identity: jest.fn().mockReturnThis(),
+            multiply: jest.fn().mockReturnThis(),
+        };
+    },
+    InstancedMesh: function (geometry, material, count) {
+        return {
+            geometry,
+            material,
+            count: count || 0,
+            instanceMatrix: {
+                needsUpdate: false,
+            },
+            setMatrixAt: jest.fn(),
+            setColorAt: jest.fn(),
+            dispose: jest.fn(),
+            visible: true,
+            position: { x: 0, y: 0, z: 0, set: jest.fn() },
+        };
+    },
+    GridHelper: function (size, divisions) {
+        return {
+            material: {
+                color: { setHex: jest.fn() },
+                opacity: 0.3,
+                transparent: true,
+                emissive: { setHex: jest.fn() },
+                emissiveIntensity: 0,
+            },
+            isGridHelper: true,
+            dispose: jest.fn(),
+        };
+    },
+    BufferGeometry: function () {
+        return {
+            setAttribute: jest.fn(),
+            dispose: jest.fn(),
+            setAttribute: jest.fn(),
+            computeBoundingSphere: jest.fn(),
+        };
+    },
+    Points: function (geometry, material) {
+        return {
+            geometry,
+            material,
+            isPoints: true,
+            position: { x: 0, y: 0, z: 0, set: jest.fn() },
+        };
+    },
+    LineSegments: function (geometry, material) {
+        return {
+            geometry,
+            material,
+            isLineSegments: true,
+            position: { x: 0, y: 0, z: 0, set: jest.fn() },
+        };
+    },
+    EffectComposer: function () {
+        return {
+            addPass: jest.fn(),
+            render: jest.fn(),
+            setSize: jest.fn(),
+            dispose: jest.fn(),
+            passes: [],
+        };
+    },
+    RenderPass: function () {
+        return {
+            render: jest.fn(),
+            setSize: jest.fn(),
+            dispose: jest.fn(),
+        };
+    },
     UnrealBloomPass: jest.fn().mockImplementation(() => ({
         strength: 1.0,
         radius: 0.4,
@@ -177,7 +339,19 @@ const mockThreeJS = {
 
 global.THREE = mockThreeJS;
 global.performance = { now: jest.fn().mockReturnValue(1000) };
-global.requestAnimationFrame = jest.fn((callback) => setTimeout(callback, 16));
+let rafIdCounter = 0;
+global.requestAnimationFrame = function (callback) {
+    const id = ++rafIdCounter;
+    setTimeout(() => {
+        if (typeof callback === 'function') {
+            callback(performance.now());
+        }
+    }, 16);
+    return id;
+};
+global.cancelAnimationFrame = function (id) {
+    // Basic mock implementation
+};
 global.setImmediate = (callback, ...args) => setTimeout(callback, 0, ...args);
 
 // Mock HTMLCanvasElement.prototype.getContext
@@ -294,16 +468,34 @@ global.createMockDOMElement = (tagName, options = {}) => {
 
 // Mock window.matchMedia
 const mockMatchMedia = (query) => ({
-    matches: false, // Default to no match
+    matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // Deprecated
-    removeListener: jest.fn(), // Deprecated
+    addListener: jest.fn(), // Deprecated but still used in some code
+    removeListener: jest.fn(), // Deprecated but still used in some code
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
 });
-window.matchMedia = jest.fn().mockImplementation(mockMatchMedia);
+
+if (typeof window !== 'undefined') {
+    Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: function (query) {
+            return {
+                matches: false,
+                media: query,
+                onchange: null,
+                addListener: jest.fn(),
+                removeListener: jest.fn(),
+                addEventListener: jest.fn(),
+                removeEventListener: jest.fn(),
+                dispatchEvent: jest.fn(),
+            };
+        },
+    });
+}
+global.matchMedia = window.matchMedia;
 
 // Don't override document - use JSDOM's native document
 // Mock specific methods in individual tests if needed using jest.spyOn()

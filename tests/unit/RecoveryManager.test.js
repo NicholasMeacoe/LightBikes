@@ -5,21 +5,29 @@ const mockLogger = {
     debug: jest.fn(),
 };
 
-const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
-MockLoggerClass.create = jest.fn((namespace) => mockLogger);
-
-jest.mock('@/utils/Logger.js', () => ({
-    Logger: MockLoggerClass,
+jest.mock('../../src/utils/Logger.js', () => ({
+    Logger: {
+        create: jest.fn(() => mockLogger), // Ensure create returns the mockLogger object
+    },
     logger: mockLogger,
     createLogger: jest.fn(() => mockLogger),
 }));
 
-const { RecoveryManager } = require('@/initialization/RecoveryManager.js');
+// Remove top-level require
+// const { RecoveryManager } = require('@/initialization/RecoveryManager.js');
 
 describe('RecoveryManager', () => {
+    let RecoveryManager;
     let recoveryManager;
 
     beforeEach(() => {
+        jest.resetModules();
+        jest.clearAllMocks(); // Good practice
+
+        // Re-require module to ensure mocks are applied
+        const RecoveryManagerModule = require('@/initialization/RecoveryManager.js');
+        RecoveryManager = RecoveryManagerModule.RecoveryManager;
+
         jest.useFakeTimers();
         document.body.innerHTML = '';
         recoveryManager = new RecoveryManager();

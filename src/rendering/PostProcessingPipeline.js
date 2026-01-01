@@ -138,7 +138,6 @@ class PostProcessingPipeline {
             this.composer.addPass(this.bloomPass);
 
             this.initialized = true;
-            this.initialized = true;
             logger.info('PostProcessingPipeline: Successfully initialized with bloom effects');
             return true;
         } catch (error) {

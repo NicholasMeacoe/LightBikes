@@ -19,35 +19,37 @@ const { LeaderboardSystem } = require('@/systems/LeaderboardSystem.js');
 const { Game } = require('@/core/game.js');
 const { GameModes } = require('@/systems/GameModes.js');
 
-// Mock performance.now for controlled testing
-const mockPerformanceNow = jest.fn();
-global.performance = { now: mockPerformanceNow };
-
-// Mock localStorage for leaderboard tests
-const mockLocalStorage = {
-    data: {},
-    getItem: jest.fn((key) => mockLocalStorage.data[key] || null),
-    setItem: jest.fn((key, value) => {
-        mockLocalStorage.data[key] = value;
-    }),
-    removeItem: jest.fn((key) => {
-        delete mockLocalStorage.data[key];
-    }),
-    clear: jest.fn(() => {
-        mockLocalStorage.data = {};
-    }),
-};
-
-Object.defineProperty(window, 'localStorage', {
-    value: mockLocalStorage,
-    writable: true,
-});
-
 describe('Time Trial Performance and Accuracy Tests', () => {
+    let mockPerformanceNow;
+    let mockLocalStorage;
+
     beforeEach(() => {
         jest.clearAllMocks();
-        mockPerformanceNow.mockReturnValue(0);
-        mockLocalStorage.clear();
+
+        // Re-initialize mock implementations to handle resetMocks: true
+        mockPerformanceNow = jest.fn().mockReturnValue(0);
+        global.performance = { now: mockPerformanceNow };
+
+        mockLocalStorage = {
+            data: {},
+            getItem: jest.fn((key) => mockLocalStorage.data[key] || null),
+            setItem: jest.fn((key, value) => {
+                mockLocalStorage.data[key] = value;
+            }),
+            removeItem: jest.fn((key) => {
+                delete mockLocalStorage.data[key];
+            }),
+            clear: jest.fn(() => {
+                mockLocalStorage.data = {};
+            }),
+        };
+
+        // Mock localStorage
+        Object.defineProperty(window, 'localStorage', {
+            value: mockLocalStorage,
+            writable: true,
+            configurable: true,
+        });
     });
 
     describe('Timer Precision Under Load', () => {

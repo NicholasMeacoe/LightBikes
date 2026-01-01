@@ -43,6 +43,12 @@ class MusicSettings {
                 max: 1.0,
                 default: 0.2,
             },
+            duckingRecovery: {
+                type: 'number',
+                min: 0.1,
+                max: 2.0,
+                default: 0.2,
+            },
         };
 
         // Current settings version for migration
@@ -192,6 +198,29 @@ class MusicSettings {
         }
 
         this.settings.duckingDuration = duration;
+        this.save();
+        return true;
+    }
+
+    /**
+     * Get the ducking recovery duration
+     * @returns {number} Ducking recovery in seconds
+     */
+    getDuckingRecovery() {
+        return this.settings.duckingRecovery;
+    }
+
+    /**
+     * Set the ducking recovery duration
+     * @param {number} duration - Duration in seconds
+     * @returns {boolean} True if setting was valid and applied
+     */
+    setDuckingRecovery(duration) {
+        if (!this._validateSetting('duckingRecovery', duration)) {
+            return false;
+        }
+
+        this.settings.duckingRecovery = duration;
         this.save();
         return true;
     }

@@ -2,10 +2,82 @@
  * Performance and Compatibility Tests for Camera Effects System
  */
 
-// Use existing jsdom environment
 const { CameraEffectsManager } = require('@/effects/CameraEffectsManager.js');
 const { MotionBlurController } = require('@/effects/MotionBlurController.js');
 const { CameraShakeController } = require('@/effects/CameraShakeController.js');
+
+// Setup global THREE mock robustly
+global.THREE = {
+    PerspectiveCamera: class {
+        constructor() {
+            this.position = {
+                x: 0,
+                y: 0,
+                z: 0,
+                set: jest.fn(),
+                copy: jest.fn(),
+                clone: () => ({ x: 0, y: 0, z: 0 }),
+            };
+        }
+    },
+    Vector2: class {
+        constructor(x = 0, y = 0) {
+            this.x = x;
+            this.y = y;
+        }
+    },
+    Vector3: class {
+        constructor(x = 0, y = 0, z = 0) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.set = jest.fn();
+            this.copy = jest.fn();
+            this.clone = () => new global.THREE.Vector3(this.x, this.y, this.z);
+        }
+    },
+    WebGLRenderer: class {
+        constructor() {
+            this.render = jest.fn();
+            this.setSize = jest.fn();
+            this.setClearColor = jest.fn();
+            this.getSize = jest.fn((v) => {
+                if (v) {
+                    v.x = 1920;
+                    v.y = 1080;
+                    return v;
+                }
+                return { x: 1920, y: 1080 };
+            });
+            this.domElement = document.createElement('canvas');
+            this.info = { render: { calls: 0 }, memory: { geometries: 0, textures: 0 } };
+        }
+    },
+    EffectComposer: class {
+        constructor() {
+            this.setSize = jest.fn();
+            this.addPass = jest.fn();
+            this.render = jest.fn();
+            this.dispose = jest.fn();
+            this.passes = [];
+        }
+    },
+    RenderPass: class {
+        constructor() {
+            this.dispose = jest.fn();
+        }
+    },
+    ShaderPass: class {
+        constructor(shader) {
+            this.uniforms = shader.uniforms || {
+                intensity: { value: 0.0 },
+                velocityFactor: { value: 0.5 },
+                samples: { value: 32 },
+            };
+            this.dispose = jest.fn();
+        }
+    },
+};
 
 describe('Camera Effects Performance Tests', () => {
     let cameraEffectsManager;
@@ -14,41 +86,6 @@ describe('Camera Effects Performance Tests', () => {
     let currentTime = 0;
     let performanceNowSpy;
     let dateNowSpy;
-
-    beforeAll(() => {
-        // Add missing classes to THREE mock for post-processing
-        global.THREE.EffectComposer = jest.fn().mockImplementation(() => ({
-            setSize: jest.fn(),
-            addPass: jest.fn(),
-            render: jest.fn(),
-            dispose: jest.fn(),
-            passes: [],
-        }));
-        global.THREE.RenderPass = jest.fn().mockImplementation(() => ({ dispose: jest.fn() }));
-        global.THREE.ShaderPass = jest.fn().mockImplementation((shader) => ({
-            uniforms: shader.uniforms || {
-                intensity: { value: 0.0 },
-                velocityFactor: { value: 0.5 },
-                samples: { value: 32 },
-            },
-            dispose: jest.fn(),
-        }));
-        global.THREE.Vector2 = jest.fn().mockImplementation((x, y) => ({ x: x || 0, y: y || 0 }));
-        global.THREE.WebGLRenderer = jest.fn().mockImplementation(() => ({
-            render: jest.fn(),
-            setClearColor: jest.fn(),
-            setSize: jest.fn(),
-            getSize: jest.fn((v) => {
-                if (v) {
-                    v.x = 1920;
-                    v.y = 1080;
-                    return v;
-                }
-                return { x: 1920, y: 1080 };
-            }),
-            info: { render: { calls: 0 }, memory: { geometries: 0, textures: 0 } },
-        }));
-    });
 
     beforeEach(() => {
         currentTime = 0;
@@ -59,9 +96,6 @@ describe('Camera Effects Performance Tests', () => {
         if (typeof navigator === 'undefined') {
             global.navigator = { userAgent: 'desktop' };
         }
-        jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue(
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        );
 
         mockCamera = new THREE.PerspectiveCamera();
         mockRenderer = new THREE.WebGLRenderer();
@@ -83,8 +117,17 @@ describe('Camera Effects Performance Tests', () => {
         };
 
         jest.spyOn(document, 'createElement').mockImplementation((tag) => {
+            if (tag === 'canvas') {
+                return {
+                    getContext: jest.fn().mockReturnValue(mockGL),
+                    style: {},
+                    appendChild: jest.fn(),
+                    innerHTML: '',
+                    width: 1920,
+                    height: 1080,
+                };
+            }
             return {
-                getContext: jest.fn().mockReturnValue(mockGL),
                 style: {},
                 appendChild: jest.fn(),
                 innerHTML: '',
@@ -115,7 +158,6 @@ describe('Camera Effects Performance Tests', () => {
         }
 
         const metrics = cameraEffectsManager.getPerformanceMetrics();
-        // currentFPS is 1000 / averageFrameTime. averageFrameTime should be around 16.67
         expect(metrics.currentFPS).toBeCloseTo(60, 0);
     });
 
@@ -128,14 +170,6 @@ describe('Camera Effects Performance Tests', () => {
         for (let i = 0; i < 200; i++) {
             currentTime += poorFrameTime;
             cameraEffectsManager.update(poorFrameTime / 1000);
-
-            if (i % 50 === 0) {
-                const metrics =
-                    cameraEffectsManager.degradationManager.monitor.getPerformanceMetrics();
-                console.log(
-                    `DEBUG: i=${i} currentTime=${currentTime} fps=${metrics.currentFPS} poorFrames=${metrics.consecutivePoorFrames} level=${cameraEffectsManager.degradationManager.degradationState.currentLevel}`
-                );
-            }
         }
 
         // Level 2 reached, quality set to low

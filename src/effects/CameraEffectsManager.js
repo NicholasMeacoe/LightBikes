@@ -736,6 +736,31 @@ class CameraEffectsManager {
         this.gameState = newGameState;
         logger.debug('Game state updated');
     }
+
+    /**
+     * Check if the system has active post-processing effects
+     * @returns {boolean} True if post-processing is active
+     */
+    hasPostProcessing() {
+        return (
+            this.motionBlurController &&
+            this.motionBlurController.enabled &&
+            !this.motionBlurController.fallbackMode
+        );
+    }
+
+    /**
+     * Render the scene with active camera effects
+     * @param {THREE.Scene} scene - Scene to render
+     * @param {THREE.Camera} camera - Camera to use
+     */
+    render(scene, camera) {
+        if (this.hasPostProcessing()) {
+            this.motionBlurController.render(scene, camera);
+        } else {
+            this.renderer.render(scene, camera);
+        }
+    }
 }
 
 module.exports = { CameraEffectsManager };

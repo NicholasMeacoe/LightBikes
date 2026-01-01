@@ -16,78 +16,83 @@ jest.mock('@/utils/Logger.js', () => ({
 
 const { PerformanceOptimizer } = require('@/utils/PerformanceOptimizer.js');
 
-// Mock Three.js objects
-const mockScene = {
-    traverse: jest.fn(),
-};
-
-const mockRenderer = {
-    info: {
-        render: { calls: 10 },
-        memory: { geometries: 5, textures: 3 },
-    },
-};
-
-// Mock Three.js constructors
-global.THREE = {
-    BoxGeometry: jest.fn().mockImplementation(() => ({
-        dispose: jest.fn(),
-    })),
-    SphereGeometry: jest.fn().mockImplementation(() => ({
-        dispose: jest.fn(),
-    })),
-    OctahedronGeometry: jest.fn().mockImplementation(() => ({
-        dispose: jest.fn(),
-    })),
-    ConeGeometry: jest.fn().mockImplementation(() => ({
-        dispose: jest.fn(),
-    })),
-    IcosahedronGeometry: jest.fn().mockImplementation(() => ({
-        dispose: jest.fn(),
-    })),
-    MeshLambertMaterial: jest.fn().mockImplementation((options) => ({
-        color: options.color,
-        transparent: options.transparent,
-        opacity: options.opacity,
-        emissive: options.emissive,
-        emissiveIntensity: options.emissiveIntensity,
-        dispose: jest.fn(),
-        needsUpdate: false,
-    })),
-    LineBasicMaterial: jest.fn().mockImplementation((options) => ({
-        color: options.color,
-        opacity: options.opacity,
-        transparent: options.transparent,
-        dispose: jest.fn(),
-        needsUpdate: false,
-    })),
-    MeshBasicMaterial: jest.fn().mockImplementation((options) => ({
-        color: options.color,
-        transparent: options.transparent,
-        opacity: options.opacity,
-        dispose: jest.fn(),
-        needsUpdate: false,
-    })),
-    Vector3: jest.fn().mockImplementation(() => ({
-        distanceTo: jest.fn().mockReturnValue(10),
-    })),
-};
-
-// Mock performance.now
-global.performance = {
-    now: jest.fn().mockReturnValue(1000),
-};
-
-// Mock requestAnimationFrame
-global.requestAnimationFrame = jest.fn((callback) => {
-    setTimeout(callback, 16);
-});
-
 describe('PerformanceOptimizer', () => {
     let performanceOptimizer;
+    let mockScene;
+    let mockRenderer;
 
     beforeEach(() => {
         jest.clearAllMocks();
+
+        // Re-initialize mocks inside beforeEach to handle resetMocks: true
+
+        // Mock Three.js objects
+        mockScene = {
+            traverse: jest.fn(),
+        };
+
+        mockRenderer = {
+            info: {
+                render: { calls: 10 },
+                memory: { geometries: 5, textures: 3 },
+            },
+        };
+
+        // Mock Three.js constructors
+        global.THREE = {
+            BoxGeometry: jest.fn().mockImplementation(() => ({
+                dispose: jest.fn(),
+            })),
+            SphereGeometry: jest.fn().mockImplementation(() => ({
+                dispose: jest.fn(),
+            })),
+            OctahedronGeometry: jest.fn().mockImplementation(() => ({
+                dispose: jest.fn(),
+            })),
+            ConeGeometry: jest.fn().mockImplementation(() => ({
+                dispose: jest.fn(),
+            })),
+            IcosahedronGeometry: jest.fn().mockImplementation(() => ({
+                dispose: jest.fn(),
+            })),
+            MeshLambertMaterial: jest.fn().mockImplementation((options) => ({
+                color: options.color,
+                transparent: options.transparent,
+                opacity: options.opacity,
+                emissive: options.emissive,
+                emissiveIntensity: options.emissiveIntensity,
+                dispose: jest.fn(),
+                needsUpdate: false,
+            })),
+            LineBasicMaterial: jest.fn().mockImplementation((options) => ({
+                color: options.color,
+                opacity: options.opacity,
+                transparent: options.transparent,
+                dispose: jest.fn(),
+                needsUpdate: false,
+            })),
+            MeshBasicMaterial: jest.fn().mockImplementation((options) => ({
+                color: options.color,
+                transparent: options.transparent,
+                opacity: options.opacity,
+                dispose: jest.fn(),
+                needsUpdate: false,
+            })),
+            Vector3: jest.fn().mockImplementation(() => ({
+                distanceTo: jest.fn().mockReturnValue(10),
+            })),
+        };
+
+        // Mock performance.now
+        global.performance = {
+            now: jest.fn().mockReturnValue(1000),
+        };
+
+        // Mock requestAnimationFrame
+        global.requestAnimationFrame = jest.fn((callback) => {
+            setTimeout(callback, 16);
+        });
+
         performanceOptimizer = new PerformanceOptimizer(mockScene, mockRenderer);
     });
 
@@ -336,16 +341,16 @@ describe('PerformanceOptimizer', () => {
         });
 
         it('should cull distant trail segments', () => {
-            const mockCameraPosition = { distanceTo: jest.fn().mockReturnValue(10) };
+            const mockCameraPosition = new THREE.Vector3(); // Use the mocked Vector3
             const mockTrailObject = {
                 userData: { materialId: 'trail_player_1' },
-                position: mockCameraPosition,
+                position: new THREE.Vector3(), // Use mocked Vector3
                 visible: true,
                 material: { opacity: 0.8 },
             };
 
             // Mock the distance calculation to return a large distance
-            mockCameraPosition.distanceTo.mockReturnValue(200); // Beyond cull distance (150)
+            mockTrailObject.position.distanceTo.mockReturnValue(200); // Beyond cull distance (150)
 
             mockScene.traverse.mockImplementation((callback) => {
                 callback(mockTrailObject);

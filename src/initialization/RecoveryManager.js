@@ -13,7 +13,10 @@ const {
 class RecoveryManager {
     constructor() {
         // Logger
+        console.log('RecoveryManager: Logger class:', Logger);
+        console.log('RecoveryManager: Logger.create:', Logger && Logger.create);
         this.logger = Logger.create('RecoveryManager');
+        console.log('RecoveryManager: this.logger:', this.logger);
 
         // Error display state (from ErrorHandler)
         this.errorContainer = null;

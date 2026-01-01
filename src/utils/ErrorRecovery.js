@@ -7,7 +7,7 @@ const { Logger } = require('./Logger');
 class ErrorRecovery {
     constructor(errorHandler) {
         this.errorHandler = errorHandler;
-        this.logger = Logger.create('ErrorRecovery');
+        this.logger = Logger.create ? Logger.create('ErrorRecovery') : new Logger('ErrorRecovery');
         this.recoveryStrategies = new Map();
         this.failedComponents = new Set();
         this.fallbackMode = false;

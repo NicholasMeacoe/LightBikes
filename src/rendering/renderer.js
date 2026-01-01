@@ -1,18 +1,23 @@
 class RenderingEngine {
     constructor(bounds) {
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
         this.camera.position.set(0, 20, 20);
-        
+
         // Create renderer with proper settings
         this.renderer = new THREE.WebGLRenderer({
             antialias: true,
-            alpha: false
+            alpha: false,
         });
-        
+
         // Set clear color to dark blue instead of black for visibility
         this.renderer.setClearColor(0x000033, 1.0);
-        
+
         // Set size and append to DOM
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
@@ -24,11 +29,11 @@ class RenderingEngine {
         // Initialize ThemeEngine for arena theme management
         const { ThemeEngine } = require('../systems/ThemeEngine.js');
         this.themeEngine = new ThemeEngine(this.scene, this.renderer);
-        
+
         // Initialize emissive material system for glow effects
         const { EmissiveMaterialSystem } = require('./EmissiveMaterialSystem.js');
         this.emissiveMaterialSystem = new EmissiveMaterialSystem();
-        
+
         // Initialize trail style renderer
         const { TrailStyleRenderer } = require('./TrailStyleRenderer.js');
         this.trailStyleRenderer = new TrailStyleRenderer(this.scene, this.emissiveMaterialSystem);
@@ -40,7 +45,7 @@ class RenderingEngine {
         this.playerEntities = new Map(); // id -> THREE.Mesh
         this.playerTrails = new Map(); // id -> trail segments array
         this.playerLabels = new Map(); // id -> label mesh
-        
+
         // Maintain backward compatibility with single player
         this.player = null; // Will be set to first player for compatibility
         this.playerTrail = []; // Will reference first player trail for compatibility
@@ -48,13 +53,13 @@ class RenderingEngine {
         // AI entities - support for multiple AI opponents
         this.aiEntities = new Map(); // id -> THREE.Mesh
         this.aiTrails = new Map(); // id -> trail segments array
-        
+
         // Maintain backward compatibility with single AI
         this.ai = null; // Will be set to first AI for compatibility
         this.aiTrail = []; // Will reference first AI trail for compatibility
 
         this.playerTrail = [];
-        
+
         // Boundary visualization system
         this.boundaryVisualization = {
             currentBoundaries: null,
@@ -63,7 +68,7 @@ class RenderingEngine {
                 active: false,
                 intensity: 0.0,
                 flashRate: 4, // 4 flashes per second
-                lastFlashTime: 0
+                lastFlashTime: 0,
             },
             shrinkAnimation: {
                 active: false,
@@ -71,20 +76,20 @@ class RenderingEngine {
                 duration: 500, // 0.5 seconds
                 startTime: 0,
                 startBounds: null,
-                targetBounds: null
-            }
+                targetBounds: null,
+            },
         };
-        
+
         // Power-up rendering with instanced rendering optimization
         this.powerUpObjects = new Map(); // id -> THREE.Object3D
         this.powerUpAnimations = new Map(); // id -> animation data
-        
+
         // Instanced rendering for power-ups (when multiple of same type exist)
         this.instancedMeshes = new Map(); // type -> THREE.InstancedMesh
         this.instanceMatrices = new Map(); // type -> Float32Array for matrices
         this.instanceCounts = new Map(); // type -> current instance count
         this.maxInstancesPerType = 3; // Max power-ups of same type (matches SPAWN_CONFIG.maxActivePowerUps)
-        
+
         // Particle system for collection effects
         this.collectionParticles = [];
         this.particleGeometry = new THREE.SphereGeometry(0.05, 8, 8);
@@ -92,16 +97,16 @@ class RenderingEngine {
             speed: new THREE.MeshBasicMaterial({ color: 0x0066ff, transparent: true }),
             shield: new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true }),
             eraser: new THREE.MeshBasicMaterial({ color: 0x9932cc, transparent: true }),
-            ghost: new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true })
+            ghost: new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true }),
         };
-        
+
         // Initialize instanced meshes for power-up types
         this.initializeInstancedMeshes();
-        
+
         // Particle system integration
         this.particleSystem = null;
         this.particleSystemEnabled = true;
-        
+
         // Split screen camera system for multiplayer
         this.splitScreenCamera = null;
     }
@@ -117,14 +122,14 @@ class RenderingEngine {
     draw(gameState) {
         // Handle pause/resume state changes for glow effects
         this.handleGlowPauseState(gameState);
-        
+
         // Update emissive material pulse animation
         const deltaTime = this.calculateDeltaTime();
         this.emissiveMaterialSystem.updatePulseAnimation(deltaTime);
-        
+
         // Update trail style effects (rainbow color cycling, etc.)
         this.trailStyleRenderer.updateTrailEffects(deltaTime);
-        
+
         // Update player entities from game state
         this.updatePlayerEntities(gameState);
 
@@ -142,11 +147,11 @@ class RenderingEngine {
 
         // Update power-up animations
         this.updatePowerUpAnimations();
-        
+
         // Update particle effects
         this.updateParticleEffects();
         this.updateCollectionNotifications();
-        
+
         // Update integrated particle system
         this.updateIntegratedParticleSystem(gameState);
 
@@ -157,9 +162,13 @@ class RenderingEngine {
 
         // Update camera based on player positions
         this.updateCameraForPlayers(gameState);
-        
+
         // Render with camera effects if available, otherwise use standard rendering
-        if (this.cameraEffectsManager && this.cameraEffectsManager.isEnabled() && this.cameraEffectsManager.hasPostProcessing()) {
+        if (
+            this.cameraEffectsManager &&
+            this.cameraEffectsManager.isEnabled() &&
+            this.cameraEffectsManager.hasPostProcessing()
+        ) {
             this.cameraEffectsManager.render(this.scene, this.camera);
         } else {
             this.renderer.render(this.scene, this.camera);
@@ -187,14 +196,14 @@ class RenderingEngine {
      */
     handleGlowPauseState(gameState) {
         if (!this.emissiveMaterialSystem) return;
-        
+
         const isPaused = gameState.isPaused || false;
-        
+
         // Track previous pause state to detect changes
         if (this.lastPauseState === undefined) {
             this.lastPauseState = isPaused;
         }
-        
+
         // Handle pause state changes
         if (isPaused && !this.lastPauseState) {
             // Game was just paused
@@ -203,7 +212,7 @@ class RenderingEngine {
             // Game was just resumed
             this.emissiveMaterialSystem.resumePulse();
         }
-        
+
         this.lastPauseState = isPaused;
     }
 
@@ -214,25 +223,28 @@ class RenderingEngine {
     updateAIEntities(gameState) {
         // Handle multiple AI opponents from aiOpponents array
         if (gameState.aiOpponents && gameState.aiOpponents.length > 0) {
-            gameState.aiOpponents.forEach(aiOpponent => {
+            gameState.aiOpponents.forEach((aiOpponent) => {
                 if (aiOpponent.alive) {
                     let aiMesh = this.aiEntities.get(aiOpponent.id);
-                    
+
                     // Create AI mesh if it doesn't exist
                     if (!aiMesh) {
                         const aiGeometry = new THREE.BoxGeometry(1, 1, 1);
                         const aiColor = this.getColorHex(aiOpponent.color);
-                        const aiMaterial = this.emissiveMaterialSystem.createBikeMaterial(aiOpponent.id, aiColor);
+                        const aiMaterial = this.emissiveMaterialSystem.createBikeMaterial(
+                            aiOpponent.id,
+                            aiColor
+                        );
                         aiMesh = new THREE.Mesh(aiGeometry, aiMaterial);
                         this.scene.add(aiMesh);
                         this.aiEntities.set(aiOpponent.id, aiMesh);
-                        
+
                         // Initialize trail array for this AI
                         if (!this.aiTrails.has(aiOpponent.id)) {
                             this.aiTrails.set(aiOpponent.id, []);
                         }
                     }
-                    
+
                     // Update position
                     aiMesh.position.x = aiOpponent.x;
                     aiMesh.position.z = aiOpponent.z;
@@ -245,7 +257,7 @@ class RenderingEngine {
                     }
                 }
             });
-            
+
             // Maintain backward compatibility - set first AI as legacy ai property
             const firstAI = gameState.aiOpponents[0];
             if (firstAI && firstAI.alive) {
@@ -254,23 +266,26 @@ class RenderingEngine {
             }
         } else {
             // No AI opponents - hide all AI entities
-            this.aiEntities.forEach(aiMesh => {
+            this.aiEntities.forEach((aiMesh) => {
                 aiMesh.visible = false;
             });
             this.ai = null;
             this.aiTrail = [];
         }
-        
+
         // Handle backward compatibility with single AI (gameState.ai)
         if (gameState.ai && !gameState.aiOpponents) {
             // Legacy single AI mode
             if (!this.ai) {
                 const aiGeometry = new THREE.BoxGeometry(1, 1, 1);
-                const aiMaterial = this.emissiveMaterialSystem.createBikeMaterial('legacy_ai', 0xff0000);
+                const aiMaterial = this.emissiveMaterialSystem.createBikeMaterial(
+                    'legacy_ai',
+                    0xff0000
+                );
                 this.ai = new THREE.Mesh(aiGeometry, aiMaterial);
                 this.scene.add(this.ai);
             }
-            
+
             this.ai.position.x = gameState.ai.x;
             this.ai.position.z = gameState.ai.z;
             this.ai.visible = true;
@@ -283,10 +298,10 @@ class RenderingEngine {
      */
     updateAITrails(gameState) {
         if (gameState.aiOpponents && gameState.aiOpponents.length > 0) {
-            gameState.aiOpponents.forEach(aiOpponent => {
+            gameState.aiOpponents.forEach((aiOpponent) => {
                 if (aiOpponent.alive && aiOpponent.trail) {
                     const aiTrail = this.aiTrails.get(aiOpponent.id) || [];
-                    
+
                     // Create new trail segments if needed
                     if (aiTrail.length < aiOpponent.trail.length) {
                         const lastSegment = aiOpponent.trail[aiOpponent.trail.length - 1];
@@ -297,7 +312,7 @@ class RenderingEngine {
                 }
             });
         }
-        
+
         // Handle backward compatibility with single AI trail
         if (gameState.ai && gameState.aiTrail && this.aiTrail.length < gameState.aiTrail.length) {
             const lastSegment = gameState.aiTrail[gameState.aiTrail.length - 1];
@@ -312,14 +327,14 @@ class RenderingEngine {
      */
     getColorHex(colorName) {
         const colorMap = {
-            'red': 0xff0000,
-            'blue': 0x0000ff,
-            'yellow': 0xffff00,
-            'purple': 0x800080,
-            'cyan': 0x00ffff,
-            'green': 0x00ff00,
-            'orange': 0xff6600,
-            'white': 0xffffff
+            red: 0xff0000,
+            blue: 0x0000ff,
+            yellow: 0xffff00,
+            purple: 0x800080,
+            cyan: 0x00ffff,
+            green: 0x00ff00,
+            orange: 0xff6600,
+            white: 0xffffff,
         };
         return colorMap[colorName] || 0xff0000; // Default to red if color not found
     }
@@ -331,11 +346,11 @@ class RenderingEngine {
      */
     getPlayerColor(playerId) {
         const playerColorMap = {
-            'P1': 0x00ff00, // Green for Player 1
-            'P2': 0x0000ff, // Blue for Player 2
-            'player': 0x00ff00, // Backward compatibility
-            'player1': 0x00ff00,
-            'player2': 0x0000ff
+            P1: 0x00ff00, // Green for Player 1
+            P2: 0x0000ff, // Blue for Player 2
+            player: 0x00ff00, // Backward compatibility
+            player1: 0x00ff00,
+            player2: 0x0000ff,
         };
         return playerColorMap[playerId] || 0x00ff00; // Default to green
     }
@@ -349,19 +364,19 @@ class RenderingEngine {
         if (gameState.player1 && gameState.player2) {
             this.updatePlayerEntity('P1', gameState.player1);
             this.updatePlayerEntity('P2', gameState.player2);
-            
+
             // Maintain backward compatibility - set first player as legacy player property
             this.player = this.playerEntities.get('P1');
             this.playerTrail = this.playerTrails.get('P1') || [];
-        } 
+        }
         // Handle players array (alternative multiplayer format)
         else if (gameState.players && gameState.players.length > 0) {
-            gameState.players.forEach(player => {
+            gameState.players.forEach((player) => {
                 if (player.id && player.isAlive) {
                     this.updatePlayerEntity(player.id, player);
                 }
             });
-            
+
             // Set first player as legacy player property
             const firstPlayer = gameState.players[0];
             if (firstPlayer) {
@@ -398,33 +413,36 @@ class RenderingEngine {
 
         let playerMesh = this.playerEntities.get(playerId);
         let playerLabel = this.playerLabels.get(playerId);
-        
+
         // Create player mesh if it doesn't exist
         if (!playerMesh) {
             const playerGeometry = new THREE.BoxGeometry(1, 1, 1);
             const playerColor = this.getPlayerColor(playerId);
-            const playerMaterial = this.emissiveMaterialSystem.createBikeMaterial(playerId, playerColor);
+            const playerMaterial = this.emissiveMaterialSystem.createBikeMaterial(
+                playerId,
+                playerColor
+            );
             playerMesh = new THREE.Mesh(playerGeometry, playerMaterial);
             this.scene.add(playerMesh);
             this.playerEntities.set(playerId, playerMesh);
-            
+
             // Initialize trail array for this player
             if (!this.playerTrails.has(playerId)) {
                 this.playerTrails.set(playerId, []);
             }
         }
-        
+
         // Create player label if it doesn't exist
         if (!playerLabel && (playerId === 'P1' || playerId === 'P2')) {
             playerLabel = this.createPlayerLabel(playerId);
             this.playerLabels.set(playerId, playerLabel);
         }
-        
+
         // Update position
         playerMesh.position.x = playerState.x || playerState.position?.x || 0;
         playerMesh.position.z = playerState.z || playerState.position?.z || 0;
         playerMesh.visible = true;
-        
+
         // Update label position if it exists
         if (playerLabel) {
             playerLabel.position.x = playerMesh.position.x;
@@ -443,22 +461,22 @@ class RenderingEngine {
         // Create a simple colored cube as a label (in a real implementation, this would be text)
         const labelGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
         const labelColor = this.getPlayerColor(playerId);
-        const labelMaterial = new THREE.MeshBasicMaterial({ 
+        const labelMaterial = new THREE.MeshBasicMaterial({
             color: labelColor,
             transparent: true,
-            opacity: 0.8
+            opacity: 0.8,
         });
-        
+
         const label = new THREE.Mesh(labelGeometry, labelMaterial);
         label.position.y = 2; // Position above player
-        
+
         // Add to scene
         this.scene.add(label);
-        
+
         // In a real implementation, you would create text geometry or use CSS2DRenderer
         // For now, we'll use a colored cube that matches the player color
         console.log(`Created label for ${playerId}`);
-        
+
         return label;
     }
 
@@ -474,7 +492,7 @@ class RenderingEngine {
         }
         // Handle players array (alternative multiplayer format)
         else if (gameState.players && gameState.players.length > 0) {
-            gameState.players.forEach(player => {
+            gameState.players.forEach((player) => {
                 if (player.id && player.isAlive) {
                     this.updatePlayerTrail(player.id, player);
                 }
@@ -498,9 +516,9 @@ class RenderingEngine {
      */
     updatePlayerTrail(playerId, playerState) {
         if (!playerState.isAlive || !playerState.trail) return;
-        
+
         const playerTrail = this.playerTrails.get(playerId) || [];
-        
+
         // Create new trail segments if needed
         if (playerTrail.length < playerState.trail.length) {
             const lastSegment = playerState.trail[playerState.trail.length - 1];
@@ -516,15 +534,15 @@ class RenderingEngine {
         if (playerId && this.emissiveMaterialSystem.getTrailColorTemplate) {
             finalColor = this.emissiveMaterialSystem.getTrailColorTemplate(playerId);
         }
-        
+
         // Create styled trail segment using TrailStyleRenderer
         const trailSegment = this.trailStyleRenderer.createStyledTrailSegment(
-            position, 
-            finalColor, 
-            trail, 
+            position,
+            finalColor,
+            trail,
             playerId
         );
-        
+
         // Only add to trail array if segment was actually created (not skipped for dashed style)
         if (trailSegment) {
             trail.push(trailSegment);
@@ -536,7 +554,7 @@ class RenderingEngine {
         const baseCameraPosition = {
             x: playerPosition.x,
             y: 20,
-            z: playerPosition.z + 15
+            z: playerPosition.z + 15,
         };
 
         // Apply camera effects if available
@@ -568,7 +586,7 @@ class RenderingEngine {
 
         // Collect alive players for camera tracking
         const alivePlayers = [];
-        
+
         // Handle multiplayer game state with player1 and player2
         if (gameState.player1 && gameState.player2) {
             if (gameState.player1.isAlive) alivePlayers.push(gameState.player1);
@@ -576,7 +594,7 @@ class RenderingEngine {
         }
         // Handle players array format
         else if (gameState.players && gameState.players.length > 0) {
-            alivePlayers.push(...gameState.players.filter(p => p.isAlive));
+            alivePlayers.push(...gameState.players.filter((p) => p.isAlive));
         }
         // Handle backward compatibility with single player
         else if (gameState.player) {
@@ -585,15 +603,16 @@ class RenderingEngine {
 
         // Update split screen camera with alive players
         this.splitScreenCamera.setPlayers(alivePlayers);
-        
+
         // Get camera effects offset if available
-        const effectsOffset = (this.cameraEffectsManager && this.cameraEffectsManager.isEnabled()) 
-            ? this.cameraEffectsManager.getCameraOffset() 
-            : { x: 0, y: 0, z: 0 };
-        
+        const effectsOffset =
+            this.cameraEffectsManager && this.cameraEffectsManager.isEnabled()
+                ? this.cameraEffectsManager.getCameraOffset()
+                : { x: 0, y: 0, z: 0 };
+
         // Update camera with arena state if available
         this.splitScreenCamera.update(effectsOffset, gameState.arenaState);
-        
+
         // Fallback to legacy camera system if no players found
         if (alivePlayers.length === 0 && this.player) {
             this.updateCamera(this.player.position);
@@ -603,16 +622,16 @@ class RenderingEngine {
     clearTrails() {
         // Clear all trails using the trail style renderer
         this.trailStyleRenderer.clearAllTrails();
-        
+
         // Clear all player entities and trails
         this.clearAllPlayers();
-        
+
         // Clear all AI entities and trails
         this.clearAllAIs();
-        
+
         // Clear boundary visualizations when clearing trails (game reset)
         this.clearBoundaryVisualization();
-        
+
         // Reset particle system on game reset
         this.resetParticleSystem();
 
@@ -620,7 +639,7 @@ class RenderingEngine {
         if (this.cameraEffectsManager && this.cameraEffectsManager.isEnabled()) {
             this.cameraEffectsManager.reset();
         }
-        
+
         // Reset split screen camera on game reset
         if (this.splitScreenCamera) {
             this.splitScreenCamera.reset();
@@ -632,38 +651,38 @@ class RenderingEngine {
      */
     initializeInstancedMeshes() {
         const powerUpTypes = {
-            'SPEED_BOOST': {
+            SPEED_BOOST: {
                 geometry: new THREE.BoxGeometry(0.8, 0.8, 0.8),
                 material: new THREE.MeshLambertMaterial({
                     color: 0x0066ff,
                     emissive: 0x0066ff,
-                    emissiveIntensity: 0.3
-                })
+                    emissiveIntensity: 0.3,
+                }),
             },
-            'SHIELD': {
+            SHIELD: {
                 geometry: new THREE.SphereGeometry(0.6, 16, 16),
                 material: new THREE.MeshLambertMaterial({
                     color: 0xffd700,
                     emissive: 0xffd700,
-                    emissiveIntensity: 0.3
-                })
+                    emissiveIntensity: 0.3,
+                }),
             },
-            'TRAIL_ERASER': {
+            TRAIL_ERASER: {
                 geometry: new THREE.BoxGeometry(0.8, 0.8, 0.8),
                 material: new THREE.MeshLambertMaterial({
                     color: 0x9932cc,
                     emissive: 0x9932cc,
-                    emissiveIntensity: 0.3
-                })
+                    emissiveIntensity: 0.3,
+                }),
             },
-            'GHOST_MODE': {
+            GHOST_MODE: {
                 geometry: new THREE.BoxGeometry(0.8, 0.8, 0.8),
                 material: new THREE.MeshLambertMaterial({
                     color: 0xffffff,
                     transparent: true,
-                    opacity: 0.7
-                })
-            }
+                    opacity: 0.7,
+                }),
+            },
         };
 
         for (const [type, config] of Object.entries(powerUpTypes)) {
@@ -673,7 +692,7 @@ class RenderingEngine {
                 config.material,
                 this.maxInstancesPerType
             );
-            
+
             // Initialize with invisible instances (will be updated when power-ups spawn)
             const matrix = new THREE.Matrix4();
             matrix.makeScale(0, 0, 0); // Make invisible initially
@@ -682,11 +701,11 @@ class RenderingEngine {
             }
             instancedMesh.instanceMatrix.needsUpdate = true;
             instancedMesh.count = 0; // No visible instances initially
-            
+
             this.scene.add(instancedMesh);
             this.instancedMeshes.set(type, instancedMesh);
             this.instanceCounts.set(type, 0);
-            
+
             // Initialize matrix array for this type
             this.instanceMatrices.set(type, new Float32Array(this.maxInstancesPerType * 16));
         }
@@ -707,7 +726,7 @@ class RenderingEngine {
         }
 
         // Remove power-ups that no longer exist
-        const currentIds = new Set(powerUpEntities.map(p => p.id));
+        const currentIds = new Set(powerUpEntities.map((p) => p.id));
         for (const [id, object] of this.powerUpObjects) {
             if (!currentIds.has(id)) {
                 this.removePowerUp(id);
@@ -777,13 +796,13 @@ class RenderingEngine {
                 emissive: appearance.color,
                 emissiveIntensity: 0.3,
                 transparent: appearance.opacity !== undefined,
-                opacity: appearance.opacity || 1.0
+                opacity: appearance.opacity || 1.0,
             });
         } else {
             material = new THREE.MeshLambertMaterial({
                 color: appearance.color,
                 transparent: appearance.opacity !== undefined,
-                opacity: appearance.opacity || 1.0
+                opacity: appearance.opacity || 1.0,
             });
         }
 
@@ -815,7 +834,7 @@ class RenderingEngine {
             floatSpeed: 0,
             originalY: mesh.position.y,
             opacityRange: { min: 1, max: 1 },
-            opacitySpeed: 0
+            opacitySpeed: 0,
         };
 
         // Configure animation based on power-up type
@@ -852,7 +871,16 @@ class RenderingEngine {
         const currentTime = Date.now();
 
         for (const [id, animData] of this.powerUpAnimations) {
-            const { mesh, startTime, rotationSpeed, floatAmplitude, floatSpeed, originalY, opacityRange, opacitySpeed } = animData;
+            const {
+                mesh,
+                startTime,
+                rotationSpeed,
+                floatAmplitude,
+                floatSpeed,
+                originalY,
+                opacityRange,
+                opacitySpeed,
+            } = animData;
             const elapsed = currentTime - startTime;
 
             // Apply rotation
@@ -882,11 +910,11 @@ class RenderingEngine {
         const mesh = this.powerUpObjects.get(powerUpId);
         if (mesh) {
             this.scene.remove(mesh);
-            
+
             // Dispose of geometry and material to free memory
             if (mesh.geometry) mesh.geometry.dispose();
             if (mesh.material) mesh.material.dispose();
-            
+
             this.powerUpObjects.delete(powerUpId);
         }
 
@@ -908,10 +936,10 @@ class RenderingEngine {
         // Update instances for this type
         for (let i = 0; i < powerUps.length && i < this.maxInstancesPerType; i++) {
             const powerUp = powerUps[i];
-            
+
             // Set position
             position.set(powerUp.position.x, powerUp.position.y, powerUp.position.z);
-            
+
             // Set rotation based on animation (simplified for instanced rendering)
             const time = Date.now() * 0.001;
             switch (type) {
@@ -927,17 +955,17 @@ class RenderingEngine {
                 default:
                     rotation.set(0, 0, 0);
             }
-            
+
             // Special handling for diamond shape (Trail Eraser)
             if (type === 'TRAIL_ERASER') {
                 rotation.x += Math.PI / 4;
                 rotation.z += Math.PI / 4;
             }
-            
+
             // Create transformation matrix
             matrix.compose(position, new THREE.Quaternion().setFromEuler(rotation), scale);
             instancedMesh.setMatrixAt(i, matrix);
-            
+
             // Remove from individual rendering if it exists
             if (this.powerUpObjects.has(powerUp.id)) {
                 this.removePowerUp(powerUp.id);
@@ -963,12 +991,12 @@ class RenderingEngine {
         for (const [id] of this.powerUpObjects) {
             this.removePowerUp(id);
         }
-        
+
         // Clear instanced meshes
         for (const [type, instancedMesh] of this.instancedMeshes) {
             instancedMesh.count = 0;
             this.instanceCounts.set(type, 0);
-            
+
             // Hide all instances
             const invisibleMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
             for (let i = 0; i < this.maxInstancesPerType; i++) {
@@ -984,7 +1012,7 @@ class RenderingEngine {
     createCollectionParticles(position, powerUpType) {
         const particleCount = 8;
         const particles = [];
-        
+
         // Get material based on power-up type
         let material;
         switch (powerUpType) {
@@ -1007,10 +1035,10 @@ class RenderingEngine {
         // Create particles
         for (let i = 0; i < particleCount; i++) {
             const particle = new THREE.Mesh(this.particleGeometry, material.clone());
-            
+
             // Set initial position
             particle.position.set(position.x, position.y, position.z);
-            
+
             // Random velocity
             const angle = (i / particleCount) * Math.PI * 2;
             const speed = 0.1 + Math.random() * 0.1;
@@ -1018,16 +1046,16 @@ class RenderingEngine {
                 velocity: {
                     x: Math.cos(angle) * speed,
                     y: 0.05 + Math.random() * 0.1,
-                    z: Math.sin(angle) * speed
+                    z: Math.sin(angle) * speed,
                 },
                 life: 1.0,
-                decay: 0.02 + Math.random() * 0.01
+                decay: 0.02 + Math.random() * 0.01,
             };
-            
+
             this.scene.add(particle);
             particles.push(particle);
         }
-        
+
         this.collectionParticles.push(...particles);
     }
 
@@ -1036,37 +1064,37 @@ class RenderingEngine {
      */
     updateParticleEffects() {
         const particlesToRemove = [];
-        
+
         for (let i = 0; i < this.collectionParticles.length; i++) {
             const particle = this.collectionParticles[i];
             const userData = particle.userData;
-            
+
             // Update position
             particle.position.x += userData.velocity.x;
             particle.position.y += userData.velocity.y;
             particle.position.z += userData.velocity.z;
-            
+
             // Apply gravity
             userData.velocity.y -= 0.002;
-            
+
             // Update life and opacity
             userData.life -= userData.decay;
             particle.material.opacity = userData.life;
-            
+
             // Mark for removal if life is over
             if (userData.life <= 0) {
                 particlesToRemove.push(i);
             }
         }
-        
+
         // Remove dead particles
         for (let i = particlesToRemove.length - 1; i >= 0; i--) {
             const index = particlesToRemove[i];
             const particle = this.collectionParticles[index];
-            
+
             this.scene.remove(particle);
             if (particle.material) particle.material.dispose();
-            
+
             this.collectionParticles.splice(index, 1);
         }
     }
@@ -1080,43 +1108,63 @@ class RenderingEngine {
         const notificationGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
         let notificationMaterial;
         let text = '';
-        
+
         switch (powerUpType) {
             case 'SPEED_BOOST':
-                notificationMaterial = new THREE.MeshBasicMaterial({ color: 0x0066ff, transparent: true, opacity: 0.8 });
+                notificationMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x0066ff,
+                    transparent: true,
+                    opacity: 0.8,
+                });
                 text = 'Speed Boost!';
                 break;
             case 'SHIELD':
-                notificationMaterial = new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.8 });
+                notificationMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xffd700,
+                    transparent: true,
+                    opacity: 0.8,
+                });
                 text = 'Shield!';
                 break;
             case 'TRAIL_ERASER':
-                notificationMaterial = new THREE.MeshBasicMaterial({ color: 0x9932cc, transparent: true, opacity: 0.8 });
+                notificationMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x9932cc,
+                    transparent: true,
+                    opacity: 0.8,
+                });
                 text = 'Trail Eraser!';
                 break;
             case 'GHOST_MODE':
-                notificationMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+                notificationMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.8,
+                });
                 text = 'Ghost Mode!';
                 break;
             default:
-                notificationMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+                notificationMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.8,
+                });
                 text = 'Power-Up!';
         }
-        
+
         const notification = new THREE.Mesh(notificationGeometry, notificationMaterial);
         notification.position.set(position.x, position.y + 2, position.z);
-        
+
         // Add animation data for floating upward and fading
         notification.userData = {
             startTime: Date.now(),
             duration: 2000, // 2 seconds
             startY: position.y + 2,
-            isNotification: true
+            isNotification: true,
         };
-        
+
         this.scene.add(notification);
         this.collectionParticles.push(notification); // Reuse particle system for cleanup
-        
+
         // Log the text notification (in a real implementation, this would be displayed as UI text)
         console.log(`Collection Notification: ${text}`);
     }
@@ -1126,12 +1174,12 @@ class RenderingEngine {
      */
     updateCollectionNotifications() {
         const currentTime = Date.now();
-        
+
         for (const particle of this.collectionParticles) {
             if (particle.userData && particle.userData.isNotification) {
                 const elapsed = currentTime - particle.userData.startTime;
                 const progress = elapsed / particle.userData.duration;
-                
+
                 if (progress >= 1) {
                     // Mark for removal
                     particle.userData.life = 0;
@@ -1195,7 +1243,7 @@ class RenderingEngine {
             color: 0x00ffff, // Bright cyan for high visibility
             linewidth: 3,
             transparent: true,
-            opacity: 1.0
+            opacity: 1.0,
         });
 
         const boundaryLines = new THREE.LineSegments(geometry, material);
@@ -1248,7 +1296,7 @@ class RenderingEngine {
             color: 0xff6600, // Orange for future boundaries
             linewidth: 2,
             transparent: true,
-            opacity: 0.3 // Translucent as specified in requirements
+            opacity: 0.3, // Translucent as specified in requirements
         });
 
         const futureBoundaryLines = new THREE.LineSegments(geometry, material);
@@ -1271,7 +1319,7 @@ class RenderingEngine {
         // Show future boundaries during warning periods
         if (arenaState.warningActive) {
             this.createFutureBoundaryVisualization(arenaState.nextBounds);
-            
+
             // Activate warning flash
             if (!this.boundaryVisualization.warningFlash.active) {
                 this.boundaryVisualization.warningFlash.active = true;
@@ -1283,14 +1331,14 @@ class RenderingEngine {
                 this.scene.remove(this.boundaryVisualization.futureBoundaries);
                 this.boundaryVisualization.futureBoundaries = null;
             }
-            
+
             // Deactivate warning flash
             this.boundaryVisualization.warningFlash.active = false;
         }
 
         // Update warning flash effect
         this.updateWarningFlash(currentTime);
-        
+
         // Update shrinking animation
         this.updateShrinkAnimation(currentTime);
     }
@@ -1301,7 +1349,7 @@ class RenderingEngine {
      */
     updateWarningFlash(currentTime) {
         const flash = this.boundaryVisualization.warningFlash;
-        
+
         if (!flash.active || !this.boundaryVisualization.currentBoundaries) {
             return;
         }
@@ -1310,11 +1358,11 @@ class RenderingEngine {
         const flashInterval = 1000 / flash.flashRate; // 250ms per flash cycle
         const timeSinceLastFlash = currentTime - flash.lastFlashTime;
         const flashCycle = (timeSinceLastFlash % flashInterval) / flashInterval;
-        
+
         // Create pulsing red effect
         const redIntensity = Math.sin(flashCycle * Math.PI * 2) * 0.5 + 0.5;
         const flashColor = new THREE.Color(1, redIntensity * 0.2, redIntensity * 0.2);
-        
+
         // Apply flash effect to current boundaries
         this.boundaryVisualization.currentBoundaries.material.color = flashColor;
         this.boundaryVisualization.currentBoundaries.material.opacity = 0.8 + redIntensity * 0.2;
@@ -1340,7 +1388,7 @@ class RenderingEngine {
      */
     updateShrinkAnimation(currentTime) {
         const animation = this.boundaryVisualization.shrinkAnimation;
-        
+
         if (!animation.active) return;
 
         const elapsed = currentTime - animation.startTime;
@@ -1355,10 +1403,18 @@ class RenderingEngine {
         // Interpolate boundary positions for smooth animation
         const t = animation.progress;
         const currentBounds = {
-            minX: animation.startBounds.minX + (animation.targetBounds.minX - animation.startBounds.minX) * t,
-            maxX: animation.startBounds.maxX + (animation.targetBounds.maxX - animation.startBounds.maxX) * t,
-            minZ: animation.startBounds.minZ + (animation.targetBounds.minZ - animation.startBounds.minZ) * t,
-            maxZ: animation.startBounds.maxZ + (animation.targetBounds.maxZ - animation.startBounds.maxZ) * t
+            minX:
+                animation.startBounds.minX +
+                (animation.targetBounds.minX - animation.startBounds.minX) * t,
+            maxX:
+                animation.startBounds.maxX +
+                (animation.targetBounds.maxX - animation.startBounds.maxX) * t,
+            minZ:
+                animation.startBounds.minZ +
+                (animation.targetBounds.minZ - animation.startBounds.minZ) * t,
+            maxZ:
+                animation.startBounds.maxZ +
+                (animation.targetBounds.maxZ - animation.startBounds.maxZ) * t,
         };
 
         // Update boundary visualization with interpolated bounds
@@ -1381,7 +1437,7 @@ class RenderingEngine {
         const aiMesh = this.aiEntities.get(aiId);
         if (aiMesh) {
             this.scene.remove(aiMesh);
-            
+
             // Dispose of geometry and material to free memory
             if (aiMesh.geometry) {
                 aiMesh.geometry.dispose();
@@ -1389,21 +1445,21 @@ class RenderingEngine {
             if (aiMesh.material) {
                 aiMesh.material.dispose();
             }
-            
+
             this.aiEntities.delete(aiId);
         }
-        
+
         // Remove AI trail segments
         const aiTrail = this.aiTrails.get(aiId);
         if (aiTrail) {
             for (const segment of aiTrail) {
                 this.scene.remove(segment);
-                
+
                 // Dispose of emissive material through material system
                 if (segment.userData && segment.userData.materialId) {
                     this.emissiveMaterialSystem.disposeMaterial(segment.userData.materialId);
                 }
-                
+
                 // Dispose of geometry to free memory
                 if (segment.geometry) {
                     segment.geometry.dispose();
@@ -1411,13 +1467,13 @@ class RenderingEngine {
             }
             this.aiTrails.delete(aiId);
         }
-        
+
         // Update backward compatibility references if this was the first AI
         if (this.ai === aiMesh) {
             // Find next alive AI or set to null
             const nextAI = Array.from(this.aiEntities.values())[0];
             this.ai = nextAI || null;
-            
+
             const nextTrail = Array.from(this.aiTrails.values())[0];
             this.aiTrail = nextTrail || [];
         }
@@ -1430,19 +1486,19 @@ class RenderingEngine {
      */
     cleanupCrashedAIs(gameState) {
         if (!gameState.aiOpponents) return;
-        
+
         // Find AIs that are no longer in the game state and remove them completely
-        const aiIdsInGame = new Set(gameState.aiOpponents.map(ai => ai.id));
+        const aiIdsInGame = new Set(gameState.aiOpponents.map((ai) => ai.id));
         const aiIdsToRemove = [];
-        
+
         this.aiEntities.forEach((mesh, aiId) => {
             if (!aiIdsInGame.has(aiId)) {
                 aiIdsToRemove.push(aiId);
             }
         });
-        
+
         // Remove AIs that are no longer in the game
-        aiIdsToRemove.forEach(aiId => {
+        aiIdsToRemove.forEach((aiId) => {
             this.removeCrashedAI(aiId);
         });
     }
@@ -1454,7 +1510,7 @@ class RenderingEngine {
         // Remove all AI entity meshes
         this.aiEntities.forEach((mesh, aiId) => {
             this.scene.remove(mesh);
-            
+
             // Dispose of geometry and material to free memory
             if (mesh.geometry) {
                 mesh.geometry.dispose();
@@ -1464,17 +1520,17 @@ class RenderingEngine {
             }
         });
         this.aiEntities.clear();
-        
+
         // Remove all AI trail segments
         this.aiTrails.forEach((trail, aiId) => {
             for (const segment of trail) {
                 this.scene.remove(segment);
-                
+
                 // Dispose of emissive material through material system
                 if (segment.userData && segment.userData.materialId) {
                     this.emissiveMaterialSystem.disposeMaterial(segment.userData.materialId);
                 }
-                
+
                 // Dispose of geometry to free memory
                 if (segment.geometry) {
                     segment.geometry.dispose();
@@ -1482,7 +1538,7 @@ class RenderingEngine {
             }
         });
         this.aiTrails.clear();
-        
+
         // Clear backward compatibility references
         if (this.ai && this.ai.parent) {
             this.scene.remove(this.ai);
@@ -1504,7 +1560,7 @@ class RenderingEngine {
         // Remove all player entity meshes
         this.playerEntities.forEach((mesh, playerId) => {
             this.scene.remove(mesh);
-            
+
             // Dispose of geometry and material to free memory
             if (mesh.geometry) {
                 mesh.geometry.dispose();
@@ -1514,11 +1570,11 @@ class RenderingEngine {
             }
         });
         this.playerEntities.clear();
-        
+
         // Remove all player labels
         this.playerLabels.forEach((label, playerId) => {
             this.scene.remove(label);
-            
+
             // Dispose of geometry and material to free memory
             if (label.geometry) {
                 label.geometry.dispose();
@@ -1528,17 +1584,17 @@ class RenderingEngine {
             }
         });
         this.playerLabels.clear();
-        
+
         // Remove all player trail segments
         this.playerTrails.forEach((trail, playerId) => {
             for (const segment of trail) {
                 this.scene.remove(segment);
-                
+
                 // Dispose of emissive material through material system
                 if (segment.userData && segment.userData.materialId) {
                     this.emissiveMaterialSystem.disposeMaterial(segment.userData.materialId);
                 }
-                
+
                 // Dispose of geometry to free memory
                 if (segment.geometry) {
                     segment.geometry.dispose();
@@ -1546,7 +1602,7 @@ class RenderingEngine {
             }
         });
         this.playerTrails.clear();
-        
+
         // Clear backward compatibility references
         if (this.player && this.player.parent) {
             this.scene.remove(this.player);
@@ -1614,8 +1670,8 @@ class RenderingEngine {
                 effects: {
                     trailSparks: settings.effects?.trailSparks !== false,
                     explosions: settings.effects?.explosions !== false,
-                    collections: settings.effects?.collections !== false
-                }
+                    collections: settings.effects?.collections !== false,
+                },
             });
 
             this.particleSystemEnabled = true;
@@ -1639,7 +1695,9 @@ class RenderingEngine {
         try {
             // Calculate delta time (simplified for integration)
             const currentTime = Date.now();
-            const deltaTime = this.lastParticleUpdate ? (currentTime - this.lastParticleUpdate) / 1000 : 0.016;
+            const deltaTime = this.lastParticleUpdate
+                ? (currentTime - this.lastParticleUpdate) / 1000
+                : 0.016;
             this.lastParticleUpdate = currentTime;
 
             // Update particle system
@@ -1647,7 +1705,6 @@ class RenderingEngine {
 
             // Emit trail sparks for moving entities
             this.emitTrailSparksForEntities(gameState);
-
         } catch (error) {
             console.error('Error updating integrated particle system:', error);
             // Disable particle system on error to prevent further issues
@@ -1667,23 +1724,24 @@ class RenderingEngine {
         // Emit trail sparks for player if moving
         if (gameState.player && gameState.playerDirection) {
             // Get player speed multiplier from power-up system if available
-            const playerSpeedMultiplier = gameState.powerUpManager ? 
-                gameState.powerUpManager.getSpeedMultiplier('player') : 1.0;
+            const playerSpeedMultiplier = gameState.powerUpManager
+                ? gameState.powerUpManager.getSpeedMultiplier('player')
+                : 1.0;
             const actualPlayerSpeed = baseGameSpeed * playerSpeedMultiplier;
-            
+
             const playerVelocity = {
                 x: gameState.playerDirection.x * actualPlayerSpeed,
                 y: 0,
-                z: gameState.playerDirection.z * actualPlayerSpeed
+                z: gameState.playerDirection.z * actualPlayerSpeed,
             };
-            
+
             // Only emit if actually moving
             if (Math.abs(playerVelocity.x) > 0.01 || Math.abs(playerVelocity.z) > 0.01) {
                 // Use green color matching player trail (0x00ff00)
                 this.particleSystem.emitTrailSparks(
-                    gameState.player, 
-                    playerVelocity, 
-                    0x00ff00, 
+                    gameState.player,
+                    playerVelocity,
+                    0x00ff00,
                     actualPlayerSpeed
                 );
             }
@@ -1691,29 +1749,25 @@ class RenderingEngine {
 
         // Emit trail sparks for AI opponents
         if (gameState.aiOpponents) {
-            gameState.aiOpponents.forEach(ai => {
+            gameState.aiOpponents.forEach((ai) => {
                 if (ai.alive && ai.direction) {
                     // Get AI speed multiplier from power-up system if available
-                    const aiSpeedMultiplier = gameState.powerUpManager ? 
-                        gameState.powerUpManager.getSpeedMultiplier('ai') : 1.0;
+                    const aiSpeedMultiplier = gameState.powerUpManager
+                        ? gameState.powerUpManager.getSpeedMultiplier('ai')
+                        : 1.0;
                     const actualAISpeed = baseGameSpeed * aiSpeedMultiplier;
-                    
+
                     const aiVelocity = {
                         x: ai.direction.x * actualAISpeed,
                         y: 0,
-                        z: ai.direction.z * actualAISpeed
+                        z: ai.direction.z * actualAISpeed,
                     };
-                    
+
                     // Only emit if actually moving
                     if (Math.abs(aiVelocity.x) > 0.01 || Math.abs(aiVelocity.z) > 0.01) {
                         // Use color matching AI trail color
                         const aiColor = this.getColorHex(ai.color);
-                        this.particleSystem.emitTrailSparks(
-                            ai, 
-                            aiVelocity, 
-                            aiColor, 
-                            actualAISpeed
-                        );
+                        this.particleSystem.emitTrailSparks(ai, aiVelocity, aiColor, actualAISpeed);
                     }
                 }
             });
@@ -1721,22 +1775,23 @@ class RenderingEngine {
 
         // Handle backward compatibility with single AI
         if (gameState.ai && gameState.aiDirection && !gameState.aiOpponents) {
-            const aiSpeedMultiplier = gameState.powerUpManager ? 
-                gameState.powerUpManager.getSpeedMultiplier('ai') : 1.0;
+            const aiSpeedMultiplier = gameState.powerUpManager
+                ? gameState.powerUpManager.getSpeedMultiplier('ai')
+                : 1.0;
             const actualAISpeed = baseGameSpeed * aiSpeedMultiplier;
-            
+
             const aiVelocity = {
                 x: gameState.aiDirection.x * actualAISpeed,
                 y: 0,
-                z: gameState.aiDirection.z * actualAISpeed
+                z: gameState.aiDirection.z * actualAISpeed,
             };
-            
+
             if (Math.abs(aiVelocity.x) > 0.01 || Math.abs(aiVelocity.z) > 0.01) {
                 // Use red color for backward compatibility
                 this.particleSystem.emitTrailSparks(
-                    gameState.ai, 
-                    aiVelocity, 
-                    0xff0000, 
+                    gameState.ai,
+                    aiVelocity,
+                    0xff0000,
                     actualAISpeed
                 );
             }
@@ -1786,7 +1841,7 @@ class RenderingEngine {
 
         // Get the ParticleSystem class from the existing system or require it
         const { ParticleSystem } = require('./ParticleSystem.js');
-        
+
         // Reinitialize with new settings
         this.initializeParticleSystem(ParticleSystem, settings);
     }
@@ -1885,7 +1940,7 @@ class RenderingEngine {
             console.warn('ThemeEngine not initialized');
             return false;
         }
-        
+
         return this.themeEngine.loadTheme(themeName);
     }
 
@@ -1897,7 +1952,7 @@ class RenderingEngine {
         if (!this.themeEngine) {
             return [];
         }
-        
+
         return this.themeEngine.getAvailableThemes();
     }
 
@@ -1909,7 +1964,7 @@ class RenderingEngine {
         if (!this.themeEngine) {
             return 'classic-grid';
         }
-        
+
         return this.themeEngine.getCurrentTheme();
     }
 
@@ -1922,7 +1977,7 @@ class RenderingEngine {
         if (!this.themeEngine) {
             return null;
         }
-        
+
         return this.themeEngine.generateThemePreview(themeName);
     }
 
@@ -1935,7 +1990,7 @@ class RenderingEngine {
         if (!this.themeEngine) {
             return null;
         }
-        
+
         return this.themeEngine.getThemeConfig(themeName);
     }
 
@@ -1964,11 +2019,11 @@ class RenderingEngine {
         try {
             const canvas = document.createElement('canvas');
             const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            
+
             if (!gl) {
                 return false;
             }
-            
+
             // Additional check for WebGL context
             return !!(window.WebGLRenderingContext && gl);
         } catch (e) {
@@ -1998,7 +2053,7 @@ class RenderingEngine {
             max-width: 500px;
             box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
         `;
-        
+
         errorDiv.innerHTML = `
             <h2 style="margin: 0 0 15px 0; font-size: 2em;">WebGL Not Supported</h2>
             <p style="margin: 0 0 15px 0; font-size: 1.1em;">
@@ -2017,9 +2072,9 @@ class RenderingEngine {
                 If you're using a supported browser, WebGL may be disabled in your settings.
             </p>
         `;
-        
+
         document.body.appendChild(errorDiv);
-        
+
         // Log to console for debugging
         console.error('WebGL is not available. The game cannot run without WebGL support.');
     }

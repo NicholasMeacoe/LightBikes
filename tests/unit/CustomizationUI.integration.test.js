@@ -1,18 +1,25 @@
-const mockLogger = {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-};
+jest.mock('@/utils/Logger.js', () => {
+    const mockLogger = {
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+        debug: jest.fn(),
+    };
 
-const MockLoggerClass = jest.fn().mockImplementation(() => mockLogger);
-MockLoggerClass.create = jest.fn((namespace) => mockLogger);
+    // Mock class that works as constructor and has static create method
+    const MockLoggerClass = jest.fn(() => mockLogger);
+    MockLoggerClass.create = jest.fn(() => mockLogger);
 
-jest.mock('@/utils/Logger.js', () => ({
-    Logger: MockLoggerClass,
-    logger: mockLogger,
-    createLogger: jest.fn(() => mockLogger),
-}));
+    return {
+        Logger: MockLoggerClass,
+        logger: mockLogger,
+        createLogger: jest.fn(() => mockLogger),
+    };
+});
+
+// Retrieve the mocked logger instance to use in tests (assertions)
+// We need to require it because the mock factory creates it
+const { logger: mockLogger, Logger } = require('@/utils/Logger.js');
 
 // Mock ColorPickerUI before requiring CustomizationUI
 jest.mock('@/ui/ColorPickerUI.js', () => ({
@@ -25,9 +32,10 @@ jest.mock('@/ui/ColorPickerUI.js', () => ({
     })),
 }));
 
-const { CustomizationUI } = require('@/ui/CustomizationUI.js');
-const { CustomizationManager } = require('@/systems/CustomizationManager.js');
-const { PreferenceStorage } = require('@/systems/PreferenceStorage.js');
+// Remove top-level requires
+// const { CustomizationUI } = require('@/ui/CustomizationUI.js');
+// const { CustomizationManager } = require('@/systems/CustomizationManager.js');
+// const { PreferenceStorage } = require('@/systems/PreferenceStorage.js');
 
 // Mock rendering engine
 const mockRenderingEngine = {
@@ -57,13 +65,24 @@ const mockPreferenceStorage = {
 };
 
 describe('CustomizationUI Integration', () => {
+    let CustomizationUI;
+    let CustomizationManager;
     let customizationUI;
     let customizationManager;
     let createElementSpy;
     let addEventListenerSpy;
 
     beforeEach(() => {
+        jest.resetModules();
         jest.clearAllMocks();
+
+        // Re-require modules
+        const CustomizationUIModule = require('@/ui/CustomizationUI.js');
+        const CustomizationManagerModule = require('@/systems/CustomizationManager.js');
+        const PreferenceStorageModule = require('@/systems/PreferenceStorage.js');
+
+        CustomizationUI = CustomizationUIModule.CustomizationUI;
+        CustomizationManager = CustomizationManagerModule.CustomizationManager;
 
         // Setup document spies
         createElementSpy = jest.spyOn(document, 'createElement');
@@ -74,7 +93,7 @@ describe('CustomizationUI Integration', () => {
         jest.spyOn(document, 'getElementById').mockImplementation((id) => {
             if (id === 'customization-menu') return document.createElement('div');
             if (id === 'customization-preview') return document.createElement('div');
-            if (id === 'customizationPanel') return customizationUI.panel;
+            if (id === 'customizationPanel') return customizationUI ? customizationUI.panel : null;
             if (id === 'previewModeStatus') return document.createElement('span');
             return null;
         });

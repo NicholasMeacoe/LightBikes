@@ -30,41 +30,62 @@ const mockPerformance = {
 };
 global.performance = mockPerformance;
 
-// Mock Three.js
-global.THREE = {
-    MeshBasicMaterial: jest.fn().mockImplementation(() => ({})),
-    MeshLambertMaterial: jest.fn().mockImplementation(() => ({})),
-    SphereGeometry: jest.fn().mockImplementation(() => ({})),
-    EffectComposer: jest.fn().mockImplementation(() => ({
-        addPass: jest.fn(),
-        render: jest.fn(),
-        setSize: jest.fn(),
-        dispose: jest.fn(),
-        passes: [],
-    })),
-    RenderPass: jest.fn(),
-    UnrealBloomPass: jest.fn().mockImplementation(() => ({
-        strength: 1.0,
-        radius: 0.4,
-        threshold: 0.85,
-        resolution: { x: 800, y: 600 },
-        renderToScreen: false,
-    })),
-    Vector2: jest.fn().mockImplementation((x, y) => ({ x, y })),
-};
-
 describe('Glow Effects Performance Validation', () => {
     let currentTime = 1000;
+    let PostProcessingPipeline;
+    let PerformanceScaler;
+    let EmissiveMaterialSystem;
+    let mockComposer, mockBloomPass, mockPass;
+
+    beforeAll(() => {
+        global.THREE = global.THREE || {};
+    });
 
     beforeEach(() => {
+        jest.resetModules();
         jest.clearAllMocks();
         currentTime = 1000;
         mockPerformance.now.mockImplementation(() => currentTime);
+
+        mockComposer = {
+            addPass: jest.fn(),
+            render: jest.fn(),
+            setSize: jest.fn(),
+            dispose: jest.fn(),
+            passes: [],
+        };
+
+        mockPass = {
+            dispose: jest.fn(),
+        };
+
+        mockBloomPass = {
+            strength: 1.0,
+            radius: 0.4,
+            threshold: 0.85,
+            resolution: { x: 800, y: 600 },
+            renderToScreen: false,
+            dispose: jest.fn(),
+        };
+
+        global.THREE.EffectComposer = jest.fn(() => mockComposer);
+        global.THREE.RenderPass = jest.fn(() => mockPass);
+        global.THREE.UnrealBloomPass = jest.fn(() => mockBloomPass);
+        global.THREE.Vector2 = jest.fn((x, y) => ({ x: x || 0, y: y || 0, set: jest.fn() }));
+        global.THREE.MeshBasicMaterial = jest.fn((p) => ({ ...p, dispose: jest.fn() }));
+        global.THREE.MeshLambertMaterial = jest.fn((p) => ({ ...p, dispose: jest.fn() }));
+        global.THREE.SphereGeometry = jest.fn(() => ({ dispose: jest.fn() }));
+
+        // Re-require modules
+        PerformanceScaler = require('@/utils/PerformanceScaler.js').PerformanceScaler;
+        EmissiveMaterialSystem =
+            require('@/rendering/EmissiveMaterialSystem.js').EmissiveMaterialSystem;
+        PostProcessingPipeline =
+            require('@/rendering/PostProcessingPipeline.js').PostProcessingPipeline;
     });
 
     describe('Frame Rate Monitoring', () => {
         it('should accurately track frame rate over time', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Simulate consistent 60 FPS
@@ -78,8 +99,7 @@ describe('Glow Effects Performance Validation', () => {
             expect(avgFPS).toBeCloseTo(60, 1);
         });
 
-        it('should detect performance drops accurately', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
+        it('detect performance drops accurately', () => {
             const scaler = new PerformanceScaler();
 
             // Simulate performance drop from 60 FPS to 30 FPS
@@ -97,7 +117,6 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should maintain frame rate history within limits', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Add more frames than the history limit
@@ -114,7 +133,6 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('Quality Scaling Effectiveness', () => {
         it('should scale down quality when performance drops', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             let qualityChanges = [];
@@ -138,7 +156,6 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should scale up quality after sustained good performance', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Start at lower quality
@@ -166,7 +183,6 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should provide different quality settings with measurable impact', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             const qualities = ['high', 'medium', 'low', 'minimal'];
@@ -197,7 +213,6 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('Memory Usage Validation', () => {
         it('should track memory usage over time', () => {
-            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
             const materialSystem = new EmissiveMaterialSystem();
 
             // Create multiple materials to simulate memory usage
@@ -220,7 +235,6 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should prevent memory leaks through proper disposal', () => {
-            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
             const materialSystem = new EmissiveMaterialSystem();
 
             // Create materials with dispose mocks
@@ -247,7 +261,6 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should handle large numbers of materials efficiently', () => {
-            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
             const materialSystem = new EmissiveMaterialSystem();
 
             const startTime = performance.now();
@@ -275,7 +288,6 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('Performance Scaling Thresholds', () => {
         it('should trigger scaling at correct FPS thresholds', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             expect(scaler.targetFPS).toBe(60);
@@ -297,7 +309,6 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should recommend appropriate quality levels based on performance', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             const recommendations = [
@@ -317,7 +328,6 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('Adaptive Scaling Performance', () => {
         it('should apply dynamic adjustments based on performance', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Simulate poor performance for aggressive downscaling
@@ -336,7 +346,6 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should track scaling effectiveness over time', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Perform several quality changes
@@ -355,8 +364,6 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('Post-processing Performance', () => {
         it('should handle different quality levels efficiently', () => {
-            const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
-
             const mockRenderer = { getSize: jest.fn(() => ({ x: 1920, y: 1080 })) };
             const mockScene = {};
             const mockCamera = {};
@@ -378,8 +385,6 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should handle resize operations efficiently', () => {
-            const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
-
             const mockRenderer = { getSize: jest.fn(() => ({ x: 800, y: 600 })) };
             const mockScene = {};
             const mockCamera = {};
@@ -408,14 +413,13 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('System Integration Performance', () => {
         it('should maintain performance with multiple systems active', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
-            const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
-            const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
-
             const scaler = new PerformanceScaler();
             const materialSystem = new EmissiveMaterialSystem();
             const pipeline = new PostProcessingPipeline(
-                { getSize: () => ({ x: 800, y: 600 }) },
+                {
+                    render: jest.fn(),
+                    getSize: jest.fn(() => ({ x: 800, y: 600 })),
+                },
                 {},
                 {}
             );
@@ -449,7 +453,6 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should provide comprehensive performance analysis', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Add performance data
@@ -477,7 +480,6 @@ describe('Glow Effects Performance Validation', () => {
 
     describe('Performance Regression Detection', () => {
         it('should detect performance regressions over time', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Simulate initial good performance
@@ -503,7 +505,6 @@ describe('Glow Effects Performance Validation', () => {
         });
 
         it('should track performance recovery', () => {
-            const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
             const scaler = new PerformanceScaler();
 
             // Start with poor performance

@@ -112,7 +112,8 @@ class ErrorRecoveryStrategies {
     reduceQuality() {
         try {
             if (this.degradationManager) {
-                const currentLevel = this.degradationManager.getDegradationState().level;
+                const state = this.degradationManager.getDegradationState();
+                const currentLevel = state ? state.level : undefined;
                 if (currentLevel < 2) {
                     this.degradationManager.setDegradationLevel(currentLevel + 1);
                     return true;

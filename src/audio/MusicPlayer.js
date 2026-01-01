@@ -25,6 +25,9 @@ class MusicPlayer {
         this.audioManager = audioManager;
         this.settings = settings || new MusicSettings();
 
+        // Ensure logger is defined
+        this.logger = logger;
+
         // Error handling and performance monitoring
         this.errorHandler = new MusicErrorHandler();
         this.performanceMonitor = new MusicPerformanceMonitor();
@@ -125,6 +128,9 @@ class MusicPlayer {
 
             // Create master gain node for volume control
             this.masterGainNode = this.audioContext.createGain();
+            if (!this.masterGainNode) {
+                throw new Error('Failed to create master gain node');
+            }
             this.masterGainNode.gain.value = this.currentVolume;
             this.masterGainNode.connect(this.audioContext.destination);
 

@@ -2,17 +2,19 @@
  * Integration Tests for Glow Effects System
  */
 
-const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
 const { PerformanceScaler } = require('@/utils/PerformanceScaler.js');
 const { GlowSettings } = require('@/systems/GlowSettings.js');
 const { EmissiveMaterialSystem } = require('@/rendering/EmissiveMaterialSystem.js');
 
 describe('Glow Effects Integration Tests', () => {
+    let PostProcessingPipeline;
     let mockRenderer, mockScene, mockCamera;
     let getItemSpy, setItemSpy;
     let store = {};
 
-    beforeAll(() => {
+    beforeEach(() => {
+        // Ensure global.THREE and its components are mocked correctly
+        global.THREE = global.THREE || {};
         global.THREE.EffectComposer = jest.fn().mockImplementation(() => ({
             addPass: jest.fn(),
             render: jest.fn(),
@@ -21,6 +23,8 @@ describe('Glow Effects Integration Tests', () => {
             passes: [],
         }));
         global.THREE.RenderPass = jest.fn().mockImplementation(() => ({
+            setSize: jest.fn(),
+            render: jest.fn(),
             dispose: jest.fn(),
         }));
         global.THREE.UnrealBloomPass = jest.fn().mockImplementation(() => ({
@@ -29,32 +33,18 @@ describe('Glow Effects Integration Tests', () => {
             threshold: 0.85,
             resolution: { x: 800, y: 600 },
             renderToScreen: false,
+            setSize: jest.fn(),
             dispose: jest.fn(),
         }));
-        if (!global.THREE.Vector2) {
-            global.THREE.Vector2 = jest
-                .fn()
-                .mockImplementation((x, y) => ({ x: x || 0, y: y || 0 }));
-        }
-        if (!global.THREE.MeshLambertMaterial) {
-            global.THREE.MeshLambertMaterial = jest.fn().mockImplementation((params) => ({
-                ...params,
-                color: { setHex: jest.fn() },
-                emissive: { setHex: jest.fn() },
-                dispose: jest.fn(),
-            }));
-        }
-        if (!global.THREE.MeshBasicMaterial) {
-            global.THREE.MeshBasicMaterial = jest.fn().mockImplementation((params) => ({
-                ...params,
-                color: { setHex: jest.fn() },
-                emissive: { setHex: jest.fn() },
-                dispose: jest.fn(),
-            }));
-        }
-    });
+        global.THREE.Vector2 = jest.fn().mockImplementation((x, y) => ({ x: x || 0, y: y || 0 }));
 
-    beforeEach(() => {
+        jest.resetModules();
+
+        // Re-require module to ensure a fresh state
+        const PostProcessingPipelineModule = require('@/rendering/PostProcessingPipeline.js');
+        PostProcessingPipeline = PostProcessingPipelineModule.PostProcessingPipeline;
+
+        // Reset store and storage mocks
         store = {};
         getItemSpy = jest
             .spyOn(Storage.prototype, 'getItem')
@@ -82,7 +72,6 @@ describe('Glow Effects Integration Tests', () => {
         mockCamera = {};
 
         jest.spyOn(document, 'getElementById').mockReturnValue(null);
-        jest.clearAllMocks();
     });
 
     afterEach(() => {
