@@ -26,6 +26,8 @@ const mockPostProcessing = {
     getStatus: jest.fn(),
     setBloomThreshold: jest.fn(),
     setBloomRadius: jest.fn(),
+    setEnabled: jest.fn(),
+    setQuality: jest.fn(),
 };
 
 const mockMaterialSystem = {
@@ -49,6 +51,7 @@ const mockPerformanceScaler = {
     setOnQualityChange: jest.fn(),
     setOnPerformanceWarning: jest.fn(),
     scalingEnabled: true,
+    scaleQualityDown: jest.fn(),
 };
 
 const mockSettings = {
@@ -83,7 +86,25 @@ describe('GlowEffectManager', () => {
     let mockScene = {};
     let mockCamera = {};
 
+    const localStorageMock = (function () {
+        let store = {};
+        return {
+            getItem: jest.fn((key) => store[key] || null),
+            setItem: jest.fn((key, value) => {
+                store[key] = value.toString();
+            }),
+            clear: jest.fn(() => {
+                store = {};
+            }),
+            removeItem: jest.fn((key) => {
+                delete store[key];
+            }),
+        };
+    })();
+    Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
     beforeEach(() => {
+        localStorageMock.clear();
         // Re-apply mock implementations because of resetMocks: true
         const { PostProcessingPipeline } = require('@/rendering/PostProcessingPipeline.js');
         PostProcessingPipeline.mockImplementation(() => mockPostProcessing);
@@ -114,6 +135,9 @@ describe('GlowEffectManager', () => {
 
         mockSettings.getIntensity.mockReturnValue('MEDIUM');
         mockSettings.apply.mockReturnValue(true);
+
+        // Reset localStorage for mockSettings if needed
+        mockSettings.load.mockImplementation(() => {});
 
         mockRenderer = {
             render: jest.fn(),
@@ -293,6 +317,141 @@ describe('GlowEffectManager', () => {
             expect(mockPostProcessing.dispose).toHaveBeenCalled();
             expect(mockMaterialSystem.dispose).toHaveBeenCalled();
             expect(glowEffectManager.initialized).toBe(false);
+        });
+    });
+
+    describe('Debug and Logging', () => {
+        it('should initialize logging in debug mode', () => {
+            localStorage.setItem('lightbikes_debug_glow', 'true');
+            glowEffectManager = new GlowEffectManager(mockRenderer, mockScene, mockCamera);
+            expect(glowEffectManager.debugMode).toBe(true);
+            expect(window.glowDebug).toBeDefined();
+        });
+
+        it('should log info, warnings, and errors', () => {
+            glowEffectManager = new GlowEffectManager(mockRenderer, mockScene, mockCamera);
+            glowEffectManager.logInfo('test', 'info msg');
+            expect(glowEffectManager.getLogHistory().length).toBeGreaterThan(0);
+            expect(glowEffectManager.getLogHistory()[0].level).toBe('INFO');
+
+            glowEffectManager.logWarning('test', 'warn msg');
+            expect(glowEffectManager.getLogHistory()[1].level).toBe('WARNING');
+
+            glowEffectManager.logError('test', 'error msg');
+            expect(glowEffectManager.getLogHistory()[2].level).toBe('ERROR');
+        });
+
+        it('should dump debug state', () => {
+            glowEffectManager = new GlowEffectManager(mockRenderer, mockScene, mockCamera);
+            glowEffectManager.initialize();
+            const state = glowEffectManager.dumpDebugState();
+            expect(state.system.enabled).toBeDefined();
+            expect(state.memory).toBeDefined();
+        });
+    });
+
+    describe('Memory Management', () => {
+        beforeEach(() => {
+            // Mock localStorage for debug memory flag
+            localStorage.setItem('lightbikes_debug_memory', 'true');
+            glowEffectManager = new GlowEffectManager(mockRenderer, mockScene, mockCamera);
+        });
+
+        it('should monitor memory usage', () => {
+            jest.useFakeTimers();
+
+            // Directly mock getMemoryUsage to bypass JSDOM performance quirks
+            const spyGet = jest
+                .spyOn(glowEffectManager, 'getMemoryUsage')
+                .mockReturnValue(1024 * 1024);
+
+            // Ensure monitoring starts
+            glowEffectManager.startMemoryMonitoring();
+
+            expect(glowEffectManager.memoryMonitorInterval).not.toBeNull();
+
+            // Allow time for interval
+            jest.advanceTimersByTime(35000);
+
+            expect(spyGet).toHaveBeenCalled();
+
+            const stats = glowEffectManager.getMemoryStats();
+            expect(stats).not.toBeNull();
+            expect(stats.samples).toBeGreaterThan(0);
+
+            jest.useRealTimers();
+        });
+
+        it('should detect and handle memory leaks', () => {
+            glowEffectManager.initialize();
+            // Manually setup stats
+            glowEffectManager.memoryStats = {
+                initialMemory: 1000,
+                peakMemory: 1000,
+                samples: [],
+                leakWarningThreshold: 100,
+            };
+
+            // Mock getMemoryUsage to simulate high memory
+            jest.spyOn(glowEffectManager, 'getMemoryUsage').mockReturnValue(100000000); // High memory
+
+            glowEffectManager.checkMemoryUsage();
+
+            // High memory should trigger leak detection
+            expect(mockPerformanceScaler.setQuality).toHaveBeenCalledWith('minimal');
+        });
+    });
+
+    describe('Advanced Error Recovery', () => {
+        beforeEach(() => {
+            glowEffectManager = new GlowEffectManager(mockRenderer, mockScene, mockCamera);
+            glowEffectManager.initialize();
+        });
+
+        it('should attempt quality reduction on rendering failure', () => {
+            glowEffectManager.performanceScaler.currentQuality = 'high';
+            const recovered = glowEffectManager.handleRenderingFailure(new Error('fail'), 'test');
+            expect(recovered).toBe(true);
+            expect(mockPerformanceScaler.scaleQualityDown).toHaveBeenCalled();
+        });
+
+        it('should disable post-processing if quality reduction fails', () => {
+            glowEffectManager.performanceScaler.currentQuality = 'disabled';
+            const recovered = glowEffectManager.handleRenderingFailure(new Error('fail'), 'test');
+            expect(recovered).toBe(true);
+            expect(mockPostProcessing.setEnabled).toHaveBeenCalledWith(false);
+        });
+
+        it('should enable fallback mode if post-processing disable fails', () => {
+            glowEffectManager.performanceScaler.currentQuality = 'disabled';
+            glowEffectManager.postProcessing = null;
+            glowEffectManager.fallbackMode = false;
+
+            const recovered = glowEffectManager.handleRenderingFailure(new Error('fail'), 'test');
+            expect(recovered).toBe(true);
+            expect(glowEffectManager.fallbackMode).toBe(true);
+        });
+    });
+
+    describe('Game State Handling', () => {
+        beforeEach(() => {
+            glowEffectManager = new GlowEffectManager(mockRenderer, mockScene, mockCamera);
+            glowEffectManager.initialize();
+        });
+
+        it('should handle game mode switches', () => {
+            glowEffectManager.handleGameModeSwitch('TIME_TRIAL', 'CLASSIC');
+            expect(mockMaterialSystem.dispose).toHaveBeenCalled();
+        });
+
+        it('should force pause and resume', () => {
+            glowEffectManager.forcePause();
+            expect(mockMaterialSystem.pausePulse).toHaveBeenCalled();
+            expect(glowEffectManager.isPaused).toBe(true);
+
+            glowEffectManager.forceResume();
+            expect(mockMaterialSystem.resumePulse).toHaveBeenCalled();
+            expect(glowEffectManager.isPaused).toBe(false);
         });
     });
 });

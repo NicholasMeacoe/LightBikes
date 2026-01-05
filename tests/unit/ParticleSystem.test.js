@@ -702,4 +702,179 @@ describe('ParticleSystem', () => {
             expect(particleSystem.particleMaterial).toBeNull();
         });
     });
+
+    describe('Error Handling and Edge Cases', () => {
+        const originalThree = { ...global.THREE };
+
+        beforeEach(() => {
+            // Restore globals before each test in this block to ensure clean state
+            global.THREE = { ...originalThree };
+            // Ensure mocked logger is available
+            jest.doMock('@/utils/Logger.js', () => ({
+                logger: mockLogger,
+                Logger: MockLoggerClass,
+                createLogger: jest.fn(() => mockLogger),
+            }));
+        });
+
+        afterEach(() => {
+            jest.resetModules();
+            jest.restoreAllMocks();
+            global.THREE = { ...originalThree };
+        });
+
+        it('should handle constructor errors', () => {
+            expect(() => new ParticleSystem(null)).toThrow('Scene is required');
+        });
+
+        it('should handle particle pool initialization failure', () => {
+            jest.resetModules();
+
+            jest.doMock('@/rendering/ParticlePool.js', () => ({
+                ParticlePool: jest.fn().mockImplementation(() => {
+                    throw new Error('Pool init failed');
+                }),
+            }));
+
+            // Need to mock dependencies that ParticleSystem requires
+            jest.doMock('@/utils/PerformanceMonitor.js', () => ({
+                PerformanceMonitor: jest.fn(),
+            }));
+
+            const { ParticleSystem: PS_MockedPool } = require('@/rendering/ParticleSystem.js');
+
+            expect(() => new PS_MockedPool(mockScene)).toThrow(
+                'Failed to initialize particle pool'
+            );
+
+            jest.unmock('@/rendering/ParticlePool.js');
+        });
+
+        it('should handle rendering initialization failure', () => {
+            jest.resetModules();
+            // Re-require to get fresh module
+            const { ParticleSystem: PS } = require('@/rendering/ParticleSystem.js');
+
+            const originalBufferGeometry = global.THREE.BufferGeometry;
+            global.THREE.BufferGeometry = jest.fn().mockImplementation(() => {
+                throw new Error('Geometry error');
+            });
+
+            try {
+                expect(() => new PS(mockScene)).toThrow('Failed to initialize particle rendering');
+            } finally {
+                global.THREE.BufferGeometry = originalBufferGeometry;
+            }
+        });
+
+        it('should use fallback texture on texture creation failure', () => {
+            jest.resetModules();
+            const { ParticleSystem: PS } = require('@/rendering/ParticleSystem.js');
+
+            const originalCreateElement = global.document.createElement;
+            global.document.createElement = jest.fn(() => {
+                throw new Error('Canvas error');
+            });
+
+            try {
+                const system = new PS(mockScene);
+                const texture = system.createParticleTexture();
+                expect(texture).toEqual({ needsUpdate: true });
+            } finally {
+                global.document.createElement = originalCreateElement;
+            }
+        });
+
+        it('should handle update errors gracefully', () => {
+            jest.resetModules();
+            const { ParticleSystem: PS } = require('@/rendering/ParticleSystem.js');
+            const system = new PS(mockScene);
+
+            system.validateUpdateParameters = jest.fn().mockImplementation(() => {
+                throw new Error('Update validation error');
+            });
+
+            system.update(0.1, {});
+            expect(mockLogger.error).toHaveBeenCalledWith(
+                expect.stringContaining('Critical update error'),
+                expect.any(Error)
+            );
+        });
+
+        it('should handle batch update errors', () => {
+            jest.resetModules();
+            const { ParticleSystem: PS } = require('@/rendering/ParticleSystem.js');
+            const system = new PS(mockScene);
+
+            // 1. Missing attributes -> Warn
+            system.particleGeometry = { attributes: null };
+            system.updateRenderingBuffers();
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                expect.stringContaining('Geometry not available')
+            );
+
+            // 2. Missing buffer arrays -> Warn
+            // Note: Use a new system or reset geometry to ensure clean state
+            const system2 = new PS(mockScene);
+            system2.particleGeometry = {
+                attributes: {
+                    position: { array: null }, // Trigger specific check
+                    color: { array: null },
+                    size: { array: null },
+                    alpha: { array: null },
+                },
+            };
+            system2.updateRenderingBuffers();
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                'ParticleSystem: Buffer arrays not available'
+            );
+        });
+
+        it('should handle pool update errors', () => {
+            jest.resetModules();
+            const { ParticleSystem: PS } = require('@/rendering/ParticleSystem.js');
+            const system = new PS(mockScene);
+
+            system.particlePool.updateParticles = jest.fn().mockImplementation(() => {
+                throw new Error('Pool update error');
+            });
+
+            system.update(0.1, {});
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                expect.stringContaining('Particle pool update error'),
+                expect.any(Error)
+            );
+        });
+
+        it('should handle shader uniform update errors', () => {
+            jest.resetModules();
+            const { ParticleSystem: PS } = require('@/rendering/ParticleSystem.js');
+            const system = new PS(mockScene);
+
+            Object.defineProperty(system.particleMaterial, 'uniforms', {
+                get: () => {
+                    throw new Error('Uniform access error');
+                },
+                configurable: true, // Important for reset if needed
+            });
+
+            system.update(0.1, {});
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                expect.stringContaining('Shader uniform update error'),
+                expect.any(Error)
+            );
+        });
+
+        it('should skip emission if parameters invalid', () => {
+            jest.resetModules();
+            const { ParticleSystem: PS } = require('@/rendering/ParticleSystem.js');
+            const system = new PS(mockScene);
+
+            system.validateEmissionParameters = jest.fn().mockReturnValue(false);
+            const spyAcquire = jest.spyOn(system, 'acquireParticle');
+
+            system.emitTrailSparks({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, 0xffffff);
+            expect(spyAcquire).not.toHaveBeenCalled();
+        });
+    });
 });

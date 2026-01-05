@@ -64,7 +64,11 @@ class BrowserCompatibility {
         const userAgent = navigator.userAgent;
 
         // Chrome
-        if (userAgent.indexOf('Chrome') > -1 && userAgent.indexOf('Edg') === -1) {
+        if (
+            userAgent.indexOf('Chrome') > -1 &&
+            userAgent.indexOf('Edg') === -1 &&
+            userAgent.indexOf('OPR') === -1
+        ) {
             this.browserInfo.name = 'Chrome';
             const match = userAgent.match(/Chrome\/(\d+)/);
             if (match) {

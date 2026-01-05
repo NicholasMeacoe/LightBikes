@@ -234,6 +234,103 @@ describe('GameLoop', () => {
         });
     });
 
+    describe('animate', () => {
+        beforeEach(() => {
+            // Setup for animation tests
+            gameLoop.running = true;
+            // Prevent infinite recursion by not executing the callback immediately
+            jest.spyOn(window, 'requestAnimationFrame').mockReturnValue(1);
+            mockDependencies.performanceMonitor.getLastFrameTime.mockReturnValue(16.67);
+        });
+
+        it('should calculate correct deltaTime from performance monitor', () => {
+            mockDependencies.performanceMonitor.getLastFrameTime.mockReturnValue(33.33);
+            gameLoop.animate();
+
+            // Verify delta time passed to managers (33.33ms / 1000 = 0.03333s)
+            expect(mockDependencies.glowEffectManager.update).toHaveBeenCalledWith(
+                expect.closeTo(0.03333, 5),
+                expect.anything()
+            );
+            expect(mockDependencies.cameraEffectsManager.update).toHaveBeenCalledWith(
+                expect.closeTo(0.03333, 5)
+            );
+        });
+
+        it('should fallback to default deltaTime if performance monitor is missing', () => {
+            gameLoop.performanceMonitor = null;
+            gameLoop.animate();
+
+            // Default 16ms / 1000 = 0.016s
+            expect(mockDependencies.glowEffectManager.update).toHaveBeenCalledWith(
+                0.016,
+                expect.anything()
+            );
+        });
+
+        it('should integrate performance monitoring hooks', () => {
+            gameLoop.animate();
+            expect(mockDependencies.performanceMonitor.startFrameMonitoring).toHaveBeenCalled();
+            expect(mockDependencies.performanceMonitor.update).toHaveBeenCalled();
+        });
+
+        it('should handle performance monitor errors gracefully', () => {
+            mockDependencies.performanceMonitor.startFrameMonitoring.mockImplementation(() => {
+                throw new Error('Monitor Error');
+            });
+
+            gameLoop.animate();
+
+            expect(mockDependencies.recoveryManager.handleFeatureRuntimeError).toHaveBeenCalledWith(
+                'PerformanceMonitor',
+                expect.any(Error),
+                null
+            );
+        });
+
+        it('should handle glow effect manager errors', () => {
+            mockDependencies.glowEffectManager.update.mockImplementation(() => {
+                throw new Error('Glow Error');
+            });
+
+            gameLoop.animate();
+
+            expect(mockDependencies.recoveryManager.handleFeatureRuntimeError).toHaveBeenCalledWith(
+                'GlowEffectManager',
+                expect.any(Error),
+                expect.any(Function)
+            );
+        });
+
+        it('should handle camera effects manager errors', () => {
+            mockDependencies.cameraEffectsManager.update.mockImplementation(() => {
+                throw new Error('Camera Error');
+            });
+
+            gameLoop.animate();
+
+            expect(mockDependencies.recoveryManager.handleFeatureRuntimeError).toHaveBeenCalledWith(
+                'CameraEffectsManager',
+                expect.any(Error),
+                expect.any(Function)
+            );
+        });
+
+        it('should handle performance degradation manager errors', () => {
+            mockDependencies.performanceDegradationManager.update.mockImplementation(() => {
+                throw new Error('Degradation Error');
+            });
+
+            gameLoop.animate();
+
+            expect(mockDependencies.recoveryManager.handleFeatureRuntimeError).toHaveBeenCalledWith(
+                'PerformanceDegradationManager',
+                expect.any(Error),
+                null
+            );
+        });
+    });
+
     describe('render', () => {
         it('should render game state', () => {
             const gameState = mockDependencies.game.getGameState();
@@ -256,6 +353,21 @@ describe('GameLoop', () => {
 
             expect(mockDependencies.recoveryManager.handleRenderingError).toHaveBeenCalled();
         });
+
+        it('should handle glow render errors', () => {
+            mockDependencies.glowEffectManager.render.mockImplementation(() => {
+                throw new Error('Glow Render Error');
+            });
+
+            const gameState = mockDependencies.game.getGameState();
+            gameLoop.render(gameState);
+
+            expect(mockDependencies.recoveryManager.handleFeatureRuntimeError).toHaveBeenCalledWith(
+                'GlowEffectManager',
+                expect.any(Error),
+                expect.any(Function)
+            );
+        });
     });
 
     describe('handleGameOver', () => {
@@ -266,6 +378,16 @@ describe('GameLoop', () => {
             gameLoop.handleGameOver();
 
             expect(mockDependencies.uiManager.showGameOver).toHaveBeenCalled();
+        });
+
+        it('should fallback to simple game over if UI manager missing', () => {
+            gameLoop.uiManager = null;
+            gameLoop.modeUI = null; // Ensure fallback path
+            document.body.innerHTML = '<div id="gameOver"></div><button id="restart"></button>';
+
+            gameLoop.handleGameOver();
+
+            expect(mockDependencies.showMultiAIGameOver).toHaveBeenCalled();
         });
     });
 });

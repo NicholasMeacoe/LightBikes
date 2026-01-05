@@ -95,9 +95,14 @@ describe('ReconnectionManager', () => {
             const delay2 = reconnectionManager.calculateBackoffDelay(2);
             const delay3 = reconnectionManager.calculateBackoffDelay(3);
 
-            // Should roughly double each time (with jitter)
-            expect(delay2).toBeGreaterThan(delay1 * 1.5);
-            expect(delay3).toBeGreaterThan(delay2 * 1.5);
+            // Should roughly double each time (accounting for ±20% jitter)
+            // Base delay is 1000ms, so delay1 ≈ 1000±200, delay2 ≈ 2000±400, delay3 ≈ 4000±800
+            expect(delay1).toBeGreaterThanOrEqual(800); // 1000 - 20%
+            expect(delay1).toBeLessThanOrEqual(1200); // 1000 + 20%
+            expect(delay2).toBeGreaterThanOrEqual(1600); // 2000 - 20%
+            expect(delay2).toBeLessThanOrEqual(2400); // 2000 + 20%
+            expect(delay3).toBeGreaterThanOrEqual(3200); // 4000 - 20%
+            expect(delay3).toBeLessThanOrEqual(4800); // 4000 + 20%
         });
 
         it('should cap delay at maxDelay', () => {

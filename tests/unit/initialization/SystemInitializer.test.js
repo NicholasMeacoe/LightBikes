@@ -197,9 +197,16 @@ describe('SystemInitializer', () => {
     });
 
     describe('registerRecoveryStrategies()', () => {
+        let strategies = {};
+
         beforeEach(() => {
             systemInitializer.systems.audioManager = { setMuted: jest.fn() };
             systemInitializer.systems.performanceMonitor = {};
+
+            // Capture strategies when registered
+            mockRecoveryManager.registerStrategy.mockImplementation((name, strategy) => {
+                strategies[name] = strategy;
+            });
         });
 
         it('should register all expected strategies', () => {
@@ -222,12 +229,63 @@ describe('SystemInitializer', () => {
                 'GlowEffectManager',
             ];
 
-            expectedStrategies.forEach((strategy) => {
-                expect(mockRecoveryManager.registerStrategy).toHaveBeenCalledWith(
-                    strategy,
-                    expect.any(Object)
-                );
+            expectedStrategies.forEach((name) => {
+                expect(strategies[name]).toBeDefined();
+                expect(strategies[name].initialize).toEqual(expect.any(Function));
             });
+        });
+
+        it('should provide working fallback for AudioManager', async () => {
+            systemInitializer.registerRecoveryStrategies();
+            const strategy = strategies['AudioManager'];
+
+            expect(strategy.fallback).toBeDefined();
+            const fallbackAudio = await strategy.fallback();
+
+            expect(fallbackAudio.setMuted).toHaveBeenCalledWith(true);
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                expect.stringContaining('Audio system unavailable')
+            );
+        });
+
+        it('should provide working fallback for RenderingEngine', async () => {
+            systemInitializer.registerRecoveryStrategies();
+            const strategy = strategies['RenderingEngine'];
+
+            expect(strategy.fallback).toBeDefined();
+
+            // Mock RenderingEngine constructor for this test
+            const mockRendererInstance = { renderer: { setPixelRatio: jest.fn() } };
+            // We need to ensure the RenderingEngine mock returns this
+            const RenderingEngineMock = require('@/rendering/renderer.js').RenderingEngine;
+            RenderingEngineMock.mockImplementation(() => mockRendererInstance);
+
+            const fallbackRenderer = await strategy.fallback();
+
+            expect(fallbackRenderer).toBe(mockRendererInstance);
+            expect(mockRendererInstance.renderer.setPixelRatio).toHaveBeenCalledWith(1);
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                expect.stringContaining('simplified rendering mode')
+            );
+        });
+
+        it('should provide working fallback for PowerUpManager', async () => {
+            systemInitializer.registerRecoveryStrategies();
+            const strategy = strategies['PowerUpManager'];
+
+            expect(strategy.fallback).toBeDefined();
+
+            const fallbackPowerUps = await strategy.fallback();
+            expect(fallbackPowerUps.enabled).toBe(false);
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                expect.stringContaining('Power-ups disabled')
+            );
+        });
+
+        it('should fail critical components without fallback', () => {
+            systemInitializer.registerRecoveryStrategies();
+            expect(strategies['Game'].critical).toBe(true);
+            expect(strategies['Game'].fallback).toBeUndefined();
         });
     });
 

@@ -80,10 +80,12 @@ class MusicSettingsUI {
 
         // Volume slider
         if (this.volumeSlider) {
-            /** @type {HTMLInputElement} */
-            const target = /** @type {any} */ (event.target);
-            const volume = parseInt(target.value);
-            this.setVolume(volume);
+            this.volumeSlider.addEventListener('input', (event) => {
+                /** @type {HTMLInputElement} */
+                const target = /** @type {any} */ (event.target);
+                const volume = parseInt(target.value);
+                this.setVolume(volume);
+            });
         }
 
         // Panel buttons

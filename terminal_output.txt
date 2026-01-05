@@ -1,0 +1,47 @@
+
+> lightbikes@1.0.0 test
+> jest --coverage tests/unit/TrailStyleRenderer.coverage.test.js --coverage --collectCoverageFrom=src/rendering/TrailStyleRenderer.js
+
+● Deprecation Warning:
+
+  Option "timers" was replaced by "fakeTimers".
+
+  Please update your configuration.
+
+  Configuration Documentation:
+  https://jestjs.io/docs/configuration
+
+● Deprecation Warning:
+
+  Option "timers" was replaced by "fakeTimers".
+
+  Please update your configuration.
+
+  Configuration Documentation:
+  https://jestjs.io/docs/configuration
+
+PASS tests/unit/TrailStyleRenderer.coverage.test.js
+  TrailStyleRenderer Coverage
+    Performance Optimizer Integration
+      ✓ should use performance optimizer for geometry and materials (4 ms)
+    Material Disposal Fallbacks
+      ✓ should handle material disposal without emissive system (1 ms)
+      ✓ should handle material disposal in clearAllTrails without emissive system (1 ms)
+    Edge Cases for shouldRenderSegment
+      ✓ should handle config without dashPattern (1 ms)
+      ✓ should handle config with non-alternating segments
+    Additional Coverage for Material Creation
+      ✓ should create standard material for non-emissive styles (1 ms)
+      ✓ should handle null return from getStyleConfig (1 ms)
+
+-----------------------|---------|----------|---------|---------|-----------------------------------------------------------
+File                   | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                         
+-----------------------|---------|----------|---------|---------|-----------------------------------------------------------
+All files              |   71.59 |    67.21 |      70 |   71.59 |                                                           
+ TrailStyleRenderer.js |   71.59 |    67.21 |      70 |   71.59 | 72-73,103,150,166,181-185,212-222,240-258,284,317,333,351 
+-----------------------|---------|----------|---------|---------|-----------------------------------------------------------
+Test Suites: 1 passed, 1 total
+Tests:       7 passed, 7 total
+Snapshots:   0 total
+Time:        0.644 s
+Ran all test suites matching /tests\/unit\/TrailStyleRenderer.coverage.test.js/i.

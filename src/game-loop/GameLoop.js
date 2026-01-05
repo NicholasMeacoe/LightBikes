@@ -168,6 +168,9 @@ class GameLoop {
     }
 
     updateGameplay(gameState) {
+        // Check for pause state changes (Resume detection)
+        this.handlePauseState(gameState);
+
         if (!gameState.isPaused) {
             // Handle game start
             if (
@@ -208,8 +211,6 @@ class GameLoop {
 
             // Collision detection
             this.handleCollisions(gameState);
-        } else {
-            this.handlePauseState(gameState);
         }
 
         // Update UI
@@ -220,7 +221,9 @@ class GameLoop {
     }
 
     handleCollisions(gameState) {
-        this.performanceMonitor.startCollisionDetection();
+        if (this.performanceMonitor) {
+            this.performanceMonitor.startCollisionDetection();
+        }
 
         let collisionResult;
         if (this.currentGameMode === GameModes.LOCAL_MULTIPLAYER) {
@@ -245,7 +248,9 @@ class GameLoop {
             collisionResult = this.collisionDetectionEngine.checkCollisions(gameState, this.game);
         }
 
-        this.performanceMonitor.endCollisionDetection();
+        if (this.performanceMonitor) {
+            this.performanceMonitor.endCollisionDetection();
+        }
 
         const { playerCollided, aiCollided, winner } = collisionResult;
 

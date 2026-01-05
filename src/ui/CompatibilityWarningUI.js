@@ -21,9 +21,15 @@ class CompatibilityWarningUI {
         this.warningElement = document.createElement('div');
         this.warningElement.id = 'compatibility-warning';
         this.warningElement.className = 'compatibility-warning';
-        
-        const { browserInfo, errors, warnings } = compatibilityReport;
-        
+
+        // Provide safe defaults for potentially null values
+        const browserInfo = compatibilityReport.browserInfo || {
+            name: 'Unknown',
+            version: 'Unknown',
+        };
+        const errors = compatibilityReport.errors || [];
+        const warnings = compatibilityReport.warnings || [];
+
         // Build warning content
         let content = `
             <div class="compatibility-warning-content">
@@ -36,31 +42,31 @@ class CompatibilityWarningUI {
                         <strong>Detected Browser:</strong> ${browserInfo.name} ${browserInfo.version}
                     </p>
         `;
-        
+
         // Add critical errors
         if (errors.length > 0) {
             content += `
                 <div class="compatibility-errors">
                     <h3>Critical Issues:</h3>
                     <ul>
-                        ${errors.map(error => `<li>${error}</li>`).join('')}
+                        ${errors.map((error) => `<li>${error}</li>`).join('')}
                     </ul>
                 </div>
             `;
         }
-        
+
         // Add warnings
         if (warnings.length > 0) {
             content += `
                 <div class="compatibility-warnings">
                     <h3>Warnings:</h3>
                     <ul>
-                        ${warnings.map(warning => `<li>${warning}</li>`).join('')}
+                        ${warnings.map((warning) => `<li>${warning}</li>`).join('')}
                     </ul>
                 </div>
             `;
         }
-        
+
         // Add recommended browsers
         content += `
                     <div class="compatibility-recommendations">
@@ -73,7 +79,7 @@ class CompatibilityWarningUI {
                         </ul>
                     </div>
         `;
-        
+
         // Add action buttons
         if (errors.length === 0) {
             // Only warnings - allow user to continue
@@ -98,23 +104,23 @@ class CompatibilityWarningUI {
                     </div>
             `;
         }
-        
+
         content += `
                 </div>
             </div>
         `;
-        
+
         this.warningElement.innerHTML = content;
-        
+
         // Add styles
         this.addStyles();
-        
+
         // Append to body
         document.body.appendChild(this.warningElement);
-        
+
         // Set up event listeners
         this.setupEventListeners(errors.length === 0);
-        
+
         this.isVisible = true;
     }
 
@@ -130,7 +136,7 @@ class CompatibilityWarningUI {
         this.warningElement = document.createElement('div');
         this.warningElement.id = 'compatibility-warning';
         this.warningElement.className = 'compatibility-warning compatibility-critical';
-        
+
         this.warningElement.innerHTML = `
             <div class="compatibility-warning-content">
                 <div class="compatibility-warning-header">
@@ -150,7 +156,7 @@ class CompatibilityWarningUI {
                 </div>
             </div>
         `;
-        
+
         this.addStyles();
         document.body.appendChild(this.warningElement);
         this.isVisible = true;
@@ -165,7 +171,7 @@ class CompatibilityWarningUI {
         if (closeBtn) {
             closeBtn.addEventListener('click', () => this.hide());
         }
-        
+
         if (allowContinue) {
             const continueBtn = document.getElementById('compatibilityContinueBtn');
             if (continueBtn) {

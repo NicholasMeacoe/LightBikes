@@ -13,10 +13,7 @@ const {
 class RecoveryManager {
     constructor() {
         // Logger
-        console.log('RecoveryManager: Logger class:', Logger);
-        console.log('RecoveryManager: Logger.create:', Logger && Logger.create);
         this.logger = Logger.create('RecoveryManager');
-        console.log('RecoveryManager: this.logger:', this.logger);
 
         // Error display state (from ErrorHandler)
         this.errorContainer = null;
@@ -767,7 +764,10 @@ class RecoveryManager {
                 this.logger.error('Simplified renderer also failed:', fallbackError);
                 this.showError('Unable to initialize graphics. Please reload the page.', {
                     type: 'critical',
+                    title: 'Graphics Initialization Failed',
                     duration: 0,
+                    actions: [],
+                    id: 'graphics-init-critical-error',
                 });
                 return false;
             }

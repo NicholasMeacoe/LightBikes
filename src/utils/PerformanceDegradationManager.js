@@ -54,6 +54,7 @@ class PerformanceDegradationManager {
 
         // Sub-systems
         this.detector = detector || new DeviceCapabilityDetector();
+        this.externalMonitor = !!monitor;
         this.monitor = monitor || new PerformanceMonitor();
 
         // Cache capabilities
@@ -223,8 +224,10 @@ class PerformanceDegradationManager {
         }
 
         try {
-            // Update performance monitor
-            this.monitor.update(deltaTime);
+            // Update performance monitor only if we own it (not shared)
+            if (!this.externalMonitor) {
+                this.monitor.update(deltaTime);
+            }
 
             // Check for automatic quality adjustment
             this.checkPerformanceAdjustment();
