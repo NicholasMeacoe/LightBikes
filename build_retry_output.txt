@@ -1,0 +1,39 @@
+
+> lightbikes@1.0.0 build
+> vite build
+
+vite v7.3.0 building client environment for production...
+transforming...
+[plugin vite:resolve] Module "os" has been externalized for browser compatibility, imported by "/home/pi/source/LightBikes/node_modules/winston/dist/winston/exception-handler.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "os" has been externalized for browser compatibility, imported by "/home/pi/source/LightBikes/node_modules/winston/dist/winston/rejection-handler.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "os" has been externalized for browser compatibility, imported by "/home/pi/source/LightBikes/node_modules/winston/dist/winston/transports/console.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "fs" has been externalized for browser compatibility, imported by "/home/pi/source/LightBikes/node_modules/winston/dist/winston/transports/file.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "path" has been externalized for browser compatibility, imported by "/home/pi/source/LightBikes/node_modules/winston/dist/winston/transports/file.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "zlib" has been externalized for browser compatibility, imported by "/home/pi/source/LightBikes/node_modules/winston/dist/winston/transports/file.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "os" has been externalized for browser compatibility, imported by "/home/pi/source/LightBikes/node_modules/winston/dist/winston/transports/file.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "http" has been externalized for browser compatibility, imported by "/home/pi/source/LightBikes/node_modules/winston/dist/winston/transports/http.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "https" has been externalized for browser compatibility, imported by "/home/pi/source/LightBikes/node_modules/winston/dist/winston/transports/http.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "os" has been externalized for browser compatibility, imported by "/home/pi/source/LightBikes/node_modules/winston/dist/winston/transports/stream.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "fs" has been externalized for browser compatibility, imported by "/home/pi/source/LightBikes/node_modules/winston/dist/winston/tail-file.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "os" has been externalized for browser compatibility, imported by "/home/pi/source/LightBikes/node_modules/@colors/colors/lib/system/supports-colors.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+✓ 343 modules transformed.
+Generated an empty chunk: "three".
+src/utils/BrowserCompatibility.js (191:12): Use of eval in "src/utils/BrowserCompatibility.js" is strongly discouraged as it poses security risks and may cause issues with minification.
+src/utils/BrowserCompatibility.js (194:12): Use of eval in "src/utils/BrowserCompatibility.js" is strongly discouraged as it poses security risks and may cause issues with minification.
+src/utils/BrowserCompatibility.js (197:12): Use of eval in "src/utils/BrowserCompatibility.js" is strongly discouraged as it poses security risks and may cause issues with minification.
+src/utils/BrowserCompatibility.js (200:12): Use of eval in "src/utils/BrowserCompatibility.js" is strongly discouraged as it poses security risks and may cause issues with minification.
+src/utils/BrowserCompatibility.js (203:12): Use of eval in "src/utils/BrowserCompatibility.js" is strongly discouraged as it poses security risks and may cause issues with minification.
+src/utils/BrowserCompatibility.js (206:12): Use of eval in "src/utils/BrowserCompatibility.js" is strongly discouraged as it poses security risks and may cause issues with minification.
+rendering chunks...
+computing gzip size...
+dist/index.html                     47.40 kB │ gzip:   5.49 kB
+dist/assets/three-l0sNRNKZ.js        0.04 kB │ gzip:   0.06 kB │ map:     0.10 kB
+dist/assets/particles-CoxQd5LJ.js   47.25 kB │ gzip:  10.81 kB │ map:   159.18 kB
+dist/assets/audio-D35En-7M.js      325.69 kB │ gzip:  84.02 kB │ map: 1,317.21 kB
+dist/assets/index-Bmg4SEj1.js      553.54 kB │ gzip: 110.36 kB │ map: 1,652.59 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 11.38s

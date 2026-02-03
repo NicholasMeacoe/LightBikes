@@ -1,0 +1,13 @@
+nohup: ignoring input
+
+DevTools listening on ws://127.0.0.1:9222/devtools/browser/4f061107-9406-4933-b814-3908a5702cba
+Warning: Vulkan shaderUniform*ArrayDynamicIndexing required.
+ - While initializing adapter (backend=BackendType::Vulkan)
+    at InitializeImpl (../../third_party/dawn/src/dawn/native/vulkan/PhysicalDeviceVk.cpp:240)
+
+Warning: maxDynamicUniformBuffersPerPipelineLayout artificially reduced from 1000000 to 16 to fit dynamic offset allocation limit.
+Warning: maxDynamicStorageBuffersPerPipelineLayout artificially reduced from 1000000 to 16 to fit dynamic offset allocation limit.
+[2799968:2799968:0109/084547.355006:ERROR:content/common/zygote/zygote_communication_linux.cc:293] Failed to send GetTerminationStatus message to zygote
+[2799968:2799968:0109/084547.356956:ERROR:content/common/zygote/zygote_communication_linux.cc:293] Failed to send GetTerminationStatus message to zygote
+[2799968:2799968:0109/084547.366726:ERROR:content/common/zygote/zygote_communication_linux.cc:293] Failed to send GetTerminationStatus message to zygote
+[2799968:2799968:0109/084547.369714:ERROR:content/common/zygote/zygote_communication_linux.cc:293] Failed to send GetTerminationStatus message to zygote

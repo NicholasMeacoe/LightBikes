@@ -4698,7 +4698,7 @@ function Ui() {
     );
     var e, t;
 }
-const zi = '3.18.3';
+const zi = '3.19.0';
 var Gi,
     $i,
     Wi = {},
@@ -11407,6 +11407,21 @@ function Js() {
                         },
                     },
                     {
+                        key: '_final',
+                        value: function (e) {
+                            var t = this;
+                            if (this._opening)
+                                this.once('open', function () {
+                                    return t._final(e);
+                                });
+                            else {
+                                if ((this._stream.end(), !this._dest)) return e();
+                                if (this._dest.writableFinished) return e();
+                                (this._dest.once('finish', e), this._dest.once('error', e));
+                            }
+                        },
+                    },
+                    {
                         key: 'log',
                         value: function (e) {
                             var t = this,
@@ -13660,7 +13675,9 @@ function Ju() {
                                     value: function (r) {
                                         var n = Object.assign({}, e, r);
                                         (r instanceof Error &&
-                                            ((n.stack = r.stack), (n.message = r.message)),
+                                            ((n.stack = r.stack),
+                                            (n.message = r.message),
+                                            (n.cause = r.cause)),
                                             t.write(n));
                                     },
                                 },
@@ -14453,7 +14470,12 @@ const rl = el || c({ __proto__: null, default: el }, [Qu]),
     });
 class ol {
     constructor(e = 'app') {
-        this.namespace = e;
+        ((this.namespace = e),
+            (this.debug = this.debug.bind(this)),
+            (this.info = this.info.bind(this)),
+            (this.warn = this.warn.bind(this)),
+            (this.error = this.error.bind(this)),
+            (this.log = this.log.bind(this)));
     }
     static create(e) {
         return new ol(e);
@@ -14533,46 +14555,45 @@ ll.exports = {
         _performLoad() {
             return l(this, null, function* () {
                 if (!this.audioContext) throw new Error('Audio context not set for track loading');
-                let e = null,
-                    t = 1e4;
-                for (let a = 0; a <= 3; a++)
+                let e = null;
+                for (let o = 0; o <= 3; o++) {
+                    const i = Math.min(1e4 + 5e3 * o, 3e4);
                     try {
-                        t = Math.min(1e4 + 5e3 * a, 3e4);
                         const e = new AbortController(),
-                            i = setTimeout(() => e.abort(), t);
+                            n = setTimeout(() => e.abort(), i);
                         try {
-                            const t = yield fetch(this.url, {
+                            const r = yield fetch(this.url, {
                                 signal: e.signal,
-                                cache: a > 0 ? 'reload' : 'default',
+                                cache: o > 0 ? 'reload' : 'default',
                                 headers: {
                                     Accept: 'audio/*,*/*;q=0.9',
-                                    'Cache-Control': a > 0 ? 'no-cache' : 'default',
+                                    'Cache-Control': o > 0 ? 'no-cache' : 'default',
                                 },
                             });
-                            if ((clearTimeout(i), !t.ok)) {
-                                const e = `HTTP ${t.status}: ${t.statusText}`;
-                                throw 404 === t.status
+                            if ((clearTimeout(n), !r.ok)) {
+                                const e = `HTTP ${r.status}: ${r.statusText}`;
+                                throw 404 === r.status
                                     ? new Error(`Track file not found: ${e}`)
-                                    : 403 === t.status
+                                    : 403 === r.status
                                       ? new Error(`Access denied to track file: ${e}`)
-                                      : t.status >= 500
+                                      : r.status >= 500
                                         ? new Error(`Server error loading track: ${e}`)
                                         : new Error(`Network error loading track: ${e}`);
                             }
-                            const n = t.headers.get('content-type');
-                            n &&
-                                !n.startsWith('audio/') &&
-                                cl.warn(`Unexpected content type for ${this.id}: ${n}`);
-                            const o = yield t.arrayBuffer();
-                            if (!o || 0 === o.byteLength)
+                            const i = r.headers.get('content-type');
+                            i &&
+                                !i.startsWith('audio/') &&
+                                cl.warn(`Unexpected content type for ${this.id}: ${i}`);
+                            const a = yield r.arrayBuffer();
+                            if (!a || 0 === a.byteLength)
                                 throw new Error(
                                     `Empty or invalid audio file received for track ${this.id}`
                                 );
                             try {
-                                this.audioBuffer = yield this.audioContext.decodeAudioData(o);
-                            } catch (r) {
+                                this.audioBuffer = yield this.audioContext.decodeAudioData(a);
+                            } catch (t) {
                                 throw new Error(
-                                    `Audio decode failed for track ${this.id}: ${r.message}. File may be corrupted or in unsupported format.`
+                                    `Audio decode failed for track ${this.id}: ${t.message}. File may be corrupted or in unsupported format.`
                                 );
                             }
                             if (!this.audioBuffer || 0 === this.audioBuffer.length)
@@ -14587,28 +14608,29 @@ ll.exports = {
                                     `Successfully loaded track ${this.id} (${this.audioBuffer.duration.toFixed(2)}s, ${this.audioBuffer.numberOfChannels} channels)`
                                 )
                             );
-                        } catch (n) {
-                            throw (clearTimeout(i), n);
+                        } catch (r) {
+                            throw (clearTimeout(n), r);
                         }
-                    } catch (i) {
-                        if (((e = i), 'AbortError' === i.name))
+                    } catch (n) {
+                        if (((e = n), 'AbortError' === n.name))
                             throw new Error(
-                                `Loading timeout for track ${this.id} after ${Math.round(t / 1e3)} seconds`
+                                `Loading timeout for track ${this.id} after ${Math.round(i / 1e3)} seconds`
                             );
                         if (
-                            i.message.includes('not found') ||
-                            i.message.includes('Access denied') ||
-                            i.message.includes('decode failed')
+                            n.message.includes('not found') ||
+                            n.message.includes('Access denied') ||
+                            n.message.includes('decode failed')
                         )
-                            throw i;
-                        if (3 === a) break;
-                        const r = 1e3 * Math.pow(2, a) + 1e3 * Math.random();
+                            throw n;
+                        if (3 === o) break;
+                        const t = 1e3 * Math.pow(2, o) + 1e3 * Math.random();
                         (cl.warn(
-                            `Loading attempt ${a + 1} failed for track ${this.id}, retrying in ${Math.round(r)}ms:`,
-                            { error: i.message }
+                            `Loading attempt ${o + 1} failed for track ${this.id}, retrying in ${Math.round(t)}ms:`,
+                            n.message
                         ),
-                            yield new Promise((e) => setTimeout(e, r)));
+                            yield new Promise((e) => setTimeout(e, t)));
                     }
+                }
                 if (this.fallbackUrl && !this.usingFallback) {
                     (cl.warn(
                         `Primary URL failed for track ${this.id}, trying fallback: ${this.fallbackUrl}`
@@ -14623,12 +14645,12 @@ ll.exports = {
                             yield this._performLoad(),
                             void cl.info(`Successfully loaded track ${this.id} using fallback URL`)
                         );
-                    } catch (o) {
+                    } catch (i) {
                         throw (
                             (this.url = e),
                             (this.usingFallback = !1),
                             new Error(
-                                `Failed to load music track ${this.id} from both primary (${e}) and fallback (${this.fallbackUrl}) URLs: ${o.message}`
+                                `Failed to load music track ${this.id} from both primary (${e}) and fallback (${this.fallbackUrl}) URLs: ${i.message}`
                             )
                         );
                     }
@@ -14676,10 +14698,7 @@ ll.exports = {
                 const e = this.audioContext.createBufferSource();
                 return ((e.buffer = this.audioBuffer), (e.loop = this.shouldLoop()), e);
             } catch (e) {
-                return (
-                    cl.warn(`Failed to create audio source for track ${this.id}:`, { error: e }),
-                    null
-                );
+                return (cl.warn(`Failed to create audio source for track ${this.id}:`, e), null);
             }
         }
         getLoadingState() {
@@ -14738,6 +14757,7 @@ hl.exports = {
                 fadeOutDuration: { type: 'number', min: 0.1, max: 2, default: 0.5 },
                 duckingLevel: { type: 'number', min: 0, max: 1, default: 0.3 },
                 duckingDuration: { type: 'number', min: 0.1, max: 1, default: 0.2 },
+                duckingRecovery: { type: 'number', min: 0.1, max: 2, default: 0.2 },
             }),
                 (this.settingsVersion = 1),
                 (this.settings = {}),
@@ -14796,6 +14816,15 @@ hl.exports = {
             return (
                 !!this._validateSetting('duckingDuration', e) &&
                 ((this.settings.duckingDuration = e), this.save(), !0)
+            );
+        }
+        getDuckingRecovery() {
+            return this.settings.duckingRecovery;
+        }
+        setDuckingRecovery(e) {
+            return (
+                !!this._validateSetting('duckingRecovery', e) &&
+                ((this.settings.duckingRecovery = e), this.save(), !0)
             );
         }
         getAllSettings() {
@@ -15568,7 +15597,9 @@ Rl.exports = {
         }
         _stopPerformanceObserver() {
             this.performanceObserver &&
-                (this.performanceObserver.disconnect(), (this.performanceObserver = null));
+                ('function' == typeof this.performanceObserver.disconnect &&
+                    this.performanceObserver.disconnect(),
+                (this.performanceObserver = null));
         }
         _recordAudioBufferMemory(e, t) {
             if (!t) return;
@@ -16353,6 +16384,7 @@ Vl.exports = {
         constructor(e, t = null) {
             ((this.audioManager = e),
                 (this.settings = t || new Yl()),
+                (this.logger = ic),
                 (this.errorHandler = new Kl()),
                 (this.performanceMonitor = new Jl()),
                 (this.bufferManager = new Zl(this.performanceMonitor)),
@@ -16403,8 +16435,12 @@ Vl.exports = {
                         }
                     this.performanceMonitor.startMonitoring();
                     for (const t of this.tracks.values()) t.setAudioContext(e);
-                    ((this.masterGainNode = this.audioContext.createGain()),
-                        (this.masterGainNode.gain.value = this.currentVolume),
+                    if (
+                        ((this.masterGainNode = this.audioContext.createGain()),
+                        !this.masterGainNode)
+                    )
+                        throw new Error('Failed to create master gain node');
+                    ((this.masterGainNode.gain.value = this.currentVolume),
                         this.masterGainNode.connect(this.audioContext.destination));
                     const r = this.settings.getSelectedTrack();
                     if ('none' !== r) {
@@ -17876,4 +17912,4 @@ const lc = (null == sc.exports ? {} : sc.exports).default || sc.exports,
         })
     );
 export { sl as _, ul as a, lc as b, cc as c };
-//# sourceMappingURL=audio-HEIL7APB.js.map
+//# sourceMappingURL=audio-D35En-7M.js.map

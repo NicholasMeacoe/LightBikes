@@ -19,36 +19,36 @@ var __defProp = Object.defineProperty,
     __publicField = (e, t, i) => __defNormalProp(e, 'symbol' != typeof t ? t + '' : t, i),
     __async = (e, t, i) =>
         new Promise((r, n) => {
-            var a = (e) => {
+            var s = (e) => {
                     try {
                         o(i.next(e));
                     } catch (t) {
                         n(t);
                     }
                 },
-                s = (e) => {
+                a = (e) => {
                     try {
                         o(i.throw(e));
                     } catch (t) {
                         n(t);
                     }
                 },
-                o = (e) => (e.done ? r(e.value) : Promise.resolve(e.value).then(a, s));
+                o = (e) => (e.done ? r(e.value) : Promise.resolve(e.value).then(s, a));
             o((i = i.apply(e, t)).next());
         }),
     _a;
 import {
-    _ as __CJS__export_default__$18,
+    _ as __CJS__export_default__$1a,
     a as __CJS__import__50__,
-    b as __CJS__export_default__$1b,
+    b as __CJS__export_default__$1d,
     c as __CJS__import__10__,
-} from './audio-HEIL7APB.js';
+} from './audio-D35En-7M.js';
 import {
-    _ as __CJS__export_default__$19,
+    _ as __CJS__export_default__$1b,
     a as __CJS__import__22__,
-    b as __CJS__export_default__$1a,
+    b as __CJS__export_default__$1c,
     c as __CJS__import__20__,
-} from './particles-C8BcDY9t.js';
+} from './particles-CoxQd5LJ.js';
 !(function () {
     const e = document.createElement('link').relList;
     if (!(e && e.supports && e.supports('modulepreload'))) {
@@ -79,9 +79,9 @@ import {
         fetch(e.href, t);
     }
 })();
-var module$18 = { exports: {} };
-const { Logger: Logger$f } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$z = Logger$f.create('ScorePersistence');
+var module$1a = { exports: {} };
+const { Logger: Logger$f } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$y = Logger$f.create('ScorePersistence');
 let ScorePersistence$1 =
     ((_a = class {
         static getStorage() {
@@ -90,30 +90,30 @@ let ScorePersistence$1 =
         static saveHighScore(e) {
             if (!this.isStorageAvailable())
                 return (
-                    logger$z.warn('localStorage not available, high score will not persist'),
+                    logger$y.warn('localStorage not available, high score will not persist'),
                     !1
                 );
-            if (!this.isValidScore(e)) return (logger$z.error(`Invalid score value: ${e}`), !1);
+            if (!this.isValidScore(e)) return (logger$y.error(`Invalid score value: ${e}`), !1);
             try {
                 return (this.getStorage().setItem(this.HIGH_SCORE_KEY, e.toString()), !0);
             } catch (t) {
-                return (logger$z.error('Failed to save high score to localStorage:', t), !1);
+                return (logger$y.error('Failed to save high score to localStorage:', t), !1);
             }
         }
         static loadHighScore() {
             if (!this.isStorageAvailable())
-                return (logger$z.warn('localStorage not available, using default high score'), 0);
+                return (logger$y.warn('localStorage not available, using default high score'), 0);
             try {
                 const e = this.getStorage().getItem(this.HIGH_SCORE_KEY);
                 if (null === e) return 0;
                 const t = parseInt(e, 10);
                 return this.isValidScore(t)
                     ? t
-                    : (logger$z.warn('Invalid high score in storage, resetting to 0'),
+                    : (logger$y.warn('Invalid high score in storage, resetting to 0'),
                       this.saveHighScore(0),
                       0);
             } catch (e) {
-                return (logger$z.error('Failed to load high score from localStorage:', e), 0);
+                return (logger$y.error('Failed to load high score from localStorage:', e), 0);
             }
         }
         static isStorageAvailable() {
@@ -141,25 +141,25 @@ let ScorePersistence$1 =
             try {
                 return (this.getStorage().removeItem(this.HIGH_SCORE_KEY), !0);
             } catch (e) {
-                return (logger$z.error('Failed to clear high score from localStorage:', e), !1);
+                return (logger$y.error('Failed to clear high score from localStorage:', e), !1);
             }
         }
     }),
     __publicField(_a, 'HIGH_SCORE_KEY', 'lightbikes_high_score'),
     __publicField(_a, 'MAX_SCORE_VALUE', 999999),
     _a);
-module$18.exports = { ScorePersistence: ScorePersistence$1 };
-const __CJS__export_default__$17 =
-        (null == module$18.exports ? {} : module$18.exports).default || module$18.exports,
+module$1a.exports = { ScorePersistence: ScorePersistence$1 };
+const __CJS__export_default__$19 =
+        (null == module$1a.exports ? {} : module$1a.exports).default || module$1a.exports,
     __CJS__import__0__$6 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$17 },
+            { __proto__: null, default: __CJS__export_default__$19 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$17 = { exports: {} };
-const { ScorePersistence: ScorePersistence } = __CJS__export_default__$17 || __CJS__import__0__$6;
+var module$19 = { exports: {} };
+const { ScorePersistence: ScorePersistence } = __CJS__export_default__$19 || __CJS__import__0__$6;
 let ScoreManager$1 = class {
     constructor() {
         ((this.playerScore = 0),
@@ -199,35 +199,35 @@ let ScoreManager$1 = class {
         };
     }
 };
-module$17.exports = { ScoreManager: ScoreManager$1 };
-const __CJS__export_default__$16 =
-        (null == module$17.exports ? {} : module$17.exports).default || module$17.exports,
+module$19.exports = { ScoreManager: ScoreManager$1 };
+const __CJS__export_default__$18 =
+        (null == module$19.exports ? {} : module$19.exports).default || module$19.exports,
     __CJS__import__0__$5 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$16 },
+            { __proto__: null, default: __CJS__export_default__$18 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$16 = { exports: {} };
-const GameModes$9 = {
+var module$18 = { exports: {} };
+const GameModes$a = {
         CLASSIC: 'classic',
         TIME_TRIAL: 'time_trial',
         ARENA_SHRINK: 'arena_shrink',
         LOCAL_MULTIPLAYER: 'local_multiplayer',
     },
     TimerState = { startTime: null, pausedDuration: 0, isPaused: !1, isRunning: !1 };
-module$16.exports = { GameModes: GameModes$9, TimerState: TimerState };
-const __CJS__export_default__$15 =
-        (null == module$16.exports ? {} : module$16.exports).default || module$16.exports,
+module$18.exports = { GameModes: GameModes$a, TimerState: TimerState };
+const __CJS__export_default__$17 =
+        (null == module$18.exports ? {} : module$18.exports).default || module$18.exports,
     __CJS__import__19__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$15 },
+            { __proto__: null, default: __CJS__export_default__$17 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$15 = { exports: {} };
+var module$17 = { exports: {} };
 let SurvivalTimer$3 = class {
     constructor() {
         ((this.startTime = null),
@@ -292,17 +292,17 @@ let SurvivalTimer$3 = class {
         };
     }
 };
-module$15.exports = { SurvivalTimer: SurvivalTimer$3 };
-const __CJS__export_default__$14 =
-        (null == module$15.exports ? {} : module$15.exports).default || module$15.exports,
+module$17.exports = { SurvivalTimer: SurvivalTimer$3 };
+const __CJS__export_default__$16 =
+        (null == module$17.exports ? {} : module$17.exports).default || module$17.exports,
     __CJS__import__15__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$14 },
+            { __proto__: null, default: __CJS__export_default__$16 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$14 = { exports: {} };
+var module$16 = { exports: {} };
 let ArenaShrinker$1 = class {
     constructor(e = 30, t = 10, i = 5e3, r = 1) {
         ((this.initialSize = e),
@@ -505,19 +505,19 @@ let ArenaShrinker$1 = class {
         };
     }
 };
-module$14.exports = { ArenaShrinker: ArenaShrinker$1 };
-const __CJS__export_default__$13 =
-        (null == module$14.exports ? {} : module$14.exports).default || module$14.exports,
-    __CJS__import__3__$5 = Object.freeze(
+module$16.exports = { ArenaShrinker: ArenaShrinker$1 };
+const __CJS__export_default__$15 =
+        (null == module$16.exports ? {} : module$16.exports).default || module$16.exports,
+    __CJS__import__3__$4 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$13 },
+            { __proto__: null, default: __CJS__export_default__$15 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$13 = { exports: {} };
-const { createLogger: createLogger$7 } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$y = createLogger$7('AIController');
+var module$15 = { exports: {} };
+const { createLogger: createLogger$7 } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$x = createLogger$7('AIController');
 let AIController$3 = class {
     constructor(e, t) {
         ((this.config = e),
@@ -534,7 +534,7 @@ let AIController$3 = class {
             const i = this.calculateStartingPosition(t, e),
                 r = this.assignPersonality(t),
                 n = this.assignColor(t),
-                a = {
+                s = {
                     id: `ai_${t + 1}`,
                     x: i.x,
                     y: i.y,
@@ -546,9 +546,9 @@ let AIController$3 = class {
                     alive: !0,
                     previousPosition: __spreadValues({}, i),
                 };
-            this.opponents.push(a);
+            this.opponents.push(s);
         }
-        logger$y.info(`Initialized ${this.opponents.length} AI opponents`);
+        logger$x.info(`Initialized ${this.opponents.length} AI opponents`);
     }
     validateAICount(e) {
         return 'number' != typeof e || e < 1 || e > 4 ? 1 : Math.floor(e);
@@ -558,15 +558,15 @@ let AIController$3 = class {
             r = i - 1;
         if (1 === t) return { x: 0, y: 0, z: -10, direction: { x: 1, y: 0, z: 0 } };
         const n = (e / t) * 2 * Math.PI,
-            a = Math.round(i / 2 + (r / 2) * Math.cos(n)),
-            s = Math.round(i / 2 + (r / 2) * Math.sin(n)),
+            s = Math.round(i / 2 + (r / 2) * Math.cos(n)),
+            a = Math.round(i / 2 + (r / 2) * Math.sin(n)),
             o = n + Math.PI,
             l = { x: Math.round(Math.cos(o)), y: 0, z: Math.round(Math.sin(o)) };
         return (
             Math.abs(l.x) > Math.abs(l.z)
                 ? ((l.x = l.x > 0 ? 1 : -1), (l.z = 0))
                 : ((l.x = 0), (l.z = l.z > 0 ? 1 : -1)),
-            { x: a, y: 0, z: s, direction: l }
+            { x: s, y: 0, z: a, direction: l }
         );
     }
     assignPersonality(e) {
@@ -591,7 +591,7 @@ let AIController$3 = class {
             i = this.calculateStartingPosition(t, this.opponents.length + 1),
             r = e.personality || this.assignPersonality(t),
             n = e.color || this.assignColor(t),
-            a = {
+            s = {
                 id: e.id || `ai_${t + 1}`,
                 x: e.x || i.x,
                 y: e.y || i.y,
@@ -603,7 +603,7 @@ let AIController$3 = class {
                 alive: !0,
                 previousPosition: { x: e.x || i.x, y: e.y || i.y, z: e.z || i.z },
             };
-        return (this.opponents.push(a), !0);
+        return (this.opponents.push(s), !0);
     }
     removeAI(e) {
         const t = this.opponents.findIndex((t) => t.id === e);
@@ -635,24 +635,24 @@ let AIController$3 = class {
         this.initialize();
     }
 };
-module$13.exports = { AIController: AIController$3 };
-const __CJS__export_default__$12 =
-        (null == module$13.exports ? {} : module$13.exports).default || module$13.exports,
+module$15.exports = { AIController: AIController$3 };
+const __CJS__export_default__$14 =
+        (null == module$15.exports ? {} : module$15.exports).default || module$15.exports,
     __CJS__import__4__$2 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$12 },
+            { __proto__: null, default: __CJS__export_default__$14 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$12 = { exports: {} };
-const { ScoreManager: ScoreManager } = __CJS__export_default__$16 || __CJS__import__0__$5,
-    { GameModes: GameModes$8 } = __CJS__export_default__$15 || __CJS__import__19__,
-    { SurvivalTimer: SurvivalTimer$2 } = __CJS__export_default__$14 || __CJS__import__15__,
-    { ArenaShrinker: ArenaShrinker } = __CJS__export_default__$13 || __CJS__import__3__$5,
-    { AIController: AIController$2 } = __CJS__export_default__$12 || __CJS__import__4__$2;
+var module$14 = { exports: {} };
+const { ScoreManager: ScoreManager } = __CJS__export_default__$18 || __CJS__import__0__$5,
+    { GameModes: GameModes$9 } = __CJS__export_default__$17 || __CJS__import__19__,
+    { SurvivalTimer: SurvivalTimer$2 } = __CJS__export_default__$16 || __CJS__import__15__,
+    { ArenaShrinker: ArenaShrinker } = __CJS__export_default__$15 || __CJS__import__3__$4,
+    { AIController: AIController$2 } = __CJS__export_default__$14 || __CJS__import__4__$2;
 let Game$3 = class {
-    constructor(e = GameModes$8.CLASSIC, t = {}) {
+    constructor(e = GameModes$9.CLASSIC, t = {}) {
         ((this.bounds = 30),
             (this.isPaused = !1),
             (this.gameSpeed = 0.1),
@@ -667,9 +667,9 @@ let Game$3 = class {
                 colors: ['red', 'blue', 'yellow', 'purple'],
             }),
             (this.aiController = new AIController$2(this.gameConfig, this.bounds)),
-            this.gameMode === GameModes$8.TIME_TRIAL
+            this.gameMode === GameModes$9.TIME_TRIAL
                 ? ((this.survivalTimer = new SurvivalTimer$2()), (this.arenaShrinker = null))
-                : this.gameMode === GameModes$8.ARENA_SHRINK
+                : this.gameMode === GameModes$9.ARENA_SHRINK
                   ? ((this.survivalTimer = new SurvivalTimer$2()),
                     (this.arenaShrinker = new ArenaShrinker()))
                   : ((this.survivalTimer = null), (this.arenaShrinker = null)),
@@ -706,7 +706,7 @@ let Game$3 = class {
         return (e.push(...t), e);
     }
     getBounds() {
-        if (this.gameMode === GameModes$8.ARENA_SHRINK && this.arenaShrinker)
+        if (this.gameMode === GameModes$9.ARENA_SHRINK && this.arenaShrinker)
             return this.arenaShrinker.getCurrentBounds();
         {
             const e = this.bounds / 2;
@@ -714,22 +714,22 @@ let Game$3 = class {
         }
     }
     hasDynamicBounds() {
-        return this.gameMode === GameModes$8.ARENA_SHRINK && null !== this.arenaShrinker;
+        return this.gameMode === GameModes$9.ARENA_SHRINK && null !== this.arenaShrinker;
     }
     getNextBounds() {
-        return this.gameMode === GameModes$8.ARENA_SHRINK && this.arenaShrinker
+        return this.gameMode === GameModes$9.ARENA_SHRINK && this.arenaShrinker
             ? this.arenaShrinker.getNextBounds()
             : null;
     }
     isBoundaryWarningActive() {
         return (
-            !(this.gameMode !== GameModes$8.ARENA_SHRINK || !this.arenaShrinker) &&
+            !(this.gameMode !== GameModes$9.ARENA_SHRINK || !this.arenaShrinker) &&
             this.arenaShrinker.isWarningActive()
         );
     }
     isGracePeriodActive() {
         return (
-            !(this.gameMode !== GameModes$8.ARENA_SHRINK || !this.arenaShrinker) &&
+            !(this.gameMode !== GameModes$9.ARENA_SHRINK || !this.arenaShrinker) &&
             this.arenaShrinker.isGracePeriodActive()
         );
     }
@@ -751,22 +751,22 @@ let Game$3 = class {
             this.scoreManager.getScoreState()
         );
         if (
-            (this.gameMode === GameModes$8.CLASSIC || this.gameMode === GameModes$8.ARENA_SHRINK
+            (this.gameMode === GameModes$9.CLASSIC || this.gameMode === GameModes$9.ARENA_SHRINK
                 ? ((e.aiOpponents = this.aiOpponents),
                   (e.ai = this.aiOpponents.length > 0 ? this.aiOpponents[0] : null),
                   (e.aiDirection =
                       this.aiOpponents.length > 0 ? this.aiOpponents[0].direction : null),
                   (e.aiTrail = this.aiOpponents.length > 0 ? this.aiOpponents[0].trail : []))
                 : ((e.aiOpponents = []), (e.ai = null), (e.aiDirection = null), (e.aiTrail = [])),
-            this.gameMode === GameModes$8.ARENA_SHRINK &&
+            this.gameMode === GameModes$9.ARENA_SHRINK &&
                 this.arenaShrinker &&
                 (e.dynamicBounds = this.arenaShrinker.getCurrentBounds()),
-            this.gameMode === GameModes$8.TIME_TRIAL &&
+            this.gameMode === GameModes$9.TIME_TRIAL &&
                 this.survivalTimer &&
                 ((e.survivalTime = this.survivalTimer.getElapsedTime()),
                 (e.formattedSurvivalTime = this.survivalTimer.getCurrentFormattedTime()),
                 (e.timerRunning = this.survivalTimer.isRunning)),
-            this.gameMode === GameModes$8.ARENA_SHRINK &&
+            this.gameMode === GameModes$9.ARENA_SHRINK &&
                 (this.survivalTimer &&
                     ((e.survivalTime = this.survivalTimer.getElapsedTime()),
                     (e.formattedSurvivalTime = this.survivalTimer.getCurrentFormattedTime()),
@@ -790,7 +790,7 @@ let Game$3 = class {
             (this.playerPreviousPosition = { x: 0, y: 0, z: 0 }),
             (this.previousPlayerSpeed = this.gameSpeed),
             (this.aiOpponents = []),
-            this.gameMode === GameModes$8.CLASSIC || this.gameMode === GameModes$8.ARENA_SHRINK
+            this.gameMode === GameModes$9.CLASSIC || this.gameMode === GameModes$9.ARENA_SHRINK
                 ? (this.aiController.initialize(),
                   (this.aiOpponents = this.aiController.getOpponents()),
                   this.aiOpponents.length > 0
@@ -806,10 +806,10 @@ let Game$3 = class {
                   (this.aiDirection = null),
                   (this.aiTrail = []),
                   (this.aiPreviousPosition = null)),
-            this.gameMode === GameModes$8.TIME_TRIAL &&
+            this.gameMode === GameModes$9.TIME_TRIAL &&
                 this.survivalTimer &&
                 this.survivalTimer.reset(),
-            this.gameMode === GameModes$8.ARENA_SHRINK &&
+            this.gameMode === GameModes$9.ARENA_SHRINK &&
                 this.arenaShrinker &&
                 this.arenaShrinker.reset(),
             this.cameraEffectsManager &&
@@ -820,14 +820,14 @@ let Game$3 = class {
         if (this.gameOver || this.isPaused) return;
         (this.gameStarted ||
             ((this.gameStarted = !0),
-            this.gameMode === GameModes$8.TIME_TRIAL &&
+            this.gameMode === GameModes$9.TIME_TRIAL &&
                 this.survivalTimer &&
                 this.survivalTimer.start(),
-            this.gameMode === GameModes$8.ARENA_SHRINK &&
+            this.gameMode === GameModes$9.ARENA_SHRINK &&
                 (this.survivalTimer && this.survivalTimer.start(),
                 this.arenaShrinker && this.arenaShrinker.initialize(Date.now()))),
             this.frameCount++,
-            this.gameMode === GameModes$8.ARENA_SHRINK &&
+            this.gameMode === GameModes$9.ARENA_SHRINK &&
                 this.arenaShrinker &&
                 this.arenaShrinker.update(Date.now()));
         const e = this.powerUpManager ? this.powerUpManager.getSpeedMultiplier('player') : 1,
@@ -840,7 +840,7 @@ let Game$3 = class {
                 this.cameraEffectsManager.onSpeedChange(this.player, t),
             (this.previousPlayerSpeed = t),
             this.playerTrail.push(__spreadValues({}, this.player)),
-            (this.gameMode === GameModes$8.CLASSIC || this.gameMode === GameModes$8.ARENA_SHRINK) &&
+            (this.gameMode === GameModes$9.CLASSIC || this.gameMode === GameModes$9.ARENA_SHRINK) &&
                 this.aiOpponents.length > 0 &&
                 (this.aiController.update(this.gameSpeed),
                 this.aiOpponents.length > 0 &&
@@ -878,10 +878,10 @@ let Game$3 = class {
                 this.cameraEffectsManager &&
                     this.cameraEffectsManager.isEnabled() &&
                     this.cameraEffectsManager.pause(),
-                this.gameMode === GameModes$8.TIME_TRIAL &&
+                this.gameMode === GameModes$9.TIME_TRIAL &&
                     this.survivalTimer &&
                     this.survivalTimer.pause(),
-                this.gameMode === GameModes$8.ARENA_SHRINK &&
+                this.gameMode === GameModes$9.ARENA_SHRINK &&
                     this.survivalTimer &&
                     this.survivalTimer.pause()),
             !0)
@@ -895,10 +895,10 @@ let Game$3 = class {
             this.cameraEffectsManager &&
                 this.cameraEffectsManager.isEnabled() &&
                 this.cameraEffectsManager.resume(),
-            this.gameMode === GameModes$8.TIME_TRIAL &&
+            this.gameMode === GameModes$9.TIME_TRIAL &&
                 this.survivalTimer &&
                 this.survivalTimer.resume(),
-            this.gameMode === GameModes$8.ARENA_SHRINK &&
+            this.gameMode === GameModes$9.ARENA_SHRINK &&
                 this.survivalTimer &&
                 this.survivalTimer.resume(),
             !0)
@@ -910,11 +910,11 @@ let Game$3 = class {
     handleRoundEnd(e) {
         if (!e) return;
         const { playerCollided: t, aiCollided: i } = e;
-        (this.gameMode === GameModes$8.TIME_TRIAL && this.stopSurvivalTimer(),
-            this.gameMode === GameModes$8.ARENA_SHRINK &&
+        (this.gameMode === GameModes$9.TIME_TRIAL && this.stopSurvivalTimer(),
+            this.gameMode === GameModes$9.ARENA_SHRINK &&
                 (this.stopSurvivalTimer(),
                 this.arenaShrinker && this.arenaShrinker.stopSurvivalTracking(Date.now())),
-            this.gameMode === GameModes$8.CLASSIC &&
+            this.gameMode === GameModes$9.CLASSIC &&
                 (t && !i
                     ? this.scoreManager.incrementAIScore()
                     : i && !t && this.scoreManager.incrementPlayerScore()));
@@ -923,46 +923,46 @@ let Game$3 = class {
         (this.scoreManager.resetCurrentScores(), this.init());
     }
     startSurvivalTimer() {
-        (this.gameMode !== GameModes$8.TIME_TRIAL && this.gameMode !== GameModes$8.ARENA_SHRINK) ||
+        (this.gameMode !== GameModes$9.TIME_TRIAL && this.gameMode !== GameModes$9.ARENA_SHRINK) ||
             !this.survivalTimer ||
             this.survivalTimer.start();
     }
     stopSurvivalTimer() {
-        (this.gameMode !== GameModes$8.TIME_TRIAL && this.gameMode !== GameModes$8.ARENA_SHRINK) ||
+        (this.gameMode !== GameModes$9.TIME_TRIAL && this.gameMode !== GameModes$9.ARENA_SHRINK) ||
             !this.survivalTimer ||
             this.survivalTimer.stop();
     }
     getSurvivalTime() {
-        return (this.gameMode !== GameModes$8.TIME_TRIAL &&
-            this.gameMode !== GameModes$8.ARENA_SHRINK) ||
+        return (this.gameMode !== GameModes$9.TIME_TRIAL &&
+            this.gameMode !== GameModes$9.ARENA_SHRINK) ||
             !this.survivalTimer
             ? 0
             : this.survivalTimer.getElapsedTime();
     }
     getFormattedSurvivalTime() {
-        return (this.gameMode !== GameModes$8.TIME_TRIAL &&
-            this.gameMode !== GameModes$8.ARENA_SHRINK) ||
+        return (this.gameMode !== GameModes$9.TIME_TRIAL &&
+            this.gameMode !== GameModes$9.ARENA_SHRINK) ||
             !this.survivalTimer
             ? '00:00.00'
             : this.survivalTimer.getCurrentFormattedTime();
     }
     isTimeTrialMode() {
-        return this.gameMode === GameModes$8.TIME_TRIAL;
+        return this.gameMode === GameModes$9.TIME_TRIAL;
     }
     isArenaShrinkMode() {
-        return this.gameMode === GameModes$8.ARENA_SHRINK;
+        return this.gameMode === GameModes$9.ARENA_SHRINK;
     }
     setTimeTrialMode(e) {
-        const t = e ? GameModes$8.TIME_TRIAL : GameModes$8.CLASSIC;
+        const t = e ? GameModes$9.TIME_TRIAL : GameModes$9.CLASSIC;
         this.setGameMode(t);
     }
     setGameMode(e) {
         this.gameMode !== e &&
             ((this.gameMode = e),
-            e === GameModes$8.TIME_TRIAL
+            e === GameModes$9.TIME_TRIAL
                 ? (this.survivalTimer || (this.survivalTimer = new SurvivalTimer$2()),
                   (this.arenaShrinker = null))
-                : e === GameModes$8.ARENA_SHRINK
+                : e === GameModes$9.ARENA_SHRINK
                   ? (this.survivalTimer || (this.survivalTimer = new SurvivalTimer$2()),
                     this.arenaShrinker || (this.arenaShrinker = new ArenaShrinker()))
                   : ((this.survivalTimer = null), (this.arenaShrinker = null)),
@@ -975,17 +975,17 @@ let Game$3 = class {
         this.cameraEffectsManager = e;
     }
     setOnShrinkWarning(e) {
-        this.gameMode === GameModes$8.ARENA_SHRINK &&
+        this.gameMode === GameModes$9.ARENA_SHRINK &&
             this.arenaShrinker &&
             this.arenaShrinker.setOnWarning(e);
     }
     setOnShrink(e) {
-        this.gameMode === GameModes$8.ARENA_SHRINK &&
+        this.gameMode === GameModes$9.ARENA_SHRINK &&
             this.arenaShrinker &&
             this.arenaShrinker.setOnShrink(e);
     }
     setOnFinalArena(e) {
-        this.gameMode === GameModes$8.ARENA_SHRINK &&
+        this.gameMode === GameModes$9.ARENA_SHRINK &&
             this.arenaShrinker &&
             this.arenaShrinker.setOnFinalArena(e);
     }
@@ -993,32 +993,32 @@ let Game$3 = class {
         return this.arenaShrinker;
     }
     getArenaShrinkSurvivalStats() {
-        return this.gameMode === GameModes$8.ARENA_SHRINK && this.arenaShrinker
+        return this.gameMode === GameModes$9.ARENA_SHRINK && this.arenaShrinker
             ? this.arenaShrinker.getSurvivalStatistics()
             : null;
     }
     getArenaSizeHistory() {
-        return this.gameMode === GameModes$8.ARENA_SHRINK && this.arenaShrinker
+        return this.gameMode === GameModes$9.ARENA_SHRINK && this.arenaShrinker
             ? this.arenaShrinker.getArenaSizeHistory()
             : null;
     }
     getShrinksSurvived() {
-        return this.gameMode === GameModes$8.ARENA_SHRINK && this.arenaShrinker
+        return this.gameMode === GameModes$9.ARENA_SHRINK && this.arenaShrinker
             ? this.arenaShrinker.getShrinkCount()
             : 0;
     }
 };
-module$12.exports = { Game: Game$3 };
-const __CJS__export_default__$11 =
-        (null == module$12.exports ? {} : module$12.exports).default || module$12.exports,
+module$14.exports = { Game: Game$3 };
+const __CJS__export_default__$13 =
+        (null == module$14.exports ? {} : module$14.exports).default || module$14.exports,
     __CJS__import__0__$4 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$11 },
+            { __proto__: null, default: __CJS__export_default__$13 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$11 = { exports: {} };
+var module$13 = { exports: {} };
 let PlayerEntity$1 = class {
     constructor(e, t, i, r = null) {
         ((this.id = e),
@@ -1126,17 +1126,17 @@ let PlayerEntity$1 = class {
         this.trail = [];
     }
 };
-module$11.exports = { PlayerEntity: PlayerEntity$1 };
-const __CJS__export_default__$10 =
-        (null == module$11.exports ? {} : module$11.exports).default || module$11.exports,
+module$13.exports = { PlayerEntity: PlayerEntity$1 };
+const __CJS__export_default__$12 =
+        (null == module$13.exports ? {} : module$13.exports).default || module$13.exports,
     __CJS__import__1__$6 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$10 },
+            { __proto__: null, default: __CJS__export_default__$12 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$10 = { exports: {} };
+var module$12 = { exports: {} };
 let LocalScoring$1 = class {
     constructor() {
         ((this.player1Wins = 0),
@@ -1216,24 +1216,24 @@ let LocalScoring$1 = class {
             (this.roundHistory = e.roundHistory || []));
     }
 };
-module$10.exports = { LocalScoring: LocalScoring$1 };
-const __CJS__export_default__$$ =
-        (null == module$10.exports ? {} : module$10.exports).default || module$10.exports,
-    __CJS__import__3__$4 = Object.freeze(
+module$12.exports = { LocalScoring: LocalScoring$1 };
+const __CJS__export_default__$11 =
+        (null == module$12.exports ? {} : module$12.exports).default || module$12.exports,
+    __CJS__import__3__$3 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$$ },
+            { __proto__: null, default: __CJS__export_default__$11 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$$ = { exports: {} };
-const { Game: Game$2 } = __CJS__export_default__$11 || __CJS__import__0__$4,
-    { PlayerEntity: PlayerEntity } = __CJS__export_default__$10 || __CJS__import__1__$6,
-    { GameModes: GameModes$7 } = __CJS__export_default__$15 || __CJS__import__19__,
-    { LocalScoring: LocalScoring } = __CJS__export_default__$$ || __CJS__import__3__$4;
+var module$11 = { exports: {} };
+const { Game: Game$2 } = __CJS__export_default__$13 || __CJS__import__0__$4,
+    { PlayerEntity: PlayerEntity } = __CJS__export_default__$12 || __CJS__import__1__$6,
+    { GameModes: GameModes$8 } = __CJS__export_default__$17 || __CJS__import__19__,
+    { LocalScoring: LocalScoring } = __CJS__export_default__$11 || __CJS__import__3__$3;
 let MultiplayerGame$2 = class extends Game$2 {
     constructor(e = {}) {
-        (super(GameModes$7.CLASSIC, e),
+        (super(GameModes$8.CLASSIC, e),
             (this.gameMode = 'local-multiplayer'),
             (this.controlSchemes = {
                 player1: {
@@ -1292,10 +1292,10 @@ let MultiplayerGame$2 = class extends Game$2 {
             this.cameraEffectsManager &&
                 this.cameraEffectsManager.isEnabled() &&
                 this.cameraEffectsManager.reset(),
-            this.gameMode === GameModes$7.TIME_TRIAL &&
+            this.gameMode === GameModes$8.TIME_TRIAL &&
                 this.survivalTimer &&
                 this.survivalTimer.reset(),
-            this.gameMode === GameModes$7.ARENA_SHRINK &&
+            this.gameMode === GameModes$8.ARENA_SHRINK &&
                 this.arenaShrinker &&
                 this.arenaShrinker.reset());
     }
@@ -1303,14 +1303,14 @@ let MultiplayerGame$2 = class extends Game$2 {
         if (this.gameOver || this.isPaused) return;
         (this.gameStarted ||
             ((this.gameStarted = !0),
-            this.gameMode === GameModes$7.TIME_TRIAL &&
+            this.gameMode === GameModes$8.TIME_TRIAL &&
                 this.survivalTimer &&
                 this.survivalTimer.start(),
-            this.gameMode === GameModes$7.ARENA_SHRINK &&
+            this.gameMode === GameModes$8.ARENA_SHRINK &&
                 (this.survivalTimer && this.survivalTimer.start(),
                 this.arenaShrinker && this.arenaShrinker.initialize(Date.now()))),
             this.frameCount++,
-            this.gameMode === GameModes$7.ARENA_SHRINK &&
+            this.gameMode === GameModes$8.ARENA_SHRINK &&
                 this.arenaShrinker &&
                 this.arenaShrinker.update(Date.now()));
         const e = this.powerUpManager ? this.powerUpManager.getSpeedMultiplier('player1') : 1,
@@ -1340,16 +1340,16 @@ let MultiplayerGame$2 = class extends Game$2 {
         const r = 'P1' === e ? this.player1 : this.player2;
         if (!r || !r.canChangeDirection()) return !1;
         const n = 'P1' === e ? this.controlSchemes.player1 : this.controlSchemes.player2;
-        let a = null;
+        let s = null;
         return (
             t === n.up
-                ? (a = { x: 0, y: 0, z: -1 })
+                ? (s = { x: 0, y: 0, z: -1 })
                 : t === n.down
-                  ? (a = { x: 0, y: 0, z: 1 })
+                  ? (s = { x: 0, y: 0, z: 1 })
                   : t === n.left
-                    ? (a = { x: -1, y: 0, z: 0 })
-                    : t === n.right && (a = { x: 1, y: 0, z: 0 }),
-            !!a && r.changeDirection(a)
+                    ? (s = { x: -1, y: 0, z: 0 })
+                    : t === n.right && (s = { x: 1, y: 0, z: 0 }),
+            !!s && r.changeDirection(s)
         );
     }
     getGameState() {
@@ -1379,12 +1379,12 @@ let MultiplayerGame$2 = class extends Game$2 {
             (e.aiDirection = null),
             (e.aiTrail = []),
             (e.aiOpponents = []),
-            this.gameMode === GameModes$7.ARENA_SHRINK &&
+            this.gameMode === GameModes$8.ARENA_SHRINK &&
                 this.arenaShrinker &&
                 ((e.dynamicBounds = this.arenaShrinker.getCurrentBounds()),
                 (e.arenaState = this.arenaShrinker.getArenaState(Date.now()))),
-            (this.gameMode !== GameModes$7.TIME_TRIAL &&
-                this.gameMode !== GameModes$7.ARENA_SHRINK) ||
+            (this.gameMode !== GameModes$8.TIME_TRIAL &&
+                this.gameMode !== GameModes$8.ARENA_SHRINK) ||
                 !this.survivalTimer ||
                 ((e.survivalTime = this.survivalTimer.getElapsedTime()),
                 (e.formattedSurvivalTime = this.survivalTimer.getCurrentFormattedTime()),
@@ -1395,8 +1395,8 @@ let MultiplayerGame$2 = class extends Game$2 {
     handleRoundEnd(e) {
         if (!e) return;
         const { player1Collided: t, player2Collided: i } = e;
-        (this.gameMode === GameModes$7.TIME_TRIAL && this.stopSurvivalTimer(),
-            this.gameMode === GameModes$7.ARENA_SHRINK &&
+        (this.gameMode === GameModes$8.TIME_TRIAL && this.stopSurvivalTimer(),
+            this.gameMode === GameModes$8.ARENA_SHRINK &&
                 (this.stopSurvivalTimer(),
                 this.arenaShrinker && this.arenaShrinker.stopSurvivalTracking(Date.now())));
         let r = null;
@@ -1453,17 +1453,17 @@ let MultiplayerGame$2 = class extends Game$2 {
         return (this.player1 && e.push(this.player1), this.player2 && e.push(this.player2), e);
     }
 };
-module$$.exports = { MultiplayerGame: MultiplayerGame$2 };
-const __CJS__export_default__$_ =
-        (null == module$$.exports ? {} : module$$.exports).default || module$$.exports,
+module$11.exports = { MultiplayerGame: MultiplayerGame$2 };
+const __CJS__export_default__$10 =
+        (null == module$11.exports ? {} : module$11.exports).default || module$11.exports,
     __CJS__import__1__$5 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$_ },
+            { __proto__: null, default: __CJS__export_default__$10 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$_ = { exports: {} };
+var module$10 = { exports: {} };
 let AIController$1 = class {
         constructor(e = 'defensive') {
             ((this.aiState = 'DEFENSIVE'),
@@ -1492,20 +1492,20 @@ let AIController$1 = class {
                 return this.lastWhiskerDistances || { forward: 20, left: 20, right: 20 };
             const { ai: t, aiDirection: i, bounds: r = 30 } = e,
                 n = this.getCurrentBoundaries(e),
-                a = {
+                s = {
                     forward: { x: i.x, z: i.z },
                     left: { x: i.z, z: -i.x },
                     right: { x: -i.z, z: i.x },
                 },
-                s = this.adaptWhiskerLength(n, e.dynamicBounds),
+                a = this.adaptWhiskerLength(n, e.dynamicBounds),
                 o = this.getAllObstacleTrails(t.id || 'ai', e),
-                l = { forward: s, left: s, right: s };
-            for (const [c, d] of Object.entries(a))
-                for (let e = 1; e <= s; e++) {
+                l = { forward: a, left: a, right: a };
+            for (const [c, d] of Object.entries(s))
+                for (let e = 1; e <= a; e++) {
                     const i = t.x + d.x * e * 0.1,
                         r = t.z + d.z * e * 0.1;
-                    let a = !1;
-                    if ((this.isOutsideBounds(i, r, n) && (a = !0), !a))
+                    let s = !1;
+                    if ((this.isOutsideBounds(i, r, n) && (s = !0), !s))
                         for (const e of o)
                             if (
                                 e &&
@@ -1514,10 +1514,10 @@ let AIController$1 = class {
                                 Math.abs(i - e.x) < 0.15 &&
                                 Math.abs(r - e.z) < 0.15
                             ) {
-                                a = !0;
+                                s = !0;
                                 break;
                             }
-                    if (a) {
+                    if (s) {
                         l[c] = e;
                         break;
                     }
@@ -1578,17 +1578,17 @@ let AIController$1 = class {
         aggressiveBehavior(e, t = {}) {
             const i = t.turnThreshold || 8,
                 r = t.randomTurnChance || 0.01,
-                { ai: n, player: a, aiDirection: s } = e,
+                { ai: n, player: s, aiDirection: a } = e,
                 o = this.runDefensiveCheck(e),
                 l = this.adaptTurnThresholdForArenaSize(e, i);
-            let c = s;
-            if (o.forward < l) c = o.left > o.right ? { x: s.z, z: -s.x } : { x: -s.z, z: s.x };
+            let c = a;
+            if (o.forward < l) c = o.left > o.right ? { x: a.z, z: -a.x } : { x: -a.z, z: a.x };
             else {
-                const e = this.calculatePlayerDirection(n, a);
+                const e = this.calculatePlayerDirection(n, s);
                 this.canSafelyTurnToward(e, o, l)
                     ? (c = e)
                     : Math.random() < r &&
-                      (c = Math.random() > 0.5 ? { x: s.z, z: -s.x } : { x: -s.z, z: s.x });
+                      (c = Math.random() > 0.5 ? { x: a.z, z: -a.x } : { x: -a.z, z: a.x });
             }
             return { newDirection: c, newState: 'AGGRESSIVE' };
         }
@@ -1596,28 +1596,28 @@ let AIController$1 = class {
             const i = t.turnThreshold || 10,
                 r = t.randomTurnChance || 0.02,
                 { aiDirection: n } = e,
-                a = this.runDefensiveCheck(e);
-            let s = n;
+                s = this.runDefensiveCheck(e);
+            let a = n;
             const o = this.adaptTurnThresholdForArenaSize(e, i);
             return (
-                a.forward < o
-                    ? (s = a.left > a.right ? { x: n.z, z: -n.x } : { x: -n.z, z: n.x })
+                s.forward < o
+                    ? (a = s.left > s.right ? { x: n.z, z: -n.x } : { x: -n.z, z: n.x })
                     : Math.random() < r &&
-                      (s = Math.random() > 0.5 ? { x: n.z, z: -n.x } : { x: -n.z, z: n.x }),
-                { newDirection: s, newState: 'DEFENSIVE' }
+                      (a = Math.random() > 0.5 ? { x: n.z, z: -n.x } : { x: -n.z, z: n.x }),
+                { newDirection: a, newState: 'DEFENSIVE' }
             );
         }
         erraticBehavior(e, t = {}) {
             const i = t.turnThreshold || 10,
                 r = t.randomTurnChance || 0.02,
                 { aiDirection: n } = e,
-                a = this.runDefensiveCheck(e),
-                s = this.adaptTurnThresholdForArenaSize(e, i);
+                s = this.runDefensiveCheck(e),
+                a = this.adaptTurnThresholdForArenaSize(e, i);
             let o = n;
             return (
                 this.erraticTurnCounter++,
-                a.forward < s
-                    ? ((o = a.left > a.right ? { x: n.z, z: -n.x } : { x: -n.z, z: n.x }),
+                s.forward < a
+                    ? ((o = s.left > s.right ? { x: n.z, z: -n.x } : { x: -n.z, z: n.x }),
                       (this.erraticTurnCounter = 0),
                       (this.erraticTurnInterval = this.getRandomTurnInterval()))
                     : this.erraticTurnCounter >= this.erraticTurnInterval
@@ -1658,29 +1658,29 @@ let AIController$1 = class {
         coordinateAIDecisions(e, t, i = {}) {
             const r = [],
                 n = new Map();
-            for (let a = 0; a < e.length; a++) {
-                const s = e[a];
-                if (!s.alive || !s.controller) continue;
-                if (this.staggeredTiming && this.shouldSkipFrame(a)) {
-                    const e = this.getLastDecision(s.id);
+            for (let s = 0; s < e.length; s++) {
+                const a = e[s];
+                if (!a.alive || !a.controller) continue;
+                if (this.staggeredTiming && this.shouldSkipFrame(s)) {
+                    const e = this.getLastDecision(a.id);
                     r.push({
-                        entityId: s.id,
-                        newDirection: e || s.direction,
-                        newState: s.controller.aiState,
+                        entityId: a.id,
+                        newDirection: e || a.direction,
+                        newState: a.controller.aiState,
                         skipped: !0,
                     });
                     continue;
                 }
-                const o = this.createEntityGameState(s, t),
-                    l = s.controller.calculateAIDirection(o, i);
+                const o = this.createEntityGameState(a, t),
+                    l = a.controller.calculateAIDirection(o, i);
                 r.push({
-                    entityId: s.id,
+                    entityId: a.id,
                     newDirection: l.newDirection,
                     newState: l.newState,
                     skipped: !1,
                 });
                 const c = this.getDirectionKey(l.newDirection);
-                (n.has(c) || n.set(c, []), n.get(c).push(a));
+                (n.has(c) || n.set(c, []), n.get(c).push(s));
             }
             return (this.resolveDecisionConflicts(r, e, t, i), this.updateDecisionHistory(r), r);
         }
@@ -1702,24 +1702,24 @@ let AIController$1 = class {
                 return (r[t.entity.controller.personality] || 0) - i;
             });
             for (let n = 1; n < e.length; n++) {
-                const { decision: r, entity: a } = e[n],
-                    s = this.findAlternativeDirection(a, r.newDirection, t, i);
-                r.newDirection = s;
+                const { decision: r, entity: s } = e[n],
+                    a = this.findAlternativeDirection(s, r.newDirection, t, i);
+                r.newDirection = a;
             }
         }
         findAlternativeDirection(e, t, i, r) {
             const n = e.direction,
-                a = [
+                s = [
                     { x: n.z, z: -n.x },
                     { x: -n.z, z: n.x },
                 ].filter((e) => !this.directionsEqual(e, t));
-            if (0 === a.length) return n;
-            const s = this.createEntityGameState(e, i),
-                o = e.controller.runDefensiveCheck(s);
-            if (1 === a.length) return a[0];
+            if (0 === s.length) return n;
+            const a = this.createEntityGameState(e, i),
+                o = e.controller.runDefensiveCheck(a);
+            if (1 === s.length) return s[0];
             const l = { x: n.z, z: -n.x },
                 c = { x: -n.z, z: n.x };
-            return this.directionsEqual(a[0], l)
+            return this.directionsEqual(s[0], l)
                 ? o.left >= o.right
                     ? l
                     : c
@@ -1789,20 +1789,20 @@ let AIController$1 = class {
             };
         }
     };
-module$_.exports = { AIController: AIController$1, AICoordinator: AICoordinator$2 };
-const __CJS__export_default__$Z =
-        (null == module$_.exports ? {} : module$_.exports).default || module$_.exports,
-    __CJS__import__2__$3 = Object.freeze(
+module$10.exports = { AIController: AIController$1, AICoordinator: AICoordinator$2 };
+const __CJS__export_default__$$ =
+        (null == module$10.exports ? {} : module$10.exports).default || module$10.exports,
+    __CJS__import__2__$4 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$Z },
+            { __proto__: null, default: __CJS__export_default__$$ },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$Z = { exports: {} };
+var module$$ = { exports: {} };
 let CollisionDetectionEngine$3 = class {
     constructor() {
-        ((this.logger = (__CJS__export_default__$18 || __CJS__import__50__).createLogger(
+        ((this.logger = (__CJS__export_default__$1a || __CJS__import__50__).createLogger(
             'CollisionDetectionEngine'
         )),
             (this.powerUpManager = null),
@@ -1818,11 +1818,11 @@ let CollisionDetectionEngine$3 = class {
         if (e.frameCount < 10) return { playerCollided: !1, aiCollided: !1, winner: null };
         if (e.isPaused) return { playerCollided: !1, aiCollided: !1, winner: null };
         if (e.aiOpponents && e.aiOpponents.length > 0) return this.checkAllCollisions(e, t);
-        const { player: i, ai: r, playerTrail: n, aiTrail: a, bounds: s } = e,
+        const { player: i, ai: r, playerTrail: n, aiTrail: s, bounds: a } = e,
             o = t ? t.getBounds() : null,
             l = !!t && t.isGracePeriodActive(),
-            c = this.isCollidedWithPowerUps('player', i, n, a, s, o, l),
-            d = this.isCollidedWithPowerUps('ai', r, a, n, s, o, l);
+            c = this.isCollidedWithPowerUps('player', i, n, s, a, o, l),
+            d = this.isCollidedWithPowerUps('ai', r, s, n, a, o, l);
         let h = null;
         return (
             c && !d ? (h = 'ai') : d && !c ? (h = 'player') : c && d && (h = 'tie'),
@@ -1830,16 +1830,16 @@ let CollisionDetectionEngine$3 = class {
         );
     }
     checkAllCollisions(e, t = null) {
-        const { player: i, playerTrail: r, aiOpponents: n, bounds: a } = e,
-            s = [],
+        const { player: i, playerTrail: r, aiOpponents: n, bounds: s } = e,
+            a = [],
             o = t ? t.getBounds() : null,
             l = !!t && t.isGracePeriodActive(),
             c = [...r];
         n.forEach((e) => {
             e.alive && e.trail && c.push(...e.trail);
         });
-        (this.checkEntityCollision('player', i, r, this.getOtherTrails('player', e), a, o, l) &&
-            s.push('player'),
+        (this.checkEntityCollision('player', i, r, this.getOtherTrails('player', e), s, o, l) &&
+            a.push('player'),
             n.forEach((t) => {
                 if (!t.alive) return;
                 this.checkEntityCollision(
@@ -1847,26 +1847,26 @@ let CollisionDetectionEngine$3 = class {
                     t,
                     t.trail,
                     this.getOtherTrails(t.id, e),
-                    a,
+                    s,
                     o,
                     l
-                ) && s.push(t.id);
+                ) && a.push(t.id);
             }));
         let d = null;
-        const h = this.getSurvivingEntities(e, s);
+        const h = this.getSurvivingEntities(e, a);
         return (
             1 === h.length ? (d = h[0]) : 0 === h.length && (d = 'tie'),
             {
-                playerCollided: s.includes('player'),
-                aiCollided: s.some((e) => e.startsWith('ai_')),
-                crashedEntities: s,
+                playerCollided: a.includes('player'),
+                aiCollided: a.some((e) => e.startsWith('ai_')),
+                crashedEntities: a,
                 survivingEntities: h,
                 winner: d,
             }
         );
     }
-    checkEntityCollision(e, t, i, r, n, a = null, s = !1) {
-        return this.isCollidedWithPowerUps(e, t, i, r, n, a, s);
+    checkEntityCollision(e, t, i, r, n, s = null, a = !1) {
+        return this.isCollidedWithPowerUps(e, t, i, r, n, s, a);
     }
     getOtherTrails(e, t) {
         const i = [];
@@ -1890,17 +1890,17 @@ let CollisionDetectionEngine$3 = class {
             i
         );
     }
-    isCollidedWithPowerUps(e, t, i, r, n, a = null, s = !1) {
+    isCollidedWithPowerUps(e, t, i, r, n, s = null, a = !1) {
         const o = !!this.powerUpManager && this.powerUpManager.hasShieldProtection(e),
             l = !!this.powerUpManager && this.powerUpManager.isInGhostMode(e),
-            c = this.checkBoundaryCollision(t, n, a);
-        if ((c || this.checkBoundaryNearMiss(t, n, a, e), c))
-            return a && this.handleBoundaryEdgeCase(t, a, s)
+            c = this.checkBoundaryCollision(t, n, s);
+        if ((c || this.checkBoundaryNearMiss(t, n, s, e), c))
+            return s && this.handleBoundaryEdgeCase(t, s, a)
                 ? (this.logger.debug(
                       `Edge case handling for ${e} - player on boundary during grace period`
                   ),
                   !1)
-                : a && s
+                : s && a
                   ? (this.logger.debug(`Grace period active for ${e} - boundary collision ignored`),
                     !1)
                   : !o ||
@@ -1911,10 +1911,10 @@ let CollisionDetectionEngine$3 = class {
         else {
             if (i.length > 5)
                 for (let r = 0; r < i.length - 5; r++) {
-                    const s = i[r];
-                    if (s && 'number' == typeof s.x && 'number' == typeof s.z) {
-                        if (a && !this.isWithinBounds(s, n, a)) continue;
-                        const i = Math.sqrt(Math.pow(t.x - s.x, 2) + Math.pow(t.z - s.z, 2));
+                    const a = i[r];
+                    if (a && 'number' == typeof a.x && 'number' == typeof a.z) {
+                        if (s && !this.isWithinBounds(a, n, s)) continue;
+                        const i = Math.sqrt(Math.pow(t.x - a.x, 2) + Math.pow(t.z - a.z, 2));
                         if (i < 0.1)
                             return (
                                 !o ||
@@ -1929,7 +1929,7 @@ let CollisionDetectionEngine$3 = class {
                 }
             for (const i of r)
                 if (i && 'number' == typeof i.x && 'number' == typeof i.z) {
-                    if (a && !this.isWithinBounds(i, n, a)) continue;
+                    if (s && !this.isWithinBounds(i, n, s)) continue;
                     const r = Math.sqrt(Math.pow(t.x - i.x, 2) + Math.pow(t.z - i.z, 2));
                     if (r < 0.1)
                         return (
@@ -1960,11 +1960,11 @@ let CollisionDetectionEngine$3 = class {
             invalidTrailSegments: 0,
             collisionTolerance: 0.1,
         };
-        for (const a of t)
-            a &&
-                'number' == typeof a.x &&
-                'number' == typeof a.z &&
-                (this.isWithinBounds(a, i, r) ? n.validTrailSegments++ : n.invalidTrailSegments++);
+        for (const s of t)
+            s &&
+                'number' == typeof s.x &&
+                'number' == typeof s.z &&
+                (this.isWithinBounds(s, i, r) ? n.validTrailSegments++ : n.invalidTrailSegments++);
         return n;
     }
     handleBoundaryEdgeCase(e, t, i) {
@@ -2010,8 +2010,8 @@ let CollisionDetectionEngine$3 = class {
         if (this.checkBoundaryCollision(e, r)) return !0;
         const n = 0.1;
         if (t.length > 5)
-            for (let a = 0; a < t.length - 5; a++) {
-                const i = t[a];
+            for (let s = 0; s < t.length - 5; s++) {
+                const i = t[s];
                 if (
                     i &&
                     'number' == typeof i.x &&
@@ -2021,33 +2021,33 @@ let CollisionDetectionEngine$3 = class {
                 )
                     return !0;
             }
-        for (const a of i)
+        for (const s of i)
             if (
-                a &&
-                'number' == typeof a.x &&
-                'number' == typeof a.z &&
-                Math.abs(e.x - a.x) < n &&
-                Math.abs(e.z - a.z) < n
+                s &&
+                'number' == typeof s.x &&
+                'number' == typeof s.z &&
+                Math.abs(e.x - s.x) < n &&
+                Math.abs(e.z - s.z) < n
             )
                 return !0;
         return !1;
     }
 };
-module$Z.exports = { CollisionDetectionEngine: CollisionDetectionEngine$3 };
-const __CJS__export_default__$Y =
-        (null == module$Z.exports ? {} : module$Z.exports).default || module$Z.exports,
-    __CJS__import__3__$3 = Object.freeze(
+module$$.exports = { CollisionDetectionEngine: CollisionDetectionEngine$3 };
+const __CJS__export_default__$_ =
+        (null == module$$.exports ? {} : module$$.exports).default || module$$.exports,
+    __CJS__import__3__$2 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$Y },
+            { __proto__: null, default: __CJS__export_default__$_ },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$Y = { exports: {} };
+var module$_ = { exports: {} };
 const { CollisionDetectionEngine: CollisionDetectionEngine$2 } =
-        __CJS__export_default__$Y || __CJS__import__3__$3,
-    { Logger: Logger$e } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$x = Logger$e.create('PlayerCollisionHandler');
+        __CJS__export_default__$_ || __CJS__import__3__$2,
+    { Logger: Logger$e } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$w = Logger$e.create('PlayerCollisionHandler');
 let PlayerCollisionHandler$2 = class extends CollisionDetectionEngine$2 {
     constructor() {
         (super(), (this.collisionTolerance = 0.1), (this.excludeRecentSegments = 5));
@@ -2065,15 +2065,15 @@ let PlayerCollisionHandler$2 = class extends CollisionDetectionEngine$2 {
                 winner: null,
                 collisionType: 'invalid_state',
             };
-        const a = t && 'function' == typeof t.getBounds ? t.getBounds() : null,
-            s = !(!t || 'function' != typeof t.isGracePeriodActive) && t.isGracePeriodActive(),
-            o = this.checkPlayerCollision('P1', i.position, i.trail, r.trail, n, a, s),
-            l = this.checkPlayerCollision('P2', r.position, r.trail, i.trail, n, a, s),
+        const s = t && 'function' == typeof t.getBounds ? t.getBounds() : null,
+            a = !(!t || 'function' != typeof t.isGracePeriodActive) && t.isGracePeriodActive(),
+            o = this.checkPlayerCollision('P1', i.position, i.trail, r.trail, n, s, a),
+            l = this.checkPlayerCollision('P2', r.position, r.trail, i.trail, n, s, a),
             c = this.checkDirectPlayerCollision(i.position, r.position);
         return this.determineMultiplayerWinner(o, l, c);
     }
-    checkPlayerCollision(e, t, i, r, n, a = null, s = !1) {
-        return !s && this.isCollidedWithPowerUps(e, t, i, r, n, a, s);
+    checkPlayerCollision(e, t, i, r, n, s = null, a = !1) {
+        return !a && this.isCollidedWithPowerUps(e, t, i, r, n, s, a);
     }
     checkDirectPlayerCollision(e, t) {
         return Math.sqrt(Math.pow(e.x - t.x, 2) + Math.pow(e.z - t.z, 2)) < this.collisionTolerance;
@@ -2143,22 +2143,22 @@ let PlayerCollisionHandler$2 = class extends CollisionDetectionEngine$2 {
             ('trail_collision' !== t && 'direct_collision' !== t)
             ? !!i &&
                   (this.powerUpManager.consumeShield(e),
-                  logger$x.debug(`Shield consumed for ${e} - ${t} prevented`),
+                  logger$w.debug(`Shield consumed for ${e} - ${t} prevented`),
                   !0)
-            : (logger$x.debug(`${e} in Ghost Mode - ${t} ignored`), !0);
+            : (logger$w.debug(`${e} in Ghost Mode - ${t} ignored`), !0);
     }
 };
-module$Y.exports = { PlayerCollisionHandler: PlayerCollisionHandler$2 };
-const __CJS__export_default__$X =
-        (null == module$Y.exports ? {} : module$Y.exports).default || module$Y.exports,
+module$_.exports = { PlayerCollisionHandler: PlayerCollisionHandler$2 };
+const __CJS__export_default__$Z =
+        (null == module$_.exports ? {} : module$_.exports).default || module$_.exports,
     __CJS__import__4__$1 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$X },
+            { __proto__: null, default: __CJS__export_default__$Z },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$X = { exports: {} };
+var module$Z = { exports: {} };
 let DualControlScheme$3 = class {
     constructor() {
         ((this.player1Controls = {
@@ -2198,10 +2198,10 @@ let DualControlScheme$3 = class {
         if (!r) return { playerId: null, directionChanged: !1, key: t };
         const n = this.directionMappings[t];
         if (!n) return { playerId: r, directionChanged: !1, key: t };
-        const a = 'P1' === r ? this.player1State : this.player2State;
+        const s = 'P1' === r ? this.player1State : this.player2State;
         return (
-            (a.pendingDirection = n),
-            (a.lastInputTime = i),
+            (s.pendingDirection = n),
+            (s.lastInputTime = i),
             { playerId: r, directionChanged: !0, key: t, newDirection: n, timestamp: i }
         );
     }
@@ -2279,19 +2279,19 @@ let DualControlScheme$3 = class {
         };
     }
 };
-module$X.exports = { DualControlScheme: DualControlScheme$3 };
-const __CJS__export_default__$W =
-        (null == module$X.exports ? {} : module$X.exports).default || module$X.exports,
+module$Z.exports = { DualControlScheme: DualControlScheme$3 };
+const __CJS__export_default__$Y =
+        (null == module$Z.exports ? {} : module$Z.exports).default || module$Z.exports,
     __CJS__import__6__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$W },
+            { __proto__: null, default: __CJS__export_default__$Y },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$W = { exports: {} };
-const { DualControlScheme: DualControlScheme$2 } = __CJS__export_default__$W || __CJS__import__6__,
-    { logger: logger$w } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$Y = { exports: {} };
+const { DualControlScheme: DualControlScheme$2 } = __CJS__export_default__$Y || __CJS__import__6__,
+    { logger: logger$v } = __CJS__export_default__$1a || __CJS__import__50__;
 let PlayerController$2 = class {
     constructor(e) {
         ((this.game = e), (this.dualControlScheme = null), (this.isMultiplayerMode = !1));
@@ -2302,7 +2302,7 @@ let PlayerController$2 = class {
                 e.preventDefault();
                 return void (
                     this.game.togglePause() ||
-                    logger$w.debug('Pause operation not available in current game state')
+                    logger$v.debug('Pause operation not available in current game state')
                 );
             }
             this.isMultiplayerMode && this.dualControlScheme
@@ -2359,29 +2359,27 @@ let PlayerController$2 = class {
                 (e.addEventListener('click', (e) => {
                     (e.preventDefault(), e.stopPropagation());
                     this.game.resume() ||
-                        logger$w.debug('Resume operation not available in current game state');
+                        logger$v.debug('Resume operation not available in current game state');
                 }),
                 e.addEventListener('touchstart', (e) => {
                     (e.preventDefault(), e.stopPropagation());
                     this.game.resume() ||
-                        logger$w.debug('Resume operation not available in current game state');
+                        logger$v.debug('Resume operation not available in current game state');
                 }));
         }, 0);
     }
 };
-module$W.exports = { PlayerController: PlayerController$2 };
-const __CJS__export_default__$V =
-        (null == module$W.exports ? {} : module$W.exports).default || module$W.exports,
+module$Y.exports = { PlayerController: PlayerController$2 };
+const __CJS__export_default__$X =
+        (null == module$Y.exports ? {} : module$Y.exports).default || module$Y.exports,
     __CJS__import__5__$1 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$V },
+            { __proto__: null, default: __CJS__export_default__$X },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$V = { exports: {} };
-const { Logger: Logger$d } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$v = new Logger$d('ThemeEngine');
+var module$X = { exports: {} };
 class ThemeEngine {
     constructor(e, t, i = null) {
         ((this.scene = e),
@@ -2435,32 +2433,19 @@ class ThemeEngine {
             }));
     }
     loadTheme(e) {
-        if (!this.isValidTheme(e)) return (logger$v.warn('Invalid theme name:', e), !1);
+        if (!this.isValidTheme(e)) return !1;
         const t = this.themeConfigs[e];
         try {
-            this.cleanupCurrentTheme();
-            try {
-                this.updateGridMaterial(t);
-            } catch (i) {
-                logger$v.warn('Could not update grid material:', i.message);
-            }
-            try {
-                this.updateBackground(t);
-            } catch (i) {
-                logger$v.warn('Could not update background:', i.message);
-            }
-            try {
-                this.updateLighting(t);
-            } catch (i) {
-                logger$v.warn('Could not update lighting:', i.message);
-            }
-            return ((this.currentTheme = e), logger$v.info('Theme loaded successfully:', e), !0);
-        } catch (i) {
             return (
-                logger$v.error('Failed to load theme:', i),
-                'classic-grid' !== e && this.loadTheme('classic-grid'),
-                !1
+                this.cleanupCurrentTheme(),
+                this.updateGridMaterial(t),
+                this.updateBackground(t),
+                this.updateLighting(t),
+                (this.currentTheme = e),
+                !0
             );
+        } catch (i) {
+            return ('classic-grid' !== e && this.loadTheme('classic-grid'), !1);
         }
     }
     isValidTheme(e) {
@@ -2568,10 +2553,10 @@ class ThemeEngine {
     createStarfieldBackground(e) {
         const t = new THREE.BufferGeometry(),
             i = new Float32Array(3e3);
-        for (let a = 0; a < 3e3; a += 3)
-            ((i[a] = 2e3 * (Math.random() - 0.5)),
-                (i[a + 1] = 2e3 * (Math.random() - 0.5)),
-                (i[a + 2] = 2e3 * (Math.random() - 0.5)));
+        for (let s = 0; s < 3e3; s += 3)
+            ((i[s] = 2e3 * (Math.random() - 0.5)),
+                (i[s + 1] = 2e3 * (Math.random() - 0.5)),
+                (i[s + 2] = 2e3 * (Math.random() - 0.5)));
         t.setAttribute('position', new THREE.BufferAttribute(i, 3));
         const r = new THREE.PointsMaterial({
                 color: 16777215,
@@ -2587,7 +2572,7 @@ class ThemeEngine {
     createCircuitBackground(e) {
         const t = new THREE.BufferGeometry(),
             i = [];
-        for (let a = 0; a < 50; a++) {
+        for (let s = 0; s < 50; s++) {
             const e = 100 * (Math.random() - 0.5),
                 t = 100 * (Math.random() - 0.5),
                 r = e + 20 * (Math.random() - 0.5),
@@ -2608,29 +2593,28 @@ class ThemeEngine {
         const t = e.lighting;
         let i = null,
             r = null;
-        if (
-            (this.scene &&
-                'function' == typeof this.scene.traverse &&
-                this.scene.traverse((e) => {
-                    e.isAmbientLight ? (i = e) : e.isDirectionalLight && (r = e);
-                }),
-            i)
-        ) {
-            const e = i;
-            (e.color && 'function' == typeof e.color.setHex && e.color.setHex(t.ambient.color),
-                (e.intensity = t.ambient.intensity));
-        } else
-            ((i = new THREE.AmbientLight(t.ambient.color, t.ambient.intensity)),
-                this.scene && 'function' == typeof this.scene.add && this.scene.add(i));
-        if (((this.themeElements.ambientLight = i), r)) {
-            const e = r;
-            (e.color && 'function' == typeof e.color.setHex && e.color.setHex(t.directional.color),
-                (e.intensity = t.directional.intensity));
-        } else
-            ((r = new THREE.DirectionalLight(t.directional.color, t.directional.intensity)),
-                r.position && 'function' == typeof r.position.set && r.position.set(10, 20, 10),
-                this.scene && 'function' == typeof this.scene.add && this.scene.add(r));
-        this.themeElements.directionalLight = r;
+        (this.scene &&
+            'function' == typeof this.scene.traverse &&
+            this.scene.traverse((e) => {
+                e.isAmbientLight ? (i = e) : e.isDirectionalLight && (r = e);
+            }),
+            i
+                ? (i.color &&
+                      'function' == typeof i.color.setHex &&
+                      i.color.setHex(t.ambient.color),
+                  (i.intensity = t.ambient.intensity))
+                : ((i = new THREE.AmbientLight(t.ambient.color, t.ambient.intensity)),
+                  this.scene && 'function' == typeof this.scene.add && this.scene.add(i)),
+            (this.themeElements.ambientLight = i),
+            r
+                ? (r.color &&
+                      'function' == typeof r.color.setHex &&
+                      r.color.setHex(t.directional.color),
+                  (r.intensity = t.directional.intensity))
+                : ((r = new THREE.DirectionalLight(t.directional.color, t.directional.intensity)),
+                  r.position && 'function' == typeof r.position.set && r.position.set(10, 20, 10),
+                  this.scene && 'function' == typeof this.scene.add && this.scene.add(r)),
+            (this.themeElements.directionalLight = r));
     }
     cleanupCurrentTheme() {
         (this.themeElements.backgroundElements.forEach((e) => {
@@ -2647,17 +2631,17 @@ class ThemeEngine {
         this.loadTheme('classic-grid');
     }
 }
-module$V.exports = { ThemeEngine: ThemeEngine };
-const __CJS__export_default__$U =
-        (null == module$V.exports ? {} : module$V.exports).default || module$V.exports,
-    __CJS__import__2__$2 = Object.freeze(
+module$X.exports = { ThemeEngine: ThemeEngine };
+const __CJS__export_default__$W =
+        (null == module$X.exports ? {} : module$X.exports).default || module$X.exports,
+    __CJS__import__2__$3 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$U },
+            { __proto__: null, default: __CJS__export_default__$W },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$U = { exports: {} };
+var module$W = { exports: {} };
 class EmissiveMaterialSystem {
     constructor() {
         ((this.materials = new Map()),
@@ -2816,18 +2800,18 @@ class EmissiveMaterialSystem {
         };
     }
 }
-module$U.exports = { EmissiveMaterialSystem: EmissiveMaterialSystem };
-const __CJS__export_default__$T =
-        (null == module$U.exports ? {} : module$U.exports).default || module$U.exports,
+module$W.exports = { EmissiveMaterialSystem: EmissiveMaterialSystem };
+const __CJS__export_default__$V =
+        (null == module$W.exports ? {} : module$W.exports).default || module$W.exports,
     __CJS__import__5__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$T },
+            { __proto__: null, default: __CJS__export_default__$V },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$T = { exports: {} };
-const { logger: logger$u } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$V = { exports: {} };
+const { logger: logger$u } = __CJS__export_default__$1a || __CJS__import__50__;
 class TrailStyleRenderer {
     constructor(e, t, i = null) {
         ((this.scene = e),
@@ -2874,14 +2858,14 @@ class TrailStyleRenderer {
     }
     createStyledTrailSegment(e, t, i, r) {
         const n = this.getTrailStyle(r),
-            a = this.styleConfigs[n];
-        if (!this.shouldRenderSegment(i.length, a)) return null;
-        const s = this.performanceOptimizer
+            s = this.styleConfigs[n];
+        if (!this.shouldRenderSegment(i.length, s)) return null;
+        const a = this.performanceOptimizer
                 ? this.performanceOptimizer.getSharedGeometry('trailSegment')
                 : new THREE.BoxGeometry(0.1, 0.5, 0.5),
             o = this.calculateSegmentColor(t, n, i.length),
-            l = this.createStyledMaterial(o, a, r, i.length),
-            c = new THREE.Mesh(s, l);
+            l = this.createStyledMaterial(o, s, r, i.length),
+            c = new THREE.Mesh(a, l);
         ((c.position.x = e.x), (c.position.z = e.z), (c.position.y = e.y || 0));
         const d = `trail_${r}_${e.x}_${e.z}_${Date.now()}`;
         return (
@@ -2914,9 +2898,9 @@ class TrailStyleRenderer {
     }
     createStyledMaterial(e, t, i, r) {
         const n = `trail_${i}_${r}_${Date.now()}`,
-            a = this.getTrailStyle(i);
+            s = this.getTrailStyle(i);
         if (this.performanceOptimizer)
-            return this.performanceOptimizer.getOrCreateTrailMaterial(e, a, {
+            return this.performanceOptimizer.getOrCreateTrailMaterial(e, s, {
                 opacity: t.opacity,
                 emissiveIntensity: t.emissiveIntensity,
                 transparent: !0,
@@ -2986,17 +2970,17 @@ class TrailStyleRenderer {
         return this.styleConfigs.hasOwnProperty(e);
     }
 }
-module$T.exports = { TrailStyleRenderer: TrailStyleRenderer };
-const __CJS__export_default__$S =
-        (null == module$T.exports ? {} : module$T.exports).default || module$T.exports,
-    __CJS__import__3__$2 = Object.freeze(
+module$V.exports = { TrailStyleRenderer: TrailStyleRenderer };
+const __CJS__export_default__$U =
+        (null == module$V.exports ? {} : module$V.exports).default || module$V.exports,
+    __CJS__import__2__$2 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$S },
+            { __proto__: null, default: __CJS__export_default__$U },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$S = { exports: {} };
+var module$U = { exports: {} };
 let SplitScreenCamera$2 = class {
     constructor(e, t = { minX: -15, maxX: 15, minZ: -15, maxZ: 15 }) {
         ((this.camera = e),
@@ -3039,21 +3023,21 @@ let SplitScreenCamera$2 = class {
     updateSplitScreenCamera(e, t, i) {
         const r = this.getPlayerPosition(e),
             n = this.getPlayerPosition(t),
-            a = this.calculateCenterPoint(r, n),
-            s = this.calculateDistance(r, n),
-            o = this.calculateOptimalZoom(s),
-            l = this.calculateCameraOffset(s);
-        ((this.targetPosition = { x: a.x, y: o, z: a.z + l }),
-            (this.targetLookAt = { x: a.x, y: 0, z: a.z }),
+            s = this.calculateCenterPoint(r, n),
+            a = this.calculateDistance(r, n),
+            o = this.calculateOptimalZoom(a),
+            l = this.calculateCameraOffset(a);
+        ((this.targetPosition = { x: s.x, y: o, z: s.z + l }),
+            (this.targetLookAt = { x: s.x, y: 0, z: s.z }),
             this.handleBoundaryConstraints());
     }
     updateMultiPlayerCamera(e, t) {
         const i = this.calculateCenterOfMass(e),
             r = this.calculatePlayerBoundingBox(e),
             n = Math.max(r.maxX - r.minX, r.maxZ - r.minZ),
-            a = this.calculateOptimalZoom(n),
-            s = this.calculateCameraOffset(n);
-        ((this.targetPosition = { x: i.x, y: a, z: i.z + s }),
+            s = this.calculateOptimalZoom(n),
+            a = this.calculateCameraOffset(n);
+        ((this.targetPosition = { x: i.x, y: s, z: i.z + a }),
             (this.targetLookAt = { x: i.x, y: 0, z: i.z }),
             this.handleBoundaryConstraints());
     }
@@ -3086,8 +3070,8 @@ let SplitScreenCamera$2 = class {
             i = -1 / 0,
             r = 1 / 0,
             n = -1 / 0;
-        for (const a of e) {
-            const e = this.getPlayerPosition(a);
+        for (const s of e) {
+            const e = this.getPlayerPosition(s);
             ((t = Math.min(t, e.x)),
                 (i = Math.max(i, e.x)),
                 (r = Math.min(r, e.z)),
@@ -3143,12 +3127,12 @@ let SplitScreenCamera$2 = class {
             i = this.targetPosition.x - t.x,
             r = this.targetPosition.y - t.y,
             n = this.targetPosition.z - t.z,
-            a = Math.sqrt(i * i + r * r + n * n);
-        if (a > e) {
-            const s = e / a;
-            ((this.targetPosition.x = t.x + i * s),
-                (this.targetPosition.y = t.y + r * s),
-                (this.targetPosition.z = t.z + n * s));
+            s = Math.sqrt(i * i + r * r + n * n);
+        if (s > e) {
+            const a = e / s;
+            ((this.targetPosition.x = t.x + i * a),
+                (this.targetPosition.y = t.y + r * a),
+                (this.targetPosition.z = t.z + n * a));
         }
     }
     handleOppositeCornerCase() {
@@ -3291,28 +3275,27 @@ let SplitScreenCamera$2 = class {
             i = 1.5 * this.camera.position.y,
             r = 1.5 * this.camera.position.y,
             n = this.camera.position.x,
-            a = this.camera.position.z - this.baseDistance,
-            s = n - i / 2,
+            s = this.camera.position.z - this.baseDistance,
+            a = n - i / 2,
             o = n + i / 2,
-            l = a - r / 2,
-            c = a + r / 2,
-            d = e.x >= s && e.x <= o && e.z >= l && e.z <= c,
-            h = t.x >= s && t.x <= o && t.z >= l && t.z <= c;
+            l = s - r / 2,
+            c = s + r / 2,
+            d = e.x >= a && e.x <= o && e.z >= l && e.z <= c,
+            h = t.x >= a && t.x <= o && t.z >= l && t.z <= c;
         return d && h;
     }
 };
-module$S.exports = { SplitScreenCamera: SplitScreenCamera$2 };
-const __CJS__export_default__$R =
-        (null == module$S.exports ? {} : module$S.exports).default || module$S.exports,
+module$U.exports = { SplitScreenCamera: SplitScreenCamera$2 };
+const __CJS__export_default__$T =
+        (null == module$U.exports ? {} : module$U.exports).default || module$U.exports,
     __CJS__import__8__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$R },
+            { __proto__: null, default: __CJS__export_default__$T },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$R = { exports: {} };
-const { logger: logger$t } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$T = { exports: {} };
 let RenderingEngine$2 = class {
     constructor(e) {
         ((this.scene = new THREE.Scene()),
@@ -3329,11 +3312,11 @@ let RenderingEngine$2 = class {
             document.body.appendChild(this.renderer.domElement),
             (this.originalCameraPosition = this.camera.position.clone()),
             (this.cameraEffectsManager = null));
-        const { ThemeEngine: t } = __CJS__export_default__$U || __CJS__import__2__$2;
+        const { ThemeEngine: t } = __CJS__export_default__$W || __CJS__import__2__$3;
         this.themeEngine = new t(this.scene, this.renderer);
-        const { EmissiveMaterialSystem: i } = __CJS__export_default__$T || __CJS__import__5__;
+        const { EmissiveMaterialSystem: i } = __CJS__export_default__$V || __CJS__import__5__;
         this.emissiveMaterialSystem = new i();
-        const { TrailStyleRenderer: r } = __CJS__export_default__$S || __CJS__import__3__$2;
+        const { TrailStyleRenderer: r } = __CJS__export_default__$U || __CJS__import__2__$2;
         ((this.trailStyleRenderer = new r(this.scene, this.emissiveMaterialSystem)),
             this.themeEngine.loadTheme('classic-grid'),
             (this.playerEntities = new Map()),
@@ -3524,7 +3507,7 @@ let RenderingEngine$2 = class {
             return void (i && (i.visible = !1));
         }
         let n = this.playerEntities.get(e),
-            a = this.playerLabels.get(e);
+            s = this.playerLabels.get(e);
         if (!n) {
             const t = new THREE.BoxGeometry(1, 1, 1),
                 i = this.getPlayerColor(e),
@@ -3534,24 +3517,24 @@ let RenderingEngine$2 = class {
                 this.playerEntities.set(e, n),
                 this.playerTrails.has(e) || this.playerTrails.set(e, []));
         }
-        (a ||
+        (s ||
             ('P1' !== e && 'P2' !== e) ||
-            ((a = this.createPlayerLabel(e)), this.playerLabels.set(e, a)),
+            ((s = this.createPlayerLabel(e)), this.playerLabels.set(e, s)),
             (n.position.x = t.x || (null == (i = t.position) ? void 0 : i.x) || 0),
             (n.position.z = t.z || (null == (r = t.position) ? void 0 : r.z) || 0),
             (n.visible = !0),
-            a &&
-                ((a.position.x = n.position.x),
-                (a.position.z = n.position.z),
-                (a.position.y = 2),
-                (a.visible = !0)));
+            s &&
+                ((s.position.x = n.position.x),
+                (s.position.z = n.position.z),
+                (s.position.y = 2),
+                (s.visible = !0)));
     }
     createPlayerLabel(e) {
         const t = new THREE.BoxGeometry(0.3, 0.3, 0.3),
             i = this.getPlayerColor(e),
             r = new THREE.MeshBasicMaterial({ color: i, transparent: !0, opacity: 0.8 }),
             n = new THREE.Mesh(t, r);
-        return ((n.position.y = 2), this.scene.add(n), logger$t.info(`Created label for ${e}`), n);
+        return ((n.position.y = 2), this.scene.add(n), n);
     }
     updatePlayerTrails(e) {
         if (e.player1 && e.player2)
@@ -3583,8 +3566,8 @@ let RenderingEngine$2 = class {
         r &&
             this.emissiveMaterialSystem.getTrailColorTemplate &&
             (n = this.emissiveMaterialSystem.getTrailColorTemplate(r));
-        const a = this.trailStyleRenderer.createStyledTrailSegment(e, n, i, r);
-        a && i.push(a);
+        const s = this.trailStyleRenderer.createStyledTrailSegment(e, n, i, r);
+        s && i.push(s);
     }
     updateCamera(e) {
         const t = { x: e.x, y: 20, z: e.z + 15 };
@@ -3601,7 +3584,7 @@ let RenderingEngine$2 = class {
     }
     updateCameraForPlayers(e) {
         if (!this.splitScreenCamera) {
-            const { SplitScreenCamera: e } = __CJS__export_default__$R || __CJS__import__8__;
+            const { SplitScreenCamera: e } = __CJS__export_default__$T || __CJS__import__8__;
             this.splitScreenCamera = new e(this.camera);
         }
         const t = [];
@@ -3690,7 +3673,7 @@ let RenderingEngine$2 = class {
     }
     createPowerUpObject(e) {
         const { type: t, position: i, appearance: r } = e;
-        let n, a, s;
+        let n, s, a;
         switch (r.shape) {
             case 'cube':
             case 'diamond':
@@ -3700,10 +3683,9 @@ let RenderingEngine$2 = class {
                 n = new THREE.SphereGeometry(r.size.radius, 16, 16);
                 break;
             default:
-                (logger$t.warn(`Unknown power-up shape: ${r.shape}`),
-                    (n = new THREE.BoxGeometry(0.8, 0.8, 0.8)));
+                n = new THREE.BoxGeometry(0.8, 0.8, 0.8);
         }
-        ((a = r.glow
+        ((s = r.glow
             ? new THREE.MeshLambertMaterial({
                   color: r.color,
                   emissive: r.color,
@@ -3716,12 +3698,12 @@ let RenderingEngine$2 = class {
                   transparent: void 0 !== r.opacity,
                   opacity: r.opacity || 1,
               })),
-            (s = new THREE.Mesh(n, a)),
-            s.position.set(i.x, i.y, i.z),
-            'diamond' === r.shape && s.rotation.set(Math.PI / 4, Math.PI / 4, Math.PI / 4),
-            this.scene.add(s),
-            this.powerUpObjects.set(e.id, s),
-            this.initializePowerUpAnimation(e.id, t, s));
+            (a = new THREE.Mesh(n, s)),
+            a.position.set(i.x, i.y, i.z),
+            'diamond' === r.shape && a.rotation.set(Math.PI / 4, Math.PI / 4, Math.PI / 4),
+            this.scene.add(a),
+            this.powerUpObjects.set(e.id, a),
+            this.initializePowerUpAnimation(e.id, t, a));
     }
     initializePowerUpAnimation(e, t, i) {
         const r = {
@@ -3759,8 +3741,8 @@ let RenderingEngine$2 = class {
                     mesh: t,
                     startTime: r,
                     rotationSpeed: n,
-                    floatAmplitude: a,
-                    floatSpeed: s,
+                    floatAmplitude: s,
+                    floatSpeed: a,
                     originalY: o,
                     opacityRange: l,
                     opacitySpeed: c,
@@ -3770,7 +3752,7 @@ let RenderingEngine$2 = class {
                 (0 !== n.x && (t.rotation.x += n.x),
                 0 !== n.y && (t.rotation.y += n.y),
                 0 !== n.z && (t.rotation.z += n.z),
-                a > 0 && (t.position.y = o + Math.sin(d * s) * a),
+                s > 0 && (t.position.y = o + Math.sin(d * a) * s),
                 l.min !== l.max)
             ) {
                 const e = (l.min + l.max) / 2,
@@ -3794,27 +3776,27 @@ let RenderingEngine$2 = class {
         if (!i) return;
         const r = new THREE.Matrix4(),
             n = new THREE.Vector3(),
-            a = new THREE.Euler(),
-            s = new THREE.Vector3(1, 1, 1);
+            s = new THREE.Euler(),
+            a = new THREE.Vector3(1, 1, 1);
         for (let l = 0; l < t.length && l < this.maxInstancesPerType; l++) {
             const o = t[l];
             n.set(o.position.x, o.position.y, o.position.z);
             const c = 0.001 * Date.now();
             switch (e) {
                 case 'SPEED_BOOST':
-                    a.set(0, 2 * c, 0);
+                    s.set(0, 2 * c, 0);
                     break;
                 case 'TRAIL_ERASER':
-                    a.set(1.5 * c, 2 * c, c);
+                    s.set(1.5 * c, 2 * c, c);
                     break;
                 case 'GHOST_MODE':
-                    a.set(0, 1.5 * c, 0);
+                    s.set(0, 1.5 * c, 0);
                     break;
                 default:
-                    a.set(0, 0, 0);
+                    s.set(0, 0, 0);
             }
-            ('TRAIL_ERASER' === e && ((a.x += Math.PI / 4), (a.z += Math.PI / 4)),
-                r.compose(n, new THREE.Quaternion().setFromEuler(a), s),
+            ('TRAIL_ERASER' === e && ((s.x += Math.PI / 4), (s.z += Math.PI / 4)),
+                r.compose(n, new THREE.Quaternion().setFromEuler(s), a),
                 i.setMatrixAt(l, r),
                 this.powerUpObjects.has(o.id) && this.removePowerUp(o.id));
         }
@@ -3853,10 +3835,10 @@ let RenderingEngine$2 = class {
         for (let n = 0; n < 8; n++) {
             const t = new THREE.Mesh(this.particleGeometry, r.clone());
             t.position.set(e.x, e.y, e.z);
-            const a = (n / 8) * Math.PI * 2,
-                s = 0.1 + 0.1 * Math.random();
+            const s = (n / 8) * Math.PI * 2,
+                a = 0.1 + 0.1 * Math.random();
             ((t.userData = {
-                velocity: { x: Math.cos(a) * s, y: 0.05 + 0.1 * Math.random(), z: Math.sin(a) * s },
+                velocity: { x: Math.cos(s) * a, y: 0.05 + 0.1 * Math.random(), z: Math.sin(s) * a },
                 life: 1,
                 decay: 0.02 + 0.01 * Math.random(),
             }),
@@ -3927,17 +3909,16 @@ let RenderingEngine$2 = class {
                 })),
                     (n = 'Power-Up!'));
         }
-        const a = new THREE.Mesh(i, r);
-        (a.position.set(t.x, t.y + 2, t.z),
-            (a.userData = {
+        const s = new THREE.Mesh(i, r);
+        (s.position.set(t.x, t.y + 2, t.z),
+            (s.userData = {
                 startTime: Date.now(),
                 duration: 2e3,
                 startY: t.y + 2,
                 isNotification: !0,
             }),
-            this.scene.add(a),
-            this.collectionParticles.push(a),
-            logger$t.info(`Collection Notification: ${n}`));
+            this.scene.add(s),
+            this.collectionParticles.push(s));
     }
     updateCollectionNotifications() {
         const e = Date.now();
@@ -4010,8 +3991,8 @@ let RenderingEngine$2 = class {
                 transparent: !0,
                 opacity: 0.3,
             }),
-            a = new THREE.LineSegments(t, n);
-        (this.scene.add(a), (this.boundaryVisualization.futureBoundaries = a));
+            s = new THREE.LineSegments(t, n);
+        (this.scene.add(s), (this.boundaryVisualization.futureBoundaries = s));
     }
     updateBoundaryVisualization(e) {
         if (!e) return;
@@ -4035,8 +4016,8 @@ let RenderingEngine$2 = class {
         const i = 1e3 / t.flashRate,
             r = ((e - t.lastFlashTime) % i) / i,
             n = 0.5 * Math.sin(r * Math.PI * 2) + 0.5,
-            a = new THREE.Color(1, 0.2 * n, 0.2 * n);
-        ((this.boundaryVisualization.currentBoundaries.material.color = a),
+            s = new THREE.Color(1, 0.2 * n, 0.2 * n);
+        ((this.boundaryVisualization.currentBoundaries.material.color = s),
             (this.boundaryVisualization.currentBoundaries.material.opacity = 0.8 + 0.2 * n));
     }
     startShrinkAnimation(e, t) {
@@ -4178,30 +4159,22 @@ let RenderingEngine$2 = class {
     }
     initializeParticleSystem(e, t = {}) {
         var i, r, n;
-        if (!e)
-            return (
-                logger$t.warn('ParticleSystem class not provided to RenderingEngine'),
-                (this.particleSystem = null),
-                void (this.particleSystemEnabled = !1)
-            );
-        try {
-            ((this.particleSystem = new e(this.scene, {
-                maxParticles: t.maxParticles || 200,
-                enabled: !1 !== t.enabled,
-                quality: t.quality || 'medium',
-                effects: {
-                    trailSparks: !1 !== (null == (i = t.effects) ? void 0 : i.trailSparks),
-                    explosions: !1 !== (null == (r = t.effects) ? void 0 : r.explosions),
-                    collections: !1 !== (null == (n = t.effects) ? void 0 : n.collections),
-                },
-            })),
-                (this.particleSystemEnabled = !0),
-                logger$t.info('ParticleSystem integrated with RenderingEngine'));
-        } catch (a) {
-            (logger$t.error('Failed to initialize ParticleSystem:', a),
-                (this.particleSystem = null),
-                (this.particleSystemEnabled = !1));
-        }
+        if (e)
+            try {
+                ((this.particleSystem = new e(this.scene, {
+                    maxParticles: t.maxParticles || 200,
+                    enabled: !1 !== t.enabled,
+                    quality: t.quality || 'medium',
+                    effects: {
+                        trailSparks: !1 !== (null == (i = t.effects) ? void 0 : i.trailSparks),
+                        explosions: !1 !== (null == (r = t.effects) ? void 0 : r.explosions),
+                        collections: !1 !== (null == (n = t.effects) ? void 0 : n.collections),
+                    },
+                })),
+                    (this.particleSystemEnabled = !0));
+            } catch (s) {
+                ((this.particleSystem = null), (this.particleSystemEnabled = !1));
+            }
     }
     updateIntegratedParticleSystem(e) {
         if (this.particleSystem && this.particleSystemEnabled)
@@ -4212,8 +4185,7 @@ let RenderingEngine$2 = class {
                     this.particleSystem.update(i, e),
                     this.emitTrailSparksForEntities(e));
             } catch (t) {
-                (logger$t.error('Error updating integrated particle system:', t),
-                    (this.particleSystemEnabled = !1));
+                this.particleSystemEnabled = !1;
             }
     }
     emitTrailSparksForEntities(e) {
@@ -4232,10 +4204,10 @@ let RenderingEngine$2 = class {
                     if (i.alive && i.direction) {
                         const r = e.powerUpManager ? e.powerUpManager.getSpeedMultiplier('ai') : 1,
                             n = t * r,
-                            a = { x: i.direction.x * n, y: 0, z: i.direction.z * n };
-                        if (Math.abs(a.x) > 0.01 || Math.abs(a.z) > 0.01) {
+                            s = { x: i.direction.x * n, y: 0, z: i.direction.z * n };
+                        if (Math.abs(s.x) > 0.01 || Math.abs(s.z) > 0.01) {
                             const e = this.getColorHex(i.color);
-                            this.particleSystem.emitTrailSparks(i, a, e, n);
+                            this.particleSystem.emitTrailSparks(i, s, e, n);
                         }
                     }
                 }),
@@ -4263,7 +4235,7 @@ let RenderingEngine$2 = class {
     }
     reinitializeParticleSystem(e = {}) {
         this.particleSystem && (this.particleSystem.dispose(), (this.particleSystem = null));
-        const { ParticleSystem: t } = __CJS__export_default__$19 || __CJS__import__22__;
+        const { ParticleSystem: t } = __CJS__export_default__$1b || __CJS__import__22__;
         this.initializeParticleSystem(t, e);
     }
     setParticleSystemEnabled(e) {
@@ -4295,9 +4267,7 @@ let RenderingEngine$2 = class {
         return this.emissiveMaterialSystem ? this.emissiveMaterialSystem.getStatus() : null;
     }
     setArenaTheme(e) {
-        return this.themeEngine
-            ? this.themeEngine.loadTheme(e)
-            : (logger$t.warn('ThemeEngine not initialized'), !1);
+        return !!this.themeEngine && this.themeEngine.loadTheme(e);
     }
     getAvailableThemes() {
         return this.themeEngine ? this.themeEngine.getAvailableThemes() : [];
@@ -4323,7 +4293,7 @@ let RenderingEngine$2 = class {
                 t = e.getContext('webgl') || e.getContext('experimental-webgl');
             return !!t && !(!window.WebGLRenderingContext || !t);
         } catch (e) {
-            return (logger$t.error('WebGL availability check failed:', e), !1);
+            return !1;
         }
     }
     showWebGLError() {
@@ -4333,21 +4303,20 @@ let RenderingEngine$2 = class {
                 '\n            position: fixed;\n            top: 50%;\n            left: 50%;\n            transform: translate(-50%, -50%);\n            background: rgba(255, 0, 0, 0.9);\n            color: white;\n            padding: 30px;\n            border-radius: 10px;\n            font-family: Arial, sans-serif;\n            text-align: center;\n            z-index: 10000;\n            max-width: 500px;\n            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);\n        '),
             (e.innerHTML =
                 '\n            <h2 style="margin: 0 0 15px 0; font-size: 2em;">WebGL Not Supported</h2>\n            <p style="margin: 0 0 15px 0; font-size: 1.1em;">\n                Your browser does not support WebGL, which is required for this game.\n            </p>\n            <p style="margin: 0 0 20px 0; font-size: 0.9em; color: #ffcccc;">\n                Please try using a modern browser like:\n            </p>\n            <ul style="list-style: none; padding: 0; margin: 0 0 20px 0; font-size: 0.9em;">\n                <li>• Chrome 90+</li>\n                <li>• Firefox 88+</li>\n                <li>• Safari 14+</li>\n                <li>• Edge 90+</li>\n            </ul>\n            <p style="margin: 0; font-size: 0.8em; color: #ffcccc;">\n                If you\'re using a supported browser, WebGL may be disabled in your settings.\n            </p>\n        '),
-            document.body.appendChild(e),
-            logger$t.error('WebGL is not available. The game cannot run without WebGL support.'));
+            document.body.appendChild(e));
     }
 };
-module$R.exports = { RenderingEngine: RenderingEngine$2 };
-const __CJS__export_default__$Q =
-        (null == module$R.exports ? {} : module$R.exports).default || module$R.exports,
+module$T.exports = { RenderingEngine: RenderingEngine$2 };
+const __CJS__export_default__$S =
+        (null == module$T.exports ? {} : module$T.exports).default || module$T.exports,
     __CJS__import__7__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$Q },
+            { __proto__: null, default: __CJS__export_default__$S },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$Q = { exports: {} };
+var module$S = { exports: {} };
 let ScoreDisplay$2 = class {
     constructor(e) {
         ((this.renderer = e),
@@ -4447,19 +4416,19 @@ let ScoreDisplay$2 = class {
     const t = window.glowEffectManager;
     t && t.handleResize && t.handleResize(window.innerWidth, window.innerHeight);
 }),
-    (module$Q.exports = { ScoreDisplay: ScoreDisplay$2 }));
-const __CJS__export_default__$P =
-        (null == module$Q.exports ? {} : module$Q.exports).default || module$Q.exports,
+    (module$S.exports = { ScoreDisplay: ScoreDisplay$2 }));
+const __CJS__export_default__$R =
+        (null == module$S.exports ? {} : module$S.exports).default || module$S.exports,
     __CJS__import__9__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$P },
+            { __proto__: null, default: __CJS__export_default__$R },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$P = { exports: {} };
-const { Logger: Logger$c } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$s = Logger$c.create('DifficultyManager'),
+var module$R = { exports: {} };
+const { Logger: Logger$d } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$t = Logger$d.create('DifficultyManager'),
     DIFFICULTY_CONFIGS = {
         easy: {
             turnThreshold: 15,
@@ -4487,36 +4456,36 @@ let DifficultyManager$2 = class {
             (this.currentDifficulty = 'medium'),
             (this.storageKey = 'lightbikes_difficulty'),
             this.validateAllConfigurations() ||
-                logger$s.warn('Difficulty system initialized with invalid configurations'),
+                logger$t.warn('Difficulty system initialized with invalid configurations'),
             e &&
                 'object' != typeof e &&
-                logger$s.warn('Invalid game parameter provided to DifficultyManager'),
+                logger$t.warn('Invalid game parameter provided to DifficultyManager'),
             t &&
                 'object' != typeof t &&
-                logger$s.warn('Invalid aiController parameter provided to DifficultyManager'),
+                logger$t.warn('Invalid aiController parameter provided to DifficultyManager'),
             this.loadFromStorage(),
             this.applyToGame(),
             this.applyToAI());
     }
     setDifficulty(e) {
         ('string' != typeof e
-            ? (logger$s.warn(`Invalid difficulty type: ${typeof e}, expected string. Using medium`),
+            ? (logger$t.warn(`Invalid difficulty type: ${typeof e}, expected string. Using medium`),
               (e = 'medium'))
             : (e = e.trim().toLowerCase()),
             DIFFICULTY_CONFIGS[e] ||
-                (logger$s.warn(
+                (logger$t.warn(
                     `Invalid difficulty level: "${e}", using medium. Valid options: ${Object.keys(DIFFICULTY_CONFIGS).join(', ')}`
                 ),
                 (e = 'medium')));
         const t = DIFFICULTY_CONFIGS[e];
         (this._validateDifficultyConfig(t, e) ||
-            (logger$s.warn(`Invalid configuration for difficulty "${e}", falling back to medium`),
+            (logger$t.warn(`Invalid configuration for difficulty "${e}", falling back to medium`),
             (e = 'medium')),
             (this.currentDifficulty = e));
         try {
             (this.applyToGame(), this.applyToAI());
         } catch (i) {
-            logger$s.warn(`Error applying difficulty settings for "${e}":`, i);
+            logger$t.warn(`Error applying difficulty settings for "${e}":`, i);
         }
         this.saveToStorage();
     }
@@ -4527,7 +4496,7 @@ let DifficultyManager$2 = class {
         let t = e || this.currentDifficulty;
         null !== e &&
             ('string' != typeof e
-                ? (logger$s.warn(
+                ? (logger$t.warn(
                       `Invalid difficulty type in getDifficultyConfig: ${typeof e}, using current difficulty`
                   ),
                   (t = this.currentDifficulty))
@@ -4536,9 +4505,9 @@ let DifficultyManager$2 = class {
         return i
             ? this._validateDifficultyConfig(i, t)
                 ? i
-                : (logger$s.warn(`Invalid configuration structure for "${t}", using medium`),
+                : (logger$t.warn(`Invalid configuration structure for "${t}", using medium`),
                   DIFFICULTY_CONFIGS.medium)
-            : (logger$s.warn(`Configuration not found for difficulty "${t}", using medium`),
+            : (logger$t.warn(`Configuration not found for difficulty "${t}", using medium`),
               DIFFICULTY_CONFIGS.medium);
     }
     applyToGame() {
@@ -4547,44 +4516,44 @@ let DifficultyManager$2 = class {
                 try {
                     const e = this.getDifficultyConfig();
                     'number' != typeof e.gameSpeed || e.gameSpeed <= 0 || e.gameSpeed > 1
-                        ? (logger$s.warn(
+                        ? (logger$t.warn(
                               `Invalid game speed value: ${e.gameSpeed}, using default 0.1`
                           ),
                           this.game.setGameSpeed(0.1))
                         : this.game.setGameSpeed(e.gameSpeed);
                 } catch (e) {
-                    logger$s.warn('Error applying game speed settings:', e);
+                    logger$t.warn('Error applying game speed settings:', e);
                     try {
                         this.game.setGameSpeed(0.1);
                     } catch (t) {
-                        logger$s.warn('Failed to set fallback game speed:', t);
+                        logger$t.warn('Failed to set fallback game speed:', t);
                     }
                 }
             else
-                logger$s.warn(
+                logger$t.warn(
                     'Game instance missing setGameSpeed method, cannot apply speed settings'
                 );
-        else logger$s.warn('Game instance not available, cannot apply difficulty settings');
+        else logger$t.warn('Game instance not available, cannot apply difficulty settings');
     }
     applyToAI() {
         if (this.aiController)
             try {
                 const e = this.getDifficultyConfig();
                 (('number' != typeof e.turnThreshold || e.turnThreshold <= 0) &&
-                    (logger$s.warn(
+                    (logger$t.warn(
                         `Invalid turnThreshold value: ${e.turnThreshold}, using default 10`
                     ),
                     (e.turnThreshold = 10)),
                     ('number' != typeof e.randomTurnChance ||
                         e.randomTurnChance < 0 ||
                         e.randomTurnChance > 1) &&
-                        (logger$s.warn(
+                        (logger$t.warn(
                             `Invalid randomTurnChance value: ${e.randomTurnChance}, using default 0.02`
                         ),
                         (e.randomTurnChance = 0.02)),
                     (this.aiController.difficultyConfig = e));
             } catch (e) {
-                logger$s.warn('Error applying AI difficulty settings:', e);
+                logger$t.warn('Error applying AI difficulty settings:', e);
                 try {
                     this.aiController.difficultyConfig = {
                         turnThreshold: 10,
@@ -4593,19 +4562,19 @@ let DifficultyManager$2 = class {
                         description: 'Default fallback configuration',
                     };
                 } catch (t) {
-                    logger$s.warn('Failed to set fallback AI configuration:', t);
+                    logger$t.warn('Failed to set fallback AI configuration:', t);
                 }
             }
-        else logger$s.warn('AI controller not available, cannot apply difficulty settings');
+        else logger$t.warn('AI controller not available, cannot apply difficulty settings');
     }
     saveToStorage() {
         try {
             if ('undefined' == typeof Storage || !window.localStorage)
-                return void logger$s.warn(
+                return void logger$t.warn(
                     'localStorage not available, cannot save difficulty setting'
                 );
             if (!this.currentDifficulty || !DIFFICULTY_CONFIGS[this.currentDifficulty])
-                return void logger$s.warn(
+                return void logger$t.warn(
                     `Invalid current difficulty "${this.currentDifficulty}", cannot save`
                 );
             const t = {
@@ -4619,16 +4588,16 @@ let DifficultyManager$2 = class {
             } catch (e) {
                 if ('QuotaExceededError' !== e.name && 'NS_ERROR_DOM_QUOTA_REACHED' !== e.name)
                     throw e;
-                logger$s.warn('localStorage quota exceeded, cannot save difficulty setting');
+                logger$t.warn('localStorage quota exceeded, cannot save difficulty setting');
             }
         } catch (t) {
-            logger$s.warn('Failed to save difficulty setting:', t);
+            logger$t.warn('Failed to save difficulty setting:', t);
         }
     }
     loadFromStorage() {
         try {
             if ('undefined' == typeof Storage || !window.localStorage)
-                return void logger$s.warn('localStorage not available, using default difficulty');
+                return void logger$t.warn('localStorage not available, using default difficulty');
             const t = localStorage.getItem(this.storageKey);
             if (!t) return;
             let i;
@@ -4636,25 +4605,25 @@ let DifficultyManager$2 = class {
                 i = JSON.parse(t);
             } catch (e) {
                 return (
-                    logger$s.warn('Failed to parse stored difficulty data, using default:', e),
+                    logger$t.warn('Failed to parse stored difficulty data, using default:', e),
                     void this._clearCorruptedStorage()
                 );
             }
             if (!i || 'object' != typeof i)
                 return (
-                    logger$s.warn('Invalid stored difficulty data structure, using default'),
+                    logger$t.warn('Invalid stored difficulty data structure, using default'),
                     void this._clearCorruptedStorage()
                 );
             i.selectedDifficulty &&
             'string' == typeof i.selectedDifficulty &&
             DIFFICULTY_CONFIGS[i.selectedDifficulty.toLowerCase()]
                 ? (this.currentDifficulty = i.selectedDifficulty.toLowerCase())
-                : (logger$s.warn(
+                : (logger$t.warn(
                       `Invalid stored difficulty "${i.selectedDifficulty}", using default`
                   ),
                   this._clearCorruptedStorage());
         } catch (t) {
-            logger$s.warn('Failed to load difficulty setting:', t);
+            logger$t.warn('Failed to load difficulty setting:', t);
         }
     }
     getAllDifficulties() {
@@ -4662,7 +4631,7 @@ let DifficultyManager$2 = class {
             return JSON.parse(JSON.stringify(DIFFICULTY_CONFIGS));
         } catch (e) {
             return (
-                logger$s.warn('Error creating difficulty configurations copy:', e),
+                logger$t.warn('Error creating difficulty configurations copy:', e),
                 {
                     easy: {
                         turnThreshold: 15,
@@ -4688,24 +4657,24 @@ let DifficultyManager$2 = class {
     }
     _validateDifficultyConfig(e, t) {
         if (!e || 'object' != typeof e)
-            return (logger$s.warn(`Configuration for "${t}" is not an object`), !1);
+            return (logger$t.warn(`Configuration for "${t}" is not an object`), !1);
         const i = ['turnThreshold', 'randomTurnChance', 'gameSpeed', 'description'];
         for (const r of i)
             if (!(r in e))
                 return (
-                    logger$s.warn(`Configuration for "${t}" missing required property: ${r}`),
+                    logger$t.warn(`Configuration for "${t}" missing required property: ${r}`),
                     !1
                 );
         return 'number' != typeof e.turnThreshold || e.turnThreshold <= 0
-            ? (logger$s.warn(`Invalid turnThreshold for "${t}": ${e.turnThreshold}`), !1)
+            ? (logger$t.warn(`Invalid turnThreshold for "${t}": ${e.turnThreshold}`), !1)
             : 'number' != typeof e.randomTurnChance ||
                 e.randomTurnChance < 0 ||
                 e.randomTurnChance > 1
-              ? (logger$s.warn(`Invalid randomTurnChance for "${t}": ${e.randomTurnChance}`), !1)
+              ? (logger$t.warn(`Invalid randomTurnChance for "${t}": ${e.randomTurnChance}`), !1)
               : 'number' != typeof e.gameSpeed || e.gameSpeed <= 0 || e.gameSpeed > 1
-                ? (logger$s.warn(`Invalid gameSpeed for "${t}": ${e.gameSpeed}`), !1)
+                ? (logger$t.warn(`Invalid gameSpeed for "${t}": ${e.gameSpeed}`), !1)
                 : ('string' == typeof e.description && 0 !== e.description.trim().length) ||
-                  (logger$s.warn(`Invalid description for "${t}": ${e.description}`), !1);
+                  (logger$t.warn(`Invalid description for "${t}": ${e.description}`), !1);
     }
     _clearCorruptedStorage() {
         try {
@@ -4713,7 +4682,7 @@ let DifficultyManager$2 = class {
                 window.localStorage &&
                 localStorage.removeItem(this.storageKey);
         } catch (e) {
-            logger$s.warn('Failed to clear corrupted storage:', e);
+            logger$t.warn('Failed to clear corrupted storage:', e);
         }
     }
     validateAllConfigurations() {
@@ -4722,29 +4691,29 @@ let DifficultyManager$2 = class {
         for (const i of e) this._validateDifficultyConfig(DIFFICULTY_CONFIGS[i], i) || (t = !1);
         return (
             t ||
-                logger$s.warn(
+                logger$t.warn(
                     'Some difficulty configurations are invalid. Game may not function correctly.'
                 ),
             t
         );
     }
 };
-module$P.exports = {
+module$R.exports = {
     DifficultyManager: DifficultyManager$2,
     DIFFICULTY_CONFIGS: DIFFICULTY_CONFIGS,
 };
-const __CJS__export_default__$O =
-        (null == module$P.exports ? {} : module$P.exports).default || module$P.exports,
+const __CJS__export_default__$Q =
+        (null == module$R.exports ? {} : module$R.exports).default || module$R.exports,
     __CJS__import__11__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$O },
+            { __proto__: null, default: __CJS__export_default__$Q },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$O = { exports: {} };
-const { Logger: Logger$b } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$r = new Logger$b('PowerUpManager');
+var module$Q = { exports: {} };
+const { Logger: Logger$c } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$s = new Logger$c('PowerUpManager');
 class PowerUpObjectPool {
     constructor() {
         ((this.pool = []), (this.maxPoolSize = 10));
@@ -4806,11 +4775,11 @@ class SpatialGrid {
     getNearbyEntities(e, t, i) {
         const r = new Set(),
             n = Math.ceil(i / this.cellSize),
-            a = Math.floor((e + this.arenaSize / 2) / this.cellSize),
-            s = Math.floor((t + this.arenaSize / 2) / this.cellSize);
+            s = Math.floor((e + this.arenaSize / 2) / this.cellSize),
+            a = Math.floor((t + this.arenaSize / 2) / this.cellSize);
         for (let o = -n; o <= n; o++)
             for (let e = -n; e <= n; e++) {
-                const t = `${a + o},${s + e}`,
+                const t = `${s + o},${a + e}`,
                     i = this.grid.get(t);
                 if (i) for (const e of i) r.add(e);
             }
@@ -4962,7 +4931,7 @@ let PowerUpManager$2 = class {
             this.objectPool.pool.splice(0, e);
         }
         for (const [e, t] of this.spatialGrid.grid) 0 === t.size && this.spatialGrid.grid.delete(e);
-        logger$r.debug(
+        logger$s.debug(
             'Performed periodic cleanup - object pool size:',
             this.objectPool.pool.length
         );
@@ -4985,7 +4954,7 @@ let PowerUpManager$2 = class {
                 return (this.spawnPowerUp(e, t), !0);
             }
         }
-        return (logger$r.debug('Could not find valid spawn position after 10 attempts'), !1);
+        return (logger$s.debug('Could not find valid spawn position after 10 attempts'), !1);
     }
     generateRandomPosition(e) {
         const t = -e + SPAWN_CONFIG.minDistanceFromBoundary,
@@ -5026,9 +4995,9 @@ let PowerUpManager$2 = class {
         const i = t.map((e) => POWER_UP_TYPES[e].spawnWeight),
             r = i.reduce((e, t) => e + t, 0);
         let n = Math.random() * r;
-        for (let s = 0; s < t.length; s++)
-            if (((n -= i[s]), n <= 0)) {
-                const e = t[s];
+        for (let a = 0; a < t.length; a++)
+            if (((n -= i[a]), n <= 0)) {
+                const e = t[a];
                 return (
                     this.lastSpawnedTypes.push(e),
                     this.lastSpawnedTypes.length > this.maxRecentTypes &&
@@ -5036,11 +5005,11 @@ let PowerUpManager$2 = class {
                     e
                 );
             }
-        const a = t[0];
+        const s = t[0];
         return (
-            this.lastSpawnedTypes.push(a),
+            this.lastSpawnedTypes.push(s),
             this.lastSpawnedTypes.length > this.maxRecentTypes && this.lastSpawnedTypes.shift(),
-            a
+            s
         );
     }
     spawnPowerUp(e, t) {
@@ -5049,7 +5018,7 @@ let PowerUpManager$2 = class {
         return (
             this.activePowerUps.set(i, r),
             this.spatialGrid.addEntity(i, t.x, t.z),
-            logger$r.debug(`Spawned ${e} power-up at`, t),
+            logger$s.debug(`Spawned ${e} power-up at`, t),
             r
         );
     }
@@ -5062,7 +5031,7 @@ let PowerUpManager$2 = class {
                 (this.spatialGrid.removeEntity(t),
                 this.objectPool.release(e),
                 this.activePowerUps.delete(t),
-                logger$r.debug(`Removed expired power-up: ${t}`));
+                logger$s.debug(`Removed expired power-up: ${t}`));
         }
     }
     removeExpiredEffects() {
@@ -5072,7 +5041,7 @@ let PowerUpManager$2 = class {
                 r.isExpired()
                     ? this.handleEffectExpiration(e, r)
                     : 'SHIELD' === r.type && r.data.consumed
-                      ? logger$r.debug(`Removing consumed shield for ${e}`)
+                      ? logger$s.debug(`Removing consumed shield for ${e}`)
                       : i.push(r);
             this.activeEffects.set(e, i);
         }
@@ -5080,16 +5049,16 @@ let PowerUpManager$2 = class {
     handleEffectExpiration(e, t) {
         switch (t.type) {
             case 'SPEED_BOOST':
-                logger$r.debug(`Speed boost expired for ${e}`);
+                logger$s.debug(`Speed boost expired for ${e}`);
                 break;
             case 'GHOST_MODE':
-                logger$r.debug(`Ghost mode expired for ${e}`);
+                logger$s.debug(`Ghost mode expired for ${e}`);
                 break;
             case 'SHIELD':
-                logger$r.debug(`Shield expired for ${e}`);
+                logger$s.debug(`Shield expired for ${e}`);
                 break;
             default:
-                logger$r.debug(`Effect ${t.type} expired for ${e}`);
+                logger$s.debug(`Effect ${t.type} expired for ${e}`);
         }
     }
     checkCollections(e) {
@@ -5102,7 +5071,7 @@ let PowerUpManager$2 = class {
         t.push(...r);
         const n = this.checkPlayerCollectionsOptimized('ai', e.ai);
         t.push(...n);
-        for (const a of t) this.processCollection(a);
+        for (const s of t) this.processCollection(s);
         return t;
     }
     checkPlayerCollectionsOptimized(e, t) {
@@ -5112,9 +5081,9 @@ let PowerUpManager$2 = class {
         for (const n of r) {
             const r = this.activePowerUps.get(n);
             if (!r || r.collected) continue;
-            const a = t.x - r.position.x,
-                s = t.z - r.position.z,
-                o = a * a + s * s;
+            const s = t.x - r.position.x,
+                a = t.z - r.position.z,
+                o = s * s + a * a;
             o <= SPAWN_CONFIG.collectionRadius * SPAWN_CONFIG.collectionRadius &&
                 ((r.collected = !0),
                 i.push({
@@ -5124,7 +5093,7 @@ let PowerUpManager$2 = class {
                     position: __spreadValues({}, r.position),
                     collectionTime: Date.now(),
                 }),
-                logger$r.debug(
+                logger$s.debug(
                     `Player ${e} collected ${r.type} power-up at distance ${Math.sqrt(o).toFixed(2)}`
                 ));
         }
@@ -5135,8 +5104,8 @@ let PowerUpManager$2 = class {
         if (!t || 'number' != typeof t.x || 'number' != typeof t.z) return i;
         for (const [r, n] of this.activePowerUps) {
             if (n.collected) continue;
-            const a = this.calculateDistance(t, n.position);
-            a <= SPAWN_CONFIG.collectionRadius &&
+            const s = this.calculateDistance(t, n.position);
+            s <= SPAWN_CONFIG.collectionRadius &&
                 ((n.collected = !0),
                 i.push({
                     playerId: e,
@@ -5145,8 +5114,8 @@ let PowerUpManager$2 = class {
                     position: __spreadValues({}, n.position),
                     collectionTime: Date.now(),
                 }),
-                logger$r.debug(
-                    `Player ${e} collected ${n.type} power-up at distance ${a.toFixed(2)}`
+                logger$s.debug(
+                    `Player ${e} collected ${n.type} power-up at distance ${s.toFixed(2)}`
                 ));
         }
         return i;
@@ -5160,7 +5129,7 @@ let PowerUpManager$2 = class {
         }
     }
     triggerCollectionFeedback(e) {
-        (logger$r.debug(`Collection feedback triggered for ${e.powerUpType} by ${e.playerId}`),
+        (logger$s.debug(`Collection feedback triggered for ${e.powerUpType} by ${e.playerId}`),
             this.audioManager &&
                 'function' == typeof this.audioManager.playPowerUpCollectionSound &&
                 this.audioManager.playPowerUpCollectionSound(),
@@ -5173,27 +5142,27 @@ let PowerUpManager$2 = class {
     }
     applyEffect(e, t, i = {}) {
         const r = POWER_UP_TYPES[t];
-        if (!r) return (logger$r.warn(`Unknown power-up type: ${t}`), !1);
+        if (!r) return (logger$s.warn(`Unknown power-up type: ${t}`), !1);
         const n = Date.now();
         this.handleEffectStacking(e, t);
-        let a = !1;
+        let s = !1;
         switch (t) {
             case 'SPEED_BOOST':
-                a = this.applySpeedBoostEffect(e, n, r);
+                s = this.applySpeedBoostEffect(e, n, r);
                 break;
             case 'SHIELD':
-                a = this.applyShieldEffect(e, n, r);
+                s = this.applyShieldEffect(e, n, r);
                 break;
             case 'TRAIL_ERASER':
-                a = this.applyTrailEraserEffect(e, n, r);
+                s = this.applyTrailEraserEffect(e, n, r);
                 break;
             case 'GHOST_MODE':
-                a = this.applyGhostModeEffect(e, n, r);
+                s = this.applyGhostModeEffect(e, n, r);
                 break;
             default:
-                return (logger$r.warn(`Unhandled power-up type: ${t}`), !1);
+                return (logger$s.warn(`Unhandled power-up type: ${t}`), !1);
         }
-        return (a && logger$r.debug(`Applied ${t} effect to ${e}`), a);
+        return (s && logger$s.debug(`Applied ${t} effect to ${e}`), s);
     }
     handleEffectStacking(e, t) {
         const i = this.activeEffects.get(e) || [];
@@ -5223,12 +5192,12 @@ let PowerUpManager$2 = class {
         let n;
         if ('player' === e) n = r.playerTrail;
         else {
-            if ('ai' !== e) return (logger$r.warn(`Unknown player ID for trail eraser: ${e}`), !1);
+            if ('ai' !== e) return (logger$s.warn(`Unknown player ID for trail eraser: ${e}`), !1);
             n = r.aiTrail;
         }
-        const a = Math.min(i.effect.segments, n.length);
+        const s = Math.min(i.effect.segments, n.length);
         return (
-            a > 0 && (n.splice(-a, a), logger$r.debug(`Removed ${a} trail segments for ${e}`)),
+            s > 0 && (n.splice(-s, s), logger$s.debug(`Removed ${s} trail segments for ${e}`)),
             !0
         );
     }
@@ -5250,7 +5219,7 @@ let PowerUpManager$2 = class {
         const t = this.activeEffects.get(e) || [],
             i = t.findIndex((e) => 'SHIELD' === e.type && !e.isExpired() && !e.data.consumed);
         return (
-            -1 !== i && ((t[i].data.consumed = !0), logger$r.debug(`Shield consumed for ${e}`), !0)
+            -1 !== i && ((t[i].data.consumed = !0), logger$s.debug(`Shield consumed for ${e}`), !0)
         );
     }
     getSpeedMultiplier(e) {
@@ -5273,7 +5242,7 @@ let PowerUpManager$2 = class {
             (this.spatialGrid.removeEntity(e),
             this.objectPool.release(t),
             this.activePowerUps.delete(e),
-            logger$r.debug(`Removed collected power-up: ${e}`),
+            logger$s.debug(`Removed collected power-up: ${e}`),
             !0)
         );
     }
@@ -5322,27 +5291,27 @@ let PowerUpManager$2 = class {
             (this.lastSpawnedTypes = []),
             (this.lastCollectionCheck = 0),
             (this.cleanupCounter = 0),
-            logger$r.debug('PowerUpManager reset completed - all power-ups and effects cleared'));
+            logger$s.debug('PowerUpManager reset completed - all power-ups and effects cleared'));
     }
 };
-module$O.exports = {
+module$Q.exports = {
     PowerUpManager: PowerUpManager$2,
     PowerUpEntity: PowerUpEntity,
     ActiveEffect: ActiveEffect,
     POWER_UP_TYPES: POWER_UP_TYPES,
     SPAWN_CONFIG: SPAWN_CONFIG,
 };
-const __CJS__export_default__$N =
-        (null == module$O.exports ? {} : module$O.exports).default || module$O.exports,
+const __CJS__export_default__$P =
+        (null == module$Q.exports ? {} : module$Q.exports).default || module$Q.exports,
     __CJS__import__12__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$N },
+            { __proto__: null, default: __CJS__export_default__$P },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$N = { exports: {} };
-const { logger: logger$q } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$P = { exports: {} };
+const { logger: logger$r } = __CJS__export_default__$1a || __CJS__import__50__;
 let StatusIndicator$2 = class {
     constructor() {
         ((this.container = null),
@@ -5399,7 +5368,7 @@ let StatusIndicator$2 = class {
     }
     addEffectIndicator(e) {
         const t = this.powerUpUIConfig[e.type];
-        if (!t) return void logger$q.warn(`No UI config found for effect type: ${e.type}`);
+        if (!t) return void logger$r.warn(`No UI config found for effect type: ${e.type}`);
         const i = document.createElement('div');
         ((i.className = 'status-indicator-item'),
             t.showTimer ? i.classList.add('timed') : i.classList.add('permanent'));
@@ -5409,20 +5378,20 @@ let StatusIndicator$2 = class {
         ((n.className = 'status-indicator-icon'),
             (n.textContent = t.icon),
             (n.style.color = t.color));
-        const a = document.createElement('span');
-        ((a.className = 'status-indicator-name'),
-            (a.textContent = t.name),
+        const s = document.createElement('span');
+        ((s.className = 'status-indicator-name'),
+            (s.textContent = t.name),
             r.appendChild(n),
-            r.appendChild(a));
-        const s = document.createElement('div');
+            r.appendChild(s));
+        const a = document.createElement('div');
         (t.showTimer && -1 !== e.duration
-            ? ((s.className = 'status-indicator-timer'), this.updateTimer(s, e))
-            : ((s.className = 'status-indicator-permanent'),
-              'SHIELD' === e.type ? (s.textContent = 'ACTIVE') : (s.textContent = 'USED')),
+            ? ((a.className = 'status-indicator-timer'), this.updateTimer(a, e))
+            : ((a.className = 'status-indicator-permanent'),
+              'SHIELD' === e.type ? (a.textContent = 'ACTIVE') : (a.textContent = 'USED')),
             i.appendChild(r),
-            i.appendChild(s));
+            i.appendChild(a));
         const o = `${e.type}_${e.startTime}`;
-        (this.activeIndicators.set(o, { element: i, timerElement: s, effect: e, config: t }),
+        (this.activeIndicators.set(o, { element: i, timerElement: a, effect: e, config: t }),
             this.container.appendChild(i));
     }
     updateTimer(e, t) {
@@ -5465,19 +5434,19 @@ let StatusIndicator$2 = class {
         };
     }
 };
-module$N.exports = { StatusIndicator: StatusIndicator$2 };
-const __CJS__export_default__$M =
-        (null == module$N.exports ? {} : module$N.exports).default || module$N.exports,
+module$P.exports = { StatusIndicator: StatusIndicator$2 };
+const __CJS__export_default__$O =
+        (null == module$P.exports ? {} : module$P.exports).default || module$P.exports,
     __CJS__import__13__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$M },
+            { __proto__: null, default: __CJS__export_default__$O },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$M = { exports: {} };
-const { GameModes: GameModes$6 } = __CJS__export_default__$15 || __CJS__import__19__,
-    { logger: logger$p } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$O = { exports: {} };
+const { GameModes: GameModes$7 } = __CJS__export_default__$17 || __CJS__import__19__,
+    { logger: logger$q } = __CJS__export_default__$1a || __CJS__import__50__;
 let ModeSelector$2 = class {
     constructor(e) {
         ((this.game = e),
@@ -5489,17 +5458,17 @@ let ModeSelector$2 = class {
     loadSelectedMode() {
         try {
             const e = localStorage.getItem(this.storageKey);
-            if (e && Object.values(GameModes$6).includes(e)) return e;
+            if (e && Object.values(GameModes$7).includes(e)) return e;
         } catch (e) {
-            logger$p.warn('Failed to load selected mode from localStorage:', e);
+            logger$q.warn('Failed to load selected mode from localStorage:', e);
         }
-        return GameModes$6.CLASSIC;
+        return GameModes$7.CLASSIC;
     }
     saveSelectedMode(e) {
         try {
             localStorage.setItem(this.storageKey, e);
         } catch (t) {
-            logger$p.warn('Failed to save selected mode to localStorage:', t);
+            logger$q.warn('Failed to save selected mode to localStorage:', t);
         }
     }
     show() {
@@ -5513,9 +5482,9 @@ let ModeSelector$2 = class {
         const e = document.getElementById('mode-selector');
         e
             ? null === e.offsetParent &&
-              (logger$p.warn('ModeSelector: Element not visible, applying fallback styles'),
+              (logger$q.warn('ModeSelector: Element not visible, applying fallback styles'),
               this.forceVisibility(e))
-            : logger$p.warn('ModeSelector: Element not found after creation');
+            : logger$q.warn('ModeSelector: Element not found after creation');
     }
     forceVisibility(e) {
         ((e.style.display = 'block'),
@@ -5525,7 +5494,7 @@ let ModeSelector$2 = class {
             (e.style.left = '50%'),
             (e.style.transform = 'translate(-50%, -50%)'),
             (e.style.zIndex = '10000'),
-            logger$p.info('ModeSelector: Forced visibility with inline styles'));
+            logger$q.info('ModeSelector: Forced visibility with inline styles'));
     }
     blockUIControls() {
         const e = document.getElementById('aiCountSelector');
@@ -5556,25 +5525,25 @@ let ModeSelector$2 = class {
         const r = document.createElement('div');
         r.className = 'mode-options-container';
         const n = this.createModeOption(
-            GameModes$6.CLASSIC,
+            GameModes$7.CLASSIC,
             'Classic',
             'Compete against AI opponent'
         );
         r.appendChild(n);
-        const a = this.createModeOption(
-            GameModes$6.TIME_TRIAL,
+        const s = this.createModeOption(
+            GameModes$7.TIME_TRIAL,
             'Time Trial',
             'Survive as long as possible solo'
         );
-        r.appendChild(a);
-        const s = this.createModeOption(
-            GameModes$6.ARENA_SHRINK,
+        r.appendChild(s);
+        const a = this.createModeOption(
+            GameModes$7.ARENA_SHRINK,
             'Arena Shrink',
             'Battle AI as arena shrinks over time'
         );
-        r.appendChild(s);
+        r.appendChild(a);
         const o = this.createModeOption(
-            GameModes$6.LOCAL_MULTIPLAYER,
+            GameModes$7.LOCAL_MULTIPLAYER,
             'Local 2-Player',
             'Compete against a friend on same device'
         );
@@ -5594,20 +5563,20 @@ let ModeSelector$2 = class {
             e === this.selectedMode && r.classList.add('selected'));
         const n = document.createElement('h3');
         ((n.textContent = t), (n.className = 'mode-option-title'));
-        const a = document.createElement('p');
+        const s = document.createElement('p');
         return (
-            (a.textContent = i),
-            (a.className = 'mode-option-description'),
+            (s.textContent = i),
+            (s.className = 'mode-option-description'),
             r.appendChild(n),
-            r.appendChild(a),
+            r.appendChild(s),
             (r.onclick = () => this.selectMode(e)),
             r
         );
     }
     selectMode(e) {
-        Object.values(GameModes$6).includes(e)
+        Object.values(GameModes$7).includes(e)
             ? ((this.selectedMode = e), this.saveSelectedMode(e), this.updateModeSelection())
-            : logger$p.warn('Invalid game mode:', e);
+            : logger$q.warn('Invalid game mode:', e);
     }
     updateModeSelection() {
         document.querySelectorAll('.mode-option').forEach((e) => {
@@ -5644,17 +5613,17 @@ let ModeSelector$2 = class {
         e && e.remove();
     }
 };
-module$M.exports = { ModeSelector: ModeSelector$2 };
-const __CJS__export_default__$L =
-        (null == module$M.exports ? {} : module$M.exports).default || module$M.exports,
+module$O.exports = { ModeSelector: ModeSelector$2 };
+const __CJS__export_default__$N =
+        (null == module$O.exports ? {} : module$O.exports).default || module$O.exports,
     __CJS__import__14__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$L },
+            { __proto__: null, default: __CJS__export_default__$N },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$L = { exports: {} };
+var module$N = { exports: {} };
 let CountdownTimer$2 = class {
     constructor() {
         ((this.isRunning = !1),
@@ -5739,19 +5708,19 @@ let CountdownTimer$2 = class {
         e && e.remove();
     }
 };
-module$L.exports = { CountdownTimer: CountdownTimer$2 };
-const __CJS__export_default__$K =
-        (null == module$L.exports ? {} : module$L.exports).default || module$L.exports,
+module$N.exports = { CountdownTimer: CountdownTimer$2 };
+const __CJS__export_default__$M =
+        (null == module$N.exports ? {} : module$N.exports).default || module$N.exports,
     __CJS__import__16__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$K },
+            { __proto__: null, default: __CJS__export_default__$M },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$K = { exports: {} };
-const { Logger: Logger$a } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$o = new Logger$a('LeaderboardSystem');
+var module$M = { exports: {} };
+const { Logger: Logger$b } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$p = new Logger$b('LeaderboardSystem');
 let LeaderboardSystem$2 = class {
     constructor() {
         ((this.storageKey = 'lightbikes_time_trial_scores'),
@@ -5772,7 +5741,7 @@ let LeaderboardSystem$2 = class {
                 i
             );
         } catch (e) {
-            return (logger$o.warn('Error loading leaderboard scores:', e), this.clearScores(), []);
+            return (logger$p.warn('Error loading leaderboard scores:', e), this.clearScores(), []);
         }
     }
     saveScores(e) {
@@ -5786,10 +5755,10 @@ let LeaderboardSystem$2 = class {
                 try {
                     return (localStorage.setItem(this.storageKey, JSON.stringify(t)), !0);
                 } catch (i) {
-                    return (logger$o.warn('Failed to save leaderboard even after cleanup:', i), !1);
+                    return (logger$p.warn('Failed to save leaderboard even after cleanup:', i), !1);
                 }
             }
-            return (logger$o.warn('Error saving leaderboard scores:', t), !1);
+            return (logger$p.warn('Error saving leaderboard scores:', t), !1);
         }
     }
     addScore(e) {
@@ -5829,7 +5798,7 @@ let LeaderboardSystem$2 = class {
         try {
             this.isLocalStorageAvailable() && localStorage.removeItem(this.storageKey);
         } catch (e) {
-            logger$o.warn('Error clearing leaderboard scores:', e);
+            logger$p.warn('Error clearing leaderboard scores:', e);
         }
     }
     formatTime(e) {
@@ -5871,19 +5840,19 @@ let LeaderboardSystem$2 = class {
         };
     }
 };
-module$K.exports = { LeaderboardSystem: LeaderboardSystem$2 };
-const __CJS__export_default__$J =
-        (null == module$K.exports ? {} : module$K.exports).default || module$K.exports,
+module$M.exports = { LeaderboardSystem: LeaderboardSystem$2 };
+const __CJS__export_default__$L =
+        (null == module$M.exports ? {} : module$M.exports).default || module$M.exports,
     __CJS__import__17__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$J },
+            { __proto__: null, default: __CJS__export_default__$L },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$J = { exports: {} };
-const { Logger: Logger$9 } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$n = new Logger$9('AchievementSystem');
+var module$L = { exports: {} };
+const { Logger: Logger$a } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$o = new Logger$a('AchievementSystem');
 let AchievementSystem$2 = class {
     constructor() {
         ((this.storageKey = 'lightbikes_achievements'),
@@ -5910,7 +5879,7 @@ let AchievementSystem$2 = class {
             return new Set(i);
         } catch (e) {
             return (
-                logger$n.warn('Error loading achievement progress:', e),
+                logger$o.warn('Error loading achievement progress:', e),
                 this.clearProgress(),
                 new Set()
             );
@@ -5922,7 +5891,7 @@ let AchievementSystem$2 = class {
             const e = Array.from(this.unlockedAchievements);
             return (localStorage.setItem(this.storageKey, JSON.stringify(e)), !0);
         } catch (e) {
-            return (logger$n.warn('Error saving achievement progress:', e), !1);
+            return (logger$o.warn('Error saving achievement progress:', e), !1);
         }
     }
     checkMilestone(e) {
@@ -5990,7 +5959,7 @@ let AchievementSystem$2 = class {
         try {
             this.isLocalStorageAvailable() && localStorage.removeItem(this.storageKey);
         } catch (e) {
-            logger$n.warn('Error clearing achievement progress:', e);
+            logger$o.warn('Error clearing achievement progress:', e);
         }
     }
     isMilestoneUnlocked(e) {
@@ -6022,19 +5991,19 @@ let AchievementSystem$2 = class {
         };
     }
 };
-module$J.exports = { AchievementSystem: AchievementSystem$2 };
-const __CJS__export_default__$I =
-        (null == module$J.exports ? {} : module$J.exports).default || module$J.exports,
+module$L.exports = { AchievementSystem: AchievementSystem$2 };
+const __CJS__export_default__$K =
+        (null == module$L.exports ? {} : module$L.exports).default || module$L.exports,
     __CJS__import__18__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$I },
+            { __proto__: null, default: __CJS__export_default__$K },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$I = { exports: {} };
-const { createLogger: createLogger$6 } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$m = createLogger$6('DeviceCapabilityDetector');
+var module$K = { exports: {} };
+const { createLogger: createLogger$6 } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$n = createLogger$6('DeviceCapabilityDetector');
 let DeviceCapabilityDetector$1 = class {
     constructor() {
         this.capabilities = {
@@ -6088,7 +6057,7 @@ let DeviceCapabilityDetector$1 = class {
             }
             ((e.width = 1), (e.height = 1));
         } catch (e) {
-            (logger$m.warn('WebGL capability detection failed', { error: e.message }),
+            (logger$n.warn('WebGL capability detection failed', { error: e.message }),
                 (this.capabilities.webglSupported = !1));
         }
     }
@@ -6117,9 +6086,9 @@ let DeviceCapabilityDetector$1 = class {
                         r.includes('integrated') ||
                         this.capabilities.maxTextureSize < 2048) &&
                     (this.capabilities.gpuTier = 'low'),
-                logger$m.debug(`GPU detected: ${t} (${i}) - Tier: ${this.capabilities.gpuTier}`));
+                logger$n.debug(`GPU detected: ${t} (${i}) - Tier: ${this.capabilities.gpuTier}`));
         } catch (t) {
-            (logger$m.warn('GPU tier estimation failed', { error: t.message }),
+            (logger$n.warn('GPU tier estimation failed', { error: t.message }),
                 (this.capabilities.gpuTier = 'unknown'));
         }
     }
@@ -6135,7 +6104,7 @@ let DeviceCapabilityDetector$1 = class {
                 this.capabilities.maxTextureSize < 2048 ||
                 (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) ||
                 (navigator.deviceMemory && navigator.deviceMemory < 4)),
-            logger$m.debug(
+            logger$n.debug(
                 `Device characteristics: Mobile: ${this.capabilities.isMobile}, Low-end: ${this.capabilities.isLowEndDevice}`
             ));
     }
@@ -6151,23 +6120,23 @@ let DeviceCapabilityDetector$1 = class {
         };
     }
 };
-module$I.exports = { DeviceCapabilityDetector: DeviceCapabilityDetector$1 };
-const __CJS__export_default__$H =
-        (null == module$I.exports ? {} : module$I.exports).default || module$I.exports,
+module$K.exports = { DeviceCapabilityDetector: DeviceCapabilityDetector$1 };
+const __CJS__export_default__$J =
+        (null == module$K.exports ? {} : module$K.exports).default || module$K.exports,
     __CJS__import__1__$4 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$H },
+            { __proto__: null, default: __CJS__export_default__$J },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$H = { exports: {} };
-const { createLogger: createLogger$5 } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$l = createLogger$5('PerformanceDegradation'),
+var module$J = { exports: {} };
+const { createLogger: createLogger$5 } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$m = createLogger$5('PerformanceDegradation'),
     { DeviceCapabilityDetector: DeviceCapabilityDetector } =
-        __CJS__export_default__$H || __CJS__import__1__$4,
+        __CJS__export_default__$J || __CJS__import__1__$4,
     { PerformanceMonitor: PerformanceMonitor$2 } =
-        __CJS__export_default__$1a || __CJS__import__20__;
+        __CJS__export_default__$1c || __CJS__import__20__;
 let PerformanceDegradationManager$4 = class {
     constructor(e = null, t = null) {
         ((this.cameraEffectsManager = null),
@@ -6185,6 +6154,7 @@ let PerformanceDegradationManager$4 = class {
                   (r = e)
                 : (i = e),
             (this.detector = i || new DeviceCapabilityDetector()),
+            (this.externalMonitor = !!r),
             (this.monitor = r || new PerformanceMonitor$2()),
             (this.capabilities = this.detector.capabilities),
             (this.degradationState = {
@@ -6258,13 +6228,13 @@ let PerformanceDegradationManager$4 = class {
                 this.setInitialDegradationLevel(),
                 this.monitor.reset(),
                 (this.initialized = !0),
-                logger$l.info('Initialized successfully'),
-                logger$l.debug('Device capabilities', this.detector.getSummary()),
+                logger$m.info('Initialized successfully'),
+                logger$m.debug('Device capabilities', this.detector.getSummary()),
                 !0
             );
         } catch (r) {
             return (
-                logger$l.error('Initialization failed', r),
+                logger$m.error('Initialization failed', r),
                 this.handleError('initialization', r),
                 !1
             );
@@ -6288,11 +6258,11 @@ let PerformanceDegradationManager$4 = class {
     update(e) {
         if (this.initialized && this.enabled)
             try {
-                (this.monitor.update(e),
+                (this.externalMonitor || this.monitor.update(e),
                     this.checkPerformanceAdjustment(),
                     this.processNotificationQueue());
             } catch (t) {
-                (logger$l.error('Update error:', t), this.handleError('update', t));
+                (logger$m.error('Update error:', t), this.handleError('update', t));
             }
     }
     checkPerformanceAdjustment() {
@@ -6304,17 +6274,17 @@ let PerformanceDegradationManager$4 = class {
         (t.consecutivePoorFrames > 30
             ? this.degradationState.currentLevel < this.degradationState.maxLevel &&
               ((i = this.degradationState.currentLevel + 1),
-              logger$l.info(`Performance degradation triggered. FPS: ${t.currentFPS.toFixed(1)}`))
+              logger$m.info(`Performance degradation triggered. FPS: ${t.currentFPS.toFixed(1)}`))
             : t.consecutiveGoodFrames > 120 &&
               this.degradationState.currentLevel > 0 &&
               ((i = this.degradationState.currentLevel - 1),
-              logger$l.info(`Performance improvement detected. FPS: ${t.currentFPS.toFixed(1)}`)),
+              logger$m.info(`Performance improvement detected. FPS: ${t.currentFPS.toFixed(1)}`)),
             i !== this.degradationState.currentLevel &&
                 (this.setDegradationLevel(i), (this.lastQualityAdjustment = e)));
     }
     setDegradationLevel(e) {
         if (e < 0 || e > this.degradationState.maxLevel)
-            return void logger$l.warn(`Invalid degradation level: ${e}`);
+            return void logger$m.warn(`Invalid degradation level: ${e}`);
         const t = this.degradationState.currentLevel;
         this.degradationState.currentLevel = e;
         const i = this.degradationState.levels[e];
@@ -6324,7 +6294,7 @@ let PerformanceDegradationManager$4 = class {
             (this.degradationState.qualityLevel = i.quality),
             this.applyDegradationSettings(),
             e !== t &&
-                (logger$l.info(`Degradation level changed from ${t} to ${e}: ${i.description}`),
+                (logger$m.info(`Degradation level changed from ${t} to ${e}: ${i.description}`),
                 e > t
                     ? (e > 0 &&
                           this.queueNotification(
@@ -6345,12 +6315,11 @@ let PerformanceDegradationManager$4 = class {
                 this.cameraEffectsManager.setEnabled(this.degradationState.effectsEnabled),
                 this.motionBlurController &&
                     (this.motionBlurController.setEnabled(this.degradationState.motionBlurEnabled),
-                    this.degradationState.motionBlurEnabled &&
-                        this.motionBlurController.setQuality(this.degradationState.qualityLevel)),
+                    this.motionBlurController.setQuality(this.degradationState.qualityLevel)),
                 this.shakeController &&
                     this.shakeController.setEnabled(this.degradationState.shakeEnabled));
         } catch (e) {
-            (logger$l.error('Error applying degradation settings', e),
+            (logger$m.error('Error applying degradation settings', e),
                 this.handleError('degradation', e));
         }
     }
@@ -6361,9 +6330,9 @@ let PerformanceDegradationManager$4 = class {
                     'function' == typeof this.motionBlurController.resetPerformanceMetrics &&
                     this.motionBlurController.resetPerformanceMetrics(),
                 this.monitor.cleanup(),
-                logger$l.info('Memory cleanup triggered'));
+                logger$m.info('Memory cleanup triggered'));
         } catch (e) {
-            (logger$l.error('Memory cleanup failed', e), this.handleError('memory', e));
+            (logger$m.error('Memory cleanup failed', e), this.handleError('memory', e));
         }
     }
     handleError(e, t) {
@@ -6387,7 +6356,7 @@ let PerformanceDegradationManager$4 = class {
             this.errorState.postProcessingErrors +
             this.errorState.memoryErrors >=
             this.errorState.maxErrors &&
-            (logger$l.warn('Maximum errors reached, entering fallback mode'),
+            (logger$m.warn('Maximum errors reached, entering fallback mode'),
             this.setDegradationLevel(this.degradationState.maxLevel),
             this.queueNotification('error', 'Camera effects disabled due to technical issues'));
     }
@@ -6408,7 +6377,7 @@ let PerformanceDegradationManager$4 = class {
         (this.showNotification(e), this.notifications.shown.add(e.id));
     }
     showNotification(e) {
-        (logger$l.info(`Camera Effects: ${e.message}`),
+        (logger$m.info(`Camera Effects: ${e.message}`),
             'undefined' != typeof window &&
                 window.dispatchEvent(new CustomEvent('cameraEffectsNotification', { detail: e })));
     }
@@ -6451,19 +6420,17 @@ let PerformanceDegradationManager$4 = class {
         this.monitor.reset();
     }
 };
-module$H.exports = { PerformanceDegradationManager: PerformanceDegradationManager$4 };
-const __CJS__export_default__$G =
-        (null == module$H.exports ? {} : module$H.exports).default || module$H.exports,
+module$J.exports = { PerformanceDegradationManager: PerformanceDegradationManager$4 };
+const __CJS__export_default__$I =
+        (null == module$J.exports ? {} : module$J.exports).default || module$J.exports,
     __CJS__import__21__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$G },
+            { __proto__: null, default: __CJS__export_default__$I },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$G = { exports: {} };
-const { Logger: Logger$8 } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$k = new Logger$8('ParticleSettings');
+var module$I = { exports: {} };
 let ParticleSettings$1 = class {
     constructor() {
         ((this.defaultSettings = {
@@ -6530,27 +6497,25 @@ let ParticleSettings$1 = class {
                     this.validateAndFixSettings());
             } else this.currentSettings = this.deepClone(this.defaultSettings);
         } catch (e) {
-            (logger$k.warn('ParticleSettings: Failed to load settings from localStorage:', e),
-                (this.currentSettings = this.deepClone(this.defaultSettings)));
+            this.currentSettings = this.deepClone(this.defaultSettings);
         }
     }
     saveSettings() {
         try {
             localStorage.setItem(this.storageKey, JSON.stringify(this.currentSettings));
-        } catch (e) {
-            logger$k.error('ParticleSettings: Failed to save settings to localStorage:', e);
-        }
+        } catch (e) {}
     }
     getSettings() {
         return this.deepClone(this.currentSettings);
     }
     setSetting(e, t) {
-        return this.validateSetting(e, t)
-            ? (this.setNestedProperty(this.currentSettings, e, t),
-              this.saveSettings(),
-              this.notifyChange(e, t),
-              !0)
-            : (logger$k.warn(`ParticleSettings: Invalid value for setting '${e}':`, t), !1);
+        return (
+            !!this.validateSetting(e, t) &&
+            (this.setNestedProperty(this.currentSettings, e, t),
+            this.saveSettings(),
+            this.notifyChange(e, t),
+            !0)
+        );
     }
     updateSettings(e) {
         const t = this.deepClone(this.currentSettings);
@@ -6561,15 +6526,12 @@ let ParticleSettings$1 = class {
                 this.saveSettings(),
                 this.notifyChange('bulk', this.currentSettings));
         } catch (r) {
-            (logger$k.error('ParticleSettings: Failed to update settings:', r),
-                (this.currentSettings = t),
-                (i = !1));
+            ((this.currentSettings = t), (i = !1));
         }
         return i;
     }
     applyQualityPreset(e) {
-        if (!this.qualityPresets[e])
-            return (logger$k.warn(`ParticleSettings: Unknown quality preset '${e}'`), !1);
+        if (!this.qualityPresets[e]) return !1;
         const t = this.qualityPresets[e];
         return this.updateSettings(t);
     }
@@ -6633,7 +6595,7 @@ let ParticleSettings$1 = class {
             const t = JSON.parse(e);
             return this.updateSettings(t);
         } catch (t) {
-            return (logger$k.error('ParticleSettings: Failed to import settings:', t), !1);
+            return !1;
         }
     }
     validateSetting(e, t) {
@@ -6645,7 +6607,6 @@ let ParticleSettings$1 = class {
         for (const [t, i] of Object.entries(this.validationRules)) {
             const r = this.getNestedProperty(this.currentSettings, t);
             if (void 0 !== r && !i(r)) {
-                logger$k.warn(`ParticleSettings: Invalid setting '${t}', resetting to default`);
                 const i = this.getNestedProperty(this.defaultSettings, t);
                 (this.setNestedProperty(this.currentSettings, t, i), (e = !1));
             }
@@ -6669,9 +6630,7 @@ let ParticleSettings$1 = class {
         this.changeListeners.forEach((i) => {
             try {
                 i(e, t);
-            } catch (r) {
-                logger$k.error('ParticleSettings: Error in change listener:', r);
-            }
+            } catch (r) {}
         });
     }
     deepClone(e) {
@@ -6700,19 +6659,19 @@ let ParticleSettings$1 = class {
         r.reduce((e, t) => ((e[t] && 'object' == typeof e[t]) || (e[t] = {}), e[t]), e)[n] = i;
     }
 };
-module$G.exports = { ParticleSettings: ParticleSettings$1 };
-const __CJS__export_default__$F =
-        (null == module$G.exports ? {} : module$G.exports).default || module$G.exports,
+module$I.exports = { ParticleSettings: ParticleSettings$1 };
+const __CJS__export_default__$H =
+        (null == module$I.exports ? {} : module$I.exports).default || module$I.exports,
     __CJS__import__0__$3 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$F },
+            { __proto__: null, default: __CJS__export_default__$H },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$F = { exports: {} };
-const { ParticleSettings: ParticleSettings } = __CJS__export_default__$F || __CJS__import__0__$3,
-    { logger: logger$j } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$H = { exports: {} };
+const { ParticleSettings: ParticleSettings } = __CJS__export_default__$H || __CJS__import__0__$3,
+    { logger: logger$l } = __CJS__export_default__$1a || __CJS__import__50__;
 let ParticleSettingsUI$2 = class {
     constructor() {
         ((this.particleSettings = new ParticleSettings()),
@@ -6894,7 +6853,7 @@ let ParticleSettingsUI$2 = class {
                 try {
                     i(e, t);
                 } catch (r) {
-                    logger$j.error('ParticleSettingsUI: Error in external listener:', r);
+                    logger$l.error('ParticleSettingsUI: Error in external listener:', r);
                 }
             });
     }
@@ -6921,18 +6880,18 @@ let ParticleSettingsUI$2 = class {
             (this.externalListeners = []));
     }
 };
-module$F.exports = { ParticleSettingsUI: ParticleSettingsUI$2 };
-const __CJS__export_default__$E =
-        (null == module$F.exports ? {} : module$F.exports).default || module$F.exports,
+module$H.exports = { ParticleSettingsUI: ParticleSettingsUI$2 };
+const __CJS__export_default__$G =
+        (null == module$H.exports ? {} : module$H.exports).default || module$H.exports,
     __CJS__import__23__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$E },
+            { __proto__: null, default: __CJS__export_default__$G },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$E = { exports: {} };
-const { logger: logger$i } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$G = { exports: {} };
+const { logger: logger$k } = __CJS__export_default__$1a || __CJS__import__50__;
 class PostProcessingPipeline {
     constructor(e, t, i) {
         ((this.renderer = e),
@@ -6969,15 +6928,14 @@ class PostProcessingPipeline {
                 (this.bloomPass.renderToScreen = !0),
                 this.composer.addPass(this.bloomPass),
                 (this.initialized = !0),
-                (this.initialized = !0),
-                logger$i.info(
+                logger$k.info(
                     'PostProcessingPipeline: Successfully initialized with bloom effects'
                 ),
                 !0
             );
         } catch (e) {
             return (
-                logger$i.error('PostProcessingPipeline: Failed to initialize:', e),
+                logger$k.error('PostProcessingPipeline: Failed to initialize:', e),
                 (this.initialized = !1),
                 !1
             );
@@ -6985,11 +6943,11 @@ class PostProcessingPipeline {
     }
     setBloomStrength(e) {
         if (!this.bloomPass)
-            return void logger$i.warn('PostProcessingPipeline: Bloom pass not initialized');
+            return void logger$k.warn('PostProcessingPipeline: Bloom pass not initialized');
         const t = Math.max(0, Math.min(2, e));
         ((this.bloomPass.strength = t),
             (this.bloomConfig.strength = t),
-            logger$i.info(`PostProcessingPipeline: Bloom strength set to ${t}`));
+            logger$k.info(`PostProcessingPipeline: Bloom strength set to ${t}`));
     }
     configureBloomParameters(e = {}) {
         if (this.bloomPass) {
@@ -7001,12 +6959,12 @@ class PostProcessingPipeline {
                 const t = Math.max(0, Math.min(1, e.radius));
                 ((this.bloomPass.radius = t), (this.bloomConfig.radius = t));
             }
-            logger$i.info('PostProcessingPipeline: Bloom parameters updated:', this.bloomConfig);
-        } else logger$i.warn('PostProcessingPipeline: Bloom pass not initialized');
+            logger$k.info('PostProcessingPipeline: Bloom parameters updated:', this.bloomConfig);
+        } else logger$k.warn('PostProcessingPipeline: Bloom pass not initialized');
     }
     setQuality(e) {
         if (!this.qualitySettings[e])
-            return void logger$i.warn(`PostProcessingPipeline: Invalid quality level: ${e}`);
+            return void logger$k.warn(`PostProcessingPipeline: Invalid quality level: ${e}`);
         this.currentQuality = e;
         const t = this.qualitySettings[e];
         if (this.bloomPass && this.composer) {
@@ -7017,7 +6975,7 @@ class PostProcessingPipeline {
                 (this.bloomPass.radius = t.radius),
                 (this.bloomPass.threshold = t.threshold),
                 (this.bloomPass.strength = this.bloomConfig.strength * t.strength),
-                logger$i.info(`PostProcessingPipeline: Quality set to ${e} (${r}x${n})`));
+                logger$k.info(`PostProcessingPipeline: Quality set to ${e} (${r}x${n})`));
         }
     }
     render() {
@@ -7025,7 +6983,7 @@ class PostProcessingPipeline {
             try {
                 this.composer.render();
             } catch (e) {
-                (logger$i.error('PostProcessingPipeline: Error during render:', e),
+                (logger$k.error('PostProcessingPipeline: Error during render:', e),
                     this.renderer.render(this.scene, this.camera));
             }
         else this.renderer.render(this.scene, this.camera);
@@ -7038,18 +6996,18 @@ class PostProcessingPipeline {
                         r = Math.floor(e * i.resolution),
                         n = Math.floor(t * i.resolution);
                     ((this.bloomPass.resolution = new THREE.Vector2(r, n)),
-                        logger$i.info(
+                        logger$k.info(
                             `PostProcessingPipeline: Resized to ${e}x${t}, bloom: ${r}x${n}`
                         ));
                 }
             } catch (i) {
-                logger$i.error('PostProcessingPipeline: Error during resize:', i);
+                logger$k.error('PostProcessingPipeline: Error during resize:', i);
             }
     }
     setEnabled(e) {
         this.initialized &&
             ((this.enabled = e),
-            logger$i.info('PostProcessingPipeline: ' + (e ? 'Enabled' : 'Disabled')));
+            logger$k.info('PostProcessingPipeline: ' + (e ? 'Enabled' : 'Disabled')));
     }
     getBloomConfig() {
         return __spreadValues({}, this.bloomConfig);
@@ -7078,9 +7036,9 @@ class PostProcessingPipeline {
                 (this.renderPass = null),
                 (this.bloomPass = null),
                 (this.initialized = !1),
-                logger$i.info('PostProcessingPipeline: Resources disposed'));
+                logger$k.info('PostProcessingPipeline: Resources disposed'));
         } catch (e) {
-            logger$i.error('PostProcessingPipeline: Error during disposal:', e);
+            logger$k.error('PostProcessingPipeline: Error during disposal:', e);
         }
     }
     reset() {
@@ -7091,21 +7049,21 @@ class PostProcessingPipeline {
                 (this.bloomPass.radius = this.bloomConfig.radius),
                 (this.bloomPass.threshold = this.bloomConfig.threshold)),
             this.setQuality('high'),
-            logger$i.info('PostProcessingPipeline: Reset to default settings'));
+            logger$k.info('PostProcessingPipeline: Reset to default settings'));
     }
 }
-module$E.exports = { PostProcessingPipeline: PostProcessingPipeline };
-const __CJS__export_default__$D =
-        (null == module$E.exports ? {} : module$E.exports).default || module$E.exports,
+module$G.exports = { PostProcessingPipeline: PostProcessingPipeline };
+const __CJS__export_default__$F =
+        (null == module$G.exports ? {} : module$G.exports).default || module$G.exports,
     __CJS__import__1__$3 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$D },
+            { __proto__: null, default: __CJS__export_default__$F },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$D = { exports: {} };
-const { logger: logger$h } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$F = { exports: {} };
+const { logger: logger$j } = __CJS__export_default__$1a || __CJS__import__50__;
 class PerformanceScaler {
     constructor() {
         ((this.targetFPS = 60),
@@ -7245,7 +7203,7 @@ class PerformanceScaler {
         ((this.goodFPSStartTime = null), (this.goodFPSDuration = 0));
     }
     scaleQuality(e, t = 'manual') {
-        if (!this.qualityLevels[e]) return (logger$h.warn(`Invalid quality level: ${e}`), !1);
+        if (!this.qualityLevels[e]) return (logger$j.warn(`Invalid quality level: ${e}`), !1);
         if (this.currentQuality === e) return !1;
         const i = this.currentQuality;
         this.getQualitySettings();
@@ -7254,11 +7212,11 @@ class PerformanceScaler {
         ((this.currentQuality = e),
             (this.dynamicAdjustments = n),
             this.recordScalingEvent(i, e, t));
-        const a = this.getQualitySettings();
+        const s = this.getQualitySettings();
         return (
-            this.onQualityChangeCallback && this.onQualityChangeCallback(e, a, t),
-            logger$h.info(`Glow effect quality scaled: ${i} → ${e} (${t})`),
-            Object.keys(n).length > 0 && logger$h.info('Dynamic adjustments applied:', n),
+            this.onQualityChangeCallback && this.onQualityChangeCallback(e, s, t),
+            logger$j.info(`Glow effect quality scaled: ${i} → ${e} (${t})`),
+            Object.keys(n).length > 0 && logger$j.info('Dynamic adjustments applied:', n),
             !0
         );
     }
@@ -7433,9 +7391,9 @@ class PerformanceScaler {
     }
     attemptQualityRecovery() {
         this.recoveryAttempts >= this.maxRecoveryAttempts
-            ? logger$h.info('Maximum recovery attempts reached, maintaining current quality')
+            ? logger$j.info('Maximum recovery attempts reached, maintaining current quality')
             : (this.recoveryAttempts++,
-              logger$h.info(
+              logger$j.info(
                   `Attempting quality recovery (attempt ${this.recoveryAttempts}/${this.maxRecoveryAttempts})`
               ),
               this.scaleQualityUp(),
@@ -7445,7 +7403,7 @@ class PerformanceScaler {
     triggerFallback() {
         this.fallbackTriggered ||
             ((this.fallbackTriggered = !0),
-            logger$h.warn('Critical performance detected, disabling glow effects completely'),
+            logger$j.warn('Critical performance detected, disabling glow effects completely'),
             this.scaleQuality('disabled', 'fallback'),
             this.onPerformanceWarningCallback &&
                 this.onPerformanceWarningCallback({
@@ -7458,7 +7416,7 @@ class PerformanceScaler {
     resetFallback() {
         ((this.fallbackTriggered = !1),
             (this.recoveryAttempts = 0),
-            logger$h.info('Fallback state reset, recovery attempts cleared'));
+            logger$j.info('Fallback state reset, recovery attempts cleared'));
     }
     setAdaptiveScaling(e) {
         ((this.adaptiveScaling = e), e || (this.dynamicAdjustments = {}));
@@ -7478,19 +7436,19 @@ class PerformanceScaler {
         );
     }
 }
-module$D.exports = { PerformanceScaler: PerformanceScaler };
-const __CJS__export_default__$C =
-        (null == module$D.exports ? {} : module$D.exports).default || module$D.exports,
+module$F.exports = { PerformanceScaler: PerformanceScaler };
+const __CJS__export_default__$E =
+        (null == module$F.exports ? {} : module$F.exports).default || module$F.exports,
     __CJS__import__3__$1 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$C },
+            { __proto__: null, default: __CJS__export_default__$E },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$C = { exports: {} };
-const { Logger: Logger$7 } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$g = new Logger$7('GlowSettings');
+var module$E = { exports: {} };
+const { Logger: Logger$9 } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$i = new Logger$9('GlowSettings');
 class GlowSettings {
     constructor() {
         ((this.intensityLevels = {
@@ -7510,7 +7468,7 @@ class GlowSettings {
     setIntensity(e) {
         return this.isValidIntensity(e)
             ? ((this.settings.intensity = e), this.saveSettings(), !0)
-            : (logger$g.warn(`Invalid glow intensity level: ${e}`), !1);
+            : (logger$i.warn(`Invalid glow intensity level: ${e}`), !1);
     }
     getIntensityConfig() {
         return this.intensityLevels[this.settings.intensity];
@@ -7535,10 +7493,10 @@ class GlowSettings {
                 const e = this.migrateSettings(t);
                 this.settings = __spreadValues(__spreadValues({}, this.defaults), e);
             } else
-                (logger$g.warn('Invalid stored glow settings, using defaults'),
+                (logger$i.warn('Invalid stored glow settings, using defaults'),
                     (this.settings = __spreadValues({}, this.defaults)));
         } catch (e) {
-            (logger$g.error('Error loading glow settings:', e),
+            (logger$i.error('Error loading glow settings:', e),
                 (this.settings = __spreadValues({}, this.defaults)));
         }
     }
@@ -7549,7 +7507,7 @@ class GlowSettings {
             });
             localStorage.setItem(this.storageKey, JSON.stringify(e));
         } catch (e) {
-            logger$g.error('Error saving glow settings:', e);
+            logger$i.error('Error saving glow settings:', e);
         }
     }
     validateSettings(e) {
@@ -7580,18 +7538,18 @@ class GlowSettings {
         return this.intensityLevels[this.settings.intensity].label;
     }
 }
-module$C.exports = { GlowSettings: GlowSettings };
-const __CJS__export_default__$B =
-        (null == module$C.exports ? {} : module$C.exports).default || module$C.exports,
+module$E.exports = { GlowSettings: GlowSettings };
+const __CJS__export_default__$D =
+        (null == module$E.exports ? {} : module$E.exports).default || module$E.exports,
     __CJS__import__4__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$B },
+            { __proto__: null, default: __CJS__export_default__$D },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$B = { exports: {} };
-const { logger: logger$f } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$D = { exports: {} };
+const { logger: logger$h } = __CJS__export_default__$1a || __CJS__import__50__;
 let GlowEffectManager$2 = class {
     constructor(e, t, i) {
         ((this.renderer = e),
@@ -7618,7 +7576,7 @@ let GlowEffectManager$2 = class {
         try {
             if (!this.checkWebGLSupport())
                 return (
-                    logger$f.warn(
+                    logger$h.warn(
                         'GlowEffectManager: WebGL support insufficient, enabling fallback mode'
                     ),
                     this.initializeFallbackRendering(),
@@ -7626,10 +7584,10 @@ let GlowEffectManager$2 = class {
                     (this.fallbackMode = !0),
                     !0
                 );
-            const { PostProcessingPipeline: e } = __CJS__export_default__$D || __CJS__import__1__$3,
-                { EmissiveMaterialSystem: t } = __CJS__export_default__$T || __CJS__import__5__,
-                { PerformanceScaler: i } = __CJS__export_default__$C || __CJS__import__3__$1,
-                { GlowSettings: r } = __CJS__export_default__$B || __CJS__import__4__;
+            const { PostProcessingPipeline: e } = __CJS__export_default__$F || __CJS__import__1__$3,
+                { EmissiveMaterialSystem: t } = __CJS__export_default__$V || __CJS__import__5__,
+                { PerformanceScaler: i } = __CJS__export_default__$E || __CJS__import__3__$1,
+                { GlowSettings: r } = __CJS__export_default__$D || __CJS__import__4__;
             return (
                 (this.postProcessing = new e(this.renderer, this.scene, this.camera)),
                 (this.materialSystem = new t()),
@@ -7637,7 +7595,7 @@ let GlowEffectManager$2 = class {
                 (this.settings = new r()),
                 this.forceQualityMode &&
                     (this.performanceScaler.setQuality(this.forceQualityMode),
-                    logger$f.info(
+                    logger$h.info(
                         `GlowEffectManager: Using forced quality mode: ${this.forceQualityMode}`
                     )),
                 this.postProcessing.initialize()
@@ -7650,9 +7608,9 @@ let GlowEffectManager$2 = class {
                       this.checkParticleCompatibility(),
                       this.startMemoryMonitoring(),
                       (this.initialized = !0),
-                      logger$f.info('GlowEffectManager: Successfully initialized'),
+                      logger$h.info('GlowEffectManager: Successfully initialized'),
                       !0)
-                    : (logger$f.warn(
+                    : (logger$h.warn(
                           'GlowEffectManager: Post-processing failed, falling back to compatibility mode'
                       ),
                       this.initializeFallbackRendering(),
@@ -7661,8 +7619,8 @@ let GlowEffectManager$2 = class {
                       !0)
             );
         } catch (e) {
-            (logger$f.error('GlowEffectManager: Failed to initialize:', e),
-                logger$f.info('GlowEffectManager: Attempting fallback mode'));
+            (logger$h.error('GlowEffectManager: Failed to initialize:', e),
+                logger$h.info('GlowEffectManager: Attempting fallback mode'));
             try {
                 return (
                     this.initializeFallbackRendering(),
@@ -7672,7 +7630,7 @@ let GlowEffectManager$2 = class {
                 );
             } catch (t) {
                 return (
-                    logger$f.error('GlowEffectManager: Fallback initialization also failed:', t),
+                    logger$h.error('GlowEffectManager: Fallback initialization also failed:', t),
                     (this.enabled = !1),
                     (this.fallbackMode = !1),
                     !1
@@ -7864,14 +7822,14 @@ let GlowEffectManager$2 = class {
                 !(null == (t = null == (e = window.renderingEngine) ? void 0 : e.getParticleSystem)
                     ? void 0
                     : t.call(e)) ||
-                (logger$f.info(
+                (logger$h.info(
                     'GlowEffectManager: Particle system detected, ensuring compatibility'
                 ),
                 !0)
             );
         } catch (i) {
             return (
-                logger$f.warn('GlowEffectManager: Error checking particle compatibility:', i),
+                logger$h.warn('GlowEffectManager: Error checking particle compatibility:', i),
                 !0
             );
         }
@@ -7881,12 +7839,12 @@ let GlowEffectManager$2 = class {
             try {
                 this.materialSystem && this.materialSystem.dispose();
                 const { EmissiveMaterialSystem: e } =
-                    __CJS__export_default__$T || __CJS__import__5__;
+                    __CJS__export_default__$V || __CJS__import__5__;
                 ((this.materialSystem = new e()),
                     (this.isPaused = !1),
-                    logger$f.info('GlowEffectManager: Game restart handled'));
+                    logger$h.info('GlowEffectManager: Game restart handled'));
             } catch (e) {
-                logger$f.error('GlowEffectManager: Error handling game restart:', e);
+                logger$h.error('GlowEffectManager: Error handling game restart:', e);
             }
     }
     handleGameModeSwitch(e, t) {
@@ -7894,12 +7852,12 @@ let GlowEffectManager$2 = class {
             try {
                 (this.handleGameRestart(),
                     'TIME_TRIAL' === e
-                        ? logger$f.info('GlowEffectManager: Switched to Time Trial mode')
+                        ? logger$h.info('GlowEffectManager: Switched to Time Trial mode')
                         : 'ARENA_SHRINK' === e
-                          ? logger$f.info('GlowEffectManager: Switched to Arena Shrink mode')
-                          : logger$f.info('GlowEffectManager: Switched to Classic mode'));
+                          ? logger$h.info('GlowEffectManager: Switched to Arena Shrink mode')
+                          : logger$h.info('GlowEffectManager: Switched to Classic mode'));
             } catch (i) {
-                logger$f.error('GlowEffectManager: Error handling game mode switch:', i);
+                logger$h.error('GlowEffectManager: Error handling game mode switch:', i);
             }
     }
     forcePause() {
@@ -7909,7 +7867,7 @@ let GlowEffectManager$2 = class {
         this.materialSystem && (this.materialSystem.resumePulse(), (this.isPaused = !1));
     }
     dispose() {
-        logger$f.info('GlowEffectManager: Starting resource cleanup');
+        logger$h.info('GlowEffectManager: Starting resource cleanup');
         try {
             (this.postProcessing && (this.postProcessing.dispose(), (this.postProcessing = null)),
                 this.materialSystem &&
@@ -7928,14 +7886,14 @@ let GlowEffectManager$2 = class {
                 (this.forceQualityMode = null),
                 (this.isPaused = !1),
                 (this.lastQuality = null),
-                logger$f.info('GlowEffectManager: Resource cleanup completed'));
+                logger$h.info('GlowEffectManager: Resource cleanup completed'));
         } catch (e) {
-            logger$f.error('GlowEffectManager: Error during disposal:', e);
+            logger$h.error('GlowEffectManager: Error during disposal:', e);
         }
     }
     startMemoryMonitoring() {
         this.shouldMonitorMemory() &&
-            (logger$f.info('GlowEffectManager: Starting memory monitoring'),
+            (logger$h.info('GlowEffectManager: Starting memory monitoring'),
             (this.memoryStats = {
                 initialMemory: this.getMemoryUsage(),
                 peakMemory: 0,
@@ -7965,30 +7923,30 @@ let GlowEffectManager$2 = class {
             e > this.memoryStats.peakMemory && (this.memoryStats.peakMemory = e));
         const t = e - this.memoryStats.initialMemory;
         (t > this.memoryStats.leakWarningThreshold &&
-            (logger$f.warn(
+            (logger$h.warn(
                 `GlowEffectManager: Potential memory leak detected. Memory increased by ${Math.round(t / 1024 / 1024)}MB`
             ),
             this.handleMemoryLeak()),
             this.memoryStats.samples.length % 10 == 0 &&
-                logger$f.info(
+                logger$h.info(
                     `GlowEffectManager: Memory usage: ${Math.round(e / 1024 / 1024)}MB (peak: ${Math.round(this.memoryStats.peakMemory / 1024 / 1024)}MB)`
                 ));
     }
     handleMemoryLeak() {
-        logger$f.warn('GlowEffectManager: Attempting to recover from memory leak');
+        logger$h.warn('GlowEffectManager: Attempting to recover from memory leak');
         try {
             (window.gc &&
-                (window.gc(), logger$f.info('GlowEffectManager: Forced garbage collection')),
+                (window.gc(), logger$h.info('GlowEffectManager: Forced garbage collection')),
                 this.performanceScaler &&
                     (this.performanceScaler.setQuality('minimal'),
                     this.applyQualityScaling('minimal')),
                 this.materialSystem && this.materialSystem.dispose(),
                 setTimeout(() => {
                     ((this.memoryStats.initialMemory = this.getMemoryUsage()),
-                        logger$f.info('GlowEffectManager: Memory baseline reset after cleanup'));
+                        logger$h.info('GlowEffectManager: Memory baseline reset after cleanup'));
                 }, 5e3));
         } catch (e) {
-            logger$f.error('GlowEffectManager: Error during memory leak recovery:', e);
+            logger$h.error('GlowEffectManager: Error during memory leak recovery:', e);
         }
     }
     getMemoryStats() {
@@ -8006,7 +7964,7 @@ let GlowEffectManager$2 = class {
             (this.logHistory = []),
             (this.maxLogHistory = 100),
             this.debugMode &&
-                (logger$f.info('GlowEffectManager: Debug mode enabled'),
+                (logger$h.info('GlowEffectManager: Debug mode enabled'),
                 (window.glowDebug = {
                     getStatus: () => this.getStatus(),
                     getMemoryStats: () => this.getMemoryStats(),
@@ -8032,7 +7990,7 @@ let GlowEffectManager$2 = class {
             message: t,
             context: i,
         };
-        (this.addToLogHistory(r), logger$f.error(`GlowEffectManager.${e}: ${t}`, i));
+        (this.addToLogHistory(r), logger$h.error(`GlowEffectManager.${e}: ${t}`, i));
     }
     logWarning(e, t, i = {}) {
         const r = {
@@ -8042,7 +8000,7 @@ let GlowEffectManager$2 = class {
             message: t,
             context: i,
         };
-        (this.addToLogHistory(r), logger$f.warn(`GlowEffectManager.${e}: ${t}`, i));
+        (this.addToLogHistory(r), logger$h.warn(`GlowEffectManager.${e}: ${t}`, i));
     }
     logInfo(e, t, i = {}) {
         const r = {
@@ -8053,7 +8011,7 @@ let GlowEffectManager$2 = class {
             context: i,
         };
         (this.addToLogHistory(r),
-            this.debugMode && logger$f.info(`GlowEffectManager.${e}: ${t}`, i));
+            this.debugMode && logger$h.info(`GlowEffectManager.${e}: ${t}`, i));
     }
     addToLogHistory(e) {
         (this.logHistory || (this.logHistory = []),
@@ -8064,7 +8022,7 @@ let GlowEffectManager$2 = class {
         return this.logHistory || [];
     }
     clearLogHistory() {
-        ((this.logHistory = []), logger$f.info('GlowEffectManager: Log history cleared'));
+        ((this.logHistory = []), logger$h.info('GlowEffectManager: Log history cleared'));
     }
     dumpDebugState() {
         const e = {
@@ -8094,7 +8052,7 @@ let GlowEffectManager$2 = class {
             logs: this.getLogHistory().slice(-10),
             webgl: this.getWebGLInfo(),
         };
-        return (logger$f.info('GlowEffectManager Debug State:', e), e);
+        return (logger$h.info('GlowEffectManager Debug State:', e), e);
     }
     getWebGLInfo() {
         try {
@@ -8185,15 +8143,15 @@ let GlowEffectManager$2 = class {
                 r = t.getSupportedExtensions() || [],
                 n = i.filter((e) => !r.includes(e) && !t.getExtension(e));
             n.length > 0 &&
-                (logger$f.warn('GlowEffectManager: Missing WebGL extensions:', n),
+                (logger$h.warn('GlowEffectManager: Missing WebGL extensions:', n),
                 this.showCompatibilityNotification(
                     'Limited WebGL support',
                     'Some advanced glow effects may not work properly on this device.'
                 ));
-            const a = t.getParameter(t.MAX_TEXTURE_SIZE),
-                s = t.getParameter(t.MAX_RENDERBUFFER_SIZE);
-            (a < 1024 || s < 1024) &&
-                (logger$f.warn('GlowEffectManager: Limited texture/renderbuffer size'),
+            const s = t.getParameter(t.MAX_TEXTURE_SIZE),
+                a = t.getParameter(t.MAX_RENDERBUFFER_SIZE);
+            (s < 1024 || a < 1024) &&
+                (logger$h.warn('GlowEffectManager: Limited texture/renderbuffer size'),
                 this.showCompatibilityNotification(
                     'Limited graphics capabilities',
                     'Glow effects will use reduced quality on this device.'
@@ -8202,7 +8160,7 @@ let GlowEffectManager$2 = class {
             const o = t.getParameter(t.RENDERER);
             return (
                 this.isMobileGPU(o) &&
-                    (logger$f.info(
+                    (logger$h.info(
                         'GlowEffectManager: Mobile GPU detected, using optimized settings'
                     ),
                     (this.forceQualityMode = 'medium')),
@@ -8210,7 +8168,7 @@ let GlowEffectManager$2 = class {
             );
         } catch (e) {
             return (
-                logger$f.error('GlowEffectManager: WebGL compatibility check failed:', e),
+                logger$h.error('GlowEffectManager: WebGL compatibility check failed:', e),
                 this.showCompatibilityNotification(
                     'Graphics initialization failed',
                     'Unable to initialize graphics system. Glow effects will be disabled.'
@@ -8248,13 +8206,13 @@ let GlowEffectManager$2 = class {
                         i && i.parentElement && (i.style.display = 'none');
                     }, 1e4));
             } catch (i) {
-                (logger$f.warn(`GlowEffectManager Compatibility: ${e} - ${t}`),
-                    logger$f.warn('Failed to show compatibility notification:', i.message));
+                (logger$h.warn(`GlowEffectManager Compatibility: ${e} - ${t}`),
+                    logger$h.warn('Failed to show compatibility notification:', i.message));
             }
-        else logger$f.warn(`GlowEffectManager Compatibility: ${e} - ${t}`);
+        else logger$h.warn(`GlowEffectManager Compatibility: ${e} - ${t}`);
     }
     initializeFallbackRendering() {
-        (logger$f.info('GlowEffectManager: Initializing fallback rendering mode'),
+        (logger$h.info('GlowEffectManager: Initializing fallback rendering mode'),
             (this.fallbackMaterials = {
                 createBikeMaterial: (e, t) =>
                     new THREE.MeshLambertMaterial({
@@ -8363,19 +8321,19 @@ let GlowEffectManager$2 = class {
         };
     }
 };
-module$B.exports = { GlowEffectManager: GlowEffectManager$2 };
-const __CJS__export_default__$A =
-        (null == module$B.exports ? {} : module$B.exports).default || module$B.exports,
+module$D.exports = { GlowEffectManager: GlowEffectManager$2 };
+const __CJS__export_default__$C =
+        (null == module$D.exports ? {} : module$D.exports).default || module$D.exports,
     __CJS__import__24__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$A },
+            { __proto__: null, default: __CJS__export_default__$C },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$A = { exports: {} };
-const { createLogger: createLogger$4 } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$e = createLogger$4('ErrorRecoveryStrategies');
+var module$C = { exports: {} };
+const { createLogger: createLogger$4 } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$g = createLogger$4('ErrorRecoveryStrategies');
 let ErrorRecoveryStrategies$1 = class {
     constructor() {
         ((this.cameraEffectsManager = null),
@@ -8443,14 +8401,15 @@ let ErrorRecoveryStrategies$1 = class {
             case 'disableEffects':
                 return this.disableAllEffects('Recovery strategy');
             default:
-                return (logger$e.warn(`Unknown recovery strategy: ${e}`), !1);
+                return (logger$g.warn(`Unknown recovery strategy: ${e}`), !1);
         }
     }
     reduceQuality() {
         try {
             if (this.degradationManager) {
-                const e = this.degradationManager.getDegradationState().level;
-                if (e < 2) return (this.degradationManager.setDegradationLevel(e + 1), !0);
+                const e = this.degradationManager.getDegradationState(),
+                    t = e ? e.level : void 0;
+                if (t < 2) return (this.degradationManager.setDegradationLevel(t + 1), !0);
             }
             if (this.motionBlurController) {
                 const e = this.motionBlurController.getCurrentQuality();
@@ -8459,7 +8418,7 @@ let ErrorRecoveryStrategies$1 = class {
             }
             return !1;
         } catch (e) {
-            return (logger$e.error('Failed to reduce quality', e), !1);
+            return (logger$g.error('Failed to reduce quality', e), !1);
         }
     }
     disableMotionBlur(e) {
@@ -8467,11 +8426,11 @@ let ErrorRecoveryStrategies$1 = class {
             return (
                 !!this.motionBlurController &&
                 (this.motionBlurController.setEnabled(!1),
-                logger$e.info(`Motion blur disabled: ${e}`),
+                logger$g.info(`Motion blur disabled: ${e}`),
                 !0)
             );
         } catch (t) {
-            return (logger$e.error('Failed to disable motion blur', t), !1);
+            return (logger$g.error('Failed to disable motion blur', t), !1);
         }
     }
     disablePostProcessing() {
@@ -8479,11 +8438,11 @@ let ErrorRecoveryStrategies$1 = class {
             return (
                 !!this.motionBlurController &&
                 (this.motionBlurController.setEnabled(!1),
-                logger$e.info('Post-processing disabled for recovery'),
+                logger$g.info('Post-processing disabled for recovery'),
                 !0)
             );
         } catch (e) {
-            return (logger$e.error('Failed to disable post-processing', e), !1);
+            return (logger$g.error('Failed to disable post-processing', e), !1);
         }
     }
     enterFallbackMode(e) {
@@ -8491,11 +8450,11 @@ let ErrorRecoveryStrategies$1 = class {
             return (
                 this.motionBlurController && this.motionBlurController.setEnabled(!1),
                 this.degradationManager && this.degradationManager.setDegradationLevel(2),
-                logger$e.info(`Entered fallback mode: ${e}`),
+                logger$g.info(`Entered fallback mode: ${e}`),
                 !0
             );
         } catch (t) {
-            return (logger$e.error('Failed to enter fallback mode', t), !1);
+            return (logger$g.error('Failed to enter fallback mode', t), !1);
         }
     }
     disableAllEffects(e) {
@@ -8503,11 +8462,11 @@ let ErrorRecoveryStrategies$1 = class {
             return (
                 this.cameraEffectsManager && this.cameraEffectsManager.setEnabled(!1),
                 this.degradationManager && this.degradationManager.setDegradationLevel(3),
-                logger$e.info(`All camera effects disabled: ${e}`),
+                logger$g.info(`All camera effects disabled: ${e}`),
                 !0
             );
         } catch (t) {
-            return (logger$e.error('Failed to disable all effects', t), !1);
+            return (logger$g.error('Failed to disable all effects', t), !1);
         }
     }
     recreateComposer() {
@@ -8519,14 +8478,14 @@ let ErrorRecoveryStrategies$1 = class {
                 ) && this.motionBlurController.initialize()
             );
         } catch (e) {
-            return (logger$e.error('Failed to recreate composer', e), !1);
+            return (logger$g.error('Failed to recreate composer', e), !1);
         }
     }
     simplifyShaders() {
         try {
             return !!this.motionBlurController && (this.motionBlurController.setQuality('low'), !0);
         } catch (e) {
-            return (logger$e.error('Failed to simplify shaders', e), !1);
+            return (logger$g.error('Failed to simplify shaders', e), !1);
         }
     }
     clearCaches() {
@@ -8541,17 +8500,17 @@ let ErrorRecoveryStrategies$1 = class {
                 !0
             );
         } catch (e) {
-            return (logger$e.error('Failed to clear caches', e), !1);
+            return (logger$g.error('Failed to clear caches', e), !1);
         }
     }
     forceGarbageCollection() {
         try {
             return (
                 !('undefined' == typeof window || !window.gc) &&
-                (window.gc(), logger$e.info('Forced garbage collection'), !0)
+                (window.gc(), logger$g.info('Forced garbage collection'), !0)
             );
         } catch (e) {
-            return (logger$e.error('Failed to force garbage collection', e), !1);
+            return (logger$g.error('Failed to force garbage collection', e), !1);
         }
     }
     recompileShaders() {
@@ -8561,23 +8520,23 @@ let ErrorRecoveryStrategies$1 = class {
         return this.simplifyShaders();
     }
 };
-module$A.exports = { ErrorRecoveryStrategies: ErrorRecoveryStrategies$1 };
-const __CJS__export_default__$z =
-        (null == module$A.exports ? {} : module$A.exports).default || module$A.exports,
+module$C.exports = { ErrorRecoveryStrategies: ErrorRecoveryStrategies$1 };
+const __CJS__export_default__$B =
+        (null == module$C.exports ? {} : module$C.exports).default || module$C.exports,
     __CJS__import__1__$2 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$z },
+            { __proto__: null, default: __CJS__export_default__$B },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$z = { exports: {} };
-const { createLogger: createLogger$3 } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$d = createLogger$3('CameraEffectsErrorHandler'),
+var module$B = { exports: {} };
+const { createLogger: createLogger$3 } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$f = createLogger$3('CameraEffectsErrorHandler'),
     { ErrorRecoveryStrategies: ErrorRecoveryStrategies } =
-        __CJS__export_default__$z || __CJS__import__1__$2,
+        __CJS__export_default__$B || __CJS__import__1__$2,
     { PerformanceDegradationManager: PerformanceDegradationManager$3 } =
-        __CJS__export_default__$G || __CJS__import__21__;
+        __CJS__export_default__$I || __CJS__import__21__;
 let CameraEffectsErrorHandler$1 = class {
     constructor() {
         ((this.cameraEffectsManager = null),
@@ -8656,7 +8615,7 @@ let CameraEffectsErrorHandler$1 = class {
                 !0
             );
         } catch (n) {
-            return (logger$d.error('Initialization failed', n), !1);
+            return (logger$f.error('Initialization failed', n), !1);
         }
     }
     setupGlobalErrorHandlers() {
@@ -8903,9 +8862,9 @@ let CameraEffectsErrorHandler$1 = class {
     }
     showNotification(e) {
         const t = 'error' === e.type ? 'error' : 'warning' === e.type ? 'warn' : 'info';
-        (logger$d[t]
-            ? logger$d[t](`Camera Effects: ${e.message}`)
-            : logger$d.info(`Camera Effects: ${e.message}`),
+        (logger$f[t]
+            ? logger$f[t](`Camera Effects: ${e.message}`)
+            : logger$f.info(`Camera Effects: ${e.message}`),
             'undefined' != typeof window &&
                 window.dispatchEvent(new CustomEvent('cameraEffectsError', { detail: e })));
     }
@@ -8923,7 +8882,7 @@ let CameraEffectsErrorHandler$1 = class {
         if (!this.loggingConfig.enabled) return;
         (this.loggingConfig.includeTimestamp && new Date().toISOString(),
             this.loggingConfig.includeContext);
-        const r = logger$d[e] || logger$d.info;
+        const r = logger$f[e] || logger$f.info;
         this.loggingConfig.includeContext && Object.keys(i).length > 0 ? r(t, i) : r(t);
     }
     collectBrowserInfo() {
@@ -9063,21 +9022,21 @@ let CameraEffectsErrorHandler$1 = class {
                 (this.initialized = !1),
                 this.log('info', 'CameraEffectsErrorHandler destroyed'));
         } catch (e) {
-            logger$d.error('Error during destruction', e);
+            logger$f.error('Error during destruction', e);
         }
     }
 };
-module$z.exports = { CameraEffectsErrorHandler: CameraEffectsErrorHandler$1 };
-const __CJS__export_default__$y =
-        (null == module$z.exports ? {} : module$z.exports).default || module$z.exports,
+module$B.exports = { CameraEffectsErrorHandler: CameraEffectsErrorHandler$1 };
+const __CJS__export_default__$A =
+        (null == module$B.exports ? {} : module$B.exports).default || module$B.exports,
     __CJS__import__1__$1 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$y },
+            { __proto__: null, default: __CJS__export_default__$A },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$y = { exports: {} };
+var module$A = { exports: {} };
 let ShakeInstance$1 = class {
     constructor(e, t, i = 'collision') {
         ((this.intensity = Math.max(0, Math.min(2, e))),
@@ -9142,20 +9101,20 @@ let ShakeInstance$1 = class {
         return Math.max(0, this.duration - this.elapsed);
     }
 };
-module$y.exports = { ShakeInstance: ShakeInstance$1 };
-const __CJS__export_default__$x =
-        (null == module$y.exports ? {} : module$y.exports).default || module$y.exports,
+module$A.exports = { ShakeInstance: ShakeInstance$1 };
+const __CJS__export_default__$z =
+        (null == module$A.exports ? {} : module$A.exports).default || module$A.exports,
     __CJS__import__0__$2 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$x },
+            { __proto__: null, default: __CJS__export_default__$z },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$x = { exports: {} };
-const { ShakeInstance: ShakeInstance } = __CJS__export_default__$x || __CJS__import__0__$2,
-    { createLogger: createLogger$2 } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$c = createLogger$2('CameraShakeController');
+var module$z = { exports: {} };
+const { ShakeInstance: ShakeInstance } = __CJS__export_default__$z || __CJS__import__0__$2,
+    { createLogger: createLogger$2 } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$e = createLogger$2('CameraShakeController');
 let CameraShakeController$1 = class {
     constructor(e) {
         ((this.camera = e),
@@ -9189,11 +9148,11 @@ let CameraShakeController$1 = class {
         let r =
             null !== e ? Math.max(i.minIntensity, Math.min(i.maxIntensity, e)) : i.defaultIntensity;
         const n = this.intensitySettings[this.currentIntensitySetting];
-        let a = 1;
-        'undefined' != typeof window && window.innerWidth < 768 && (a = 0.7);
-        const s = r * n * this.intensityMultiplier * a,
+        let s = 1;
+        'undefined' != typeof window && window.innerWidth < 768 && (s = 0.7);
+        const a = r * n * this.intensityMultiplier * s,
             o = null !== t ? t : i.defaultDuration,
-            l = new ShakeInstance(s, o, 'collision');
+            l = new ShakeInstance(a, o, 'collision');
         (this.activeShakes.push(l), this.cleanupCompletedShakes());
     }
     triggerNearMissShake(e = 1, t = null) {
@@ -9204,9 +9163,9 @@ let CameraShakeController$1 = class {
                 (i.minIntensity + r * (i.maxIntensity - i.minIntensity)) *
                 this.intensitySettings[this.currentIntensitySetting] *
                 this.intensityMultiplier,
-            a = null !== t ? t : i.defaultDuration,
-            s = new ShakeInstance(n, a, 'nearMiss');
-        (this.activeShakes.push(s), this.cleanupCompletedShakes());
+            s = null !== t ? t : i.defaultDuration,
+            a = new ShakeInstance(n, s, 'nearMiss');
+        (this.activeShakes.push(a), this.cleanupCompletedShakes());
     }
     update(e) {
         this.enabled && this.camera
@@ -9273,7 +9232,7 @@ let CameraShakeController$1 = class {
         t.includes(e.toLowerCase())
             ? ((this.currentIntensitySetting = e.toLowerCase()),
               'off' === this.currentIntensitySetting && this.clearAllShakes())
-            : logger$c.warn(`Invalid intensity setting: ${e}. Valid options: ${t.join(', ')}`);
+            : logger$e.warn(`Invalid intensity setting: ${e}. Valid options: ${t.join(', ')}`);
     }
     getIntensitySetting() {
         return this.currentIntensitySetting;
@@ -9313,19 +9272,19 @@ let CameraShakeController$1 = class {
         }));
     }
 };
-module$x.exports = { CameraShakeController: CameraShakeController$1 };
-const __CJS__export_default__$w =
-        (null == module$x.exports ? {} : module$x.exports).default || module$x.exports,
+module$z.exports = { CameraShakeController: CameraShakeController$1 };
+const __CJS__export_default__$y =
+        (null == module$z.exports ? {} : module$z.exports).default || module$z.exports,
     __CJS__import__2__$1 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$w },
+            { __proto__: null, default: __CJS__export_default__$y },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$w = { exports: {} };
-const { createLogger: createLogger$1 } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$b = createLogger$1('MotionBlurController');
+var module$y = { exports: {} };
+const { createLogger: createLogger$1 } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$d = createLogger$1('MotionBlurController');
 let MotionBlurController$1 = class {
     constructor(e) {
         ((this.renderer = e),
@@ -9378,7 +9337,7 @@ let MotionBlurController$1 = class {
                 return (
                     this.errorHandler &&
                         this.errorHandler.handleWebGLError(e, 'WebGL capability detection failed'),
-                    logger$b.warn('WebGL capabilities insufficient, using fallback'),
+                    logger$d.warn('WebGL capabilities insufficient, using fallback'),
                     (this.fallbackMode = !0),
                     !0
                 );
@@ -9391,7 +9350,7 @@ let MotionBlurController$1 = class {
                             e,
                             'Post-processing support check failed'
                         ),
-                    logger$b.warn('Post-processing not supported, using fallback'),
+                    logger$d.warn('Post-processing not supported, using fallback'),
                     (this.fallbackMode = !0),
                     !0
                 );
@@ -9408,7 +9367,7 @@ let MotionBlurController$1 = class {
                 return (
                     this.errorHandler &&
                         this.errorHandler.handlePostProcessingError(e, 'Motion blur pass creation'),
-                    logger$b.warn('Motion blur pass creation failed, using fallback'),
+                    logger$d.warn('Motion blur pass creation failed, using fallback'),
                     (this.fallbackMode = !0),
                     !0
                 );
@@ -9418,12 +9377,12 @@ let MotionBlurController$1 = class {
                 this.composer.addPass(this.motionBlurPass),
                 this.setQuality(this.currentQuality),
                 (this.initialized = !0),
-                logger$b.info('Successfully initialized with motion blur effects'),
+                logger$d.info('Successfully initialized with motion blur effects'),
                 !0
             );
         } catch (t) {
             return (
-                logger$b.error('Failed to initialize', t),
+                logger$d.error('Failed to initialize', t),
                 this.errorHandler &&
                     this.errorHandler.handlePostProcessingError(
                         t,
@@ -9442,7 +9401,7 @@ let MotionBlurController$1 = class {
             if (!t)
                 return (
                     (this.capabilities.webglSupported = !1),
-                    logger$b.warn('WebGL not supported'),
+                    logger$d.warn('WebGL not supported'),
                     !1
                 );
             const i = t;
@@ -9455,15 +9414,15 @@ let MotionBlurController$1 = class {
                 ((this.capabilities.floatTextureSupport = !!r),
                 (this.capabilities.depthTextureSupport = !!n),
                 r ||
-                    (logger$b.warn('Float texture extension not available, using fallback'),
+                    (logger$d.warn('Float texture extension not available, using fallback'),
                     (this.capabilities.floatTextureSupport = !1)),
                 n ||
-                    (logger$b.warn('Depth texture extension not available'),
+                    (logger$d.warn('Depth texture extension not available'),
                     (this.capabilities.depthTextureSupport = !1)),
                 this.capabilities.maxTextureSize < 2048)
             )
                 return (
-                    logger$b.warn('Insufficient texture size support'),
+                    logger$d.warn('Insufficient texture size support'),
                     (this.capabilities.webglSupported = !1),
                     !1
                 );
@@ -9471,12 +9430,12 @@ let MotionBlurController$1 = class {
                 /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
                     navigator.userAgent
                 ) &&
-                    (logger$b.info('Mobile device detected, adjusting performance settings'),
+                    (logger$d.info('Mobile device detected, adjusting performance settings'),
                     (this.capabilities.isMobile = !0),
                     this.setQuality('low'),
                     (this.performanceMetrics.autoScalingEnabled = !0)),
                 this.capabilities.devicePixelRatio > 2 &&
-                    (logger$b.info(
+                    (logger$d.info(
                         `High DPI display detected (${this.capabilities.devicePixelRatio}x)`
                     ),
                     (this.capabilities.devicePixelRatio = Math.min(
@@ -9488,7 +9447,7 @@ let MotionBlurController$1 = class {
             );
         } catch (e) {
             return (
-                logger$b.error('WebGL capability detection failed', e),
+                logger$d.error('WebGL capability detection failed', e),
                 (this.capabilities.webglSupported = !1),
                 !1
             );
@@ -9501,13 +9460,13 @@ let MotionBlurController$1 = class {
                     ? ((this.capabilities.postProcessingSupported = !0),
                       (this.capabilities.motionBlurSupported = !0),
                       !0)
-                    : (logger$b.warn('ShaderPass not available'),
+                    : (logger$d.warn('ShaderPass not available'),
                       (this.capabilities.motionBlurSupported = !1),
                       !1)
                 : ((this.capabilities.postProcessingSupported = !1), !1);
         } catch (e) {
             return (
-                logger$b.error('Post-processing support check failed', e),
+                logger$d.error('Post-processing support check failed', e),
                 (this.capabilities.postProcessingSupported = !1),
                 !1
             );
@@ -9529,7 +9488,7 @@ let MotionBlurController$1 = class {
             };
             return new THREE.ShaderPass(e);
         } catch (e) {
-            return (logger$b.error('Failed to create motion blur pass', e), null);
+            return (logger$d.error('Failed to create motion blur pass', e), null);
         }
     }
     updateBlurIntensity(e) {
@@ -9549,15 +9508,15 @@ let MotionBlurController$1 = class {
                         (this.motionBlurPass.uniforms.velocityFactor.value =
                             this.blurConfig.velocityFactor)),
                     this.blurConfig.intensity > 0.01 &&
-                        logger$b.debug(
+                        logger$d.debug(
                             `Speed: ${e.toFixed(2)}, Intensity: ${this.blurConfig.intensity.toFixed(3)}`
                         ));
             } catch (t) {
-                logger$b.error('Error updating blur intensity', t);
+                logger$d.error('Error updating blur intensity', t);
             }
     }
     setQuality(e) {
-        if (!this.qualitySettings[e]) return void logger$b.warn(`Invalid quality level: ${e}`);
+        if (!this.qualitySettings[e]) return void logger$d.warn(`Invalid quality level: ${e}`);
         this.currentQuality = e;
         const t = this.qualitySettings[e];
         if (
@@ -9573,11 +9532,14 @@ let MotionBlurController$1 = class {
                 this.motionBlurPass.uniforms &&
                     ((this.motionBlurPass.uniforms.samples.value = t.samples),
                     (this.motionBlurPass.uniforms.velocityFactor.value = t.velocityFactor)),
-                logger$b.info(`Quality set to ${e} (${r}x${n})`));
+                logger$d.info(`Quality set to ${e} (${r}x${n})`));
         }
     }
     resizeComposer(e, t) {
         this.composer && this.composer.setSize(e, t);
+    }
+    getCurrentQuality() {
+        return this.currentQuality;
     }
     setEnabled(e) {
         ((this.enabled = Boolean(e)),
@@ -9586,7 +9548,7 @@ let MotionBlurController$1 = class {
                 this.motionBlurPass &&
                     this.motionBlurPass.uniforms &&
                     (this.motionBlurPass.uniforms.intensity.value = 0)),
-            logger$b.info('' + (this.enabled ? 'Enabled' : 'Disabled')));
+            logger$d.info('' + (this.enabled ? 'Enabled' : 'Disabled')));
     }
     render(e, t) {
         if (!this.fallbackMode && this.initialized && this.composer)
@@ -9596,7 +9558,7 @@ let MotionBlurController$1 = class {
                     this.composer.render(),
                     this.performanceMetrics.autoScalingEnabled && this.autoScaleQuality());
             } catch (i) {
-                (logger$b.error('Error during render', i),
+                (logger$d.error('Error during render', i),
                     this.errorHandler &&
                         this.errorHandler.handlePostProcessingError(i, 'Motion blur render'),
                     this.renderer.render(e, t),
@@ -9636,29 +9598,29 @@ let MotionBlurController$1 = class {
         const i = t.reduce((e, t) => e + t.fps, 0) / t.length,
             r = Math.min(...t.map((e) => e.fps)),
             n = Math.max(...t.map((e) => e.fps)) - r;
-        let a = this.currentQuality;
+        let s = this.currentQuality;
         if (i < 20)
             return (
-                logger$b.warn('Performance critically low, disabling motion blur'),
+                logger$d.warn('Performance critically low, disabling motion blur'),
                 void this.setEnabled(!1)
             );
         (r < 25
-            ? (a = 'low')
+            ? (s = 'low')
             : i < 35 || n > 20
               ? 'high' === this.currentQuality
-                  ? (a = 'medium')
-                  : 'medium' === this.currentQuality && (a = 'low')
+                  ? (s = 'medium')
+                  : 'medium' === this.currentQuality && (s = 'low')
               : r > 55 &&
                 n < 10 &&
                 ('low' === this.currentQuality && i > 45
-                    ? (a = 'medium')
-                    : 'medium' === this.currentQuality && i > 65 && (a = 'high')),
-            a !== this.currentQuality &&
-                (logger$b.info(`Auto-scaling quality from ${this.currentQuality} to ${a}`),
-                logger$b.debug(
+                    ? (s = 'medium')
+                    : 'medium' === this.currentQuality && i > 65 && (s = 'high')),
+            s !== this.currentQuality &&
+                (logger$d.info(`Auto-scaling quality from ${this.currentQuality} to ${s}`),
+                logger$d.debug(
                     `Performance: Avg FPS: ${i.toFixed(1)}, Min: ${r.toFixed(1)}, Variability: ${n.toFixed(1)}`
                 ),
-                this.setQuality(a),
+                this.setQuality(s),
                 (this.performanceMetrics.lastQualityAdjustment = e)));
     }
     resize(e, t) {
@@ -9669,14 +9631,14 @@ let MotionBlurController$1 = class {
                         r = Math.floor(e * i.resolution),
                         n = Math.floor(t * i.resolution);
                     (this.resizeComposer(r, n),
-                        logger$b.debug(`Resized to ${e}x${t}, blur: ${r}x${n}`));
+                        logger$d.debug(`Resized to ${e}x${t}, blur: ${r}x${n}`));
                 }
             } catch (i) {
-                logger$b.error('Error during resize', i);
+                logger$d.error('Error during resize', i);
             }
     }
     setSpeedTracker(e) {
-        ((this.speedTracker = e), logger$b.info('Speed tracker integrated'));
+        ((this.speedTracker = e), logger$d.info('Speed tracker integrated'));
     }
     getBlurConfig() {
         return __spreadValues({}, this.blurConfig);
@@ -9698,7 +9660,7 @@ let MotionBlurController$1 = class {
     }
     setAutoScalingEnabled(e) {
         ((this.performanceMetrics.autoScalingEnabled = Boolean(e)),
-            logger$b.info(
+            logger$d.info(
                 'Auto-scaling ' +
                     (this.performanceMetrics.autoScalingEnabled ? 'enabled' : 'disabled')
             ));
@@ -9706,7 +9668,7 @@ let MotionBlurController$1 = class {
     forceQuality(e) {
         (this.setQuality(e),
             this.setAutoScalingEnabled(!1),
-            logger$b.info(`Forced quality to ${e}, auto-scaling disabled`));
+            logger$d.info(`Forced quality to ${e}, auto-scaling disabled`));
     }
     resetPerformanceMetrics() {
         ((this.performanceMetrics.frameCount = 0),
@@ -9714,7 +9676,7 @@ let MotionBlurController$1 = class {
             (this.performanceMetrics.lastFrameTime = 0),
             (this.performanceMetrics.averageFrameTime = 16.67),
             (this.performanceMetrics.lastQualityAdjustment = 0),
-            logger$b.debug('Performance metrics reset'));
+            logger$d.debug('Performance metrics reset'));
     }
     getPerformanceAnalysis() {
         const e = this.performanceMetrics.performanceHistory;
@@ -9723,21 +9685,22 @@ let MotionBlurController$1 = class {
             i = t.map((e) => e.fps),
             r = i.reduce((e, t) => e + t, 0) / i.length,
             n = Math.min(...i),
-            a = Math.max(...i),
-            s = i.sort((e, t) => e - t)[Math.floor(i.length / 2)],
+            s = Math.max(...i),
+            a = i.sort((e, t) => e - t)[Math.floor(i.length / 2)],
             o = t.map((e) => e.frameTime).sort((e, t) => e - t),
             l = o[Math.floor(0.95 * o.length)],
             c = o[Math.floor(0.99 * o.length)];
         return {
             available: !0,
             sampleCount: t.length,
-            fps: { average: r, minimum: n, maximum: a, median: s, variability: a - n },
+            fps: { average: r, minimum: n, maximum: s, median: a, variability: s - n },
             frameTime: { average: 1e3 / r, p95: l, p99: c },
             performance: {
                 isGood: r > 50,
-                isStable: a - n < 15,
-                recommendedQuality: this.getRecommendedQuality(r, n, a - n),
+                isStable: s - n < 15,
+                recommendedQuality: this.getRecommendedQuality(r, n, s - n),
             },
+            recommendation: this.getRecommendedQuality(r, n, s - n),
             capabilities: this.capabilities,
         };
     }
@@ -9767,12 +9730,12 @@ let MotionBlurController$1 = class {
             this.motionBlurPass &&
                 this.motionBlurPass.uniforms &&
                 (this.motionBlurPass.uniforms.intensity.value = 0),
-            logger$b.debug('Paused'));
+            logger$d.debug('Paused'));
     }
     resume() {
         this.initialized &&
             ((this.performanceMetrics.lastFrameTime = performance.now()),
-            logger$b.debug('Resumed'));
+            logger$d.debug('Resumed'));
     }
     destroy() {
         try {
@@ -9786,33 +9749,33 @@ let MotionBlurController$1 = class {
                 (this.motionBlurPass = null),
                 (this.speedTracker = null),
                 (this.initialized = !1),
-                logger$b.info('Resources disposed'));
+                logger$d.info('Resources disposed'));
         } catch (e) {
-            logger$b.error('Error during disposal', e);
+            logger$d.error('Error during disposal', e);
         }
     }
 };
-module$w.exports = { MotionBlurController: MotionBlurController$1 };
-const __CJS__export_default__$v =
-        (null == module$w.exports ? {} : module$w.exports).default || module$w.exports,
+module$y.exports = { MotionBlurController: MotionBlurController$1 };
+const __CJS__export_default__$x =
+        (null == module$y.exports ? {} : module$y.exports).default || module$y.exports,
     __CJS__import__3__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$v },
+            { __proto__: null, default: __CJS__export_default__$x },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$v = { exports: {} };
+var module$x = { exports: {} };
 const { PerformanceDegradationManager: PerformanceDegradationManager$2 } =
-        __CJS__export_default__$G || __CJS__import__21__,
+        __CJS__export_default__$I || __CJS__import__21__,
     { CameraEffectsErrorHandler: CameraEffectsErrorHandler } =
-        __CJS__export_default__$y || __CJS__import__1__$1,
+        __CJS__export_default__$A || __CJS__import__1__$1,
     { CameraShakeController: CameraShakeController } =
-        __CJS__export_default__$w || __CJS__import__2__$1,
+        __CJS__export_default__$y || __CJS__import__2__$1,
     { MotionBlurController: MotionBlurController } =
-        __CJS__export_default__$v || __CJS__import__3__,
-    { createLogger: createLogger } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$a = createLogger('CameraEffectsManager');
+        __CJS__export_default__$x || __CJS__import__3__,
+    { createLogger: createLogger } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$c = createLogger('CameraEffectsManager');
 let CameraEffectsManager$2 = class {
     constructor(e, t, i) {
         ((this.camera = e),
@@ -9834,7 +9797,8 @@ let CameraEffectsManager$2 = class {
                 averageFrameTime: 16.67,
                 frameCount: 0,
             }),
-            (this.effectPool = { shakeInstances: [], maxPoolSize: 10 }));
+            (this.effectPool = { shakeInstances: [], maxPoolSize: 10 }),
+            (this.settings = {}));
     }
     initialize() {
         try {
@@ -9845,7 +9809,7 @@ let CameraEffectsManager$2 = class {
                       this.motionBlurController,
                       this.shakeController
                   ) ||
-                      logger$a.warn(
+                      logger$c.warn(
                           'Error handler initialization failed, continuing without error handling'
                       ),
                   this.motionBlurController &&
@@ -9858,21 +9822,21 @@ let CameraEffectsManager$2 = class {
                       this.motionBlurController,
                       this.shakeController
                   ) ||
-                      logger$a.warn(
+                      logger$c.warn(
                           'Degradation manager initialization failed, continuing with basic functionality'
                       ),
                   (this.originalCameraPosition = this.camera.position.clone()),
                   (this.lastUpdateTime = performance.now()),
                   (this.performanceMetrics.lastFrameTime = this.lastUpdateTime),
                   (this.initialized = !0),
-                  logger$a.info(
+                  logger$c.info(
                       'Successfully initialized with error handling and performance monitoring'
                   ),
                   !0)
-                : (logger$a.error('Missing required camera or renderer'), !1);
+                : (logger$c.error('Missing required camera or renderer'), !1);
         } catch (e) {
             return (
-                logger$a.error('Initialization failed', e),
+                logger$c.error('Initialization failed', e),
                 this.errorHandler &&
                     this.errorHandler.handleRuntimeError(e, 'CameraEffectsManager initialization'),
                 (this.initialized = !1),
@@ -9896,7 +9860,7 @@ let CameraEffectsManager$2 = class {
                     this.shakeController.update(e),
                     this.applyCameraEffects());
             } catch (i) {
-                (logger$a.error('Update error', i),
+                (logger$c.error('Update error', i),
                     this.errorHandler
                         ? this.errorHandler.handleRuntimeError(i, 'CameraEffectsManager update')
                         : this.setEnabled(!1));
@@ -9906,53 +9870,53 @@ let CameraEffectsManager$2 = class {
         if (this.initialized && this.enabled)
             try {
                 if (!e || 'number' != typeof t)
-                    return void logger$a.warn('Invalid collision parameters');
+                    return void logger$c.warn('Invalid collision parameters');
                 const i = Math.max(0, Math.min(1, t));
                 (this.notifyEventHandlers('collision', { entity: e, intensity: i }),
                     this.shakeController && this.shakeController.triggerCollisionShake(i),
-                    logger$a.debug(
+                    logger$c.debug(
                         `Collision event - entity: ${e.id || 'unknown'}, intensity: ${i}`
                     ));
             } catch (i) {
-                logger$a.error('Collision handling error', i);
+                logger$c.error('Collision handling error', i);
             }
     }
     onNearMiss(e, t) {
         if (this.initialized && this.enabled)
             try {
                 if (!e || 'number' != typeof t)
-                    return void logger$a.warn('Invalid near-miss parameters');
+                    return void logger$c.warn('Invalid near-miss parameters');
                 if (t < 0 || t > 2) return;
                 (this.notifyEventHandlers('nearMiss', { entity: e, distance: t }),
                     this.shakeController && this.shakeController.triggerNearMissShake(t),
-                    logger$a.debug(
+                    logger$c.debug(
                         `Near-miss event - entity: ${e.id || 'unknown'}, distance: ${t}`
                     ));
             } catch (i) {
-                logger$a.error('Near-miss handling error', i);
+                logger$c.error('Near-miss handling error', i);
             }
     }
     onSpeedChange(e, t) {
         if (this.initialized && this.enabled)
             try {
                 if (!e || 'number' != typeof t)
-                    return void logger$a.warn('Invalid speed change parameters');
+                    return void logger$c.warn('Invalid speed change parameters');
                 if (t < 0 || t > 10) return;
                 (this.notifyEventHandlers('speedChange', { entity: e, newSpeed: t }),
                     this.motionBlurController && this.motionBlurController.updateBlurIntensity(t),
-                    logger$a.debug(
+                    logger$c.debug(
                         `Speed change event - entity: ${e.id || 'unknown'}, speed: ${t}`
                     ));
             } catch (i) {
-                logger$a.error('Speed change handling error', i);
+                logger$c.error('Speed change handling error', i);
             }
     }
     addEventListener(e, t) {
         this.eventHandlers[e]
             ? 'function' == typeof t
                 ? this.eventHandlers[e].push(t)
-                : logger$a.warn('Event handler must be a function')
-            : logger$a.warn(`Unknown event type: ${e}`);
+                : logger$c.warn('Event handler must be a function')
+            : logger$c.warn(`Unknown event type: ${e}`);
     }
     removeEventListener(e, t) {
         if (!this.eventHandlers[e]) return;
@@ -9965,7 +9929,7 @@ let CameraEffectsManager$2 = class {
                 try {
                     i(t);
                 } catch (r) {
-                    logger$a.error(`Event handler error for ${e}`, r);
+                    logger$c.error(`Event handler error for ${e}`, r);
                 }
             });
     }
@@ -10000,7 +9964,7 @@ let CameraEffectsManager$2 = class {
             this.shakeController && this.shakeController.setEnabled(this.enabled),
             this.motionBlurController && this.motionBlurController.setEnabled(this.enabled),
             this.enabled || this.resetCameraPosition(),
-            logger$a.info('' + (this.enabled ? 'Enabled' : 'Disabled')));
+            logger$c.info('' + (this.enabled ? 'Enabled' : 'Disabled')));
     }
     isEnabled() {
         return this.enabled && this.initialized;
@@ -10018,7 +9982,7 @@ let CameraEffectsManager$2 = class {
             this.motionBlurController &&
                 'function' == typeof this.motionBlurController.pause &&
                 this.motionBlurController.pause(),
-            logger$a.debug('Paused'));
+            logger$c.debug('Paused'));
     }
     resume() {
         this.initialized &&
@@ -10030,7 +9994,7 @@ let CameraEffectsManager$2 = class {
                 this.motionBlurController.resume(),
             (this.lastUpdateTime = performance.now()),
             (this.performanceMetrics.lastFrameTime = this.lastUpdateTime),
-            logger$a.debug('Resumed'));
+            logger$c.debug('Resumed'));
     }
     destroy() {
         try {
@@ -10057,9 +10021,9 @@ let CameraEffectsManager$2 = class {
                 (this.initialized = !1),
                 (this.enabled = !1),
                 (this.originalCameraPosition = null),
-                logger$a.info('Destroyed'));
+                logger$c.info('Destroyed'));
         } catch (e) {
-            (logger$a.error('Destruction error', e),
+            (logger$c.error('Destruction error', e),
                 this.errorHandler &&
                     this.errorHandler.handleRuntimeError(e, 'CameraEffectsManager destruction'));
         }
@@ -10068,6 +10032,7 @@ let CameraEffectsManager$2 = class {
         return {
             initialized: this.initialized,
             enabled: this.enabled,
+            settings: __spreadValues({}, this.settings),
             hasCamera: !!this.camera,
             hasRenderer: !!this.renderer,
             eventHandlerCounts: Object.keys(this.eventHandlers).reduce(
@@ -10121,7 +10086,8 @@ let CameraEffectsManager$2 = class {
     updateSettings(e) {
         if (e) {
             if (
-                (this.configManager &&
+                ((this.settings = __spreadValues(__spreadValues({}, this.settings), e)),
+                this.configManager &&
                     'function' == typeof this.configManager.updateSettings &&
                     this.configManager.updateSettings(e),
                 void 0 !== e.accessibilityMode &&
@@ -10151,7 +10117,7 @@ let CameraEffectsManager$2 = class {
                     (this.shakeController && this.shakeController.setEnabled(!1),
                     this.motionBlurController && this.motionBlurController.setEnabled(!1));
             }
-            logger$a.debug('Settings updated', e);
+            logger$c.debug('Settings updated', e);
         }
     }
     reset() {
@@ -10160,25 +10126,37 @@ let CameraEffectsManager$2 = class {
                 (this.motionBlurController.setEnabled(!1),
                 this.motionBlurController.setEnabled(this.enabled)),
             this.resetCameraPosition(),
-            logger$a.debug('Reset'));
+            logger$c.debug('Reset'));
     }
     updateGameState(e) {
-        ((this.gameState = e), logger$a.debug('Game state updated'));
+        ((this.gameState = e), logger$c.debug('Game state updated'));
+    }
+    hasPostProcessing() {
+        return (
+            this.motionBlurController &&
+            this.motionBlurController.enabled &&
+            !this.motionBlurController.fallbackMode
+        );
+    }
+    render(e, t) {
+        this.hasPostProcessing()
+            ? this.motionBlurController.render(e, t)
+            : this.renderer.render(e, t);
     }
 };
-module$v.exports = { CameraEffectsManager: CameraEffectsManager$2 };
-const __CJS__export_default__$u =
-        (null == module$v.exports ? {} : module$v.exports).default || module$v.exports,
+module$x.exports = { CameraEffectsManager: CameraEffectsManager$2 };
+const __CJS__export_default__$w =
+        (null == module$x.exports ? {} : module$x.exports).default || module$x.exports,
     __CJS__import__25__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$u },
+            { __proto__: null, default: __CJS__export_default__$w },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$u = { exports: {} };
-const { Logger: Logger$6 } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$9 = Logger$6.create('EffectsConfigManager');
+var module$w = { exports: {} };
+const { Logger: Logger$8 } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$b = Logger$8.create('EffectsConfigManager');
 let EffectsConfigManager$1 = class {
     constructor() {
         ((this.storageKey = 'lightbikes_camera_effects_settings'),
@@ -10202,7 +10180,7 @@ let EffectsConfigManager$1 = class {
     updateSettings(e) {
         const t = this.validateSettings(e);
         if (!t || 0 === Object.keys(t).length)
-            return (logger$9.warn('Invalid settings provided to EffectsConfigManager'), !1);
+            return (logger$b.warn('Invalid settings provided to EffectsConfigManager'), !1);
         const i = __spreadValues({}, this.currentSettings);
         return (
             (this.currentSettings = __spreadValues(__spreadValues({}, this.currentSettings), t)),
@@ -10225,7 +10203,7 @@ let EffectsConfigManager$1 = class {
     }
     validateSettings(e) {
         if (!e || 'object' != typeof e)
-            return (logger$9.warn('Invalid settings object provided to validateSettings'), null);
+            return (logger$b.warn('Invalid settings object provided to validateSettings'), null);
         const t = {},
             i = [];
         'version' in e &&
@@ -10261,7 +10239,7 @@ let EffectsConfigManager$1 = class {
                 ? (t.motionBlurQuality = e.motionBlurQuality)
                 : i.push(`motionBlurQuality must be one of: ${r.join(', ')}`);
         }
-        return (i.length > 0 && logger$9.warn('Settings validation errors:', i), t);
+        return (i.length > 0 && logger$b.warn('Settings validation errors:', i), t);
     }
     loadSettings() {
         try {
@@ -10278,7 +10256,7 @@ let EffectsConfigManager$1 = class {
                           )),
                           i.version !== t.version &&
                               (this.saveSettings(),
-                              logger$9.info(
+                              logger$b.info(
                                   'Camera effects settings migrated to version',
                                   this.settingsVersion
                               )))
@@ -10286,7 +10264,7 @@ let EffectsConfigManager$1 = class {
                 } else this.currentSettings = __spreadValues({}, this.defaultSettings);
             } else this.currentSettings = __spreadValues({}, this.defaultSettings);
         } catch (e) {
-            (logger$9.warn('Failed to load camera effects settings from storage:', e),
+            (logger$b.warn('Failed to load camera effects settings from storage:', e),
                 (this.currentSettings = __spreadValues({}, this.defaultSettings)));
         }
     }
@@ -10304,7 +10282,7 @@ let EffectsConfigManager$1 = class {
             'undefined' != typeof localStorage &&
                 localStorage.setItem(this.storageKey, JSON.stringify(this.currentSettings));
         } catch (e) {
-            logger$9.warn('Failed to save camera effects settings to storage:', e);
+            logger$b.warn('Failed to save camera effects settings to storage:', e);
         }
     }
     notifyListeners(e, t) {
@@ -10312,7 +10290,7 @@ let EffectsConfigManager$1 = class {
             try {
                 i(e, t);
             } catch (r) {
-                logger$9.error('Error in settings change listener:', r);
+                logger$b.error('Error in settings change listener:', r);
             }
         });
     }
@@ -10347,19 +10325,19 @@ let EffectsConfigManager$1 = class {
                     (e) => !(e in this.currentSettings)
                 );
                 t.length > 0 &&
-                    (logger$9.warn('Missing settings keys detected, adding defaults:', t),
+                    (logger$b.warn('Missing settings keys detected, adding defaults:', t),
                     t.forEach((e) => {
                         this.currentSettings[e] = this.defaultSettings[e];
                     }),
                     this.saveSettings(),
                     (e = !0));
             } else
-                (logger$9.warn('Current settings are corrupted, resetting to defaults'),
+                (logger$b.warn('Current settings are corrupted, resetting to defaults'),
                     (this.currentSettings = __spreadValues({}, this.defaultSettings)),
                     this.saveSettings(),
                     (e = !0));
         } catch (t) {
-            (logger$9.error('Error during settings integrity check:', t),
+            (logger$b.error('Error during settings integrity check:', t),
                 (this.currentSettings = __spreadValues({}, this.defaultSettings)),
                 this.saveSettings(),
                 (e = !0));
@@ -10370,7 +10348,7 @@ let EffectsConfigManager$1 = class {
         try {
             return JSON.stringify(this.currentSettings, null, 2);
         } catch (e) {
-            return (logger$9.error('Failed to export settings:', e), null);
+            return (logger$b.error('Failed to export settings:', e), null);
         }
     }
     importSettings(e) {
@@ -10389,25 +10367,25 @@ let EffectsConfigManager$1 = class {
                     !0
                 );
             }
-            return (logger$9.warn('Invalid settings data provided for import'), !1);
+            return (logger$b.warn('Invalid settings data provided for import'), !1);
         } catch (t) {
-            return (logger$9.error('Failed to import settings:', t), !1);
+            return (logger$b.error('Failed to import settings:', t), !1);
         }
     }
 };
-module$u.exports = { EffectsConfigManager: EffectsConfigManager$1 };
-const __CJS__export_default__$t =
-        (null == module$u.exports ? {} : module$u.exports).default || module$u.exports,
+module$w.exports = { EffectsConfigManager: EffectsConfigManager$1 };
+const __CJS__export_default__$v =
+        (null == module$w.exports ? {} : module$w.exports).default || module$w.exports,
     __CJS__import__0__$1 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$t },
+            { __proto__: null, default: __CJS__export_default__$v },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$t = { exports: {} };
+var module$v = { exports: {} };
 const { EffectsConfigManager: EffectsConfigManager } =
-    __CJS__export_default__$t || __CJS__import__0__$1;
+    __CJS__export_default__$v || __CJS__import__0__$1;
 let CameraEffectsUI$2 = class {
     constructor() {
         ((this.configManager = new EffectsConfigManager()),
@@ -10558,18 +10536,18 @@ let CameraEffectsUI$2 = class {
             this.configManager.removeChangeListener(this.updateUIFromSettings.bind(this));
     }
 };
-module$t.exports = { CameraEffectsUI: CameraEffectsUI$2 };
-const __CJS__export_default__$s =
-        (null == module$t.exports ? {} : module$t.exports).default || module$t.exports,
+module$v.exports = { CameraEffectsUI: CameraEffectsUI$2 };
+const __CJS__export_default__$u =
+        (null == module$v.exports ? {} : module$v.exports).default || module$v.exports,
     __CJS__import__26__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$s },
+            { __proto__: null, default: __CJS__export_default__$u },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$s = { exports: {} };
-const { logger: logger$8 } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$u = { exports: {} };
+const { logger: logger$a } = __CJS__export_default__$1a || __CJS__import__50__;
 class PerformanceOptimizer {
     constructor(e, t) {
         ((this.scene = e),
@@ -10614,10 +10592,13 @@ class PerformanceOptimizer {
     initializeGeometryPools() {
         ((this.geometryPools.bike = new THREE.BoxGeometry(1, 1, 1)),
             (this.geometryPools.trailSegment = new THREE.BoxGeometry(0.1, 0.5, 0.5)),
-            this.geometryPools.powerUp.set('speed', new THREE.SphereGeometry(0.3, 16, 16)),
-            this.geometryPools.powerUp.set('shield', new THREE.OctahedronGeometry(0.3, 1)),
-            this.geometryPools.powerUp.set('eraser', new THREE.ConeGeometry(0.3, 0.6, 8)),
-            this.geometryPools.powerUp.set('ghost', new THREE.IcosahedronGeometry(0.3, 1)));
+            this.geometryPools.powerUp.set('speed', new THREE.SphereGeometry(0.3, 16, 16)));
+        const e = THREE.OctahedronGeometry || THREE.SphereGeometry,
+            t = THREE.IcosahedronGeometry || THREE.SphereGeometry,
+            i = THREE.ConeGeometry || THREE.BoxGeometry;
+        (this.geometryPools.powerUp.set('shield', new e(0.3, 1)),
+            this.geometryPools.powerUp.set('eraser', new i(0.3, 0.6, 8)),
+            this.geometryPools.powerUp.set('ghost', new t(0.3, 1)));
     }
     getOrCreateBikeMaterial(e, t = {}) {
         const i = `${e}_${JSON.stringify(t)}`;
@@ -10684,11 +10665,11 @@ class PerformanceOptimizer {
             ? this.geometryPools[e]
             : this.geometryPools.powerUp.has(e)
               ? this.geometryPools.powerUp.get(e)
-              : (logger$8.warn('Unknown geometry type:', e), this.geometryPools.bike);
+              : (logger$a.warn('Unknown geometry type:', e), this.geometryPools.bike);
     }
     getOrCreateTexture(e, t, i) {
         const r = this.texturePools[e];
-        if (!r) return (logger$8.warn('Unknown texture pool type:', e), null);
+        if (!r) return (logger$a.warn('Unknown texture pool type:', e), null);
         if (r.has(t)) return r.get(t);
         const n = i();
         return (r.set(t, n), this.performanceMetrics.textureCount++, n);
@@ -10769,10 +10750,11 @@ class PerformanceOptimizer {
             this.updatePerformanceMetrics());
     }
     updatePerformanceMetrics() {
-        const e = this.renderer.info;
-        ((this.performanceMetrics.drawCalls = e.render.calls),
-            (this.performanceMetrics.geometryCount = e.memory.geometries),
-            (this.performanceMetrics.textureCount = e.memory.textures));
+        const e = this.renderer ? this.renderer.info : null;
+        e &&
+            ((this.performanceMetrics.drawCalls = e.render ? e.render.calls : 0),
+            (this.performanceMetrics.geometryCount = e.memory ? e.memory.geometries : 0),
+            (this.performanceMetrics.textureCount = e.memory ? e.memory.textures : 0));
         const t = 'undefined' != typeof performance ? performance.now() : Date.now();
         if (void 0 !== this.lastFrameTime) {
             const e = t - this.lastFrameTime;
@@ -10793,7 +10775,7 @@ class PerformanceOptimizer {
             (this.updatePerformanceMetrics(),
                 this.performanceMetrics.averageFPS < 30 &&
                     (this.debugMode &&
-                        logger$8.warn('Performance below target:', this.performanceMetrics),
+                        logger$a.warn('Performance below target:', this.performanceMetrics),
                     this.optimizePerformance()));
         }, 1e3);
     }
@@ -10829,19 +10811,19 @@ class PerformanceOptimizer {
         }
     }
 }
-module$s.exports = { PerformanceOptimizer: PerformanceOptimizer };
-const __CJS__export_default__$r =
-        (null == module$s.exports ? {} : module$s.exports).default || module$s.exports,
+module$u.exports = { PerformanceOptimizer: PerformanceOptimizer };
+const __CJS__export_default__$t =
+        (null == module$u.exports ? {} : module$u.exports).default || module$u.exports,
     __CJS__import__1__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$r },
+            { __proto__: null, default: __CJS__export_default__$t },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$r = { exports: {} };
-const { Logger: Logger$5 } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$7 = new Logger$5('CustomizationManager');
+var module$t = { exports: {} };
+const { Logger: Logger$7 } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$9 = new Logger$7('CustomizationManager');
 let CustomizationManager$2 = class {
     constructor(e, t) {
         if (
@@ -10851,7 +10833,7 @@ let CustomizationManager$2 = class {
             (this.performanceOptimizer = null),
             e && e.scene && e.renderer)
         ) {
-            const { PerformanceOptimizer: t } = __CJS__export_default__$r || __CJS__import__1__;
+            const { PerformanceOptimizer: t } = __CJS__export_default__$t || __CJS__import__1__;
             this.performanceOptimizer = new t(e.scene, e.renderer);
         }
         ((this.currentState = {
@@ -10883,7 +10865,7 @@ let CustomizationManager$2 = class {
             this.initializePreferences());
     }
     setBikeColor(e, t) {
-        if (!this.validateColor(t)) return (logger$7.warn('Invalid color format:', t), !1);
+        if (!this.validateColor(t)) return (logger$9.warn('Invalid color format:', t), !1);
         const i = this.previewMode ? this.previewState : this.currentState;
         if (
             'player' === e &&
@@ -10893,12 +10875,12 @@ let CustomizationManager$2 = class {
                 const e = parseInt(t.replace('#', ''), 16);
                 this.renderingEngine.emissiveMaterialSystem.updateBikeMaterial('player', e);
             } catch (r) {
-                logger$7.warn('Failed to apply bike color to rendering engine:', r.message);
+                logger$9.warn('Failed to apply bike color to rendering engine:', r.message);
             }
         return !0;
     }
     setTrailColor(e, t) {
-        if (!this.validateColor(t)) return (logger$7.warn('Invalid color format:', t), !1);
+        if (!this.validateColor(t)) return (logger$9.warn('Invalid color format:', t), !1);
         const i = this.previewMode ? this.previewState : this.currentState;
         if (
             'player' === e &&
@@ -10911,13 +10893,13 @@ let CustomizationManager$2 = class {
         return !0;
     }
     setTrailStyle(e, t) {
-        if (!this.trailStyles[t]) return (logger$7.warn('Invalid trail style:', t), !1);
+        if (!this.trailStyles[t]) return (logger$9.warn('Invalid trail style:', t), !1);
         const i = this.previewMode ? this.previewState : this.currentState;
         return ('player' === e && ((i.trailStyle = t), this.applyTrailStyle(e, t)), !0);
     }
     setArenaTheme(e) {
         if ((this.themeEngine || this.initializeThemeEngine(), !this.themeEngine.isValidTheme(e)))
-            return (logger$7.warn('Invalid theme name:', e), !1);
+            return (logger$9.warn('Invalid theme name:', e), !1);
         return (
             ((this.previewMode ? this.previewState : this.currentState).arenaTheme = e),
             this.themeEngine.loadTheme(e),
@@ -10972,13 +10954,13 @@ let CustomizationManager$2 = class {
                     e || this.isRenderingEngineReady()
                         ? this.applyState(this.currentState)
                         : (this.pendingPreferenceApplication = !0),
-                    logger$7.info('Loaded saved preferences:', this.currentState),
+                    logger$9.info('Loaded saved preferences:', this.currentState),
                     !0
                 );
             }
-            return (logger$7.info('No saved preferences found, using defaults'), !1);
+            return (logger$9.info('No saved preferences found, using defaults'), !1);
         } catch (t) {
-            return (logger$7.warn('Failed to load saved preferences:', t), !1);
+            return (logger$9.warn('Failed to load saved preferences:', t), !1);
         }
     }
     isRenderingEngineReady() {
@@ -10992,7 +10974,7 @@ let CustomizationManager$2 = class {
     applyPendingPreferences() {
         return (
             !(!this.pendingPreferenceApplication || !this.isRenderingEngineReady()) &&
-            (logger$7.info('Applying pending preferences to rendering engine'),
+            (logger$9.info('Applying pending preferences to rendering engine'),
             this.applyState(this.currentState),
             (this.pendingPreferenceApplication = !1),
             !0)
@@ -11012,7 +10994,7 @@ let CustomizationManager$2 = class {
             };
             this.preferenceStorage.savePreferences(e);
         } catch (e) {
-            logger$7.error('Failed to save preferences:', e);
+            logger$9.error('Failed to save preferences:', e);
         }
     }
     resetToDefaults() {
@@ -11043,7 +11025,7 @@ let CustomizationManager$2 = class {
                     arenaTheme: e.arenaTheme || 'classic-grid',
                 };
         } catch (e) {
-            logger$7.warn('Failed to load saved preferences:', e);
+            logger$9.warn('Failed to load saved preferences:', e);
         }
         return {
             bikeColor: '#00FF00',
@@ -11125,10 +11107,10 @@ let CustomizationManager$2 = class {
     initializeThemeEngine() {
         if (!this.themeEngine)
             try {
-                const { ThemeEngine: e } = __CJS__export_default__$U || __CJS__import__2__$2;
+                const { ThemeEngine: e } = __CJS__export_default__$W || __CJS__import__2__$3;
                 this.themeEngine = new e(this.renderingEngine.scene, this.renderingEngine.renderer);
             } catch (e) {
-                (logger$7.error('Failed to initialize ThemeEngine:', e),
+                (logger$9.error('Failed to initialize ThemeEngine:', e),
                     (this.themeEngine = this.createMinimalThemeEngine()));
             }
     }
@@ -11136,7 +11118,7 @@ let CustomizationManager$2 = class {
         return {
             isValidTheme: (e) => 'classic-grid' === e,
             loadTheme: (e) => {
-                logger$7.info('Loading theme:', e);
+                logger$9.info('Loading theme:', e);
             },
             getAvailableThemes: () => ['classic-grid'],
         };
@@ -11156,18 +11138,18 @@ let CustomizationManager$2 = class {
         this.performanceOptimizer && this.performanceOptimizer.cleanup();
     }
 };
-module$r.exports = { CustomizationManager: CustomizationManager$2 };
-const __CJS__export_default__$q =
-        (null == module$r.exports ? {} : module$r.exports).default || module$r.exports,
+module$t.exports = { CustomizationManager: CustomizationManager$2 };
+const __CJS__export_default__$s =
+        (null == module$t.exports ? {} : module$t.exports).default || module$t.exports,
     __CJS__import__27__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$q },
+            { __proto__: null, default: __CJS__export_default__$s },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$q = { exports: {} };
-const { logger: logger$6 } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$s = { exports: {} };
+const { logger: logger$8 } = __CJS__export_default__$1a || __CJS__import__50__;
 class ColorPickerUI {
     constructor() {
         ((this.currentColor = '#00FF00'),
@@ -11199,8 +11181,8 @@ class ColorPickerUI {
         ((n.textContent = 'Preset Colors:'),
             (n.className = 'color-presets-label'),
             r.appendChild(n));
-        const a = document.createElement('div');
-        ((a.className = 'color-presets-grid'),
+        const s = document.createElement('div');
+        ((s.className = 'color-presets-grid'),
             Object.entries(this.presetColors).forEach(([e, t]) => {
                 const i = document.createElement('button');
                 ((i.className = 'color-preset-btn'),
@@ -11215,14 +11197,14 @@ class ColorPickerUI {
                         this.setColor(t);
                     }),
                     this.presetButtons.push(i),
-                    a.appendChild(i));
+                    s.appendChild(i));
             }),
-            r.appendChild(a),
+            r.appendChild(s),
             t.appendChild(r));
-        const s = document.createElement('div');
-        s.className = 'color-custom';
+        const a = document.createElement('div');
+        a.className = 'color-custom';
         const o = document.createElement('div');
-        ((o.textContent = 'Custom Color:'), (o.className = 'color-custom-label'), s.appendChild(o));
+        ((o.textContent = 'Custom Color:'), (o.className = 'color-custom-label'), a.appendChild(o));
         const l = document.createElement('div');
         ((l.className = 'color-input-container'),
             (this.hexInput = document.createElement('input')),
@@ -11244,8 +11226,8 @@ class ColorPickerUI {
             (this.previewElement.className = 'color-preview'),
             (this.previewElement.style.backgroundColor = this.currentColor),
             l.appendChild(this.previewElement),
-            s.appendChild(l),
-            t.appendChild(s));
+            a.appendChild(l),
+            t.appendChild(a));
         const c = document.createElement('div');
         c.className = 'color-live-preview';
         const d = document.createElement('div');
@@ -11267,7 +11249,7 @@ class ColorPickerUI {
               this.previewElement && (this.previewElement.style.backgroundColor = e),
               this.updatePresetSelection(e),
               this.onColorChange && this.onColorChange(e))
-            : logger$6.warn('Invalid color format:', e);
+            : logger$8.warn('Invalid color format:', e);
     }
     getColor() {
         return this.currentColor;
@@ -11333,18 +11315,18 @@ class ColorPickerUI {
             (this.onColorChange = null));
     }
 }
-module$q.exports = { ColorPickerUI: ColorPickerUI };
-const __CJS__export_default__$p =
-        (null == module$q.exports ? {} : module$q.exports).default || module$q.exports,
+module$s.exports = { ColorPickerUI: ColorPickerUI };
+const __CJS__export_default__$r =
+        (null == module$s.exports ? {} : module$s.exports).default || module$s.exports,
     __CJS__import__2__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$p },
+            { __proto__: null, default: __CJS__export_default__$r },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$p = { exports: {} };
-const { logger: logger$5 } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$r = { exports: {} };
+const { logger: logger$7 } = __CJS__export_default__$1a || __CJS__import__50__;
 let CustomizationUI$2 = class {
     constructor(e) {
         ((this.customizationManager = e),
@@ -11426,7 +11408,7 @@ let CustomizationUI$2 = class {
             (t.innerHTML =
                 '\n            <h4 style="margin: 0 0 5px 0; font-size: 1.2em; color: #00ffff; display: flex; align-items: center;">\n                🏍️ Bike Customization\n            </h4>\n            <p style="margin: 0 0 15px 0; font-size: 0.8em; color: #aaaaaa; opacity: 0.9;">\n                Customize your bike\'s appearance and make it uniquely yours\n            </p>\n        '),
             e.appendChild(t));
-        const { ColorPickerUI: i } = __CJS__export_default__$p || __CJS__import__2__;
+        const { ColorPickerUI: i } = __CJS__export_default__$r || __CJS__import__2__;
         this.bikeColorPicker = new i();
         const r = this.bikeColorPicker.createElement('Bike Color');
         e.appendChild(r);
@@ -11447,7 +11429,7 @@ let CustomizationUI$2 = class {
             (t.innerHTML =
                 '\n            <h4 style="margin: 0 0 5px 0; font-size: 1.2em; color: #00ffff; display: flex; align-items: center;">\n                ✨ Trail Customization\n            </h4>\n            <p style="margin: 0 0 15px 0; font-size: 0.8em; color: #aaaaaa; opacity: 0.9;">\n                Choose colors and visual effects for your trail\n            </p>\n        '),
             e.appendChild(t));
-        const { ColorPickerUI: i } = __CJS__export_default__$p || __CJS__import__2__;
+        const { ColorPickerUI: i } = __CJS__export_default__$r || __CJS__import__2__;
         this.trailColorPicker = new i();
         const r = this.trailColorPicker.createElement('Trail Color');
         e.appendChild(r);
@@ -11471,12 +11453,12 @@ let CustomizationUI$2 = class {
             (r.style.cssText =
                 '\n            display: grid;\n            grid-template-columns: 1fr 1fr;\n            gap: 8px;\n        '));
         const n = this.customizationManager.getAvailableTrailStyles(),
-            a = this.customizationManager.getCurrentState();
+            s = this.customizationManager.getCurrentState();
         (n.forEach((e) => {
             const t = document.createElement('button');
             ((t.className = 'trail-style-btn'),
                 t.setAttribute('data-style', e),
-                e === a.trailStyle && t.classList.add('active'));
+                e === s.trailStyle && t.classList.add('active'));
             const i = document.createElement('div');
             ((i.className = 'style-name'),
                 (i.textContent = e.charAt(0).toUpperCase() + e.slice(1)),
@@ -11526,7 +11508,7 @@ let CustomizationUI$2 = class {
                 '\n            display: grid;\n            grid-template-columns: 1fr 1fr;\n            gap: 8px;\n        '));
         const r = this.customizationManager.getAvailableThemes(),
             n = this.customizationManager.getCurrentState(),
-            a = {
+            s = {
                 'classic-grid': 'Current default styling',
                 'neon-city': 'Cyberpunk visuals',
                 space: 'Starfield background',
@@ -11544,10 +11526,10 @@ let CustomizationUI$2 = class {
                     .map((e) => e.charAt(0).toUpperCase() + e.slice(1))
                     .join(' ')),
                 t.appendChild(r));
-            const s = document.createElement('div');
-            ((s.className = 'theme-desc'),
-                (s.textContent = a[e] || 'Custom theme'),
-                t.appendChild(s),
+            const a = document.createElement('div');
+            ((a.className = 'theme-desc'),
+                (a.textContent = s[e] || 'Custom theme'),
+                t.appendChild(a),
                 t.addEventListener('click', () => {
                     (i.querySelectorAll('.theme-btn').forEach((e) => {
                         e.classList.remove('active');
@@ -11585,18 +11567,18 @@ let CustomizationUI$2 = class {
             this.updateCustomizationSummary(n),
             i.appendChild(n),
             e.appendChild(i));
-        const a = document.createElement('div');
-        a.style.cssText =
+        const s = document.createElement('div');
+        s.style.cssText =
             '\n            display: flex;\n            gap: 10px;\n            margin-bottom: 10px;\n        ';
-        const s = document.createElement('button');
-        ((s.className = 'settings-btn preview-toggle-btn'),
-            (s.textContent = 'Enable Preview'),
-            (s.style.cssText =
+        const a = document.createElement('button');
+        ((a.className = 'settings-btn preview-toggle-btn'),
+            (a.textContent = 'Enable Preview'),
+            (a.style.cssText =
                 '\n            flex: 1;\n            background-color: rgba(0, 255, 0, 0.2);\n            border-color: #00ff00;\n        '),
-            s.addEventListener('click', () => {
+            a.addEventListener('click', () => {
                 this.togglePreviewMode();
             }),
-            a.appendChild(s));
+            s.appendChild(a));
         const o = document.createElement('button');
         ((o.className = 'settings-btn'),
             (o.textContent = 'Refresh'),
@@ -11604,12 +11586,12 @@ let CustomizationUI$2 = class {
             o.addEventListener('click', () => {
                 this.refreshPreview();
             }),
-            a.appendChild(o),
-            e.appendChild(a),
+            s.appendChild(o),
+            e.appendChild(s),
             this.panel.appendChild(e),
             (this.previewContainer = i),
             (this.customizationSummary = n),
-            (this.previewToggleBtn = s));
+            (this.previewToggleBtn = a));
     }
     updateCustomizationSummary(e) {
         const t = this.customizationManager.getCurrentState();
@@ -11657,18 +11639,18 @@ let CustomizationUI$2 = class {
             }),
             i.appendChild(n),
             this.panel.appendChild(i));
-        const a = document.createElement('div');
-        ((a.className = 'secondary-buttons'),
-            (a.style.cssText =
+        const s = document.createElement('div');
+        ((s.className = 'secondary-buttons'),
+            (s.style.cssText =
                 '\n            display: grid;\n            grid-template-columns: 1fr 1fr;\n            gap: 10px;\n            margin-bottom: 10px;\n        '));
-        const s = document.createElement('button');
-        ((s.className = 'settings-btn preview-btn'),
-            (s.textContent = 'Preview Mode'),
-            (s.title = 'Toggle real-time preview of changes'),
-            s.addEventListener('click', () => {
+        const a = document.createElement('button');
+        ((a.className = 'settings-btn preview-btn'),
+            (a.textContent = 'Preview Mode'),
+            (a.title = 'Toggle real-time preview of changes'),
+            a.addEventListener('click', () => {
                 this.togglePreviewMode();
             }),
-            a.appendChild(s));
+            s.appendChild(a));
         const o = document.createElement('button');
         ((o.className = 'settings-btn reset-btn'),
             (o.textContent = 'Reset to Defaults'),
@@ -11676,8 +11658,8 @@ let CustomizationUI$2 = class {
             o.addEventListener('click', () => {
                 this.showResetConfirmation();
             }),
-            a.appendChild(o),
-            this.panel.appendChild(a));
+            s.appendChild(o),
+            this.panel.appendChild(s));
         const l = document.createElement('div');
         l.style.cssText =
             '\n            display: flex;\n            gap: 10px;\n            margin-top: 10px;\n        ';
@@ -11693,7 +11675,7 @@ let CustomizationUI$2 = class {
             this.panel.appendChild(l),
             (this.applyButton = r),
             (this.cancelButton = n),
-            (this.previewButton = s),
+            (this.previewButton = a),
             (this.closeButton = c));
     }
     setupEventListeners() {
@@ -11818,7 +11800,7 @@ let CustomizationUI$2 = class {
                 this.updateUIFromState(),
                 this.showNotification('✅ All customizations reset to defaults', 'success'));
         } catch (e) {
-            (logger$5.error('Failed to reset customizations:', e),
+            (logger$7.error('Failed to reset customizations:', e),
                 this.showNotification('❌ Failed to reset customizations', 'error'));
         }
     }
@@ -11834,7 +11816,7 @@ let CustomizationUI$2 = class {
                     this.hide();
                 }, 1500));
         } catch (e) {
-            (logger$5.error('Failed to apply customizations:', e),
+            (logger$7.error('Failed to apply customizations:', e),
                 this.showNotification('❌ Failed to apply customizations', 'error'));
         }
     }
@@ -11892,7 +11874,7 @@ let CustomizationUI$2 = class {
                 this.updateUIFromState(),
                 this.showNotification('↶ Changes cancelled, reverted to saved settings', 'info'));
         } catch (e) {
-            (logger$5.error('Failed to cancel customizations:', e),
+            (logger$7.error('Failed to cancel customizations:', e),
                 this.showNotification('❌ Failed to cancel changes', 'error'));
         }
     }
@@ -11910,7 +11892,7 @@ let CustomizationUI$2 = class {
                 e.arenaTheme !== t.arenaTheme
             );
         } catch (e) {
-            return (logger$5.warn('Could not check for unsaved changes:', e), !1);
+            return (logger$7.warn('Could not check for unsaved changes:', e), !1);
         }
     }
     showUnsavedChangesDialog() {
@@ -11948,11 +11930,11 @@ let CustomizationUI$2 = class {
             e.addEventListener('click', (t) => {
                 t.target === e && document.body.removeChild(e);
             }));
-        const a = (t) => {
+        const s = (t) => {
             'Escape' === t.key &&
-                (document.body.removeChild(e), document.removeEventListener('keydown', a));
+                (document.body.removeChild(e), document.removeEventListener('keydown', s));
         };
-        document.addEventListener('keydown', a);
+        document.addEventListener('keydown', s);
     }
     showNotification(e, t = 'info') {
         const i = document.createElement('div');
@@ -11967,13 +11949,13 @@ let CustomizationUI$2 = class {
         ((i.style.cssText = `\n            position: fixed;\n            top: 50%;\n            left: 50%;\n            transform: translate(-50%, -50%);\n            background-color: ${r};\n            border: 2px solid ${n};\n            border-radius: 8px;\n            padding: 15px 25px;\n            color: white;\n            font-family: Arial, sans-serif;\n            font-size: 1.1em;\n            z-index: 400;\n            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);\n            animation: fadeInOut 3s ease-in-out;\n        `),
             (i.textContent = e),
             document.body.appendChild(i));
-        const a = document.createElement('style');
-        ((a.textContent =
+        const s = document.createElement('style');
+        ((s.textContent =
             '\n            @keyframes fadeInOut {\n                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }\n                20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }\n                80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }\n                100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }\n            }\n        '),
-            document.head.appendChild(a),
+            document.head.appendChild(s),
             setTimeout(() => {
                 (i.parentNode && document.body.removeChild(i),
-                    a.parentNode && document.head.removeChild(a));
+                    s.parentNode && document.head.removeChild(s));
             }, 3e3));
     }
     updateUIFromState() {
@@ -12005,19 +11987,19 @@ let CustomizationUI$2 = class {
             (this.trailColorPicker = null));
     }
 };
-module$p.exports = { CustomizationUI: CustomizationUI$2 };
-const __CJS__export_default__$o =
-        (null == module$p.exports ? {} : module$p.exports).default || module$p.exports,
+module$r.exports = { CustomizationUI: CustomizationUI$2 };
+const __CJS__export_default__$q =
+        (null == module$r.exports ? {} : module$r.exports).default || module$r.exports,
     __CJS__import__28__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$o },
+            { __proto__: null, default: __CJS__export_default__$q },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$o = { exports: {} };
-const { Logger: Logger$4 } = __CJS__export_default__$18 || __CJS__import__50__,
-    logger$4 = new Logger$4('PreferenceStorage');
+var module$q = { exports: {} };
+const { Logger: Logger$6 } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$6 = new Logger$6('PreferenceStorage');
 let PreferenceStorage$2 = class {
     constructor() {
         ((this.storageKey = 'lightbikes_customization_preferences'),
@@ -12025,11 +12007,11 @@ let PreferenceStorage$2 = class {
             (this.sessionFallback = {}),
             (this.storageAvailable = this.isStorageAvailable()),
             this.storageAvailable ||
-                logger$4.warn('localStorage not available, using session-only preferences'));
+                logger$6.warn('localStorage not available, using session-only preferences'));
     }
     savePreferences(e) {
         if (!e || 'object' != typeof e)
-            return (logger$4.error('Invalid preferences object provided'), !1);
+            return (logger$6.error('Invalid preferences object provided'), !1);
         const t = {
             version: this.currentVersion,
             preferences: e,
@@ -12056,7 +12038,7 @@ let PreferenceStorage$2 = class {
             const t = JSON.parse(e);
             if (!this.validateStorageData(t))
                 return (
-                    logger$4.warn('Invalid preference data structure, resetting to defaults'),
+                    logger$6.warn('Invalid preference data structure, resetting to defaults'),
                     this.clearPreferences(),
                     null
                 );
@@ -12093,12 +12075,12 @@ let PreferenceStorage$2 = class {
         }
     }
     handleStorageError(e, t, i = null) {
-        if ((logger$4.error(`Storage ${t} error:`, e), this.isQuotaExceededError(e)))
+        if ((logger$6.error(`Storage ${t} error:`, e), this.isQuotaExceededError(e)))
             return this.handleQuotaExceeded(t, i);
         if (!this.isStorageAvailable()) {
             if (
                 ((this.storageAvailable = !1),
-                logger$4.warn('localStorage became unavailable, switching to session-only mode'),
+                logger$6.warn('localStorage became unavailable, switching to session-only mode'),
                 'save' === t && i)
             )
                 return ((this.sessionFallback = i), !0);
@@ -12106,20 +12088,20 @@ let PreferenceStorage$2 = class {
             if ('clear' === t) return ((this.sessionFallback = {}), !0);
         }
         return 'load' === t && e instanceof SyntaxError
-            ? (logger$4.warn('Corrupted preference data detected, clearing and using defaults'),
+            ? (logger$6.warn('Corrupted preference data detected, clearing and using defaults'),
               this.clearPreferences(),
               null)
             : 'save' !== t && 'load' === t && null;
     }
     handleQuotaExceeded(e, t) {
-        if ((logger$4.warn('Storage quota exceeded, attempting cleanup'), 'save' === e))
+        if ((logger$6.warn('Storage quota exceeded, attempting cleanup'), 'save' === e))
             try {
                 this.clearOldData();
                 const e = JSON.stringify(t);
                 return (localStorage.setItem(this.storageKey, e), !0);
             } catch (i) {
                 return (
-                    logger$4.error('Failed to save even after cleanup, using session fallback'),
+                    logger$6.error('Failed to save even after cleanup, using session fallback'),
                     (this.sessionFallback = t),
                     !0
                 );
@@ -12141,7 +12123,7 @@ let PreferenceStorage$2 = class {
                     } catch (t) {}
             });
         } catch (e) {
-            logger$4.warn('Failed to clear old data:', e);
+            logger$6.warn('Failed to clear old data:', e);
         }
     }
     isQuotaExceededError(e) {
@@ -12184,7 +12166,7 @@ let PreferenceStorage$2 = class {
             }
             return e;
         } catch (t) {
-            return (logger$4.error('Failed to migrate preferences:', t), null);
+            return (logger$6.error('Failed to migrate preferences:', t), null);
         }
     }
     getStorageStats() {
@@ -12208,7 +12190,7 @@ let PreferenceStorage$2 = class {
                     (e.dataSize = JSON.stringify(this.sessionFallback).length),
                     (e.lastSaved = this.sessionFallback.timestamp));
         } catch (t) {
-            logger$4.warn('Failed to get storage stats:', t);
+            logger$6.warn('Failed to get storage stats:', t);
         }
         return e;
     }
@@ -12217,7 +12199,7 @@ let PreferenceStorage$2 = class {
             const e = this.loadPreferences();
             return e && e.preferences ? JSON.stringify(e.preferences, null, 2) : null;
         } catch (e) {
-            return (logger$4.error('Failed to export preferences:', e), null);
+            return (logger$6.error('Failed to export preferences:', e), null);
         }
     }
     importPreferences(e) {
@@ -12226,22 +12208,22 @@ let PreferenceStorage$2 = class {
             if (!t || 'object' != typeof t) throw new Error('Invalid preferences format');
             return this.savePreferences(t);
         } catch (t) {
-            return (logger$4.error('Failed to import preferences:', t), !1);
+            return (logger$6.error('Failed to import preferences:', t), !1);
         }
     }
 };
-module$o.exports = { PreferenceStorage: PreferenceStorage$2 };
-const __CJS__export_default__$n =
-        (null == module$o.exports ? {} : module$o.exports).default || module$o.exports,
+module$q.exports = { PreferenceStorage: PreferenceStorage$2 };
+const __CJS__export_default__$p =
+        (null == module$q.exports ? {} : module$q.exports).default || module$q.exports,
     __CJS__import__29__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$n },
+            { __proto__: null, default: __CJS__export_default__$p },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$n = { exports: {} };
-const { logger: logger$3 } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$p = { exports: {} };
+const { logger: logger$5 } = __CJS__export_default__$1a || __CJS__import__50__;
 let MusicSettingsUI$2 = class {
     constructor(e) {
         ((this.audioManager = e),
@@ -12268,33 +12250,32 @@ let MusicSettingsUI$2 = class {
                 (this.currentTrackValue = document.getElementById('currentTrackValue')),
                 !this.panel || !this.button)
             )
-                return void logger$3.warn('Music settings UI elements not found');
+                return void logger$5.warn('Music settings UI elements not found');
             ((this.trackButtons = Array.from(document.querySelectorAll('.track-btn'))),
                 this.setupEventListeners(),
                 this.loadSettings(),
                 this.updateUI(),
-                logger$3.info('Music settings UI initialized successfully'));
+                logger$5.info('Music settings UI initialized successfully'));
         } catch (e) {
-            logger$3.error('Failed to initialize music settings UI:', e);
+            logger$5.error('Failed to initialize music settings UI:', e);
         }
     }
     setupEventListeners() {
-        if (
-            (this.button.addEventListener('click', () => {
-                this.toggle();
-            }),
+        (this.button.addEventListener('click', () => {
+            this.toggle();
+        }),
             this.trackButtons.forEach((e) => {
                 e.addEventListener('click', () => {
                     const t = e.getAttribute('data-track');
                     this.selectTrack(t);
                 });
             }),
-            this.volumeSlider)
-        ) {
-            const e = event.target,
-                t = parseInt(e.value);
-            this.setVolume(t);
-        }
+            this.volumeSlider &&
+                this.volumeSlider.addEventListener('input', (e) => {
+                    const t = e.target,
+                        i = parseInt(t.value);
+                    this.setVolume(i);
+                }));
         const e = document.getElementById('resetMusicSettings'),
             t = document.getElementById('closeMusicSettings');
         (e &&
@@ -12321,7 +12302,7 @@ let MusicSettingsUI$2 = class {
                     ((this.currentTrack = e.getSelectedTrack()),
                     (this.currentVolume = Math.round(100 * e.getMusicVolume())));
             } catch (e) {
-                logger$3.warn('Failed to load music settings:', e);
+                logger$5.warn('Failed to load music settings:', e);
             }
     }
     updateUI() {
@@ -12376,10 +12357,10 @@ let MusicSettingsUI$2 = class {
                       this.showFeedback(`Track changed to: ${this.getTrackDisplayName(e)}`))
                     : this.showFeedback('Failed to change track', 'error');
             } catch (t) {
-                (logger$3.error('Failed to select track:', t),
+                (logger$5.error('Failed to select track:', t),
                     this.showFeedback('Error changing track', 'error'));
             }
-        else logger$3.warn('Music system not available');
+        else logger$5.warn('Music system not available');
     }
     setVolume(e) {
         if (this.audioManager && this.audioManager.isMusicAvailable())
@@ -12387,7 +12368,7 @@ let MusicSettingsUI$2 = class {
                 const t = e / 100;
                 this.audioManager.setMusicVolume(t) && ((this.currentVolume = e), this.updateUI());
             } catch (t) {
-                logger$3.error('Failed to set volume:', t);
+                logger$5.error('Failed to set volume:', t);
             }
     }
     resetSettings() {
@@ -12401,7 +12382,7 @@ let MusicSettingsUI$2 = class {
                     this.showFeedback('Settings reset to defaults'));
             }
         } catch (e) {
-            (logger$3.error('Failed to reset settings:', e),
+            (logger$5.error('Failed to reset settings:', e),
                 this.showFeedback('Error resetting settings', 'error'));
         }
     }
@@ -12481,17 +12462,17 @@ let MusicSettingsUI$2 = class {
         this.stopStatusUpdates();
     }
 };
-module$n.exports = { MusicSettingsUI: MusicSettingsUI$2 };
-const __CJS__export_default__$m =
-        (null == module$n.exports ? {} : module$n.exports).default || module$n.exports,
+module$p.exports = { MusicSettingsUI: MusicSettingsUI$2 };
+const __CJS__export_default__$o =
+        (null == module$p.exports ? {} : module$p.exports).default || module$p.exports,
     __CJS__import__30__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$m },
+            { __proto__: null, default: __CJS__export_default__$o },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$m = { exports: {} };
+var module$o = { exports: {} };
 let MultiplayerGameOverUI$1 = class {
     constructor() {
         ((this.gameOverElement = null), (this.isInitialized = !1), this.addStyles());
@@ -12508,17 +12489,17 @@ let MultiplayerGameOverUI$1 = class {
     show(e, t, i, r) {
         this.hide();
         const n = e.localScoring || {},
-            a = n.player1Wins || 0,
-            s = n.player2Wins || 0,
+            s = n.player1Wins || 0,
+            a = n.player2Wins || 0,
             o = n.totalRounds || 0;
         let l = 'tie',
             c = 'Tie Game!';
-        (a > s
+        (s > a
             ? ((l = 'player1-wins'), (c = 'Player 1 Wins!'))
-            : s > a && ((l = 'player2-wins'), (c = 'Player 2 Wins!')),
+            : a > s && ((l = 'player2-wins'), (c = 'Player 2 Wins!')),
             (this.gameOverElement = document.createElement('div')),
             (this.gameOverElement.className = 'multiplayer-game-over-container'),
-            (this.gameOverElement.innerHTML = `\n            <div class="multiplayer-game-over-title ${l}">\n                ${c}\n            </div>\n            \n            <div class="multiplayer-final-scores">\n                <div class="multiplayer-score-row">\n                    <span class="multiplayer-score-label">Player 1</span>\n                    <span class="multiplayer-score-value player1">${a}</span>\n                </div>\n                <div class="multiplayer-score-separator"></div>\n                <div class="multiplayer-score-row">\n                    <span class="multiplayer-score-label">Player 2</span>\n                    <span class="multiplayer-score-value player2">${s}</span>\n                </div>\n            </div>\n            \n            <div class="multiplayer-round-info">\n                Total Rounds: ${o}\n            </div>\n            \n            <div class="multiplayer-game-over-buttons">\n                <button class="multiplayer-game-over-btn restart" id="multiplayerRestartBtn">\n                    Next Round\n                </button>\n                <button class="multiplayer-game-over-btn reset" id="multiplayerResetBtn">\n                    Reset Scores\n                </button>\n                <button class="multiplayer-game-over-btn single-player" id="multiplayerSinglePlayerBtn">\n                    Single Player\n                </button>\n            </div>\n        `),
+            (this.gameOverElement.innerHTML = `\n            <div class="multiplayer-game-over-title ${l}">\n                ${c}\n            </div>\n            \n            <div class="multiplayer-final-scores">\n                <div class="multiplayer-score-row">\n                    <span class="multiplayer-score-label">Player 1</span>\n                    <span class="multiplayer-score-value player1">${s}</span>\n                </div>\n                <div class="multiplayer-score-separator"></div>\n                <div class="multiplayer-score-row">\n                    <span class="multiplayer-score-label">Player 2</span>\n                    <span class="multiplayer-score-value player2">${a}</span>\n                </div>\n            </div>\n            \n            <div class="multiplayer-round-info">\n                Total Rounds: ${o}\n            </div>\n            \n            <div class="multiplayer-game-over-buttons">\n                <button class="multiplayer-game-over-btn restart" id="multiplayerRestartBtn">\n                    Next Round\n                </button>\n                <button class="multiplayer-game-over-btn reset" id="multiplayerResetBtn">\n                    Reset Scores\n                </button>\n                <button class="multiplayer-game-over-btn single-player" id="multiplayerSinglePlayerBtn">\n                    Single Player\n                </button>\n            </div>\n        `),
             document.body.appendChild(this.gameOverElement));
         const d = document.getElementById('multiplayerRestartBtn'),
             h = document.getElementById('multiplayerResetBtn'),
@@ -12554,17 +12535,17 @@ let MultiplayerGameOverUI$1 = class {
         (e && e.parentNode && e.parentNode.removeChild(e), (this.isInitialized = !1));
     }
 };
-module$m.exports = { MultiplayerGameOverUI: MultiplayerGameOverUI$1 };
-const __CJS__export_default__$l =
-        (null == module$m.exports ? {} : module$m.exports).default || module$m.exports,
+module$o.exports = { MultiplayerGameOverUI: MultiplayerGameOverUI$1 };
+const __CJS__export_default__$n =
+        (null == module$o.exports ? {} : module$o.exports).default || module$o.exports,
     __CJS__import__31__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$l },
+            { __proto__: null, default: __CJS__export_default__$n },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$l = { exports: {} };
+var module$n = { exports: {} };
 let LocalScoringUI$1 = class {
     constructor(e) {
         ((this.localScoring = e),
@@ -12666,17 +12647,17 @@ let LocalScoringUI$1 = class {
             (this.isInitialized = !1));
     }
 };
-module$l.exports = { LocalScoringUI: LocalScoringUI$1 };
-const __CJS__export_default__$k =
-        (null == module$l.exports ? {} : module$l.exports).default || module$l.exports,
+module$n.exports = { LocalScoringUI: LocalScoringUI$1 };
+const __CJS__export_default__$m =
+        (null == module$n.exports ? {} : module$n.exports).default || module$n.exports,
     __CJS__import__32__$1 = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$k },
+            { __proto__: null, default: __CJS__export_default__$m },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$k = { exports: {} };
+var module$m = { exports: {} };
 let UIManager$2 = class {
     constructor() {
         ((this.gameOverUI = null),
@@ -12734,17 +12715,17 @@ let UIManager$2 = class {
         return this.currentMode;
     }
 };
-module$k.exports = { UIManager: UIManager$2 };
-const __CJS__export_default__$j =
-        (null == module$k.exports ? {} : module$k.exports).default || module$k.exports,
+module$m.exports = { UIManager: UIManager$2 };
+const __CJS__export_default__$l =
+        (null == module$m.exports ? {} : module$m.exports).default || module$m.exports,
     __CJS__import__33__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$j },
+            { __proto__: null, default: __CJS__export_default__$l },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$j = { exports: {} };
+var module$l = { exports: {} };
 let GameOverUI$2 = class {
     constructor() {
         ((this.styleManager = null),
@@ -12794,15 +12775,15 @@ let GameOverUI$2 = class {
                 r = e.isNewHighScore,
                 n = e.aiOpponents ? e.aiOpponents.length : 1;
             e.aiOpponents ? e.aiOpponents.filter((e) => e.alive).length : e.ai;
-            let a = '';
-            ((a = i
+            let s = '';
+            ((s = i
                 ? n > 1
                     ? `Victory! You defeated ${n} AI opponents!`
                     : 'Victory! You defeated the AI!'
                 : n > 1
                   ? `Defeated by ${n} AI opponents`
                   : 'Defeated by AI'),
-                (t.innerHTML = `\n                <div class="multi-ai-game-over">\n                    <h2 class="${i ? 'victory' : 'defeat'}">${a}</h2>\n                    <div class="score-summary">\n                        <div class="score-row">\n                            <span class="score-label">Your Score:</span>\n                            <span class="score-value player-score">${e.playerScore}</span>\n                        </div>\n                        <div class="score-row">\n                            <span class="score-label">AI Score:</span>\n                            <span class="score-value ai-score">${e.aiScore}</span>\n                        </div>\n                        <div class="score-row">\n                            <span class="score-label">High Score:</span>\n                            <span class="score-value high-score">${e.highScore}</span>\n                        </div>\n                    </div>\n                    ${r ? '<div class="new-high-score">New High Score!</div>' : ''}\n                    <div class="game-stats">\n                        <div class="stat-item">\n                            <span class="stat-label">AI Opponents:</span>\n                            <span class="stat-value">${n}</span>\n                        </div>\n                        <div class="stat-item">\n                            <span class="stat-label">Rounds Played:</span>\n                            <span class="stat-value">${e.roundsPlayed || e.playerScore + e.aiScore}</span>\n                        </div>\n                    </div>\n                    <button id="changeModeButton" onclick="showModeSelector()" class="mode-change-btn">\n                        Change Mode\n                    </button>\n                </div>\n            `),
+                (t.innerHTML = `\n                <div class="multi-ai-game-over">\n                    <h2 class="${i ? 'victory' : 'defeat'}">${s}</h2>\n                    <div class="score-summary">\n                        <div class="score-row">\n                            <span class="score-label">Your Score:</span>\n                            <span class="score-value player-score">${e.playerScore}</span>\n                        </div>\n                        <div class="score-row">\n                            <span class="score-label">AI Score:</span>\n                            <span class="score-value ai-score">${e.aiScore}</span>\n                        </div>\n                        <div class="score-row">\n                            <span class="score-label">High Score:</span>\n                            <span class="score-value high-score">${e.highScore}</span>\n                        </div>\n                    </div>\n                    ${r ? '<div class="new-high-score">New High Score!</div>' : ''}\n                    <div class="game-stats">\n                        <div class="stat-item">\n                            <span class="stat-label">AI Opponents:</span>\n                            <span class="stat-value">${n}</span>\n                        </div>\n                        <div class="stat-item">\n                            <span class="stat-label">Rounds Played:</span>\n                            <span class="stat-value">${e.roundsPlayed || e.playerScore + e.aiScore}</span>\n                        </div>\n                    </div>\n                    <button id="changeModeButton" onclick="showModeSelector()" class="mode-change-btn">\n                        Change Mode\n                    </button>\n                </div>\n            `),
                 this.addMultiAIGameOverStyles());
         }
         this.scoreDisplay &&
@@ -12835,13 +12816,13 @@ let GameOverUI$2 = class {
             r = document.getElementById('gameOver');
         if (r) {
             const n = this.game.getGameState(),
-                a = n.playerScore > n.aiScore ? 'You Win!' : 'AI Wins!';
-            r.innerHTML = `\n                <h2>${a}</h2>\n                <p>Survival Time: ${e}</p>\n                <p>Shrinks Survived: ${t}</p>\n                <p>Final Arena: ${i}x${i}</p>\n                <button id="changeModeButton" onclick="showModeSelector()" style="\n                    margin-top: 20px;\n                    padding: 10px 20px;\n                    font-size: 1.2em;\n                    background: rgba(0, 255, 255, 0.2);\n                    border: 2px solid #00ffff;\n                    color: white;\n                    border-radius: 5px;\n                    cursor: pointer;\n                ">Change Mode</button>\n            `;
+                s = n.playerScore > n.aiScore ? 'You Win!' : 'AI Wins!';
+            r.innerHTML = `\n                <h2>${s}</h2>\n                <p>Survival Time: ${e}</p>\n                <p>Shrinks Survived: ${t}</p>\n                <p>Final Arena: ${i}x${i}</p>\n                <button id="changeModeButton" onclick="showModeSelector()" style="\n                    margin-top: 20px;\n                    padding: 10px 20px;\n                    font-size: 1.2em;\n                    background: rgba(0, 255, 255, 0.2);\n                    border: 2px solid #00ffff;\n                    color: white;\n                    border-radius: 5px;\n                    cursor: pointer;\n                ">Change Mode</button>\n            `;
         }
     }
     showMultiplayerGameOver(e = {}) {
         if (!this.multiplayerGameOverUI) {
-            const { MultiplayerGameOverUI: e } = __CJS__export_default__$l || __CJS__import__31__;
+            const { MultiplayerGameOverUI: e } = __CJS__export_default__$n || __CJS__import__31__;
             this.multiplayerGameOverUI = new e();
         }
         const t = this.game.getGameState();
@@ -12871,17 +12852,17 @@ let GameOverUI$2 = class {
         r && (r.style.display = 'none');
     }
 };
-module$j.exports = { GameOverUI: GameOverUI$2 };
-const __CJS__export_default__$i =
-        (null == module$j.exports ? {} : module$j.exports).default || module$j.exports,
+module$l.exports = { GameOverUI: GameOverUI$2 };
+const __CJS__export_default__$k =
+        (null == module$l.exports ? {} : module$l.exports).default || module$l.exports,
     __CJS__import__34__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$i },
+            { __proto__: null, default: __CJS__export_default__$k },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$i = { exports: {} };
+var module$k = { exports: {} };
 let ModeUI$2 = class {
     constructor() {
         ((this.styleManager = null), (this.game = null), (this.survivalTimer = null));
@@ -13063,17 +13044,17 @@ let ModeUI$2 = class {
         e && (e.style.display = 'none');
     }
 };
-module$i.exports = { ModeUI: ModeUI$2 };
-const __CJS__export_default__$h =
-        (null == module$i.exports ? {} : module$i.exports).default || module$i.exports,
+module$k.exports = { ModeUI: ModeUI$2 };
+const __CJS__export_default__$j =
+        (null == module$k.exports ? {} : module$k.exports).default || module$k.exports,
     __CJS__import__35__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$h },
+            { __proto__: null, default: __CJS__export_default__$j },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$h = { exports: {} };
+var module$j = { exports: {} };
 let StyleManager$2 = class {
     constructor() {
         this.injectedStyles = new Set();
@@ -13108,18 +13089,18 @@ let StyleManager$2 = class {
         return (this.hasStyles(e) && this.removeStyles(e), this.addStyles(e, t));
     }
 };
-module$h.exports = { StyleManager: StyleManager$2 };
-const __CJS__export_default__$g =
-        (null == module$h.exports ? {} : module$h.exports).default || module$h.exports,
+module$j.exports = { StyleManager: StyleManager$2 };
+const __CJS__export_default__$i =
+        (null == module$j.exports ? {} : module$j.exports).default || module$j.exports,
     __CJS__import__36__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$g },
+            { __proto__: null, default: __CJS__export_default__$i },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$g = { exports: {} };
-const { logger: logger$2 } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$i = { exports: {} };
+const { logger: logger$4 } = __CJS__export_default__$1a || __CJS__import__50__;
 let BrowserCompatibility$2 = class BrowserCompatibility2 {
     constructor() {
         ((this.features = {
@@ -13154,7 +13135,7 @@ let BrowserCompatibility$2 = class BrowserCompatibility2 {
     }
     detectBrowser() {
         const e = navigator.userAgent;
-        if (e.indexOf('Chrome') > -1 && -1 === e.indexOf('Edg')) {
+        if (e.indexOf('Chrome') > -1 && -1 === e.indexOf('Edg') && -1 === e.indexOf('OPR')) {
             this.browserInfo.name = 'Chrome';
             const t = e.match(/Chrome\/(\d+)/);
             t &&
@@ -13204,7 +13185,7 @@ let BrowserCompatibility$2 = class BrowserCompatibility2 {
                 r = i.getExtension('WEBGL_debug_renderer_info');
             if (r) {
                 const e = i.getParameter(r.UNMASKED_RENDERER_WEBGL);
-                logger$2.info(`WebGL Renderer: ${e}`);
+                logger$4.info(`WebGL Renderer: ${e}`);
             }
             return ((this.features.webgl = !0), !0);
         } catch (e) {
@@ -13331,20 +13312,47 @@ let BrowserCompatibility$2 = class BrowserCompatibility2 {
             { name: 'Edge', version: '90+', url: 'https://www.microsoft.com/edge' },
         ];
     }
+    detectEmojiSupport() {
+        try {
+            const e = document.createElement('canvas').getContext('2d');
+            if (!e) return !1;
+            ((e.textBaseline = 'top'), (e.font = '32px Arial'), e.fillText('😀', 0, 0));
+            const t = e.getImageData(16, 16, 1, 1).data;
+            return 0 !== t[0] || 0 !== t[1] || 0 !== t[2];
+        } catch (e) {
+            return !1;
+        }
+    }
+    initializeIconDisplay() {
+        this.detectEmojiSupport()
+            ? logger$4.info('Emoji support detected')
+            : (logger$4.warn('Emoji support not detected, using fallback text'),
+              document.body.classList.add('no-emoji-support'));
+    }
+    showWebGLError() {
+        const e = document.createElement('div');
+        ((e.id = 'webgl-error'),
+            (e.style.cssText =
+                '\n            position: fixed;\n            top: 50%;\n            left: 50%;\n            transform: translate(-50%, -50%);\n            background: rgba(255, 0, 0, 0.9);\n            color: white;\n            padding: 30px;\n            border-radius: 10px;\n            font-family: Arial, sans-serif;\n            text-align: center;\n            z-index: 10000;\n            max-width: 500px;\n            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);\n        '),
+            (e.innerHTML =
+                '\n            <h2 style="margin: 0 0 15px 0; font-size: 2em;">WebGL Not Supported</h2>\n            <p style="margin: 0 0 20px 0; font-size: 1.1em;">\n                Your browser does not support WebGL, which is required to run this game.\n            </p>\n            <p style="margin: 0 0 20px 0; font-size: 0.9em; color: #ffcccc;">\n                Please try using a modern browser like:\n            </p>\n            <ul style="list-style: none; padding: 0; margin: 0 0 20px 0; font-size: 0.9em;">\n                <li>• Chrome 90+</li>\n                <li>• Firefox 88+</li>\n                <li>• Safari 14+</li>\n                <li>• Edge 90+</li>\n            </ul>\n            <p style="margin: 0; font-size: 0.8em; color: #ffcccc;">\n                If you\'re using a supported browser, WebGL may be disabled in your settings.\n            </p>\n        '),
+            document.body.appendChild(e),
+            logger$4.error('WebGL is not available. The game cannot run without WebGL support.'));
+    }
 };
-void 0 !== module$g &&
-    module$g.exports &&
-    (module$g.exports = { BrowserCompatibility: BrowserCompatibility$2 });
-const __CJS__export_default__$f =
-        (null == module$g.exports ? {} : module$g.exports).default || module$g.exports,
+void 0 !== module$i &&
+    module$i.exports &&
+    (module$i.exports = { BrowserCompatibility: BrowserCompatibility$2 });
+const __CJS__export_default__$h =
+        (null == module$i.exports ? {} : module$i.exports).default || module$i.exports,
     __CJS__import__37__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$f },
+            { __proto__: null, default: __CJS__export_default__$h },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$f = { exports: {} };
+var module$h = { exports: {} };
 let ModeController$4 = class {
     constructor(e, t) {
         ((this.game = e), (this.systems = t));
@@ -13383,19 +13391,19 @@ let ModeController$4 = class {
         t && (e.isPaused ? (t.style.display = 'flex') : (t.style.display = 'none'));
     }
 };
-module$f.exports = { ModeController: ModeController$4 };
-const __CJS__export_default__$e =
-        (null == module$f.exports ? {} : module$f.exports).default || module$f.exports,
+module$h.exports = { ModeController: ModeController$4 };
+const __CJS__export_default__$g =
+        (null == module$h.exports ? {} : module$h.exports).default || module$h.exports,
     __CJS__import__0__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$e },
+            { __proto__: null, default: __CJS__export_default__$g },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$e = { exports: {} };
-const { ModeController: ModeController$3 } = __CJS__export_default__$e || __CJS__import__0__,
-    { GameModes: GameModes$5 } = __CJS__export_default__$15 || __CJS__import__19__;
+var module$g = { exports: {} };
+const { ModeController: ModeController$3 } = __CJS__export_default__$g || __CJS__import__0__,
+    { GameModes: GameModes$6 } = __CJS__export_default__$17 || __CJS__import__19__;
 let ClassicMode$1 = class extends ModeController$3 {
     constructor(e, t, i) {
         (super(e, t), (this.helpers = i), (this.currentAICount = i.currentAICount || 1));
@@ -13421,7 +13429,7 @@ let ClassicMode$1 = class extends ModeController$3 {
     }
     createUI() {
         this.systems.uiManager && this.systems.modeUI
-            ? (this.systems.uiManager.updateForMode(GameModes$5.CLASSIC),
+            ? (this.systems.uiManager.updateForMode(GameModes$6.CLASSIC),
               this.systems.modeUI.hideAllModeUI())
             : (this.helpers.updateUIForGameMode(),
               this.helpers.hideTimeTrialUI(),
@@ -13434,19 +13442,19 @@ let ClassicMode$1 = class extends ModeController$3 {
             : this.helpers.hideRemainingEntitiesDisplay();
     }
 };
-module$e.exports = { ClassicMode: ClassicMode$1 };
-const __CJS__export_default__$d =
-        (null == module$e.exports ? {} : module$e.exports).default || module$e.exports,
+module$g.exports = { ClassicMode: ClassicMode$1 };
+const __CJS__export_default__$f =
+        (null == module$g.exports ? {} : module$g.exports).default || module$g.exports,
     __CJS__import__38__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$d },
+            { __proto__: null, default: __CJS__export_default__$f },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$d = { exports: {} };
-const { ModeController: ModeController$2 } = __CJS__export_default__$e || __CJS__import__0__,
-    { GameModes: GameModes$4 } = __CJS__export_default__$15 || __CJS__import__19__;
+var module$f = { exports: {} };
+const { ModeController: ModeController$2 } = __CJS__export_default__$g || __CJS__import__0__,
+    { GameModes: GameModes$5 } = __CJS__export_default__$17 || __CJS__import__19__;
 let TimeTrialMode$1 = class extends ModeController$2 {
     constructor(e, t, i) {
         (super(e, t), (this.helpers = i));
@@ -13471,8 +13479,8 @@ let TimeTrialMode$1 = class extends ModeController$2 {
     }
     createUI() {
         this.systems.uiManager
-            ? (this.systems.uiManager.updateForMode(GameModes$4.TIME_TRIAL),
-              this.systems.uiManager.createModeUI(GameModes$4.TIME_TRIAL))
+            ? (this.systems.uiManager.updateForMode(GameModes$5.TIME_TRIAL),
+              this.systems.uiManager.createModeUI(GameModes$5.TIME_TRIAL))
             : (this.helpers.updateUIForGameMode(),
               this.helpers.createTimeTrialUI(),
               this.helpers.hideArenaShrinkUI());
@@ -13483,19 +13491,19 @@ let TimeTrialMode$1 = class extends ModeController$2 {
             : this.helpers.hideTimeTrialUI();
     }
 };
-module$d.exports = { TimeTrialMode: TimeTrialMode$1 };
-const __CJS__export_default__$c =
-        (null == module$d.exports ? {} : module$d.exports).default || module$d.exports,
+module$f.exports = { TimeTrialMode: TimeTrialMode$1 };
+const __CJS__export_default__$e =
+        (null == module$f.exports ? {} : module$f.exports).default || module$f.exports,
     __CJS__import__39__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$c },
+            { __proto__: null, default: __CJS__export_default__$e },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$c = { exports: {} };
-const { ModeController: ModeController$1 } = __CJS__export_default__$e || __CJS__import__0__,
-    { GameModes: GameModes$3 } = __CJS__export_default__$15 || __CJS__import__19__;
+var module$e = { exports: {} };
+const { ModeController: ModeController$1 } = __CJS__export_default__$g || __CJS__import__0__,
+    { GameModes: GameModes$4 } = __CJS__export_default__$17 || __CJS__import__19__;
 let ArenaShrinkMode$1 = class extends ModeController$1 {
     constructor(e, t, i) {
         (super(e, t), (this.helpers = i), (this.currentAICount = i.currentAICount || 1));
@@ -13503,7 +13511,7 @@ let ArenaShrinkMode$1 = class extends ModeController$1 {
     initialize() {
         ((this.game.gameConfig.aiCount = this.currentAICount),
             this.game.restart(),
-            this.game.setGameMode(GameModes$3.ARENA_SHRINK),
+            this.game.setGameMode(GameModes$4.ARENA_SHRINK),
             this.helpers.initializeAIControllers(this.currentAICount),
             this._setupShrinkCallbacks(),
             this._commonInitialization(),
@@ -13539,8 +13547,8 @@ let ArenaShrinkMode$1 = class extends ModeController$1 {
     }
     createUI() {
         this.systems.uiManager
-            ? (this.systems.uiManager.updateForMode(GameModes$3.ARENA_SHRINK),
-              this.systems.uiManager.createModeUI(GameModes$3.ARENA_SHRINK))
+            ? (this.systems.uiManager.updateForMode(GameModes$4.ARENA_SHRINK),
+              this.systems.uiManager.createModeUI(GameModes$4.ARENA_SHRINK))
             : (this.helpers.updateUIForGameMode(),
               this.helpers.hideTimeTrialUI(),
               this.helpers.hideRemainingEntitiesDisplay(),
@@ -13552,22 +13560,22 @@ let ArenaShrinkMode$1 = class extends ModeController$1 {
             : (this.helpers.hideArenaShrinkUI(), this.helpers.hideFinalArenaMessage());
     }
 };
-module$c.exports = { ArenaShrinkMode: ArenaShrinkMode$1 };
-const __CJS__export_default__$b =
-        (null == module$c.exports ? {} : module$c.exports).default || module$c.exports,
+module$e.exports = { ArenaShrinkMode: ArenaShrinkMode$1 };
+const __CJS__export_default__$d =
+        (null == module$e.exports ? {} : module$e.exports).default || module$e.exports,
     __CJS__import__40__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$b },
+            { __proto__: null, default: __CJS__export_default__$d },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$b = { exports: {} };
-const { ModeController: ModeController } = __CJS__export_default__$e || __CJS__import__0__,
-    { GameModes: GameModes$2 } = __CJS__export_default__$15 || __CJS__import__19__,
-    { MultiplayerGame: MultiplayerGame$1 } = __CJS__export_default__$_ || __CJS__import__1__$5,
-    { DualControlScheme: DualControlScheme$1 } = __CJS__export_default__$W || __CJS__import__6__,
-    { SplitScreenCamera: SplitScreenCamera$1 } = __CJS__export_default__$R || __CJS__import__8__;
+var module$d = { exports: {} };
+const { ModeController: ModeController } = __CJS__export_default__$g || __CJS__import__0__,
+    { GameModes: GameModes$3 } = __CJS__export_default__$17 || __CJS__import__19__,
+    { MultiplayerGame: MultiplayerGame$1 } = __CJS__export_default__$10 || __CJS__import__1__$5,
+    { DualControlScheme: DualControlScheme$1 } = __CJS__export_default__$Y || __CJS__import__6__,
+    { SplitScreenCamera: SplitScreenCamera$1 } = __CJS__export_default__$T || __CJS__import__8__;
 let MultiplayerMode$1 = class extends ModeController {
     constructor(e, t, i) {
         (super(e, t),
@@ -13615,7 +13623,7 @@ let MultiplayerMode$1 = class extends ModeController {
     }
     createUI() {
         this.systems.uiManager && this.systems.modeUI
-            ? (this.systems.uiManager.updateForMode(GameModes$2.LOCAL_MULTIPLAYER),
+            ? (this.systems.uiManager.updateForMode(GameModes$3.LOCAL_MULTIPLAYER),
               this.systems.modeUI.hideAllModeUI())
             : (this.helpers.updateUIForGameMode(),
               this.helpers.hideTimeTrialUI(),
@@ -13635,17 +13643,17 @@ let MultiplayerMode$1 = class extends ModeController {
         return this.dualControlScheme;
     }
 };
-module$b.exports = { MultiplayerMode: MultiplayerMode$1 };
-const __CJS__export_default__$a =
-        (null == module$b.exports ? {} : module$b.exports).default || module$b.exports,
+module$d.exports = { MultiplayerMode: MultiplayerMode$1 };
+const __CJS__export_default__$c =
+        (null == module$d.exports ? {} : module$d.exports).default || module$d.exports,
     __CJS__import__41__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$a },
+            { __proto__: null, default: __CJS__export_default__$c },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$a = { exports: {} };
+var module$c = { exports: {} };
 let CompatibilityWarningUI$2 = class {
     constructor() {
         ((this.warningElement = null), (this.isVisible = !1));
@@ -13655,7 +13663,9 @@ let CompatibilityWarningUI$2 = class {
             (this.warningElement = document.createElement('div')),
             (this.warningElement.id = 'compatibility-warning'),
             (this.warningElement.className = 'compatibility-warning'));
-        const { browserInfo: t, errors: i, warnings: r } = e;
+        const t = e.browserInfo || { name: 'Unknown', version: 'Unknown' },
+            i = e.errors || [],
+            r = e.warnings || [];
         let n = `\n            <div class="compatibility-warning-content">\n                <div class="compatibility-warning-header">\n                    <h2>⚠ Browser Compatibility Warning</h2>\n                    <button class="compatibility-close-btn" id="compatibilityCloseBtn">×</button>\n                </div>\n                <div class="compatibility-warning-body">\n                    <p class="browser-info">\n                        <strong>Detected Browser:</strong> ${t.name} ${t.version}\n                    </p>\n        `;
         (i.length > 0 &&
             (n += `\n                <div class="compatibility-errors">\n                    <h3>Critical Issues:</h3>\n                    <ul>\n                        ${i.map((e) => `<li>${e}</li>`).join('')}\n                    </ul>\n                </div>\n            `),
@@ -13715,19 +13725,19 @@ let CompatibilityWarningUI$2 = class {
             document.head.appendChild(e));
     }
 };
-void 0 !== module$a &&
-    module$a.exports &&
-    (module$a.exports = { CompatibilityWarningUI: CompatibilityWarningUI$2 });
-const __CJS__export_default__$9 =
-        (null == module$a.exports ? {} : module$a.exports).default || module$a.exports,
+void 0 !== module$c &&
+    module$c.exports &&
+    (module$c.exports = { CompatibilityWarningUI: CompatibilityWarningUI$2 });
+const __CJS__export_default__$b =
+        (null == module$c.exports ? {} : module$c.exports).default || module$c.exports,
     __CJS__import__42__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$9 },
+            { __proto__: null, default: __CJS__export_default__$b },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$9 = { exports: {} };
+var module$b = { exports: {} };
 let DOMNotReadyError$3 = class extends Error {
         constructor(e = 'DOM is not ready for initialization') {
             (super(e),
@@ -13768,30 +13778,30 @@ let DOMNotReadyError$3 = class extends Error {
                 ]));
         }
     };
-module$9.exports = {
+module$b.exports = {
     DOMNotReadyError: DOMNotReadyError$3,
     CanvasCreationError: CanvasCreationError$3,
     ModeSelectorError: ModeSelectorError$2,
 };
-const __CJS__export_default__$8 =
-        (null == module$9.exports ? {} : module$9.exports).default || module$9.exports,
+const __CJS__export_default__$a =
+        (null == module$b.exports ? {} : module$b.exports).default || module$b.exports,
     __CJS__import__48__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$8 },
+            { __proto__: null, default: __CJS__export_default__$a },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$8 = { exports: {} };
-const { Logger: Logger$3 } = __CJS__export_default__$18 || __CJS__import__50__,
+var module$a = { exports: {} };
+const { Logger: Logger$5 } = __CJS__export_default__$1a || __CJS__import__50__,
     {
         DOMNotReadyError: DOMNotReadyError$2,
         CanvasCreationError: CanvasCreationError$2,
         ModeSelectorError: ModeSelectorError$1,
-    } = __CJS__export_default__$8 || __CJS__import__48__;
+    } = __CJS__export_default__$a || __CJS__import__48__;
 let RecoveryManager$1 = class {
     constructor() {
-        ((this.logger = Logger$3.create('RecoveryManager')),
+        ((this.logger = Logger$5.create('RecoveryManager')),
             (this.errorContainer = null),
             (this.activeErrors = new Map()),
             (this.errorCount = 0),
@@ -13830,32 +13840,32 @@ let RecoveryManager$1 = class {
             type: i = 'error',
             title: r = this.getDefaultTitle(i),
             duration: n = 'critical' === i ? 0 : 5e3,
-            actions: a = [],
-            id: s = 'error-' + this.errorCount++,
+            actions: s = [],
+            id: a = 'error-' + this.errorCount++,
         } = t;
-        if (this.activeErrors.has(s)) return s;
+        if (this.activeErrors.has(a)) return a;
         const o = document.createElement('div');
         if (
             ((o.className = `error-message ${i}`),
-            (o.dataset.errorId = s),
-            (o.innerHTML = `\n            <div class="error-header">\n                <div class="error-title">${this.escapeHtml(r)}</div>\n                <button class="error-close" aria-label="Close">×</button>\n            </div>\n            <div class="error-body">${this.escapeHtml(e)}</div>\n            ${a.length > 0 ? '<div class="error-actions"></div>' : ''}\n        `),
-            a.length > 0)
+            (o.dataset.errorId = a),
+            (o.innerHTML = `\n            <div class="error-header">\n                <div class="error-title">${this.escapeHtml(r)}</div>\n                <button class="error-close" aria-label="Close">×</button>\n            </div>\n            <div class="error-body">${this.escapeHtml(e)}</div>\n            ${s.length > 0 ? '<div class="error-actions"></div>' : ''}\n        `),
+            s.length > 0)
         ) {
             const e = o.querySelector('.error-actions');
-            a.forEach((t) => {
+            s.forEach((t) => {
                 const i = document.createElement('button');
                 ((i.className = 'error-action-btn ' + (t.primary ? 'primary' : '')),
                     (i.textContent = t.label),
                     (i.onclick = () => {
-                        (t.callback && t.callback(), this.dismissError(s));
+                        (t.callback && t.callback(), this.dismissError(a));
                     }),
                     e.appendChild(i));
             });
         }
-        ((o.querySelector('.error-close').onclick = () => this.dismissError(s)),
+        ((o.querySelector('.error-close').onclick = () => this.dismissError(a)),
             this.errorContainer.appendChild(o),
-            this.activeErrors.set(s, o),
-            n > 0 && setTimeout(() => this.dismissError(s), n));
+            this.activeErrors.set(a, o),
+            n > 0 && setTimeout(() => this.dismissError(a), n));
         const l = `[${i.toUpperCase()}] ${r}: ${e}`;
         return (
             'info' === i
@@ -13863,7 +13873,7 @@ let RecoveryManager$1 = class {
                 : 'warning' === i
                   ? this.logger.warn(l)
                   : this.logger.error(l),
-            s
+            a
         );
     }
     dismissError(e) {
@@ -13909,23 +13919,23 @@ let RecoveryManager$1 = class {
     handleInitializationError(e, t, i = 'Component') {
         const r = `init-${i}`,
             n = this.retryAttempts.get(r) || 0,
-            a = [];
+            s = [];
         return (
             n < this.maxRetries &&
                 t &&
-                a.push({
+                s.push({
                     label: `Retry (${this.maxRetries - n} left)`,
                     callback: () => {
                         (this.retryAttempts.set(r, n + 1), t());
                     },
                     primary: !0,
                 }),
-            a.push({ label: 'Reload Page', callback: () => window.location.reload() }),
+            s.push({ label: 'Reload Page', callback: () => window.location.reload() }),
             this.showError(`Failed to initialize ${i}: ${e.message}`, {
                 type: n >= this.maxRetries ? 'critical' : 'error',
                 title: `${i} Initialization Failed`,
                 duration: 0,
-                actions: a,
+                actions: s,
                 id: r,
             })
         );
@@ -14092,7 +14102,10 @@ let RecoveryManager$1 = class {
                     this.logger.error('Simplified renderer also failed:', i),
                     this.showError('Unable to initialize graphics. Please reload the page.', {
                         type: 'critical',
+                        title: 'Graphics Initialization Failed',
                         duration: 0,
+                        actions: [],
+                        id: 'graphics-init-critical-error',
                     }),
                     !1
                 );
@@ -14115,8 +14128,8 @@ let RecoveryManager$1 = class {
                 if ((this.logger.error(`Error in ${t}:`, n), i))
                     try {
                         return i(...r);
-                    } catch (a) {
-                        this.logger.error(`Fallback also failed for ${t}:`, a);
+                    } catch (s) {
+                        this.logger.error(`Fallback also failed for ${t}:`, s);
                     }
                 return (this.handleFeatureRuntimeError(t, n, null), null);
             }
@@ -14129,13 +14142,13 @@ let RecoveryManager$1 = class {
             try {
                 if (this.isFeatureDisabled(t)) return;
                 (e(...n), i > 0 && ((i = 0), (r = [])));
-            } catch (a) {
+            } catch (s) {
                 const e = Date.now();
                 if (
                     (r.push(e),
                     (r = r.filter((t) => e - t < 1e4)),
                     (i = r.length),
-                    this.logger.error(`Error in ${t} update:`, a),
+                    this.logger.error(`Error in ${t} update:`, s),
                     i >= 5)
                 ) {
                     const e = new Error(`Too many errors (${i} in 10000ms)`);
@@ -14251,17 +14264,17 @@ let RecoveryManager$1 = class {
         };
     }
 };
-module$8.exports = { RecoveryManager: RecoveryManager$1 };
-const __CJS__export_default__$7 =
-        (null == module$8.exports ? {} : module$8.exports).default || module$8.exports,
+module$a.exports = { RecoveryManager: RecoveryManager$1 };
+const __CJS__export_default__$9 =
+        (null == module$a.exports ? {} : module$a.exports).default || module$a.exports,
     __CJS__import__43__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$7 },
+            { __proto__: null, default: __CJS__export_default__$9 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$7 = { exports: {} };
+var module$9 = { exports: {} };
 let LoadingIndicator$2 = class {
     constructor() {
         ((this.element = null), (this.messageElement = null), (this.stylesAdded = !1));
@@ -14296,13 +14309,13 @@ let LoadingIndicator$2 = class {
         const i = e.name && 'Error' !== e.name ? e.name : 'Initialization Error',
             r = e.message || 'An unexpected error occurred',
             n = e.stack ? `<pre>${e.stack}</pre>` : '',
-            a = this._getActionableSteps(e),
-            s = a.length > 0 ? `<ul>${a.map((e) => `<li>${e}</li>`).join('')}</ul>` : '',
+            s = this._getActionableSteps(e),
+            a = s.length > 0 ? `<ul>${s.map((e) => `<li>${e}</li>`).join('')}</ul>` : '',
             o = t
                 ? '<button class="error-retry-button" id="error-retry-button">Retry</button>'
                 : '';
         if (
-            ((this.element.innerHTML = `\n            <div class="error-display">\n                <div class="error-title">${i}</div>\n                <div class="error-message">${r}</div>\n                ${s ? `<div class="error-steps"><strong>What you can do:</strong>${s}</div>` : ''}\n                ${n ? `<details class="error-details"><summary>Technical Details</summary>${n}</details>` : ''}\n                ${o}\n            </div>\n        `),
+            ((this.element.innerHTML = `\n            <div class="error-display">\n                <div class="error-title">${i}</div>\n                <div class="error-message">${r}</div>\n                ${a ? `<div class="error-steps"><strong>What you can do:</strong>${a}</div>` : ''}\n                ${n ? `<details class="error-details"><summary>Technical Details</summary>${n}</details>` : ''}\n                ${o}\n            </div>\n        `),
             (this.element.style.display = 'flex'),
             t)
         ) {
@@ -14338,18 +14351,18 @@ let LoadingIndicator$2 = class {
             document.head.appendChild(e));
     }
 };
-module$7.exports = { LoadingIndicator: LoadingIndicator$2 };
-const __CJS__export_default__$6 =
-        (null == module$7.exports ? {} : module$7.exports).default || module$7.exports,
+module$9.exports = { LoadingIndicator: LoadingIndicator$2 };
+const __CJS__export_default__$8 =
+        (null == module$9.exports ? {} : module$9.exports).default || module$9.exports,
     __CJS__import__47__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$6 },
+            { __proto__: null, default: __CJS__export_default__$8 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$6 = { exports: {} };
-const { logger: logger$1 } = __CJS__export_default__$18 || __CJS__import__50__;
+var module$8 = { exports: {} };
+const { logger: logger$3 } = __CJS__export_default__$1a || __CJS__import__50__;
 let InitializationState$2 = class {
     constructor() {
         ((this.steps = {
@@ -14377,7 +14390,7 @@ let InitializationState$2 = class {
     completeStep(e) {
         this.steps.hasOwnProperty(e)
             ? ((this.steps[e] = !0), (this.currentStep = e), this.log(`Step completed: ${e}`))
-            : logger$1.warn(`Unknown initialization step: ${e}`);
+            : logger$3.warn(`Unknown initialization step: ${e}`);
     }
     recordError(e, t) {
         const i = {
@@ -14456,20 +14469,20 @@ let InitializationState$2 = class {
             this.log('State reset for retry'));
     }
     log(e) {
-        this.debug && logger$1.info(`[InitializationState] ${e}`);
+        this.debug && logger$3.info(`[InitializationState] ${e}`);
     }
 };
-module$6.exports = { InitializationState: InitializationState$2 };
-const __CJS__export_default__$5 =
-        (null == module$6.exports ? {} : module$6.exports).default || module$6.exports,
+module$8.exports = { InitializationState: InitializationState$2 };
+const __CJS__export_default__$7 =
+        (null == module$8.exports ? {} : module$8.exports).default || module$8.exports,
     __CJS__import__49__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$5 },
+            { __proto__: null, default: __CJS__export_default__$7 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$5 = { exports: {} };
+var module$7 = { exports: {} };
 let CanvasVerifier$2 = class {
     verifyCanvasCreated(e) {
         const t = { success: !0, errors: [] };
@@ -14513,14 +14526,14 @@ let CanvasVerifier$2 = class {
             r <= 0 &&
                 ((t.success = !1), t.errors.push(`Canvas height is ${r}, must be greater than 0`)));
         const n = window.innerWidth,
-            a = window.innerHeight,
-            s = i / n,
-            o = r / a;
+            s = window.innerHeight,
+            a = i / n,
+            o = r / s;
         return (
-            (s < 0.5 || s > 1.5) &&
+            (a < 0.5 || a > 1.5) &&
                 t.errors.push(`Canvas width (${i}) does not match viewport width (${n})`),
             (o < 0.5 || o > 1.5) &&
-                t.errors.push(`Canvas height (${r}) does not match viewport height (${a})`),
+                t.errors.push(`Canvas height (${r}) does not match viewport height (${s})`),
             t
         );
     }
@@ -14529,7 +14542,7 @@ let CanvasVerifier$2 = class {
         if (!e) return ((r.success = !1), r.errors.push('Renderer is null or undefined'), r);
         try {
             const n = t || new THREE.Scene(),
-                a =
+                s =
                     i ||
                     new THREE.PerspectiveCamera(
                         75,
@@ -14541,12 +14554,12 @@ let CanvasVerifier$2 = class {
                 const e = new THREE.BoxGeometry(1, 1, 1),
                     t = new THREE.MeshBasicMaterial({ color: 65280 }),
                     i = new THREE.Mesh(e, t);
-                (n.add(i), (a.position.z = 5));
+                (n.add(i), (s.position.z = 5));
             }
-            e.render(n, a);
-            const s = e.getContext(),
-                o = s.getError();
-            o !== s.NO_ERROR &&
+            e.render(n, s);
+            const a = e.getContext(),
+                o = a.getError();
+            o !== a.NO_ERROR &&
                 ((r.success = !1), r.errors.push(`WebGL error during test render: ${o}`));
         } catch (n) {
             ((r.success = !1), r.errors.push(`Exception during test render: ${n.message}`));
@@ -14574,32 +14587,32 @@ let CanvasVerifier$2 = class {
         );
     }
 };
-module$5.exports = { CanvasVerifier: CanvasVerifier$2 };
-const __CJS__export_default__$4 =
-        (null == module$5.exports ? {} : module$5.exports).default || module$5.exports,
+module$7.exports = { CanvasVerifier: CanvasVerifier$2 };
+const __CJS__export_default__$6 =
+        (null == module$7.exports ? {} : module$7.exports).default || module$7.exports,
     __CJS__import__46__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$4 },
+            { __proto__: null, default: __CJS__export_default__$6 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$4 = { exports: {} };
-const { Logger: Logger$2 } = __CJS__export_default__$18 || __CJS__import__50__,
-    { LoadingIndicator: LoadingIndicator$1 } = __CJS__export_default__$6 || __CJS__import__47__,
+var module$6 = { exports: {} };
+const { Logger: Logger$4 } = __CJS__export_default__$1a || __CJS__import__50__,
+    { LoadingIndicator: LoadingIndicator$1 } = __CJS__export_default__$8 || __CJS__import__47__,
     { InitializationState: InitializationState$1 } =
-        __CJS__export_default__$5 || __CJS__import__49__,
+        __CJS__export_default__$7 || __CJS__import__49__,
     { DOMNotReadyError: DOMNotReadyError$1, CanvasCreationError: CanvasCreationError$1 } =
-        __CJS__export_default__$8 || __CJS__import__48__,
+        __CJS__export_default__$a || __CJS__import__48__,
     { BrowserCompatibility: BrowserCompatibility$1 } =
-        __CJS__export_default__$f || __CJS__import__37__,
+        __CJS__export_default__$h || __CJS__import__37__,
     { CompatibilityWarningUI: CompatibilityWarningUI$1 } =
-        __CJS__export_default__$9 || __CJS__import__42__,
-    { CanvasVerifier: CanvasVerifier$1 } = __CJS__export_default__$4 || __CJS__import__46__;
+        __CJS__export_default__$b || __CJS__import__42__,
+    { CanvasVerifier: CanvasVerifier$1 } = __CJS__export_default__$6 || __CJS__import__46__;
 let GameInitializer$1 = class {
     constructor(e) {
         ((this.recoveryManager = e),
-            (this.logger = Logger$2.create('GameInitializer')),
+            (this.logger = Logger$4.create('GameInitializer')),
             (this.loadingIndicator = null),
             (this.initializationState = null),
             (this.phases = []));
@@ -14784,17 +14797,17 @@ let GameInitializer$1 = class {
         return { isCompatible: !0, report: t };
     }
 };
-module$4.exports = { GameInitializer: GameInitializer$1 };
-const __CJS__export_default__$3 =
-        (null == module$4.exports ? {} : module$4.exports).default || module$4.exports,
+module$6.exports = { GameInitializer: GameInitializer$1 };
+const __CJS__export_default__$5 =
+        (null == module$6.exports ? {} : module$6.exports).default || module$6.exports,
     __CJS__import__44__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$3 },
+            { __proto__: null, default: __CJS__export_default__$5 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$3 = { exports: {} };
+var module$5 = { exports: {} };
 class GlowSettingsUI {
     constructor(e, t) {
         ((this.glowSettings = e),
@@ -14944,60 +14957,60 @@ class GlowSettingsUI {
             (this.currentIntensityLabel = null));
     }
 }
-module$3.exports = { GlowSettingsUI: GlowSettingsUI };
-const __CJS__export_default__$2 =
-        (null == module$3.exports ? {} : module$3.exports).default || module$3.exports,
+module$5.exports = { GlowSettingsUI: GlowSettingsUI };
+const __CJS__export_default__$4 =
+        (null == module$5.exports ? {} : module$5.exports).default || module$5.exports,
     __CJS__import__32__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$2 },
+            { __proto__: null, default: __CJS__export_default__$4 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$2 = { exports: {} };
-const { Logger: Logger$1 } = __CJS__export_default__$18 || __CJS__import__50__,
-    { Game: Game$1 } = __CJS__export_default__$11 || __CJS__import__0__$4,
-    { AICoordinator: AICoordinator$1 } = __CJS__export_default__$Z || __CJS__import__2__$3,
+var module$4 = { exports: {} };
+const { Logger: Logger$3 } = __CJS__export_default__$1a || __CJS__import__50__,
+    { Game: Game$1 } = __CJS__export_default__$13 || __CJS__import__0__$4,
+    { AICoordinator: AICoordinator$1 } = __CJS__export_default__$$ || __CJS__import__2__$4,
     { CollisionDetectionEngine: CollisionDetectionEngine$1 } =
-        __CJS__export_default__$Y || __CJS__import__3__$3,
+        __CJS__export_default__$_ || __CJS__import__3__$2,
     { PlayerCollisionHandler: PlayerCollisionHandler$1 } =
-        __CJS__export_default__$X || __CJS__import__4__$1,
-    { PlayerController: PlayerController$1 } = __CJS__export_default__$V || __CJS__import__5__$1,
-    { RenderingEngine: RenderingEngine$1 } = __CJS__export_default__$Q || __CJS__import__7__,
-    { ScoreDisplay: ScoreDisplay$1 } = __CJS__export_default__$P || __CJS__import__9__,
-    { AudioManager: AudioManager$1 } = __CJS__export_default__$1b || __CJS__import__10__,
-    { DifficultyManager: DifficultyManager$1 } = __CJS__export_default__$O || __CJS__import__11__,
-    { PowerUpManager: PowerUpManager$1 } = __CJS__export_default__$N || __CJS__import__12__,
-    { StatusIndicator: StatusIndicator$1 } = __CJS__export_default__$M || __CJS__import__13__,
-    { ModeSelector: ModeSelector$1 } = __CJS__export_default__$L || __CJS__import__14__,
-    { SurvivalTimer: SurvivalTimer$1 } = __CJS__export_default__$14 || __CJS__import__15__,
-    { CountdownTimer: CountdownTimer$1 } = __CJS__export_default__$K || __CJS__import__16__,
-    { LeaderboardSystem: LeaderboardSystem$1 } = __CJS__export_default__$J || __CJS__import__17__,
-    { AchievementSystem: AchievementSystem$1 } = __CJS__export_default__$I || __CJS__import__18__,
+        __CJS__export_default__$Z || __CJS__import__4__$1,
+    { PlayerController: PlayerController$1 } = __CJS__export_default__$X || __CJS__import__5__$1,
+    { RenderingEngine: RenderingEngine$1 } = __CJS__export_default__$S || __CJS__import__7__,
+    { ScoreDisplay: ScoreDisplay$1 } = __CJS__export_default__$R || __CJS__import__9__,
+    { AudioManager: AudioManager$1 } = __CJS__export_default__$1d || __CJS__import__10__,
+    { DifficultyManager: DifficultyManager$1 } = __CJS__export_default__$Q || __CJS__import__11__,
+    { PowerUpManager: PowerUpManager$1 } = __CJS__export_default__$P || __CJS__import__12__,
+    { StatusIndicator: StatusIndicator$1 } = __CJS__export_default__$O || __CJS__import__13__,
+    { ModeSelector: ModeSelector$1 } = __CJS__export_default__$N || __CJS__import__14__,
+    { SurvivalTimer: SurvivalTimer$1 } = __CJS__export_default__$16 || __CJS__import__15__,
+    { CountdownTimer: CountdownTimer$1 } = __CJS__export_default__$M || __CJS__import__16__,
+    { LeaderboardSystem: LeaderboardSystem$1 } = __CJS__export_default__$L || __CJS__import__17__,
+    { AchievementSystem: AchievementSystem$1 } = __CJS__export_default__$K || __CJS__import__18__,
     { PerformanceMonitor: PerformanceMonitor$1 } =
-        __CJS__export_default__$1a || __CJS__import__20__,
+        __CJS__export_default__$1c || __CJS__import__20__,
     { PerformanceDegradationManager: PerformanceDegradationManager$1 } =
-        __CJS__export_default__$G || __CJS__import__21__,
-    { ParticleSystem: ParticleSystem$1 } = __CJS__export_default__$19 || __CJS__import__22__,
-    { ParticleSettingsUI: ParticleSettingsUI$1 } = __CJS__export_default__$E || __CJS__import__23__,
-    { GlowEffectManager: GlowEffectManager$1 } = __CJS__export_default__$A || __CJS__import__24__,
+        __CJS__export_default__$I || __CJS__import__21__,
+    { ParticleSystem: ParticleSystem$1 } = __CJS__export_default__$1b || __CJS__import__22__,
+    { ParticleSettingsUI: ParticleSettingsUI$1 } = __CJS__export_default__$G || __CJS__import__23__,
+    { GlowEffectManager: GlowEffectManager$1 } = __CJS__export_default__$C || __CJS__import__24__,
     { CameraEffectsManager: CameraEffectsManager$1 } =
-        __CJS__export_default__$u || __CJS__import__25__,
-    { CameraEffectsUI: CameraEffectsUI$1 } = __CJS__export_default__$s || __CJS__import__26__,
+        __CJS__export_default__$w || __CJS__import__25__,
+    { CameraEffectsUI: CameraEffectsUI$1 } = __CJS__export_default__$u || __CJS__import__26__,
     { CustomizationManager: CustomizationManager$1 } =
-        __CJS__export_default__$q || __CJS__import__27__,
-    { CustomizationUI: CustomizationUI$1 } = __CJS__export_default__$o || __CJS__import__28__,
-    { PreferenceStorage: PreferenceStorage$1 } = __CJS__export_default__$n || __CJS__import__29__,
-    { MusicSettingsUI: MusicSettingsUI$1 } = __CJS__export_default__$m || __CJS__import__30__,
-    { UIManager: UIManager$1 } = __CJS__export_default__$j || __CJS__import__33__,
-    { GameOverUI: GameOverUI$1 } = __CJS__export_default__$i || __CJS__import__34__,
-    { ModeUI: ModeUI$1 } = __CJS__export_default__$h || __CJS__import__35__,
-    { StyleManager: StyleManager$1 } = __CJS__export_default__$g || __CJS__import__36__;
+        __CJS__export_default__$s || __CJS__import__27__,
+    { CustomizationUI: CustomizationUI$1 } = __CJS__export_default__$q || __CJS__import__28__,
+    { PreferenceStorage: PreferenceStorage$1 } = __CJS__export_default__$p || __CJS__import__29__,
+    { MusicSettingsUI: MusicSettingsUI$1 } = __CJS__export_default__$o || __CJS__import__30__,
+    { UIManager: UIManager$1 } = __CJS__export_default__$l || __CJS__import__33__,
+    { GameOverUI: GameOverUI$1 } = __CJS__export_default__$k || __CJS__import__34__,
+    { ModeUI: ModeUI$1 } = __CJS__export_default__$j || __CJS__import__35__,
+    { StyleManager: StyleManager$1 } = __CJS__export_default__$i || __CJS__import__36__;
 let SystemInitializer$1 = class {
     constructor(e, t) {
         ((this.recoveryManager = e),
             (this.coreComponents = t),
-            (this.logger = Logger$1.create('SystemInitializer')),
+            (this.logger = Logger$3.create('SystemInitializer')),
             (this.systems = {}));
     }
     registerRecoveryStrategies() {
@@ -15201,8 +15214,8 @@ let SystemInitializer$1 = class {
                     const t = parseInt(e);
                     !isNaN(t) && t >= 1 && t <= 4 && (n = t);
                 }
-            } catch (s) {
-                this.logger.warn('Failed to load AI count from localStorage:', s);
+            } catch (a) {
+                this.logger.warn('Failed to load AI count from localStorage:', a);
             }
             try {
                 ((this.systems.modeSelector = new ModeSelector$1(e)),
@@ -15211,8 +15224,8 @@ let SystemInitializer$1 = class {
                     (this.systems.leaderboardSystem = new LeaderboardSystem$1()),
                     (this.systems.achievementSystem = new AchievementSystem$1()),
                     this.logger.info('Game modes initialized successfully'));
-            } catch (s) {
-                throw (this.logger.error('Failed to initialize game modes:', s), s);
+            } catch (a) {
+                throw (this.logger.error('Failed to initialize game modes:', a), a);
             }
             (e.setPowerUpManager(this.systems.powerUpManager),
                 i.setPowerUpManager(this.systems.powerUpManager),
@@ -15234,13 +15247,13 @@ let SystemInitializer$1 = class {
                     const t = e.getEffectiveSettings();
                     this.systems.cameraEffectsManager.updateSettings(t);
                 }
-            } catch (s) {
-                this.logger.error('Failed to initialize camera effects UI:', s);
+            } catch (a) {
+                this.logger.error('Failed to initialize camera effects UI:', a);
                 const e = document.getElementById('cameraEffectsButton');
                 e && (e.style.display = 'none');
             }
             try {
-                const { GlowSettingsUI: e } = __CJS__export_default__$2 || __CJS__import__32__;
+                const { GlowSettingsUI: e } = __CJS__export_default__$4 || __CJS__import__32__;
                 this.systems.glowEffectManager && this.systems.glowEffectManager.settings
                     ? (this.systems.glowSettingsUI = new e(
                           this.systems.glowEffectManager.settings,
@@ -15249,8 +15262,8 @@ let SystemInitializer$1 = class {
                     : this.logger.warn(
                           'Glow effect manager not properly initialized, glow settings UI disabled'
                       );
-            } catch (s) {
-                this.logger.error('Failed to initialize glow settings UI:', s);
+            } catch (a) {
+                this.logger.error('Failed to initialize glow settings UI:', a);
                 const e = document.getElementById('glowSettingsButton');
                 e && (e.style.display = 'none');
             }
@@ -15261,16 +15274,16 @@ let SystemInitializer$1 = class {
                         this.systems.customizationManager
                     )),
                     this.logger.info('Customization system successfully initialized'));
-            } catch (s) {
-                this.logger.error('Failed to initialize customization system:', s);
+            } catch (a) {
+                this.logger.error('Failed to initialize customization system:', a);
                 const e = document.getElementById('customizationButton');
                 e && (e.style.display = 'none');
             }
             try {
                 ((this.systems.musicSettingsUI = new MusicSettingsUI$1(this.systems.audioManager)),
                     this.logger.info('Music settings UI successfully initialized'));
-            } catch (s) {
-                this.logger.error('Failed to initialize music settings UI:', s);
+            } catch (a) {
+                this.logger.error('Failed to initialize music settings UI:', a);
                 const e = document.getElementById('musicSettingsButton');
                 e && (e.style.display = 'none');
             }
@@ -15302,12 +15315,12 @@ let SystemInitializer$1 = class {
                         styleManager: this.systems.styleManager,
                     }),
                     this.logger.info('UI management system successfully initialized'));
-            } catch (s) {
-                this.logger.error('Failed to initialize UI management system:', s);
+            } catch (a) {
+                this.logger.error('Failed to initialize UI management system:', a);
             }
-            const a = this.systems.particleSettingsUI.getParticleSystemSettings();
+            const s = this.systems.particleSettingsUI.getParticleSystemSettings();
             return (
-                t.initializeParticleSystem(ParticleSystem$1, a),
+                t.initializeParticleSystem(ParticleSystem$1, s),
                 this.systems.customizationManager &&
                     this.systems.customizationManager.applyPendingPreferences(),
                 this.systems.particleSettingsUI.addExternalListener((e, i) => {
@@ -15336,18 +15349,18 @@ let SystemInitializer$1 = class {
         return this.systems;
     }
 };
-module$2.exports = { SystemInitializer: SystemInitializer$1 };
-const __CJS__export_default__$1 =
-        (null == module$2.exports ? {} : module$2.exports).default || module$2.exports,
+module$4.exports = { SystemInitializer: SystemInitializer$1 };
+const __CJS__export_default__$3 =
+        (null == module$4.exports ? {} : module$4.exports).default || module$4.exports,
     __CJS__import__45__ = Object.freeze(
         Object.defineProperty(
-            { __proto__: null, default: __CJS__export_default__$1 },
+            { __proto__: null, default: __CJS__export_default__$3 },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     );
-var module$1 = { exports: {} };
-const { GameModes: GameModes$1 } = __CJS__export_default__$15 || __CJS__import__19__,
+var module$3 = { exports: {} };
+const { GameModes: GameModes$2 } = __CJS__export_default__$17 || __CJS__import__19__,
     state = {
         errorHandler: null,
         errorRecovery: null,
@@ -15385,106 +15398,594 @@ const { GameModes: GameModes$1 } = __CJS__export_default__$15 || __CJS__import__
         splitScreenCamera: null,
         aiControllers: [],
         currentAICount: 1,
-        currentGameMode: GameModes$1.CLASSIC,
+        currentGameMode: GameModes$2.CLASSIC,
         isTimeTrialActive: !1,
     };
-module$1.exports = state;
+module$3.exports = state;
+const __CJS__export_default__$2 =
+        (null == module$3.exports ? {} : module$3.exports).default || module$3.exports,
+    __CJS__import__51__ = Object.freeze(
+        Object.defineProperty(
+            { __proto__: null, default: __CJS__export_default__$2 },
+            Symbol.toStringTag,
+            { value: 'Module' }
+        )
+    );
+var module$2 = { exports: {} };
+const { Logger: Logger$2 } = __CJS__export_default__$1a || __CJS__import__50__,
+    logger$2 = Logger$2.create('EventManager');
+let EventManager$1 = class {
+    constructor(e) {
+        ((this.game = e.game),
+            (this.playerController = e.playerController),
+            (this.audioManager = e.audioManager),
+            (this.renderingEngine = e.renderingEngine),
+            (this.glowEffectManager = e.glowEffectManager),
+            (this.cameraEffectsManager = e.cameraEffectsManager),
+            (this.difficultyManager = e.difficultyManager),
+            (this.performanceDegradationManager = e.performanceDegradationManager),
+            (this.restartGame = e.restartGame),
+            (this.updatePauseOverlay = e.updatePauseOverlay),
+            (this.updateMuteButton = e.updateMuteButton),
+            (this.updatePerformanceButton = e.updatePerformanceButton),
+            (this.setAICount = e.setAICount),
+            (this.updateAICountUI = e.updateAICountUI),
+            (this.updateDifficultyUI = e.updateDifficultyUI),
+            (this.listeners = []),
+            (this.audioInitialized = !1));
+    }
+    registerAll() {
+        (this.registerGameControls(), this.registerUIControls(), this.registerWindowEvents());
+    }
+    registerGameControls() {
+        (this.playerController.init(),
+            this.registerTouchControl('up', 'ArrowUp'),
+            this.registerTouchControl('down', 'ArrowDown'),
+            this.registerTouchControl('left', 'ArrowLeft'),
+            this.registerTouchControl('right', 'ArrowRight'));
+    }
+    registerUIControls() {
+        (this.registerButtonClick('restart', () => {
+            this.restartGame();
+        }),
+            this.registerButtonClick('resumeButton', () => {
+                this.game.resume()
+                    ? (this.updatePauseOverlay(),
+                      this.glowEffectManager &&
+                          this.glowEffectManager.initialized &&
+                          this.glowEffectManager.forceResume(),
+                      this.cameraEffectsManager &&
+                          this.cameraEffectsManager.isEnabled() &&
+                          this.cameraEffectsManager.resume())
+                    : logger$2.debug('Resume operation failed - game may be in invalid state');
+            }),
+            this.registerButtonClick('muteButton', () => {
+                const e = this.audioManager.getMuted();
+                (this.audioManager.setMuted(!e), this.updateMuteButton());
+            }),
+            this.registerButtonClick('performanceButton', () => {
+                const e = this.performanceDegradationManager.getSettings().performanceModeEnabled;
+                (this.performanceDegradationManager.setPerformanceMode(!e),
+                    this.updatePerformanceButton());
+            }),
+            this.registerAICountButtons(),
+            this.registerDifficultyButtons(),
+            this.registerAudioInitialization());
+    }
+    registerWindowEvents() {
+        const e = () => {
+            this.renderingEngine &&
+                (this.renderingEngine.renderer.setSize(window.innerWidth, window.innerHeight),
+                (this.renderingEngine.camera.aspect = window.innerWidth / window.innerHeight),
+                this.renderingEngine.camera.updateProjectionMatrix(),
+                this.glowEffectManager &&
+                    this.glowEffectManager.handleResize(window.innerWidth, window.innerHeight));
+        };
+        (window.addEventListener('resize', e),
+            this.listeners.push({ element: window, event: 'resize', handler: e }));
+        const t = () => {
+            try {
+                this.audioManager && this.audioManager.cleanup();
+            } catch (e) {
+                logger$2.warn('Error during music system cleanup:', e);
+            }
+        };
+        (window.addEventListener('beforeunload', t),
+            this.listeners.push({ element: window, event: 'beforeunload', handler: t }));
+    }
+    registerButtonClick(e, t) {
+        const i = document.getElementById(e);
+        i &&
+            (i.addEventListener('click', t),
+            this.listeners.push({ element: i, event: 'click', handler: t }));
+    }
+    registerTouchControl(e, t) {
+        const i = document.getElementById(e);
+        if (i) {
+            const e = () => {
+                this.game.changePlayerDirection(t) && this.audioManager.playTurnSound();
+            };
+            (i.addEventListener('touchstart', e),
+                this.listeners.push({ element: i, event: 'touchstart', handler: e }));
+        }
+    }
+    registerAICountButtons() {
+        document.querySelectorAll('.ai-count-btn').forEach((e) => {
+            const t = () => {
+                const t = parseInt(e.getAttribute('data-count'));
+                (this.setAICount(t), this.updateAICountUI());
+            };
+            (e.addEventListener('click', t),
+                this.listeners.push({ element: e, event: 'click', handler: t }));
+        });
+    }
+    registerDifficultyButtons() {
+        document.querySelectorAll('.difficulty-btn').forEach((e) => {
+            const t = () => {
+                const t = e.getAttribute('data-level');
+                (this.difficultyManager.setDifficulty(t), this.updateDifficultyUI());
+            };
+            (e.addEventListener('click', t),
+                this.listeners.push({ element: e, event: 'click', handler: t }));
+        });
+    }
+    registerAudioInitialization() {
+        const e = () =>
+            __async(this, null, function* () {
+                if (!this.audioInitialized) {
+                    this.audioInitialized = !0;
+                    (yield this.audioManager.initialize()) && this.audioManager.isMusicAvailable()
+                        ? logger$2.info('Music system ready for playback')
+                        : logger$2.warn(
+                              'Music system not available, continuing without background music'
+                          );
+                }
+            });
+        (document.addEventListener('click', e, { once: !0 }),
+            document.addEventListener('keydown', e, { once: !0 }),
+            document.addEventListener('touchstart', e, { once: !0 }));
+    }
+    unregisterAll() {
+        (this.listeners.forEach(({ element: e, event: t, handler: i }) => {
+            e.removeEventListener(t, i);
+        }),
+            (this.listeners = []));
+    }
+};
+module$2.exports = { EventManager: EventManager$1 };
+const __CJS__export_default__$1 =
+        (null == module$2.exports ? {} : module$2.exports).default || module$2.exports,
+    __CJS__import__52__ = Object.freeze(
+        Object.defineProperty(
+            { __proto__: null, default: __CJS__export_default__$1 },
+            Symbol.toStringTag,
+            { value: 'Module' }
+        )
+    );
+var module$1 = { exports: {} };
+const { Logger: Logger$1 } = __CJS__export_default__$1a || __CJS__import__50__,
+    { GameModes: GameModes$1 } = __CJS__export_default__$17 || __CJS__import__19__,
+    logger$1 = Logger$1.create('GameLoop');
+let GameLoop$1 = class {
+    constructor(e) {
+        ((this.game = e.game),
+            (this.renderingEngine = e.renderingEngine),
+            (this.performanceMonitor = e.performanceMonitor),
+            (this.performanceDegradationManager = e.performanceDegradationManager),
+            (this.glowEffectManager = e.glowEffectManager),
+            (this.cameraEffectsManager = e.cameraEffectsManager),
+            (this.powerUpManager = e.powerUpManager),
+            (this.statusIndicator = e.statusIndicator),
+            (this.audioManager = e.audioManager),
+            (this.scoreDisplay = e.scoreDisplay),
+            (this.survivalTimer = e.survivalTimer),
+            (this.leaderboardSystem = e.leaderboardSystem),
+            (this.achievementSystem = e.achievementSystem),
+            (this.localScoringUI = e.localScoringUI),
+            (this.splitScreenCamera = e.splitScreenCamera),
+            (this.collisionDetectionEngine = e.collisionDetectionEngine),
+            (this.playerCollisionHandler = e.playerCollisionHandler),
+            (this.recoveryManager = e.recoveryManager),
+            (this.uiManager = e.uiManager),
+            (this.gameOverUI = e.gameOverUI),
+            (this.modeUI = e.modeUI),
+            (this.aiCoordinator = e.aiCoordinator),
+            (this.difficultyManager = e.difficultyManager),
+            (this.updatePauseOverlay = e.updatePauseOverlay),
+            (this.updateTimeTrialDisplay = e.updateTimeTrialDisplay),
+            (this.updateArenaShrinkDisplay = e.updateArenaShrinkDisplay),
+            (this.updateRemainingEntityDisplay = e.updateRemainingEntityDisplay),
+            (this.showMultiplayerGameOver = e.showMultiplayerGameOver),
+            (this.showTimeTrialGameOver = e.showTimeTrialGameOver),
+            (this.showArenaShrinkGameOver = e.showArenaShrinkGameOver),
+            (this.showMultiAIGameOver = e.showMultiAIGameOver),
+            (this.calculateMultiAIDirections = e.calculateMultiAIDirections),
+            (this.applyAIDecisions = e.applyAIDecisions),
+            (this.handleMultiAICollisions = e.handleMultiAICollisions),
+            (this.currentGameMode = e.currentGameMode || GameModes$1.CLASSIC),
+            (this.isTimeTrialActive = e.isTimeTrialActive || !1),
+            (this.aiControllers = e.aiControllers || []),
+            (this.running = !1),
+            (this.animationFrameId = null),
+            (this.previousGameState = null));
+    }
+    start() {
+        this.running || ((this.running = !0), this.animate());
+    }
+    stop() {
+        ((this.running = !1),
+            this.animationFrameId &&
+                (cancelAnimationFrame(this.animationFrameId), (this.animationFrameId = null)));
+    }
+    setMode(e, t = !1) {
+        ((this.currentGameMode = e), (this.isTimeTrialActive = t));
+    }
+    animate() {
+        if (!this.running) return;
+        if (
+            ((this.animationFrameId = requestAnimationFrame(() => this.animate())),
+            this.performanceMonitor &&
+                !this.recoveryManager.isFeatureDisabled('PerformanceMonitor'))
+        )
+            try {
+                this.performanceMonitor.startFrameMonitoring();
+            } catch (i) {
+                this.recoveryManager.handleFeatureRuntimeError('PerformanceMonitor', i, null);
+            }
+        const e = this.game.getGameState(),
+            t =
+                this.performanceMonitor && this.performanceMonitor.getLastFrameTime
+                    ? this.performanceMonitor.getLastFrameTime() / 1e3
+                    : 0.016;
+        if (this.glowEffectManager && !this.recoveryManager.isFeatureDisabled('GlowEffectManager'))
+            try {
+                this.glowEffectManager.update(t, e);
+            } catch (i) {
+                this.recoveryManager.handleFeatureRuntimeError('GlowEffectManager', i, () => {
+                    this.glowEffectManager = null;
+                });
+            }
+        if (
+            this.cameraEffectsManager &&
+            !this.recoveryManager.isFeatureDisabled('CameraEffectsManager')
+        )
+            try {
+                this.cameraEffectsManager.update(t);
+            } catch (i) {
+                this.recoveryManager.handleFeatureRuntimeError('CameraEffectsManager', i, () => {
+                    this.cameraEffectsManager = null;
+                });
+            }
+        if (
+            (this.game.gameOver ? this.handleGameOver() : this.updateGameplay(e),
+            this.performanceMonitor &&
+                !this.recoveryManager.isFeatureDisabled('PerformanceMonitor'))
+        )
+            try {
+                this.performanceMonitor.update();
+            } catch (i) {
+                this.recoveryManager.handleFeatureRuntimeError('PerformanceMonitor', i, null);
+            }
+        if (
+            this.performanceDegradationManager &&
+            !this.recoveryManager.isFeatureDisabled('PerformanceDegradationManager')
+        )
+            try {
+                this.performanceDegradationManager.update();
+            } catch (i) {
+                this.recoveryManager.handleFeatureRuntimeError(
+                    'PerformanceDegradationManager',
+                    i,
+                    null
+                );
+            }
+        this.previousGameState = __spreadValues({}, e);
+    }
+    updateGameplay(e) {
+        if ((this.handlePauseState(e), !e.isPaused)) {
+            if (
+                (!e.gameStarted ||
+                    (this.previousGameState && this.previousGameState.gameStarted) ||
+                    this.audioManager.handleGameStart(),
+                !this.isTimeTrialActive &&
+                    this.currentGameMode !== GameModes$1.LOCAL_MULTIPLAYER &&
+                    e.aiOpponents &&
+                    e.aiOpponents.length > 0)
+            ) {
+                const t = this.difficultyManager.getDifficultyConfig(),
+                    i = this.calculateMultiAIDirections(e, t);
+                this.applyAIDecisions(i, this.game);
+            }
+            if (
+                (this.game.update(),
+                this.currentGameMode === GameModes$1.LOCAL_MULTIPLAYER &&
+                    this.splitScreenCamera &&
+                    this.splitScreenCamera.update(),
+                this.powerUpManager.update(),
+                this.powerUpManager.checkCollections(e),
+                this.isTimeTrialActive && !e.isPaused)
+            ) {
+                const e = this.survivalTimer.getElapsedTime() / 1e3;
+                this.achievementSystem.checkMilestone(e);
+            }
+            this.handleCollisions(e);
+        }
+        (this.updateUI(e), this.render(e));
+    }
+    handleCollisions(e) {
+        let t;
+        (this.performanceMonitor && this.performanceMonitor.startCollisionDetection(),
+            this.currentGameMode === GameModes$1.LOCAL_MULTIPLAYER
+                ? ((t = this.playerCollisionHandler.checkMultiplayerCollisions(e, this.game)),
+                  (t.playerCollided = t.player1Collided || t.player2Collided),
+                  (t.aiCollided = !1),
+                  t.crashedEntities ||
+                      ((t.crashedEntities = []),
+                      t.player1Collided && t.crashedEntities.push('P1'),
+                      t.player2Collided && t.crashedEntities.push('P2')),
+                  t.survivingEntities ||
+                      ((t.survivingEntities = []),
+                      t.player1Collided || t.survivingEntities.push('P1'),
+                      t.player2Collided || t.survivingEntities.push('P2')))
+                : (t = this.collisionDetectionEngine.checkCollisions(e, this.game)),
+            this.performanceMonitor && this.performanceMonitor.endCollisionDetection());
+        const { playerCollided: i, aiCollided: r, winner: n } = t;
+        (i || r) && (this.handleCollisionEffects(t, e), this.handleGameEnd(t, n));
+    }
+    handleCollisionEffects(e, t) {
+        if (
+            (this.audioManager.playExplosionSound(),
+            this.cameraEffectsManager && this.cameraEffectsManager.isEnabled())
+        ) {
+            let i = 1;
+            e.playerCollided && e.aiCollided && (i = 1.5);
+            const r = this.currentGameMode === GameModes$1.LOCAL_MULTIPLAYER ? t.player1 : t.player;
+            r && this.cameraEffectsManager.onCollision(r, i);
+        }
+        this.currentGameMode === GameModes$1.LOCAL_MULTIPLAYER
+            ? (e.player1Collided &&
+                  t.player1 &&
+                  this.renderingEngine.createExplosionEffect(t.player1, 1),
+              e.player2Collided &&
+                  t.player2 &&
+                  this.renderingEngine.createExplosionEffect(t.player2, 1))
+            : (e.playerCollided &&
+                  t.player &&
+                  this.renderingEngine.createExplosionEffect(t.player, 1),
+              e.aiCollided && t.aiOpponents
+                  ? t.aiOpponents.forEach((e) => {
+                        e.alive || this.renderingEngine.createExplosionEffect(e, 1);
+                    })
+                  : e.aiCollided && t.ai && this.renderingEngine.createExplosionEffect(t.ai, 1));
+    }
+    handleGameEnd(e, t) {
+        if (this.isTimeTrialActive) {
+            this.survivalTimer.stop();
+            const e = this.survivalTimer.getElapsedTime();
+            (this.leaderboardSystem.isNewRecord(e) && this.leaderboardSystem.addScore(e),
+                (this.game.gameOver = !0),
+                this.audioManager.playDefeatSound());
+        } else
+            this.currentGameMode === GameModes$1.LOCAL_MULTIPLAYER
+                ? (this.game.handleRoundEnd(e),
+                  (this.game.gameOver = !0),
+                  e.player1Collided && e.player2Collided
+                      ? this.audioManager.playDefeatSound()
+                      : this.audioManager.playVictorySound())
+                : (this.handleMultiAICollisions(e, this.game),
+                  'player' === t
+                      ? this.audioManager.playVictorySound()
+                      : this.audioManager.playDefeatSound());
+        this.audioManager.handleGameEnd();
+    }
+    handlePauseState(e) {
+        (this.previousGameState &&
+            !this.previousGameState.isPaused &&
+            (this.audioManager.handleGamePause(),
+            this.cameraEffectsManager &&
+                this.cameraEffectsManager.isEnabled() &&
+                this.cameraEffectsManager.pause(),
+            this.isTimeTrialActive && this.survivalTimer.pause()),
+            this.previousGameState &&
+                this.previousGameState.isPaused &&
+                !e.isPaused &&
+                (this.audioManager.handleGameResume(),
+                this.cameraEffectsManager &&
+                    this.cameraEffectsManager.isEnabled() &&
+                    this.cameraEffectsManager.resume(),
+                this.isTimeTrialActive && this.survivalTimer.resume()));
+    }
+    updateUI(e) {
+        if ((this.updatePauseOverlay(), this.currentGameMode === GameModes$1.LOCAL_MULTIPLAYER))
+            this.localScoringUI && this.localScoringUI.updateScores();
+        else if (this.isTimeTrialActive)
+            this.modeUI ? this.modeUI.updateTimeTrialDisplay() : this.updateTimeTrialDisplay();
+        else if (this.currentGameMode === GameModes$1.ARENA_SHRINK) {
+            this.modeUI ? this.modeUI.updateArenaShrinkDisplay() : this.updateArenaShrinkDisplay();
+            const e = this.game.getGameState();
+            if (
+                (this.scoreDisplay.updateGameplayScores(e.playerScore, e.aiScore),
+                e.aiOpponents && e.aiOpponents.length > 1)
+            ) {
+                const e = this.game.getAliveEntities().map((e) => e.id);
+                this.modeUI
+                    ? this.modeUI.updateRemainingEntityDisplay(e)
+                    : this.updateRemainingEntityDisplay(e);
+            }
+        } else {
+            const e = this.game.getGameState();
+            if (
+                (this.scoreDisplay.updateGameplayScores(e.playerScore, e.aiScore),
+                e.aiOpponents && e.aiOpponents.length > 1)
+            ) {
+                const e = this.game.getAliveEntities().map((e) => e.id);
+                this.modeUI
+                    ? this.modeUI.updateRemainingEntityDisplay(e)
+                    : this.updateRemainingEntityDisplay(e);
+            }
+        }
+        if (this.statusIndicator) {
+            const e = this.powerUpManager.getAllActiveEffects();
+            (this.statusIndicator.updateStatus(e), this.statusIndicator.updateTimers());
+        }
+    }
+    render(e) {
+        const t = this.game.getGameState();
+        t.powerUpManager = this.powerUpManager;
+        try {
+            this.renderingEngine.draw(t);
+        } catch (i) {
+            logger$1.error('Error rendering game:', i);
+            if (
+                !this.recoveryManager.handleRenderingError(i, () => {
+                    this.renderingEngine &&
+                        this.renderingEngine.renderer &&
+                        this.renderingEngine.scene &&
+                        this.renderingEngine.camera &&
+                        this.renderingEngine.renderer.render(
+                            this.renderingEngine.scene,
+                            this.renderingEngine.camera
+                        );
+                })
+            )
+                return (
+                    logger$1.error('Critical rendering failure, stopping game loop'),
+                    void this.stop()
+                );
+        }
+        if (this.glowEffectManager && !this.recoveryManager.isFeatureDisabled('GlowEffectManager'))
+            try {
+                this.glowEffectManager.render();
+            } catch (i) {
+                (this.recoveryManager.handleFeatureRuntimeError('GlowEffectManager', i, () => {
+                    this.glowEffectManager = null;
+                }),
+                    this.renderingEngine &&
+                        this.renderingEngine.renderer &&
+                        this.renderingEngine.scene &&
+                        this.renderingEngine.camera &&
+                        this.renderingEngine.renderer.render(
+                            this.renderingEngine.scene,
+                            this.renderingEngine.camera
+                        ));
+            }
+    }
+    handleGameOver() {
+        if (this.uiManager && this.gameOverUI) {
+            const e = this.game.getGameState();
+            if (
+                (this.uiManager.showGameOver(e, this.currentGameMode),
+                this.currentGameMode !== GameModes$1.LOCAL_MULTIPLAYER)
+            ) {
+                document.getElementById('gameOver').style.display = 'block';
+                const e = document.getElementById('restart');
+                e && (e.style.display = 'block');
+            }
+        } else if (this.currentGameMode === GameModes$1.LOCAL_MULTIPLAYER)
+            this.showMultiplayerGameOver();
+        else if (this.isTimeTrialActive) {
+            (this.showTimeTrialGameOver(),
+                (document.getElementById('gameOver').style.display = 'block'));
+            const e = document.getElementById('restart');
+            e && (e.style.display = 'block');
+        } else if (this.currentGameMode === GameModes$1.ARENA_SHRINK) {
+            (this.showArenaShrinkGameOver(),
+                (document.getElementById('gameOver').style.display = 'block'));
+            const e = document.getElementById('restart');
+            e && (e.style.display = 'block');
+        } else {
+            (this.showMultiAIGameOver(),
+                (document.getElementById('gameOver').style.display = 'block'));
+            const e = document.getElementById('restart');
+            e && (e.style.display = 'block');
+        }
+    }
+};
+module$1.exports = { GameLoop: GameLoop$1 };
 const __CJS__export_default__ =
         (null == module$1.exports ? {} : module$1.exports).default || module$1.exports,
-    __CJS__import__51__ = Object.freeze(
+    __CJS__import__53__ = Object.freeze(
         Object.defineProperty(
             { __proto__: null, default: __CJS__export_default__ },
             Symbol.toStringTag,
             { value: 'Module' }
         )
     ),
-    { Game: Game } = __CJS__export_default__$11 || __CJS__import__0__$4,
-    { MultiplayerGame: MultiplayerGame } = __CJS__export_default__$_ || __CJS__import__1__$5,
+    { Game: Game } = __CJS__export_default__$13 || __CJS__import__0__$4,
+    { MultiplayerGame: MultiplayerGame } = __CJS__export_default__$10 || __CJS__import__1__$5,
     { AIController: AIController, AICoordinator: AICoordinator } =
-        __CJS__export_default__$Z || __CJS__import__2__$3,
+        __CJS__export_default__$$ || __CJS__import__2__$4,
     { CollisionDetectionEngine: CollisionDetectionEngine } =
-        __CJS__export_default__$Y || __CJS__import__3__$3,
+        __CJS__export_default__$_ || __CJS__import__3__$2,
     { PlayerCollisionHandler: PlayerCollisionHandler } =
-        __CJS__export_default__$X || __CJS__import__4__$1,
-    { PlayerController: PlayerController } = __CJS__export_default__$V || __CJS__import__5__$1,
-    { DualControlScheme: DualControlScheme } = __CJS__export_default__$W || __CJS__import__6__,
-    { RenderingEngine: RenderingEngine } = __CJS__export_default__$Q || __CJS__import__7__,
-    { SplitScreenCamera: SplitScreenCamera } = __CJS__export_default__$R || __CJS__import__8__,
-    { ScoreDisplay: ScoreDisplay } = __CJS__export_default__$P || __CJS__import__9__,
-    { AudioManager: AudioManager } = __CJS__export_default__$1b || __CJS__import__10__,
-    { DifficultyManager: DifficultyManager } = __CJS__export_default__$O || __CJS__import__11__,
-    { PowerUpManager: PowerUpManager } = __CJS__export_default__$N || __CJS__import__12__,
-    { StatusIndicator: StatusIndicator } = __CJS__export_default__$M || __CJS__import__13__,
-    { ModeSelector: ModeSelector } = __CJS__export_default__$L || __CJS__import__14__,
-    { SurvivalTimer: SurvivalTimer } = __CJS__export_default__$14 || __CJS__import__15__,
-    { CountdownTimer: CountdownTimer } = __CJS__export_default__$K || __CJS__import__16__,
-    { LeaderboardSystem: LeaderboardSystem } = __CJS__export_default__$J || __CJS__import__17__,
-    { AchievementSystem: AchievementSystem } = __CJS__export_default__$I || __CJS__import__18__,
-    { GameModes: GameModes } = __CJS__export_default__$15 || __CJS__import__19__,
-    { PerformanceMonitor: PerformanceMonitor } = __CJS__export_default__$1a || __CJS__import__20__,
+        __CJS__export_default__$Z || __CJS__import__4__$1,
+    { PlayerController: PlayerController } = __CJS__export_default__$X || __CJS__import__5__$1,
+    { DualControlScheme: DualControlScheme } = __CJS__export_default__$Y || __CJS__import__6__,
+    { RenderingEngine: RenderingEngine } = __CJS__export_default__$S || __CJS__import__7__,
+    { SplitScreenCamera: SplitScreenCamera } = __CJS__export_default__$T || __CJS__import__8__,
+    { ScoreDisplay: ScoreDisplay } = __CJS__export_default__$R || __CJS__import__9__,
+    { AudioManager: AudioManager } = __CJS__export_default__$1d || __CJS__import__10__,
+    { DifficultyManager: DifficultyManager } = __CJS__export_default__$Q || __CJS__import__11__,
+    { PowerUpManager: PowerUpManager } = __CJS__export_default__$P || __CJS__import__12__,
+    { StatusIndicator: StatusIndicator } = __CJS__export_default__$O || __CJS__import__13__,
+    { ModeSelector: ModeSelector } = __CJS__export_default__$N || __CJS__import__14__,
+    { SurvivalTimer: SurvivalTimer } = __CJS__export_default__$16 || __CJS__import__15__,
+    { CountdownTimer: CountdownTimer } = __CJS__export_default__$M || __CJS__import__16__,
+    { LeaderboardSystem: LeaderboardSystem } = __CJS__export_default__$L || __CJS__import__17__,
+    { AchievementSystem: AchievementSystem } = __CJS__export_default__$K || __CJS__import__18__,
+    { GameModes: GameModes } = __CJS__export_default__$17 || __CJS__import__19__,
+    { PerformanceMonitor: PerformanceMonitor } = __CJS__export_default__$1c || __CJS__import__20__,
     { PerformanceDegradationManager: PerformanceDegradationManager } =
-        __CJS__export_default__$G || __CJS__import__21__,
-    { ParticleSystem: ParticleSystem } = __CJS__export_default__$19 || __CJS__import__22__,
-    { ParticleSettingsUI: ParticleSettingsUI } = __CJS__export_default__$E || __CJS__import__23__,
-    { GlowEffectManager: GlowEffectManager } = __CJS__export_default__$A || __CJS__import__24__,
+        __CJS__export_default__$I || __CJS__import__21__,
+    { ParticleSystem: ParticleSystem } = __CJS__export_default__$1b || __CJS__import__22__,
+    { ParticleSettingsUI: ParticleSettingsUI } = __CJS__export_default__$G || __CJS__import__23__,
+    { GlowEffectManager: GlowEffectManager } = __CJS__export_default__$C || __CJS__import__24__,
     { CameraEffectsManager: CameraEffectsManager } =
-        __CJS__export_default__$u || __CJS__import__25__,
-    { CameraEffectsUI: CameraEffectsUI } = __CJS__export_default__$s || __CJS__import__26__,
+        __CJS__export_default__$w || __CJS__import__25__,
+    { CameraEffectsUI: CameraEffectsUI } = __CJS__export_default__$u || __CJS__import__26__,
     { CustomizationManager: CustomizationManager } =
-        __CJS__export_default__$q || __CJS__import__27__,
-    { CustomizationUI: CustomizationUI } = __CJS__export_default__$o || __CJS__import__28__,
-    { PreferenceStorage: PreferenceStorage } = __CJS__export_default__$n || __CJS__import__29__,
-    { MusicSettingsUI: MusicSettingsUI } = __CJS__export_default__$m || __CJS__import__30__,
+        __CJS__export_default__$s || __CJS__import__27__,
+    { CustomizationUI: CustomizationUI } = __CJS__export_default__$q || __CJS__import__28__,
+    { PreferenceStorage: PreferenceStorage } = __CJS__export_default__$p || __CJS__import__29__,
+    { MusicSettingsUI: MusicSettingsUI } = __CJS__export_default__$o || __CJS__import__30__,
     { MultiplayerGameOverUI: MultiplayerGameOverUI } =
-        __CJS__export_default__$l || __CJS__import__31__,
-    { LocalScoringUI: LocalScoringUI } = __CJS__export_default__$k || __CJS__import__32__$1,
-    { UIManager: UIManager } = __CJS__export_default__$j || __CJS__import__33__,
-    { GameOverUI: GameOverUI } = __CJS__export_default__$i || __CJS__import__34__,
-    { ModeUI: ModeUI } = __CJS__export_default__$h || __CJS__import__35__,
-    { StyleManager: StyleManager } = __CJS__export_default__$g || __CJS__import__36__,
+        __CJS__export_default__$n || __CJS__import__31__,
+    { LocalScoringUI: LocalScoringUI } = __CJS__export_default__$m || __CJS__import__32__$1,
+    { UIManager: UIManager } = __CJS__export_default__$l || __CJS__import__33__,
+    { GameOverUI: GameOverUI } = __CJS__export_default__$k || __CJS__import__34__,
+    { ModeUI: ModeUI } = __CJS__export_default__$j || __CJS__import__35__,
+    { StyleManager: StyleManager } = __CJS__export_default__$i || __CJS__import__36__,
     { BrowserCompatibility: BrowserCompatibility } =
-        __CJS__export_default__$f || __CJS__import__37__,
-    { ClassicMode: ClassicMode } = __CJS__export_default__$d || __CJS__import__38__,
-    { TimeTrialMode: TimeTrialMode } = __CJS__export_default__$c || __CJS__import__39__,
-    { ArenaShrinkMode: ArenaShrinkMode } = __CJS__export_default__$b || __CJS__import__40__,
-    { MultiplayerMode: MultiplayerMode } = __CJS__export_default__$a || __CJS__import__41__,
+        __CJS__export_default__$h || __CJS__import__37__,
+    { ClassicMode: ClassicMode } = __CJS__export_default__$f || __CJS__import__38__,
+    { TimeTrialMode: TimeTrialMode } = __CJS__export_default__$e || __CJS__import__39__,
+    { ArenaShrinkMode: ArenaShrinkMode } = __CJS__export_default__$d || __CJS__import__40__,
+    { MultiplayerMode: MultiplayerMode } = __CJS__export_default__$c || __CJS__import__41__,
     { CompatibilityWarningUI: CompatibilityWarningUI } =
-        __CJS__export_default__$9 || __CJS__import__42__,
-    { RecoveryManager: RecoveryManager } = __CJS__export_default__$7 || __CJS__import__43__,
-    { GameInitializer: GameInitializer } = __CJS__export_default__$3 || __CJS__import__44__,
-    { SystemInitializer: SystemInitializer } = __CJS__export_default__$1 || __CJS__import__45__,
-    { CanvasVerifier: CanvasVerifier } = __CJS__export_default__$4 || __CJS__import__46__,
-    { LoadingIndicator: LoadingIndicator } = __CJS__export_default__$6 || __CJS__import__47__,
+        __CJS__export_default__$b || __CJS__import__42__,
+    { RecoveryManager: RecoveryManager } = __CJS__export_default__$9 || __CJS__import__43__,
+    { GameInitializer: GameInitializer } = __CJS__export_default__$5 || __CJS__import__44__,
+    { SystemInitializer: SystemInitializer } = __CJS__export_default__$3 || __CJS__import__45__,
+    { CanvasVerifier: CanvasVerifier } = __CJS__export_default__$6 || __CJS__import__46__,
+    { LoadingIndicator: LoadingIndicator } = __CJS__export_default__$8 || __CJS__import__47__,
     {
         DOMNotReadyError: DOMNotReadyError,
         CanvasCreationError: CanvasCreationError,
         ModeSelectorError: ModeSelectorError,
-    } = __CJS__export_default__$8 || __CJS__import__48__,
-    { InitializationState: InitializationState } = __CJS__export_default__$5 || __CJS__import__49__,
-    { Logger: Logger } = __CJS__export_default__$18 || __CJS__import__50__,
-    { errorRecovery: errorRecovery } = __CJS__export_default__ || __CJS__import__51__,
-    logger = Logger.create('Main');
-function detectEmojiSupport() {
-    try {
-        const e = document.createElement('canvas').getContext('2d');
-        if (!e) return !1;
-        ((e.textBaseline = 'top'), (e.font = '32px Arial'), e.fillText('😀', 0, 0));
-        const t = e.getImageData(16, 16, 1, 1).data;
-        return 0 !== t[0] || 0 !== t[1] || 0 !== t[2];
-    } catch (e) {
-        return !1;
-    }
-}
-function initializeIconDisplay() {
-    detectEmojiSupport()
-        ? logger.info('Emoji support detected')
-        : (logger.warn('Emoji support not detected, using fallback text'),
-          document.body.classList.add('no-emoji-support'));
-}
-initializeIconDisplay();
+    } = __CJS__export_default__$a || __CJS__import__48__,
+    { InitializationState: InitializationState } = __CJS__export_default__$7 || __CJS__import__49__,
+    { Logger: Logger } = __CJS__export_default__$1a || __CJS__import__50__,
+    { errorRecovery: errorRecovery } = __CJS__export_default__$2 || __CJS__import__51__,
+    { EventManager: EventManager } = __CJS__export_default__$1 || __CJS__import__52__,
+    { GameLoop: GameLoop } = __CJS__export_default__ || __CJS__import__53__,
+    logger = Logger.create('Main'),
+    browserCompatibility = new BrowserCompatibility();
+browserCompatibility.initializeIconDisplay();
 let recoveryManager = null,
     loadingIndicator = null,
     initializationState = null,
+    eventManager = null,
+    gameLoop = null,
     game = null,
     aiCoordinator = null,
     collisionDetectionEngine = null,
@@ -15559,13 +16060,13 @@ function applyAIDecisions(e, t) {
 }
 function handleMultiAICollisions(e, t) {
     const { crashedEntities: i, survivingEntities: r, winner: n } = e,
-        a = t.getGameState();
+        s = t.getGameState();
     i &&
-        a.aiOpponents &&
+        s.aiOpponents &&
         i.forEach((e) => {
             if (e.startsWith('ai_')) {
-                const t = a.aiOpponents.findIndex((t) => t.id === e);
-                -1 !== t && (a.aiOpponents[t].alive = !1);
+                const t = s.aiOpponents.findIndex((t) => t.id === e);
+                -1 !== t && (s.aiOpponents[t].alive = !1);
             }
         });
     (determineGameEnd(r) && (updateMultiAIScores(n, r), (t.gameOver = !0)),
@@ -15616,15 +16117,15 @@ function showMultiAIGameOver() {
             r = e.isNewHighScore,
             n = e.aiOpponents ? e.aiOpponents.length : 1;
         e.aiOpponents ? e.aiOpponents.filter((e) => e.alive).length : e.ai;
-        let a = '';
-        ((a = i
+        let s = '';
+        ((s = i
             ? n > 1
                 ? `Victory! You defeated ${n} AI opponents!`
                 : 'Victory! You defeated the AI!'
             : n > 1
               ? `Defeated by ${n} AI opponents`
               : 'Defeated by AI'),
-            (t.innerHTML = `\n            <div class="multi-ai-game-over">\n                <h2 class="${i ? 'victory' : 'defeat'}">${a}</h2>\n                <div class="score-summary">\n                    <div class="score-row">\n                        <span class="score-label">Your Score:</span>\n                        <span class="score-value player-score">${e.playerScore}</span>\n                    </div>\n                    <div class="score-row">\n                        <span class="score-label">AI Score:</span>\n                        <span class="score-value ai-score">${e.aiScore}</span>\n                    </div>\n                    <div class="score-row">\n                        <span class="score-label">High Score:</span>\n                        <span class="score-value high-score">${e.highScore}</span>\n                    </div>\n                </div>\n                ${r ? '<div class="new-high-score">New High Score!</div>' : ''}\n                <div class="game-stats">\n                    <div class="stat-item">\n                        <span class="stat-label">AI Opponents:</span>\n                        <span class="stat-value">${n}</span>\n                    </div>\n                    <div class="stat-item">\n                        <span class="stat-label">Rounds Played:</span>\n                        <span class="stat-value">${e.roundsPlayed || e.playerScore + e.aiScore}</span>\n                    </div>\n                </div>\n                <button id="changeModeButton" onclick="showModeSelector()" class="mode-change-btn">\n                    Change Mode\n                </button>\n            </div>\n        `),
+            (t.innerHTML = `\n            <div class="multi-ai-game-over">\n                <h2 class="${i ? 'victory' : 'defeat'}">${s}</h2>\n                <div class="score-summary">\n                    <div class="score-row">\n                        <span class="score-label">Your Score:</span>\n                        <span class="score-value player-score">${e.playerScore}</span>\n                    </div>\n                    <div class="score-row">\n                        <span class="score-label">AI Score:</span>\n                        <span class="score-value ai-score">${e.aiScore}</span>\n                    </div>\n                    <div class="score-row">\n                        <span class="score-label">High Score:</span>\n                        <span class="score-value high-score">${e.highScore}</span>\n                    </div>\n                </div>\n                ${r ? '<div class="new-high-score">New High Score!</div>' : ''}\n                <div class="game-stats">\n                    <div class="stat-item">\n                        <span class="stat-label">AI Opponents:</span>\n                        <span class="stat-value">${n}</span>\n                    </div>\n                    <div class="stat-item">\n                        <span class="stat-label">Rounds Played:</span>\n                        <span class="stat-value">${e.roundsPlayed || e.playerScore + e.aiScore}</span>\n                    </div>\n                </div>\n                <button id="changeModeButton" onclick="showModeSelector()" class="mode-change-btn">\n                    Change Mode\n                </button>\n            </div>\n        `),
             addMultiAIGameOverStyles());
     }
     scoreDisplay.showGameOverScores(e.playerScore, e.aiScore, e.highScore, e.isNewHighScore);
@@ -15980,276 +16481,6 @@ function setAICount(e) {
         game.gameOver || currentGameMode === GameModes.TIME_TRIAL || restartGame();
     }
 }
-((window.scoreDisplayInstance = scoreDisplay),
-    (window.audioManager = audioManager),
-    (window.difficultyManager = difficultyManager),
-    (window.powerUpManager = powerUpManager),
-    (window.statusIndicator = statusIndicator),
-    (window.modeSelector = modeSelector),
-    (window.survivalTimer = survivalTimer),
-    (window.leaderboardSystem = leaderboardSystem),
-    (window.achievementSystem = achievementSystem),
-    (window.showModeSelector = showModeSelector),
-    (window.performanceMonitor = performanceMonitor),
-    (window.performanceDegradationManager = performanceDegradationManager));
-let previousGameState = null;
-function animate() {
-    if (
-        (requestAnimationFrame(animate),
-        performanceMonitor && !recoveryManager.isFeatureDisabled('PerformanceMonitor'))
-    )
-        try {
-            performanceMonitor.startFrameMonitoring();
-        } catch (i) {
-            recoveryManager.handleFeatureRuntimeError('PerformanceMonitor', i, null);
-        }
-    const e = game.getGameState(),
-        t =
-            performanceMonitor && performanceMonitor.getLastFrameTime
-                ? performanceMonitor.getLastFrameTime() / 1e3
-                : 0.016;
-    if (glowEffectManager && !recoveryManager.isFeatureDisabled('GlowEffectManager'))
-        try {
-            glowEffectManager.update(t, e);
-        } catch (i) {
-            recoveryManager.handleFeatureRuntimeError('GlowEffectManager', i, () => {
-                glowEffectManager = null;
-            });
-        }
-    if (cameraEffectsManager && !recoveryManager.isFeatureDisabled('CameraEffectsManager'))
-        try {
-            cameraEffectsManager.update(t);
-        } catch (i) {
-            recoveryManager.handleFeatureRuntimeError('CameraEffectsManager', i, () => {
-                cameraEffectsManager = null;
-            });
-        }
-    if (game.gameOver)
-        if (uiManager && gameOverUI) {
-            const e = game.getGameState();
-            if (
-                (uiManager.showGameOver(e, currentGameMode),
-                currentGameMode !== GameModes.LOCAL_MULTIPLAYER)
-            ) {
-                document.getElementById('gameOver').style.display = 'block';
-                const e = document.getElementById('restart');
-                e && (e.style.display = 'block');
-            }
-        } else if (currentGameMode === GameModes.LOCAL_MULTIPLAYER) showMultiplayerGameOver();
-        else if (isTimeTrialActive) {
-            (showTimeTrialGameOver(),
-                (document.getElementById('gameOver').style.display = 'block'));
-            const e = document.getElementById('restart');
-            e && (e.style.display = 'block');
-        } else if (currentGameMode === GameModes.ARENA_SHRINK) {
-            (showArenaShrinkGameOver(),
-                (document.getElementById('gameOver').style.display = 'block'));
-            const e = document.getElementById('restart');
-            e && (e.style.display = 'block');
-        } else {
-            (showMultiAIGameOver(), (document.getElementById('gameOver').style.display = 'block'));
-            const e = document.getElementById('restart');
-            e && (e.style.display = 'block');
-        }
-    else {
-        if (e.isPaused)
-            (previousGameState &&
-                !previousGameState.isPaused &&
-                (audioManager.handleGamePause(),
-                cameraEffectsManager &&
-                    cameraEffectsManager.isEnabled() &&
-                    cameraEffectsManager.pause(),
-                isTimeTrialActive && survivalTimer.pause()),
-                previousGameState &&
-                    previousGameState.isPaused &&
-                    !e.isPaused &&
-                    (audioManager.handleGameResume(),
-                    cameraEffectsManager &&
-                        cameraEffectsManager.isEnabled() &&
-                        cameraEffectsManager.resume(),
-                    isTimeTrialActive && survivalTimer.resume()));
-        else {
-            if (
-                (!e.gameStarted ||
-                    (previousGameState && previousGameState.gameStarted) ||
-                    audioManager.handleGameStart(),
-                !isTimeTrialActive &&
-                    currentGameMode !== GameModes.LOCAL_MULTIPLAYER &&
-                    e.aiOpponents &&
-                    e.aiOpponents.length > 0)
-            ) {
-                applyAIDecisions(
-                    calculateMultiAIDirections(e, difficultyManager.getDifficultyConfig()),
-                    game
-                );
-            }
-            if (
-                (game.update(),
-                currentGameMode === GameModes.LOCAL_MULTIPLAYER &&
-                    splitScreenCamera &&
-                    splitScreenCamera.update(),
-                powerUpManager.update(),
-                powerUpManager.checkCollections(e),
-                isTimeTrialActive && !e.isPaused)
-            ) {
-                const e = survivalTimer.getElapsedTime() / 1e3;
-                achievementSystem.checkMilestone(e);
-            }
-            let t;
-            (performanceMonitor.startCollisionDetection(),
-                currentGameMode === GameModes.LOCAL_MULTIPLAYER
-                    ? ((t = playerCollisionHandler.checkMultiplayerCollisions(
-                          game.getGameState(),
-                          game
-                      )),
-                      (t.playerCollided = t.player1Collided || t.player2Collided),
-                      (t.aiCollided = !1),
-                      t.crashedEntities ||
-                          ((t.crashedEntities = []),
-                          t.player1Collided && t.crashedEntities.push('P1'),
-                          t.player2Collided && t.crashedEntities.push('P2')),
-                      t.survivingEntities ||
-                          ((t.survivingEntities = []),
-                          t.player1Collided || t.survivingEntities.push('P1'),
-                          t.player2Collided || t.survivingEntities.push('P2')))
-                    : (t = collisionDetectionEngine.checkCollisions(game.getGameState(), game)),
-                performanceMonitor.endCollisionDetection());
-            const {
-                playerCollided: i,
-                aiCollided: r,
-                winner: n,
-                crashedEntities: a,
-                survivingEntities: s,
-            } = t;
-            if (i || r) {
-                if (
-                    (audioManager.playExplosionSound(),
-                    cameraEffectsManager && cameraEffectsManager.isEnabled())
-                ) {
-                    let t = 1;
-                    i && r ? (t = 1.5) : (i || r) && (t = 1);
-                    const n =
-                        currentGameMode === GameModes.LOCAL_MULTIPLAYER ? e.player1 : e.player;
-                    n && cameraEffectsManager.onCollision(n, t);
-                }
-                if (
-                    (currentGameMode === GameModes.LOCAL_MULTIPLAYER
-                        ? (t.player1Collided &&
-                              e.player1 &&
-                              renderingEngine.createExplosionEffect(e.player1, 1),
-                          t.player2Collided &&
-                              e.player2 &&
-                              renderingEngine.createExplosionEffect(e.player2, 1))
-                        : (i && e.player && renderingEngine.createExplosionEffect(e.player, 1),
-                          r && e.aiOpponents
-                              ? e.aiOpponents.forEach((e) => {
-                                    e.alive || renderingEngine.createExplosionEffect(e, 1);
-                                })
-                              : r && e.ai && renderingEngine.createExplosionEffect(e.ai, 1)),
-                    isTimeTrialActive)
-                ) {
-                    survivalTimer.stop();
-                    const e = survivalTimer.getElapsedTime();
-                    (leaderboardSystem.isNewRecord(e) && leaderboardSystem.addScore(e),
-                        (game.gameOver = !0),
-                        audioManager.playDefeatSound());
-                } else
-                    currentGameMode === GameModes.LOCAL_MULTIPLAYER
-                        ? (game.handleRoundEnd(t),
-                          (game.gameOver = !0),
-                          t.player1Collided && t.player2Collided
-                              ? audioManager.playDefeatSound()
-                              : (t.player1Collided || t.player2Collided) &&
-                                audioManager.playVictorySound())
-                        : (handleMultiAICollisions(t, game),
-                          'player' === n
-                              ? audioManager.playVictorySound()
-                              : ((n && n.startsWith('ai_')) || 'tie' === n) &&
-                                audioManager.playDefeatSound());
-                audioManager.handleGameEnd();
-            }
-        }
-        let t;
-        if ((updatePauseOverlay(), currentGameMode === GameModes.LOCAL_MULTIPLAYER))
-            localScoringUI && localScoringUI.updateScores();
-        else if (isTimeTrialActive)
-            modeUI ? modeUI.updateTimeTrialDisplay() : updateTimeTrialDisplay();
-        else if (currentGameMode === GameModes.ARENA_SHRINK) {
-            if (
-                (modeUI ? modeUI.updateArenaShrinkDisplay() : updateArenaShrinkDisplay(),
-                (t = game.getGameState()),
-                scoreDisplay.updateGameplayScores(t.playerScore, t.aiScore),
-                t.aiOpponents && t.aiOpponents.length > 1)
-            ) {
-                const e = game.getAliveEntities().map((e) => e.id);
-                modeUI ? modeUI.updateRemainingEntityDisplay(e) : updateRemainingEntityDisplay(e);
-            }
-        } else if (
-            ((t = game.getGameState()),
-            scoreDisplay.updateGameplayScores(t.playerScore, t.aiScore),
-            t.aiOpponents && t.aiOpponents.length > 1)
-        ) {
-            const e = game.getAliveEntities().map((e) => e.id);
-            modeUI ? modeUI.updateRemainingEntityDisplay(e) : updateRemainingEntityDisplay(e);
-        }
-        if (statusIndicator) {
-            const e = powerUpManager.getAllActiveEffects();
-            (statusIndicator.updateStatus(e), statusIndicator.updateTimers());
-        }
-        t.powerUpManager = powerUpManager;
-        try {
-            renderingEngine.draw(t);
-        } catch (i) {
-            if ((logger.error('Error rendering game:', i), errorRecovery)) {
-                if (
-                    !recoveryManager.handleRenderingError(i, () => {
-                        renderingEngine &&
-                            renderingEngine.renderer &&
-                            renderingEngine.scene &&
-                            renderingEngine.camera &&
-                            renderingEngine.renderer.render(
-                                renderingEngine.scene,
-                                renderingEngine.camera
-                            );
-                    })
-                )
-                    return void logger.error('Critical rendering failure, stopping game loop');
-            }
-        }
-        if (glowEffectManager && !recoveryManager.isFeatureDisabled('GlowEffectManager'))
-            try {
-                glowEffectManager.render();
-            } catch (i) {
-                (recoveryManager.handleFeatureRuntimeError('GlowEffectManager', i, () => {
-                    glowEffectManager = null;
-                }),
-                    renderingEngine &&
-                        renderingEngine.renderer &&
-                        renderingEngine.scene &&
-                        renderingEngine.camera &&
-                        renderingEngine.renderer.render(
-                            renderingEngine.scene,
-                            renderingEngine.camera
-                        ));
-            }
-    }
-    if (performanceMonitor && !recoveryManager.isFeatureDisabled('PerformanceMonitor'))
-        try {
-            performanceMonitor.update();
-        } catch (i) {
-            recoveryManager.handleFeatureRuntimeError('PerformanceMonitor', i, null);
-        }
-    if (
-        performanceDegradationManager &&
-        !recoveryManager.isFeatureDisabled('PerformanceDegradationManager')
-    )
-        try {
-            performanceDegradationManager.update();
-        } catch (i) {
-            recoveryManager.handleFeatureRuntimeError('PerformanceDegradationManager', i, null);
-        }
-    previousGameState = __spreadValues({}, e);
-}
 function updateTimeTrialDisplay() {
     const e = document.getElementById('timer-display');
     e ? (e.textContent = survivalTimer.getCurrentFormattedTime()) : createTimeTrialUI();
@@ -16347,8 +16578,8 @@ function showArenaShrinkGameOver() {
         r = document.getElementById('gameOver');
     if (r) {
         const n = game.getGameState(),
-            a = n.playerScore > n.aiScore ? 'You Win!' : 'AI Wins!';
-        r.innerHTML = `\n            <h2>${a}</h2>\n            <p>Survival Time: ${e}</p>\n            <p>Shrinks Survived: ${t}</p>\n            <p>Final Arena: ${i}x${i}</p>\n            <button id="changeModeButton" onclick="showModeSelector()" style="\n                margin-top: 20px;\n                padding: 10px 20px;\n                font-size: 1.2em;\n                background: rgba(0, 255, 255, 0.2);\n                border: 2px solid #00ffff;\n                color: white;\n                border-radius: 5px;\n                cursor: pointer;\n            ">Change Mode</button>\n        `;
+            s = n.playerScore > n.aiScore ? 'You Win!' : 'AI Wins!';
+        r.innerHTML = `\n            <h2>${s}</h2>\n            <p>Survival Time: ${e}</p>\n            <p>Shrinks Survived: ${t}</p>\n            <p>Final Arena: ${i}x${i}</p>\n            <button id="changeModeButton" onclick="showModeSelector()" style="\n                margin-top: 20px;\n                padding: 10px 20px;\n                font-size: 1.2em;\n                background: rgba(0, 255, 255, 0.2);\n                border: 2px solid #00ffff;\n                color: white;\n                border-radius: 5px;\n                cursor: pointer;\n            ">Change Mode</button>\n        `;
     }
 }
 function addArenaShrinkStyles() {
@@ -16509,15 +16740,54 @@ function initializeGame() {
                 initializationState.completeStep('modeSelectorReady'),
                 loadingIndicator.updateProgress('start', 'Starting game...'),
                 loadingIndicator.hide(),
-                animate(),
+                (gameLoop = new GameLoop({
+                    game: game,
+                    renderingEngine: renderingEngine,
+                    performanceMonitor: performanceMonitor,
+                    performanceDegradationManager: performanceDegradationManager,
+                    glowEffectManager: glowEffectManager,
+                    cameraEffectsManager: cameraEffectsManager,
+                    powerUpManager: powerUpManager,
+                    statusIndicator: statusIndicator,
+                    audioManager: audioManager,
+                    scoreDisplay: scoreDisplay,
+                    survivalTimer: survivalTimer,
+                    leaderboardSystem: leaderboardSystem,
+                    achievementSystem: achievementSystem,
+                    localScoringUI: localScoringUI,
+                    splitScreenCamera: splitScreenCamera,
+                    collisionDetectionEngine: collisionDetectionEngine,
+                    playerCollisionHandler: playerCollisionHandler,
+                    recoveryManager: recoveryManager,
+                    uiManager: uiManager,
+                    gameOverUI: gameOverUI,
+                    modeUI: modeUI,
+                    aiCoordinator: aiCoordinator,
+                    difficultyManager: difficultyManager,
+                    updatePauseOverlay: updatePauseOverlay,
+                    updateTimeTrialDisplay: updateTimeTrialDisplay,
+                    updateArenaShrinkDisplay: updateArenaShrinkDisplay,
+                    updateRemainingEntityDisplay: updateRemainingEntityDisplay,
+                    showMultiplayerGameOver: showMultiplayerGameOver,
+                    showTimeTrialGameOver: showTimeTrialGameOver,
+                    showArenaShrinkGameOver: showArenaShrinkGameOver,
+                    showMultiAIGameOver: showMultiAIGameOver,
+                    calculateMultiAIDirections: calculateMultiAIDirections,
+                    applyAIDecisions: applyAIDecisions,
+                    handleMultiAICollisions: handleMultiAICollisions,
+                    currentGameMode: currentGameMode,
+                    isTimeTrialActive: isTimeTrialActive,
+                    aiControllers: aiControllers,
+                })),
+                gameLoop.start(),
                 initializationState.complete(),
                 logger.info('Game initialization completed successfully'),
                 logger.info('Initialization state:', initializationState.getState()));
-            const a = recoveryManager.getStatus();
+            const s = recoveryManager.getStatus();
             return (
-                a.disabledFeatures.length > 0 &&
-                    logger.warn('Some features were disabled:', a.disabledFeatures),
-                a.fallbackMode && logger.warn('Running in fallback mode'),
+                s.disabledFeatures.length > 0 &&
+                    logger.warn('Some features were disabled:', s.disabledFeatures),
+                s.fallbackMode && logger.warn('Running in fallback mode'),
                 !0
             );
         } catch (e) {
@@ -16550,98 +16820,24 @@ function initializeGame() {
     });
 }
 function setupEventListeners() {
-    playerController.init();
-    const e = document.getElementById('restart');
-    e &&
-        e.addEventListener('click', () => {
-            restartGame();
-        });
-    const t = document.getElementById('up'),
-        i = document.getElementById('down'),
-        r = document.getElementById('left'),
-        n = document.getElementById('right');
-    (t &&
-        t.addEventListener('touchstart', () => {
-            game.changePlayerDirection('ArrowUp') && audioManager.playTurnSound();
-        }),
-        i &&
-            i.addEventListener('touchstart', () => {
-                game.changePlayerDirection('ArrowDown') && audioManager.playTurnSound();
-            }),
-        r &&
-            r.addEventListener('touchstart', () => {
-                game.changePlayerDirection('ArrowLeft') && audioManager.playTurnSound();
-            }),
-        n &&
-            n.addEventListener('touchstart', () => {
-                game.changePlayerDirection('ArrowRight') && audioManager.playTurnSound();
-            }));
-    const a = document.getElementById('resumeButton');
-    a &&
-        a.addEventListener('click', () => {
-            game.resume()
-                ? (updatePauseOverlay(),
-                  glowEffectManager &&
-                      glowEffectManager.initialized &&
-                      glowEffectManager.forceResume(),
-                  cameraEffectsManager &&
-                      cameraEffectsManager.isEnabled() &&
-                      cameraEffectsManager.resume())
-                : logger.debug('Resume operation failed - game may be in invalid state');
-        });
-    const s = document.getElementById('muteButton');
-    s &&
-        s.addEventListener('click', () => {
-            const e = audioManager.getMuted();
-            (audioManager.setMuted(!e), updateMuteButton());
-        });
-    const o = document.getElementById('performanceButton');
-    o &&
-        o.addEventListener('click', () => {
-            const e = performanceDegradationManager.getSettings().performanceModeEnabled;
-            (performanceDegradationManager.setPerformanceMode(!e), updatePerformanceButton());
-        });
-    document.querySelectorAll('.ai-count-btn').forEach((e) => {
-        e.addEventListener('click', () => {
-            (setAICount(parseInt(e.getAttribute('data-count'))), updateAICountUI());
-        });
-    });
-    document.querySelectorAll('.difficulty-btn').forEach((e) => {
-        e.addEventListener('click', () => {
-            const t = e.getAttribute('data-level');
-            (difficultyManager.setDifficulty(t), updateDifficultyUI());
-        });
-    });
-    let l = !1;
-    const c = () =>
-        __async(null, null, function* () {
-            if (!l) {
-                l = !0;
-                (yield audioManager.initialize()) && audioManager.isMusicAvailable()
-                    ? logger.info('Music system ready for playback')
-                    : logger.warn(
-                          'Music system not available, continuing without background music'
-                      );
-            }
-        });
-    (document.addEventListener('click', c, { once: !0 }),
-        document.addEventListener('keydown', c, { once: !0 }),
-        document.addEventListener('touchstart', c, { once: !0 }),
-        window.addEventListener('resize', () => {
-            renderingEngine &&
-                (renderingEngine.renderer.setSize(window.innerWidth, window.innerHeight),
-                (renderingEngine.camera.aspect = window.innerWidth / window.innerHeight),
-                renderingEngine.camera.updateProjectionMatrix(),
-                glowEffectManager &&
-                    glowEffectManager.handleResize(window.innerWidth, window.innerHeight));
-        }),
-        window.addEventListener('beforeunload', () => {
-            try {
-                audioManager && audioManager.cleanup();
-            } catch (e) {
-                logger.warn('Error during music system cleanup:', e);
-            }
-        }));
+    ((eventManager = new EventManager({
+        game: game,
+        playerController: playerController,
+        audioManager: audioManager,
+        renderingEngine: renderingEngine,
+        glowEffectManager: glowEffectManager,
+        cameraEffectsManager: cameraEffectsManager,
+        difficultyManager: difficultyManager,
+        performanceDegradationManager: performanceDegradationManager,
+        restartGame: restartGame,
+        updatePauseOverlay: updatePauseOverlay,
+        updateMuteButton: updateMuteButton,
+        updatePerformanceButton: updatePerformanceButton,
+        setAICount: setAICount,
+        updateAICountUI: updateAICountUI,
+        updateDifficultyUI: updateDifficultyUI,
+    })),
+        eventManager.registerAll());
 }
 function showInitializationError(e) {
     const t = document.createElement('div');
@@ -16656,7 +16852,19 @@ function startGameWhenReady() {
         logger.error('Fatal initialization error:', e);
     });
 }
-'loading' === document.readyState
-    ? document.addEventListener('DOMContentLoaded', startGameWhenReady)
-    : startGameWhenReady();
-//# sourceMappingURL=index-B7Igu6Nt.js.map
+((window.scoreDisplayInstance = scoreDisplay),
+    (window.audioManager = audioManager),
+    (window.difficultyManager = difficultyManager),
+    (window.powerUpManager = powerUpManager),
+    (window.statusIndicator = statusIndicator),
+    (window.modeSelector = modeSelector),
+    (window.survivalTimer = survivalTimer),
+    (window.leaderboardSystem = leaderboardSystem),
+    (window.achievementSystem = achievementSystem),
+    (window.showModeSelector = showModeSelector),
+    (window.performanceMonitor = performanceMonitor),
+    (window.performanceDegradationManager = performanceDegradationManager),
+    'loading' === document.readyState
+        ? document.addEventListener('DOMContentLoaded', startGameWhenReady)
+        : startGameWhenReady());
+//# sourceMappingURL=index-Bmg4SEj1.js.map
