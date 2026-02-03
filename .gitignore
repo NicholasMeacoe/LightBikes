@@ -8,3 +8,7 @@ logs/
 .gemini/
 .amazonq/
 script.js.legacy
+
+# Logs
+*.log
+*_output.txt
